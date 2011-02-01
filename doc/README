@@ -1,0 +1,91 @@
+RNA-seq Analysis
+================
+Sang Chul Choi <schoi@cornell.edu>
+v1.0, January 2010:
+Written for version 1 release.
+v2.0, February 2010:
+Rewritten for version 2 release.
+
+Questions to be answered
+------------------------
+. What is the operon map of S. mutans?
+. What differential expression is manifested between wild type and mutants such
+as ccpA and manL mutants?
+. What are ncRNAs and antisense RNAs in S. mutans?
+. What are riboswitches in S. mutans?
+
+RNA-seq
+-------
+. Operon mapping: is strand-specific RNA-seq enough? Should I use differential
+RNA-seq? If I use differential RNA-seq, then can I compare expression level
+between a wild type and a mutant (or quantitative gene expression studies)?
+
+Tools
+-----
+. _segemehl_ program (Hoffmann et al., 2009) was available at
+http://www.bioinf.uni-leipzig.de/Software/segemehl/  
+
+
+References
+----------
+. Curr Opin Microbiol. 2010 Oct;13(5):619-24. Epub 2010 Sep 29.
+Studying bacterial transcriptomes using RNA-seq.
+Croucher NJ, Thomson NR.
+.. ``care should be taken to ensure the method does not bias the sampling of the
+transcriptome [5] and is capable of harvesting sufficient starting material
+needed to construct a sequen- cing library, as more RNA is typically needed than
+for microarray experiments.''
+.. ``the use of terminator exonucleases that specifically degrade transcripts
+with a 50 monophosphate group''
+.. ``obtaining longer reads results in a relatively small increase in the amount
+of the genome that can be studied, hence read depth will be the more important
+consideration in almost all cases''
+.. ``In the original RNA-seq protocols, following extensive DNase treatment, RNA
+was typically converted into cDNA through random hexamer-primed reverse tran-
+scription followed by second DNA strand synthesis''
+.. ``The import- ance of this information in characterizing ncRNA and observing
+antisense transcription is becoming increas- ingly evident.''
+.. ``Illumina, 454 and SOLiD sequencing platforms have been used in bacterial
+RNA-seq studies [27–29]. Each offers a different compromise between the length
+of reads, which determines what proportion of the genome data can be uniquely
+mapped to, and depth of coverage, which determines the dynamic range over which
+gene expression can be quantified.''
+.. ``After sequencing, reads can be assembled using software either based on
+overlap graphs, such as EDENA [30], or de Bruijn graphs, for instance ABySS
+[31], ALLPATHS [32] or Velvet [33], which features a strand-specific assembly
+mode.''
+.. ``a number of programs have been developed specifically for mapping short
+read data [36–39], which often have the advantages of considering base quality
+and read pair information when performing alignments.''
+.. ``The results of mapping analyses have commonly been visualized as a graph of
+sequence read coverage across a genome, displayed using software such as the
+Integrated Genome Browser [40] or Artemis [41].''
+.. ``With the introduction of specialist tools such as BamView [42], raw
+sequence data can be visualized as well as coverage graphs, allowing a more
+intuitive understanding of the transcriptional landscape (Figure 2).''
+.. ``statistical methods have been developed to overcome this by modeling the
+expected distributions of sequence reads mapping to a locus in different
+samples. DEGseq [43] uses a Poisson distribution to model the variation between
+datasets [44], whereas the approaches of edgeR [45] and DEseq [46] are based on
+the negative binomial distribution, which is suggested to be more appropriate
+for modeling the variation inherent between biological replicates [47].''
+.. ``in both M. pneumoniae and H. pylori, annotation of transcriptional units
+was complicated by an unexpectedly high level of flexibility in the structure
+of operons [12,16]''
+.. ``The use of protocols that sequence RNA in a strand- specific manner, and
+identify transcriptional start sites, will prove especially useful in the
+identification of ncRNA and defining the operons to which genes belong. Hence
+there is the potential for this technique to greatly refine our understanding of
+bacterial gene regulation.''
+.. ``The advent of second generation sequencing technologies has 
+improved functional genomics experiments, including
+quantitative gene expression studies.''
+. Nature 464, 250-255 (11 March 2010) | doi:10.1038/nature08756; Received 6
+August 2009; Accepted 14 December 2009; Published online 17 February 2010
+``The primary transcriptome of the major human pathogen Helicobacter pylori''
+Cynthia M. Sharma1, Steve Hoffmann2, Fabien Darfeuille3,4, Jérémy Reignier3,4,
+Sven Findeiß2, Alexandra Sittka1, Sandrine Chabas3,4, Kristin Reiche5, Jörg
+Hackermüller5, Richard Reinhardt6, Peter F. Stadler2,5,7,8,9 & Jörg Vogel1,10
+. Hoffmann S, Otto C, Kurtz S, Sharma CM, Khaitovich P, et al. 2009 Fast Mapping
+of Short Sequences with Mismatches, Insertions and Deletions Using Index
+Structures. PLoS Comput Biol 5(9): e1000502. doi:10.1371/journal.pcbi.1000502

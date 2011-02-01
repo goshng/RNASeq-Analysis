@@ -1,4 +1,32 @@
 RNA-Seq Protocols and Analyses
 ==============================
 
+Directories
+-----------
+. doc
+. data
+. pl
+
+Goal
+----
+I want to know how to analyze RNA-Seq data of prokaryotes.
+
+Sequencing Platforms
+--------------------
+Illumina platform
+
+Test Study
+----------
+[Sharma et al. 2010] is used as a case study.
+The raw data set is stored in NCBI with accession SRP001481.
+
+[literal]
+ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP001/SRP001481
+
+Genome
+^^^^^^
+_H. pylori_ 26695 genome is used as a reference genome.
+[literal]
+/Volumes/Elements/Documents/Projects/mauve/bacteria/Helicobacter_pylori_26695_uid57787/NC_000915.gbk
+
 
