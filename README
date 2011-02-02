@@ -4,8 +4,11 @@ RNA-Seq Protocols and Analyses
 Directories
 -----------
 . doc
-. data
 . pl
+. src
+. data
+. resources
+.. segemehl source code
 
 Goal
 ----
@@ -29,4 +32,20 @@ _H. pylori_ 26695 genome is used as a reference genome.
 [literal]
 /Volumes/Elements/Documents/Projects/mauve/bacteria/Helicobacter_pylori_26695_uid57787/NC_000915.gbk
 
+FASTQ format
+^^^^^^^^^^^^
+The raw data sets from SRA could not be the original data files from sequencers.
+fastx\_toolkit may be useful in preprocessing fastq format files.
 
+A quality control tool. This is a useful tool to see the content of a FASTQ
+file.
+[literal]
+http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/
+
+``PRINSEQ'' seems to be also useful.
+[literal]
+http://prinseq.sourceforge.net/manual.html
+
+
+
+Compile fastq-dump in CAC cluster.
