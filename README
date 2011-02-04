@@ -48,4 +48,68 @@ http://prinseq.sourceforge.net/manual.html
 
 
 
-Compile fastq-dump in CAC cluster.
+Viewers
+^^^^^^^
+Find some useful viewers at
+[literal]
+http://seqanswers.com/forums/showthread.php?t=3904
+http://seqanswers.com/forums/showthread.php?t=3779
+
+
+From Steve Hoffmann
+^^^^^^^^^^^^^^^^^^^
+Dear Sang Chul,
+
+thank you very much for your Mail. The word "computed" sounds a bit like rocket
+science, but it is absolutely not! We have used a simple perl script to generate
+the files for the IGB Browser. The IGB format essentially boils down to a simple
+XYZ file, where X is the position, Y is the expression on the forward and Z is
+the expression on the reverse strand. Please check the IGB file formats to find
+the one that is most suitable for you. For the output 
+
+SRR031223.15 12  104 0.0000  20  123 116 9 2 1 + 96928 97053 >NC_000915.1
+S1;M1;S2;M2;S2;M2;S1;M1;S1;M1;S1;M2;I1;M1;S1;M104;D2;M     2;
+
+
+the columns "+ 96928 97053 >NC_000915.1" contain all the coordinates you need to
+generate an XYZ file. You can extract them by  grep-ing the tab separated
+columns 11, 12, 13, and 14. In the example above "+" is the strand, "96928" is
+the start and "97053" is the end of the match. "NC_000915.1" is the chromosome
+or reference sequence. 
+
+In practice the segemehl file should be sorted according to the position in a
+first step. In a second step a simple linear scan you can now add up the matches
+for all positions in the chromosome/reference sequence for the plus and minus
+strand separately. 
+
+Additionally i recommend a normalization on the number of hits. If for example
+the read SRR031223.15 has 4 alternative hits in the genome i'd recommend to add
+a quarter match to each position but a full match. If you want to compare
+library id also recommend to do a normalization based on the library size.
+
+Hope that i was able to help you a little!
+
+Cheers!
+Steve
+
+How to compute graphs!
+~~~~~~~~~~~~~~~~~~~~~~
+Find numbers of hits for each read. Prepare two arrays of size being equal to
+the number of nucleotides of a reference genome. Reset all the elements of the
+arrays to zero. One of arrays is for the leading strand and another for the
+lagging strand. For each map of a read, locate the range of the map to increase
+the position of the array depending on strand by 1/hits where hits is the number
+of multiple hits of the read. Repeat this procedure for all the mapped reads.
+The two arrays are the result of the graph computation algorithm.
+
+IGB seems useful.
+-----------------
+I did not find IGV useful as its website claims.  IGB seems more useful than
+IGB.  I want to know to draw genes and ORF and some other genome annotations in
+IGB.  The genbank file can be used to list genes.  A list of genes may be
+drawn in parallel with short read maps.
+
+Genbank H. pylori genome contains gff file as well as gbk file. The gff file can
+be used as an annotation file for IGB.  But, gene names do not appear in boxes
+of annotation tracks. It would be good to control display of annotation boxes
+somehow.
