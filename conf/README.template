@@ -1,0 +1,27 @@
+# Main Configuration File
+# =======================
+#
+# PROJECTNAME:projectName
+#
+# Cluster ID setup
+# ----------------
+# CAC_USERNAME:clusterUsername
+# CAC_LOGIN:clusterURL
+# CAC_ROOT:clusterBase
+#
+# X11 linux ID setup
+# ------------------
+# X11_USERNAME:x11Username
+# X11_LOGIN:x11URL
+# X11_ROOT:x11Base
+#
+# Cluster access to job submission
+# --------------------------------
+# BATCHEMAIL:email
+# BATCHACCESS:access
+# QUEUENAME:queue
+#
+# Global setup
+# ------------
+
+
