@@ -257,6 +257,20 @@ my (@elements);
 # Count multiple hits of a short read.
 my $files1_separated_by_a_space = join " ", @files1;
 open(FILE,"cat $files1_separated_by_a_space | grep \"^>\" | cut -f1 | sort | uniq -c |") or die "ERROR: Could not open one of files $files1_separated_by_a_space: $! \n";
+
+=cut
+my $files1_separated_by_a_space_cut = $files1_separated_by_a_space.".cut";
+my $files1_separated_by_a_space_sort = $files1_separated_by_a_space.".sort";
+my $files1_separated_by_a_space_uniq = $files1_separated_by_a_space.".uniq";
+system ("grep \"^>\" $files1_separated_by_a_space | cut -f1 > $files1_separated_by_a_space_cut");
+system ("sort $files1_separated_by_a_space_cut > $files1_separated_by_a_space_sort");
+system ("uniq -c $files1_separated_by_a_space_sort > $files1_separated_by_a_space_uniq");
+system ("rm $files1_separated_by_a_space_cut");
+system ("rm $files1_separated_by_a_space_sort");
+system ("rm $files1_separated_by_a_space_uniq");
+open(FILE,"$files1_separated_by_a_space_uniq") or die "ERROR: Could not open one of files $files1_separated_by_a_space: $! \n";
+=cut
+
 while (<FILE>) {
    chomp();
 # 0 1                2

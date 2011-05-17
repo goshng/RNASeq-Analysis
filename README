@@ -27,13 +27,13 @@ The raw data set is stored in NCBI with accession SRP001481.
 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP001/SRP001481
 
 Genome
-^^^^^^
+~~~~~~
 _H. pylori_ 26695 genome is used as a reference genome.
 [literal]
 /Volumes/Elements/Documents/Projects/mauve/bacteria/Helicobacter_pylori_26695_uid57787/NC_000915.gbk
 
 FASTQ format
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 The raw data sets from SRA could not be the original data files from sequencers.
 fastx\_toolkit may be useful in preprocessing fastq format files.
 
@@ -49,7 +49,7 @@ http://prinseq.sourceforge.net/manual.html
 
 
 Viewers
-^^^^^^^
+~~~~~~~
 Find some useful viewers at
 [literal]
 http://seqanswers.com/forums/showthread.php?t=3904
@@ -57,7 +57,7 @@ http://seqanswers.com/forums/showthread.php?t=3779
 
 
 From Steve Hoffmann
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 Dear Sang Chul,
 
 thank you very much for your Mail. The word "computed" sounds a bit like rocket
@@ -113,3 +113,30 @@ Genbank H. pylori genome contains gff file as well as gbk file. The gff file can
 be used as an annotation file for IGB.  But, gene names do not appear in boxes
 of annotation tracks. It would be good to control display of annotation boxes
 somehow.
+
+- For labeling annotations in IGB:
+[literal]
+http://wiki.transvar.org/confluence/display/igbman/Labeling+annotations
+ 
+
+FASTQC and PRINSEQ are useful tools of quality control and preprocessing.
+
+TagCleaner
+----------
+1. Turn on the web server of a MAC machine.
+2. Copy tagcleaner-web-0.7 direcotry to /Library/WebServer/CGI-Executables.
+3. Copy img directory of tagcleaner-web-0.7/img to
+/Library/WebServer/Documents.
+4. Edit tagcleaner-web-0.7/TCConfig.pm so that img points to the Documents/img.
+5. Try to connect the following website:
+[literal]
+http://sc2265-102d.cb.bscb.cornell.edu/cgi-bin/tagcleaner-web-0.7/tc.cgi
+
+BWA
+---
+
+http://bio-bwa.sourceforge.net/
+
+To Dos
+------
+map2graph does not work with a very large map file.
