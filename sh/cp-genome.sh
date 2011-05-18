@@ -1,7 +1,7 @@
 # Author: Sang Chul Choi
-# Date  : Tue May 17 17:48:48 EDT 2011
+# Date  : Tue May 17 22:47:18 EDT 2011
 
-function bwa-index-genome {
+function cp-genome {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -13,8 +13,8 @@ function bwa-index-genome {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA index -a is $DATADIR/$GENOMEFASTA
+      echo cp -p $REFGENOMEFASTA $DATADIR
+      echo "$REFGENOMEFASTA is copied"
 
       break
     fi

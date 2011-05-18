@@ -22,6 +22,7 @@ function global-variable {
   BASERUNANALYSIS=$BASEDIR/run-analysis
   NUMBERDIR=$BASEDIR/$REPETITION
   DATADIR=$NUMBERDIR/data
+  BWADIR=$NUMBERDIR/bwa
   RUNANALYSIS=$NUMBERDIR/run-analysis
 
   # The cluster has almost the same file system. I used to used Samba client to

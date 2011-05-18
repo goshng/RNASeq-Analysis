@@ -1,0 +1,44 @@
+RNASEQ Analysis
+===============
+Sang Chul Choi <goshng@yahoo.co.kr>
+v1.0, May 2011
+
+Quick Start
+-----------
+
+.Start of a project
+. Create a conf/README file using conf/README.template
+. Execute menu *init-file-system*
+
+.Index a genome file
+. Create a species file
+. Execute menu *choose-species*
+. Execute menu *cp-genome* 
+. Execute menu *bwa-index-genome*
+
+Species File
+------------
+
+A genome of bacterial species.
+
+Installation
+------------
+
+BWA
+~~~
+Dowanload BWA source code at http://bio-bwa.sourceforge.net. You could compile
+the source in this repository.
+----
+$ cd src/bwa-0.5.9
+$ make
+----
+
+SAMTools
+~~~~~~~~
+Download SAMtools at http://samtools.sourceforge.net. You could compile the
+source in this repository of rnaseq-analysis.
+----
+$ cd src/samtools-0.1.16
+$ make
+----
+
