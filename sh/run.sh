@@ -17,8 +17,13 @@ source sh/bwa-samse.sh
 source sh/bwa-samtools-view.sh
 source sh/bwa-samtools-sort.sh
 source sh/bwa-samtools-bed.sh
+source sh/bwa-R-saveimage.sh
+source sh/bwa-danko-writewiggle.sh
+source sh/bwa-danko-countreadsininterval.sh
+source sh/bwa-danko-metagene.sh
+source sh/bwa-danko-detecttranscriptsem.sh
 source sh/segemehl-index-genome.sh
-
+source sh/feature-genome.sh
 
 #####################################################################
 # Read configuration file
@@ -28,7 +33,7 @@ conf
 #####################################################################
 # Read directories
 #####################################################################
-SPECIESS=$(ls species|grep -v ^s)
+SPECIESS=$(ls species|grep -v ^sim)
 
 #####################################################################
 # Menus
@@ -43,7 +48,13 @@ CHOICES=( init-file-system \
           bwa-samtools-view \
           bwa-samtools-sort \
           bwa-samtools-bed \
-          segemehl-index-genome 
+          bwa-R-saveimage \
+          bwa-danko-writewiggle \
+          bwa-danko-countreadsininterval \
+          bwa-danko-metagene \
+          bwa-danko-detecttranscriptsem \
+          segemehl-index-genome \
+          feature-genome
           )
 select CHOICE in ${CHOICES[@]}; do 
   if [ "$CHOICE" == "" ];  then
@@ -59,6 +70,12 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-samtools-view" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-sort" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-bed" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "feature-genome" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-danko-countreadsininterval" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-R-saveimage" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-danko-writewiggle" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-danko-metagene" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-danko-detecttranscriptsem" ]; then $CHOICE; break
   elif [ "$CHOICE" == "xxx" ]; then $CHOICE; break
   else
     echo -e "You need to enter something\n"

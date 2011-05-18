@@ -13,7 +13,7 @@ function cp-genome {
       global-variable $SPECIES $REPETITION
       read-species
 
-      echo cp -p $REFGENOMEFASTA $DATADIR
+      cp -p $REFGENOMEFASTA $DATADIR
       echo "$REFGENOMEFASTA is copied"
 
       break
