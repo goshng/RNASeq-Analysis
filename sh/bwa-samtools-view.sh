@@ -1,7 +1,7 @@
 # Author: Sang Chul Choi
-# Date  : Tue May 17 17:48:48 EDT 2011
+# Date  : 
 
-function bwa-index-genome {
+function bwa-samtools-view {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -14,7 +14,14 @@ function bwa-index-genome {
       read-species
 
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA index -p $DATADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
+      # bwa samse [-n maxOcc] <in.db.fasta> <in.sai> <in.fq> > <out.sam>
+      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
+      in_sai=$DATADIR/SRR031130.sai
+      in_fq=$DATADIR/SRR031130.fastq 
+      out_sam=$DATADIR/SRR031130.sam
+      out_bam=$DATADIR/SRR031130.bam
+      $SAMTOOLS view -b -S $out_sam > $out_bam
+      echo "Check $DATADIR/SRR031130.bam"
 
       break
     fi

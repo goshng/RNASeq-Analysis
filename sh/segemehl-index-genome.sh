@@ -1,7 +1,7 @@
 # Author: Sang Chul Choi
-# Date  : Tue May 17 17:48:48 EDT 2011
+# Date  : 
 
-function bwa-index-genome {
+function segemehl-index-genome {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -14,7 +14,7 @@ function bwa-index-genome {
       read-species
 
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA index -p $DATADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
+      $SEGEMEHL -x $DATADIR/$GENOMEFASTA-segemehl.idx -d $DATADIR/$GENOMEFASTA
 
       break
     fi

@@ -16,6 +16,9 @@ Quick Start
 . Execute menu *cp-genome* 
 . Execute menu *bwa-index-genome*
 
+.Align short reads to a reference genome
+
+
 Species File
 ------------
 
@@ -41,4 +44,26 @@ source in this repository of rnaseq-analysis.
 $ cd src/samtools-0.1.16
 $ make
 ----
+
+segemehl
+~~~~~~~~
+Download segemehl at http://www.bioinf.uni-leipzig.de/Software/segemehl. You
+could compile the source in this repository of rnaseq-analysis.
+http://www.bioinf.uni-leipzig.de/Software/segemehl/
+----
+$ cd src/segemehl_0_0_9_4
+$ make
+----
+
+
+FASTAX-Toolkit
+~~~~~~~~~~~~~~
+Download FASTAX-Toolkit at
+http://hannonlab.cshl.edu/fastx_toolkit/fastx_toolkit-0.0.13.tar.bz2
+and 
+http://hannonlab.cshl.edu/fastx_toolkit/libgtextutils-0.6.tar.bz2.
+
+Menus
+-----
+
 

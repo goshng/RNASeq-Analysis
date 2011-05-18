@@ -12,7 +12,9 @@ function conf {
   QUEUENAME=$(grep QUEUENAME $CONFFILE | cut -d":" -f2)
 
   BWA=$(grep BWA $CONFFILE | cut -d":" -f2)
-  SAMTOOL=$(grep SAMTOOL $CONFFILE | cut -d":" -f2)
+  SAMTOOLS=$(grep SAMTOOLS $CONFFILE | cut -d":" -f2)
+  SEGEMEHL=$(grep SEGEMEHL $CONFFILE | cut -d":" -f2)
+  NUMBERCPU=$(grep NUMBERCPU $CONFFILE | cut -d":" -f2)
 
   # Other global variables
   CAC_USERHOST=$CAC_USERNAME@$CAC_LOGIN
