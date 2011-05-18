@@ -21,22 +21,21 @@ function bwa-danko-detecttranscriptsem {
       out_bam=$DATADIR/SRR031130.bam
       out_bam_sorted=$DATADIR/SRR031130.sorted
       out_bed=$DATADIR/SRR031130.bed
-      out_bed_r=$DATADIR/SRR031130.R
+      out_bed_r=$DATADIR/SRR031130-$FUNCNAME.R
       out_bed_rdata=$DATADIR/SRR031130.RData
       out_bed_danko=$DATADIR/SRR031130.danko
-      r=$DATADIR/SRR031130.R
       f=$DATADIR/feature-genome.out-genestart
+      o=$DATADIR/$FUNCNAME.bed
 
 cat>$out_bed_r<<EOF
 require(GROseq)
-
 load("$out_bed_rdata")
 x <- DetectTranscriptsEM (p=data[,c(1:3,6)])
-
+write.table(x\$Transcripts, "$o", row.names=F, col.names=F, sep="\t", quote=F)
 EOF
        
       Rscript $out_bed_r
-      echo "Check $out_bed_danko"
+      echo "Check $o"
 
       break
     fi

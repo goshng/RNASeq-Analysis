@@ -21,22 +21,29 @@ function bwa-danko-metagene {
       out_bam=$DATADIR/SRR031130.bam
       out_bam_sorted=$DATADIR/SRR031130.sorted
       out_bed=$DATADIR/SRR031130.bed
-      out_bed_r=$DATADIR/SRR031130.R
+      out_bed_r=$DATADIR/SRR031130-$FUNCNAME.R
       out_bed_rdata=$DATADIR/SRR031130.RData
       out_bed_danko=$DATADIR/SRR031130.danko
-      r=$DATADIR/SRR031130.R
       f=$DATADIR/feature-genome.out-genestart
+      o=$DATADIR/$FUNCNAME.out
+      ops=$DATADIR/$FUNCNAME.out.ps
 
 cat>$out_bed_r<<EOF
 require(GROseq)
-
 load("$out_bed_rdata")
-x <- MetaGene (p=data[,c(1:3,6)], f="$f", size=3, up=2)
-
+y <- read.table("$f")
+x <- MetaGene (p=data[,c(1:3,6)], f=y, size=3, up=5000)
+write.table(x, "$o")
+# plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-1000,1000))
+x <- read.table("$o")
+postscript ("$ops",  width=10, height=10, horizontal = FALSE, onefile = FALSE, paper = "special")
+plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-100,100))
+dev.off()
 EOF
        
       Rscript $out_bed_r
-      echo "Check $out_bed_danko"
+      echo "Check $out_bed_r and $o"
+      echo "open $ops"
 
       break
     fi

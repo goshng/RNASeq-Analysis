@@ -21,9 +21,31 @@ function bwa-danko-countreadsininterval {
       out_bam=$DATADIR/SRR031130.bam
       out_bam_sorted=$DATADIR/SRR031130.sorted
       out_bed=$DATADIR/SRR031130.bed
+      out_bed_r=$DATADIR/SRR031130-$FUNCNAME.R
+      out_bed_rdata=$DATADIR/SRR031130.RData
       out_bed_danko=$DATADIR/SRR031130.danko
+      f=$DATADIR/feature-genome.out-gene
       cut -f1,2,3,6 $out_bed > $out_bed_danko
-      echo "Check $out_bed_danko"
+
+      o=$DATADIR/$FUNCNAME.out
+      ops=$DATADIR/$FUNCNAME.out.ps
+
+cat>$out_bed_r<<EOF
+require(GROseq)
+load("$out_bed_rdata")
+y <- read.table("$f")
+x <- CountReadsInInterval (p=data[,c(1:3,6)], f=y)
+write.table(x, "$o")
+x <- read.table("$o")
+postscript ("$ops",  width=10, height=10, horizontal = FALSE, onefile = FALSE, paper = "special")
+hist(x\$x, xlab="Number of reads")
+# plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-100,100))
+dev.off()
+EOF
+       
+      Rscript $out_bed_r
+      echo "Check $out_bed_r and $o"
+      echo "open $ops"
 
       break
     fi
