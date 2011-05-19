@@ -31,29 +31,62 @@ The raw data set is stored in NCBI with accession SRP001481.
 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP001/SRP001481
 
 Genome
-^^^^^^
+~~~~~~
 _H. pylori_ 26695 genome is used as a reference genome.
 [literal]
 /Volumes/Elements/Documents/Projects/mauve/bacteria/Helicobacter_pylori_26695_uid57787/NC_000915.gbk
 
 FASTQ format
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 The raw data sets from SRA could not be the original data files from sequencers.
 fastx\_toolkit may be useful in preprocessing fastq format files.
 
 A quality control tool. This is a useful tool to see the content of a FASTQ
-file.
-[literal]
+file. See the website
 http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/
+for further detail.
+This can be downloaded at
+http://www.bioinformatics.bbsrc.ac.uk/projects/download.html#fastqc.
+A video tutorial of fastqc was found at
+http://www.youtube.com/watch?v=bz93ReOv87Y.
+Its documentation can be found at
+http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/Help/.
+
+SeqMonk
+~~~~~~~
+This is a way to create a custom genome using *seqmonk*,
+http://www.bioinformatics.bbsrc.ac.uk/projects/seqmonk/CREATING_CUSTOM_GENOMES.txt
+
+You can click EMBL at Gene sets
+http://www.ebi.ac.uk/integr8/FtpSearch.do?orgProteomeId=23&geneId=6901605
+
+An example
+^^^^^^^^^^
+
+I do not know which file I should use.
+
+http://www.ebi.ac.uk/integr8/FtpSearch.do?orgProteomeId=23&currentclicked=DOWNLOADS
+
+How to download EMBL genome for seqmonk
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. Go to http://www.ebi.ac.uk/
+. Search EBI for species name and its unique number (e.g., Helicobacter pylori
+26695)
+. Find _complete genome_ in the search result and click a link next to it.
+. Click _TEXT_ next to _Download_ in the website.
+. Replace product with description, and locus_tag with name.
+
+
+Genome Reviews
+
 
 ``PRINSEQ'' seems to be also useful.
 [literal]
 http://prinseq.sourceforge.net/manual.html
 
-
-
 Viewers
-^^^^^^^
+~~~~~~~
 Find some useful viewers at
 [literal]
 http://seqanswers.com/forums/showthread.php?t=3904

@@ -24,6 +24,8 @@ source sh/bwa-danko-metagene.sh
 source sh/bwa-danko-detecttranscriptsem.sh
 source sh/segemehl-index-genome.sh
 source sh/feature-genome.sh
+source sh/fastxtoolkit-fastq_to_fasta.sh
+source sh/fastxtoolkit-fastx_quality_stats.sh
 
 #####################################################################
 # Read configuration file
@@ -54,7 +56,10 @@ CHOICES=( init-file-system \
           bwa-danko-metagene \
           bwa-danko-detecttranscriptsem \
           segemehl-index-genome \
-          feature-genome
+          feature-genome \
+          --- READ-QUALITY-CHECK --- \
+          fastxtoolkit-fastq_to_fasta \
+          fastxtoolkit-fastx_quality_stats
           )
 select CHOICE in ${CHOICES[@]}; do 
   if [ "$CHOICE" == "" ];  then
@@ -76,6 +81,8 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-danko-writewiggle" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-danko-metagene" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-danko-detecttranscriptsem" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "fastxtoolkit-fastq_to_fasta" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "fastxtoolkit-fastx_quality_stats" ]; then $CHOICE; break
   elif [ "$CHOICE" == "xxx" ]; then $CHOICE; break
   else
     echo -e "You need to enter something\n"

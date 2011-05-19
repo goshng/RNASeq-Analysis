@@ -1,7 +1,7 @@
 # Author: Sang Chul Choi
 # Date  : 
 
-function bwa-align {
+function fastxtoolkit-fastx_quality_stats {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -13,12 +13,12 @@ function bwa-align {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA aln -I -t $NUMBERCPU $DATADIR/$GENOMEFASTA-bwa $DATADIR/SRR031130.fastq > $DATADIR/SRR031130.sai
-      echo "Check $DATADIR/SRR031130.sai"
+      in=$DATADIR/SRR03113S.fastq 
+      out=$DATADIR/SRR03113S.quality
+      fastx_quality_stats -i $in -o $out
+      echo "Check $out"
 
       break
     fi
   done
-
 }
