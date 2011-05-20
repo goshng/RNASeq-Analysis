@@ -12,7 +12,8 @@ function feature-genome {
       read REPETITION
       global-variable $SPECIES $REPETITION
       read-species
-      CHROMOSOME="gi|15644634|ref|NC_000915.1|"
+      # CHROMOSOME="gi|15644634|ref|NC_000915.1|"
+      CHROMOSOME="gi|24378532|ref|NC_004350.1|"
 
       FEATURES=(gene genestart)
       PS3="What features do you wish to extract? "

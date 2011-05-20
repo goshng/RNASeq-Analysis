@@ -34,12 +34,11 @@ cat>$out_bed_r<<EOF
 require(GROseq)
 load("$out_bed_rdata")
 y <- read.table("$f")
-x <- CountReadsInInterval (p=data[,c(1:3,6)], f=y)
+x <- CountReadsInInterval (p=data[,c(1:2)], f=y)
 write.table(x, "$o")
 x <- read.table("$o")
 postscript ("$ops",  width=10, height=10, horizontal = FALSE, onefile = FALSE, paper = "special")
-hist(x\$x, xlab="Number of reads")
-# plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-100,100))
+hist(x\$x, xlab="Number of reads", breaks=seq(0,40000,100), main="Reads mapped on annotated genes")
 dev.off()
 EOF
        

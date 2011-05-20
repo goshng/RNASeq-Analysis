@@ -25,13 +25,15 @@ function bwa-danko-writewiggle {
       out_bed_rdata=$DATADIR/SRR031130.RData
       out_wig_plus=$DATADIR/SRR031130.plus
       out_wig_mnus=$DATADIR/SRR031130.mnus
+      out_wig_comb=$DATADIR/SRR031130.comb
 
 cat>$out_bed_r<<EOF
 require(GROseq)
 
 load("$out_bed_rdata")
 WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_plus", size=5, reverse=FALSE, str="+", debug=FALSE, track.type.line=TRUE)
-WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_mnus", size=5, reverse=FALSE, str="-", debug=FALSE)
+WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_mnus", size=5, reverse=FALSE, str="-", debug=FALSE, track.type.line=TRUE)
+WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_comb", size=5, reverse=FALSE, debug=FALSE, track.type.line=TRUE)
 EOF
        
       Rscript $out_bed_r

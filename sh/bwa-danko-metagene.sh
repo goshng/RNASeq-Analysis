@@ -37,7 +37,7 @@ write.table(x, "$o")
 # plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-1000,1000))
 x <- read.table("$o")
 postscript ("$ops",  width=10, height=10, horizontal = FALSE, onefile = FALSE, paper = "special")
-plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-100,100))
+plot(as.integer(row.names(x))-5000,x\$x, xlim=c(-1000,1000),cex=0.5,pch=21)
 dev.off()
 EOF
        
