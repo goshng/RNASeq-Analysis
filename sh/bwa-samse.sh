@@ -13,18 +13,19 @@ function bwa-samse {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
       # bwa samse [-n maxOcc] <in.db.fasta> <in.sai> <in.fq> > <out.sam>
-      in.db.fasta=$DATADIR/$GENOMEFASTA-bwa
-      in.sai=$DATADIR/SRR031130.sai
-      in.fq=$DATADIR/SRR031130.fastq 
-      out.sam=$DATADIR/SRR031130.sam
-      $BWA samse -n 1 \
-        -f $DATADIR/SRR031130.sam \
-        $DATADIR/$GENOMEFASTA-bwa \
-        $DATADIR/SRR031130.sai \
-        $DATADIR/SRR031130.fastq 
-      echo "Check $DATADIR/SRR031130.sam"
+      GENOMEFASTA=$(basename $REFGENOMEFASTA)
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+        $BWA samse -n 1 \
+          -f $DATADIR/$FASTQNUM.sam \
+          $DATADIR/$GENOMEFASTA-bwa \
+          $DATADIR/$FASTQNUM.sai \
+          $GZIPFASTAQFILE
+        echo "Check $DATADIR/$FASTQNUM.sam"
+      done
 
       break
     fi

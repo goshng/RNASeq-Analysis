@@ -17,7 +17,16 @@ Quick Start
 . Execute menu *bwa-index-genome*
 
 .Align short reads to a reference genome
+. Execute menu *bwa-index-genome*
+. Execute menu *bwa-align*
+. Execute menu *bwa-samse*
+. Execute menu *bwa-samtools-view*
+. Execute menu *bwa-samtools-sort*
+. Execute menu *bwa-samtools-bed*
 
+.Create genome tracks for the mapped reads
+
+.Compare two gene expression
 
 Species File
 ------------

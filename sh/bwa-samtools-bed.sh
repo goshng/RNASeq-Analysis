@@ -13,16 +13,13 @@ function bwa-samtools-bed {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
-      in_sai=$DATADIR/SRR031130.sai
-      in_fq=$DATADIR/SRR031130.fastq 
-      out_sam=$DATADIR/SRR031130.sam
-      out_bam=$DATADIR/SRR031130.bam
-      out_bam_sorted=$DATADIR/SRR031130.sorted
-      out_bed=$DATADIR/SRR031130.bed
-      $SAMTOOLS view $out_bam_sorted.bam | perl pl/sam2bed.pl > $out_bed
-      echo "Check $out_bed"
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        $SAMTOOLS view $DATADIR/$FASTQNUM.sorted.bam \
+          | perl pl/sam2bed.pl > $DATADIR/$FASTQNUM.bed
+        echo "Check $DATADIR/$FASTQNUM.bed"
+      done
 
       break
     fi

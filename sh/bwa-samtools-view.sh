@@ -13,15 +13,14 @@ function bwa-samtools-view {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
       # bwa samse [-n maxOcc] <in.db.fasta> <in.sai> <in.fq> > <out.sam>
-      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
-      in_sai=$DATADIR/SRR031130.sai
-      in_fq=$DATADIR/SRR031130.fastq 
-      out_sam=$DATADIR/SRR031130.sam
-      out_bam=$DATADIR/SRR031130.bam
-      $SAMTOOLS view -b -S $out_sam > $out_bam
-      echo "Check $DATADIR/SRR031130.bam"
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+        $SAMTOOLS view -b -S $DATADIR/$FASTQNUM.sam > $DATADIR/$FASTQNUM.bam
+        echo "Check $DATADIR/$FASTQNUM.bam"
+      done
 
       break
     fi

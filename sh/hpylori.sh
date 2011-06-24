@@ -191,7 +191,7 @@ function run-map {
 function filter-reads {
   fastq_quality_filter -Q 33 \
     -i output/$READID.fastq \
-    -o output/$READID-filtered.fastq \
+    o output/$READID-filtered.fastq \
     -q 20 -p 90
   fastq_to_fasta -Q 33 \
     -n \

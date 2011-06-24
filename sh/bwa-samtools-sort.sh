@@ -13,16 +13,13 @@ function bwa-samtools-sort {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
       # bwa samse [-n maxOcc] <in.db.fasta> <in.sai> <in.fq> > <out.sam>
-      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
-      in_sai=$DATADIR/SRR031130.sai
-      in_fq=$DATADIR/SRR031130.fastq 
-      out_sam=$DATADIR/SRR031130.sam
-      out_bam=$DATADIR/SRR031130.bam
-      out_bam_sorted=$DATADIR/SRR031130.sorted
-      $SAMTOOLS sort $out_bam $out_bam_sorted
-      echo "Check $out_bam_sorted"
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        $SAMTOOLS sort $DATADIR/$FASTQNUM.bam $DATADIR/$FASTQNUM.sorted
+        echo "Check $DATADIR/$FASTQNUM.sorted.bam"
+      done
 
       break
     fi

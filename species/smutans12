@@ -1,0 +1,7 @@
+REFGENOMEGBK:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gbk
+REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
+NUMFASTQFILE:3
+FASTQ01:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
+FASTQ02:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_4_sequence.txt.gz
+FASTQ03:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_3_sequence.txt.gz

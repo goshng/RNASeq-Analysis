@@ -1,5 +1,4 @@
 # Author: Sang Chul Choi
-# Date  : 
 
 function bwa-align {
   PS3="Choose the species for $FUNCNAME: "
@@ -14,8 +13,15 @@ function bwa-align {
       read-species
 
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA aln -I -t $NUMBERCPU $DATADIR/$GENOMEFASTA-bwa $DATADIR/SRR031130.fastq > $DATADIR/SRR031130.sai
-      echo "Check $DATADIR/SRR031130.sai"
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+        $BWA aln -I -t $NUMBERCPU \
+          $DATADIR/$GENOMEFASTA-bwa \
+          $GZIPFASTAQFILE > $DATADIR/$FASTQNUM.sai
+        echo "Check $DATADIR/$FASTQNUM.sai"
+      done
 
       break
     fi
