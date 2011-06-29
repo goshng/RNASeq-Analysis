@@ -1,5 +1,21 @@
 RNA-Seq Protocols and Analyses
 ==============================
+Sang Chul Choi <goshng@yahoo.co.kr>
+
+Histories
+---------
+
+Wed Jun 29 09:18:10 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+One file of reads, +FASTQ06+, was not mapped onto the U159 reference genome. 
+It makes sense because the sample strain of the reads file is from U138. Can I
+use this file of reads for something such as genome construction? What is U138?
+
+Tue Jun 28 13:56:07 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The analysis of +smutans12+ consists of 12 reads files. One of the 12 files was
+not successfully processed with *bwa-align*. +FASTQ11.sai+ was generated in the
+swiftgen. It was copied to my Mac mahcine to do the rest of analyses.
 
 To Do
 -----
@@ -150,3 +166,12 @@ Genbank H. pylori genome contains gff file as well as gbk file. The gff file can
 be used as an annotation file for IGB.  But, gene names do not appear in boxes
 of annotation tracks. It would be good to control display of annotation boxes
 somehow.
+
+Wiggle and Track
+----------------
+Place a wiggle file at +public_html+ of my swiftgen account.
+
+http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?db=SmuUA159&position=chr1&hgt.customText=http://compgen.bscb.cornell.edu/~choi/SRR031130.map.wig
+
+
+

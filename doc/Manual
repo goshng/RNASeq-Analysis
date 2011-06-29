@@ -24,7 +24,14 @@ Quick Start
 . Execute menu *bwa-samtools-sort*
 . Execute menu *bwa-samtools-bed*
 
+.Run a batch job from *bwa-align* to *bwa-samtools-bed*
+. Execute menu *bwa-batch-align-to-bed*
+. Execute +batch.sh+ script.
+
 .Create genome tracks for the mapped reads
+. First align reads to a reference genome
+. Execute menu *bwa-R-saveimage*
+. Execute menu *bwa-danko-writewiggle* 
 
 .Compare two gene expression
 

@@ -13,28 +13,23 @@ function bwa-R-saveimage {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
-      in_sai=$DATADIR/SRR031130.sai
-      in_fq=$DATADIR/SRR031130.fastq 
-      out_sam=$DATADIR/SRR031130.sam
-      out_bam=$DATADIR/SRR031130.bam
-      out_bam_sorted=$DATADIR/SRR031130.sorted
-      out_bed=$DATADIR/SRR031130.bed
-      out_bed_r=$DATADIR/SRR031130.R
-      out_bed_rdata=$DATADIR/SRR031130.RData
-
-cat>$out_bed_r<<EOF
-data <- read.table("$out_bed")
-save.image ("$out_bed_rdata")
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        COMMAND="Rscript $DATADIR/$FASTQNUM.R"
+cat>$DATADIR/$FASTQNUM.R<<EOF
+data <- read.table("$DATADIR/$FASTQNUM.bed")
+save.image ("$DATADIR/$FASTQNUM.RData")
 EOF
-       
-      Rscript $out_bed_r
-      echo "Check $out_bed_rdata"
-
+        if [ "$BATCH" == "YES" ]; then
+          echo $COMMAND >> $BATCHFILE
+        else
+          $COMMAND
+          echo "Check $DATADIR/$FASTQNUM.RData"
+        fi
+      done
       break
     fi
   done
-
 }
 

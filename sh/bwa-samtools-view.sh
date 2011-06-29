@@ -18,8 +18,15 @@ function bwa-samtools-view {
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
-        $SAMTOOLS view -b -S $DATADIR/$FASTQNUM.sam > $DATADIR/$FASTQNUM.bam
-        echo "Check $DATADIR/$FASTQNUM.bam"
+        COMMAND="$SAMTOOLS view -b -S $DATADIR/$FASTQNUM.sam \
+          > $DATADIR/$FASTQNUM.bam"
+
+        if [ "$BATCH" == "YES" ]; then
+          echo $COMMAND >> $BATCHFILE
+        else
+          $COMMAND
+          echo "Check $DATADIR/$FASTQNUM.bam"
+        fi
       done
 
       break

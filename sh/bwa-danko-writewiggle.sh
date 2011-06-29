@@ -13,35 +13,36 @@ function bwa-danko-writewiggle {
       global-variable $SPECIES $REPETITION
       read-species
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      in_db_fasta=$DATADIR/$GENOMEFASTA-bwa
-      in_sai=$DATADIR/SRR031130.sai
-      in_fq=$DATADIR/SRR031130.fastq 
-      out_sam=$DATADIR/SRR031130.sam
-      out_bam=$DATADIR/SRR031130.bam
-      out_bam_sorted=$DATADIR/SRR031130.sorted
-      out_bed=$DATADIR/SRR031130.bed
-      out_bed_r=$DATADIR/SRR031130.R
-      out_bed_rdata=$DATADIR/SRR031130.RData
-      out_wig_plus=$DATADIR/SRR031130.plus
-      out_wig_mnus=$DATADIR/SRR031130.mnus
-      out_wig_comb=$DATADIR/SRR031130.comb
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQNUM=FASTQ$(printf "%02d" $g)
+        COMMAND1="Rscript $DATADIR/$FASTQNUM.R"
+        # COMMAND2="sed s/gi\\\|24378532\\\|ref\\\|NC_004350.1\\\|/chr1/ < $DATADIR/$FASTQNUM.wig > $DATADIR/$FASTQNUM.tmp"
+        COMMAND3="mv $DATADIR/$FASTQNUM.tmp $DATADIR/$FASTQNUM.wig"
 
-cat>$out_bed_r<<EOF
+cat>$DATADIR/$FASTQNUM.R<<EOF
 require(GROseq)
-
-load("$out_bed_rdata")
-WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_plus", size=5, reverse=FALSE, str="+", debug=FALSE, track.type.line=TRUE)
-WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_mnus", size=5, reverse=FALSE, str="-", debug=FALSE, track.type.line=TRUE)
-WriteWiggle(p=data[,c(1:3,6)], file="$out_wig_comb", size=5, reverse=FALSE, debug=FALSE, track.type.line=TRUE)
+load ("$DATADIR/$FASTQNUM.RData")
+# WriteWiggle(p=data[,c(1:3,6)], file="$DATADIR/$FASTQNUM", size=5, reverse=FALSE, str="+", debug=FALSE, track.type.line=TRUE)
+WriteWiggle(p=data[,c(1:3,6)], file="$DATADIR/$FASTQNUM", size=5, reverse=FALSE, debug=FALSE, track.type.line=TRUE)
 EOF
-       
-      Rscript $out_bed_r
-      echo "Check $out_wig_plus and $out_wig_mnus"
+
+        if [ "$BATCH" == "YES" ]; then
+          echo $COMMAND1 >> $BATCHFILE
+          echo $COMMAND2 >> $BATCHFILE
+          echo $COMMAND3 >> $BATCHFILE
+        else
+          # fixedStep chrom=gi|24378532|ref|NC_004350.1| start=1 step=5 span=5
+          $COMMAND1
+          sed s/gi\\\|24378532\\\|ref\\\|NC_004350.1\\\|/chr1/ < $DATADIR/$FASTQNUM.wig > $DATADIR/$FASTQNUM.tmp
+          $COMMAND3
+          scp $DATADIR/$FASTQNUM.wig $X11_LOGIN:public_html/
+          echo "Check $DATADIR/$FASTQNUM.wig"
+          echo "Check at http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?db=SmuUA159&position=chr1&hgt.customText=http://compgen.bscb.cornell.edu/~choi/$FASTQNUM.wig"
+        fi
+      done
 
       break
     fi
   done
-
 }
-

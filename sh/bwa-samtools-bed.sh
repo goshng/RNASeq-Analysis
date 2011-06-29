@@ -16,9 +16,15 @@ function bwa-samtools-bed {
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        $SAMTOOLS view $DATADIR/$FASTQNUM.sorted.bam \
-          | perl pl/sam2bed.pl > $DATADIR/$FASTQNUM.bed
-        echo "Check $DATADIR/$FASTQNUM.bed"
+        COMMAND="$SAMTOOLS view $DATADIR/$FASTQNUM.sorted.bam \
+          | perl pl/sam2bed.pl > $DATADIR/$FASTQNUM.bed"
+
+        if [ "$BATCH" == "YES" ]; then
+          echo $COMMAND >> $BATCHFILE
+        else
+          $COMMAND
+          echo "Check $DATADIR/$FASTQNUM.bed"
+        fi
       done
 
       break

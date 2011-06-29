@@ -17,6 +17,8 @@ source sh/bwa-samse.sh
 source sh/bwa-samtools-view.sh
 source sh/bwa-samtools-sort.sh
 source sh/bwa-samtools-bed.sh
+source sh/bwa-batch-align-to-bed.sh
+
 source sh/bwa-R-saveimage.sh
 source sh/bwa-danko-writewiggle.sh
 source sh/bwa-danko-countreadsininterval.sh
@@ -50,6 +52,7 @@ CHOICES=( init-file-system \
           bwa-samtools-view \
           bwa-samtools-sort \
           bwa-samtools-bed \
+          bwa-batch-align-to-bed \
           bwa-R-saveimage \
           bwa-danko-writewiggle \
           bwa-danko-countreadsininterval \
@@ -75,6 +78,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-samtools-view" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-sort" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-bed" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-batch-align-to-bed" ]; then $CHOICE; break
   elif [ "$CHOICE" == "feature-genome" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-danko-countreadsininterval" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-R-saveimage" ]; then $CHOICE; break
