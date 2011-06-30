@@ -1,7 +1,4 @@
-# Author: Sang Chul Choi
-# Date  : Tue May 17 22:47:18 EDT 2011
-
-function choose-species {
+function bowtie-index-genome {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -11,13 +8,11 @@ function choose-species {
       echo -n "What repetition do you wish to run? (e.g., 1) "
       read REPETITION
       global-variable $SPECIES $REPETITION
+      read-species
 
-      mkdir -p $BASERUNANALYSIS
-      mkdir -p $NUMBERDIR
-      mkdir -p $DATADIR
-      mkdir -p $BWADIR
-      mkdir -p $BOWTIEDIR
-
+      GENOMEFASTA=$(basename $REFGENOMEFASTA)
+      $BOWTIE-build -q $REFGENOMEFASTA $GENOMEFASTA
+      mv $GENOMEFASTA* $BOWTIEDIR/
       break
     fi
   done

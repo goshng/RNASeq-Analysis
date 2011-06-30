@@ -14,6 +14,7 @@ FASTQ09:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_102
 FASTQ10:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_4_sequence.txt.gz
 FASTQ11:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz
 FASTQ12:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_4_sequence.txt.gz
+READLENGTH:100
 # Strain information of the 12 samples above.
 # 01 - UA159
 # 02 - 11VS1

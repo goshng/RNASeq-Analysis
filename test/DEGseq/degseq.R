@@ -3,14 +3,11 @@
 ###################################################
 #line 190 "vignettes/DEGseq/inst/doc/DEGseq.Rnw"
 library(DEGseq)
-step1 <- function()
-{
-  geneExpFile <- system.file("extdata", "GeneExpExample5000.txt", package="DEGseq")
-  geneExpMatrix1 <- readGeneExp(file=geneExpFile, geneCol=1, valCol=c(7,9,12,15,18))
-  geneExpMatrix2 <- readGeneExp(file=geneExpFile, geneCol=1, valCol=c(8,10,11,13,16))
-  write.table(geneExpMatrix1[30:31,],row.names=FALSE)
-  write.table(geneExpMatrix2[30:31,],row.names=FALSE)
-}
+geneExpFile <- system.file("extdata", "GeneExpExample5000.txt", package="DEGseq")
+geneExpMatrix1 <- readGeneExp(file=geneExpFile, geneCol=1, valCol=c(7,9,12,15,18))
+geneExpMatrix2 <- readGeneExp(file=geneExpFile, geneCol=1, valCol=c(8,10,11,13,16))
+#  write.table(geneExpMatrix1[30:31,],row.names=FALSE)
+#  write.table(geneExpMatrix2[30:31,],row.names=FALSE)
 
 
 ###################################################
@@ -23,7 +20,7 @@ layout(matrix(c(1,2,3,4,5,6), 3, 2, byrow=TRUE))
 par(mar=c(2, 2, 2, 2))
 DEGexp(geneExpMatrix1=geneExpMatrix1, geneCol1=1, expCol1=c(2,3,4,5,6), groupLabel1="kidney",
        geneExpMatrix2=geneExpMatrix2, geneCol2=1, expCol2=c(2,3,4,5,6), groupLabel2="liver",
-       method="MARS")
+       method="MARS",outputDir="step2")
 }
 
 ###################################################

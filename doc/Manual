@@ -33,23 +33,44 @@ Quick Start
 . Execute menu *bwa-R-saveimage*
 . Execute menu *bwa-danko-writewiggle* 
 
+.Create a refFile of genome annotation.
+.  Create a file with chrom, chromStart, chromEnd, name, and strand using a UCSC
+genome browser or other method you would like. Note that you have to make sure
+that genomic positions are 0-based or 1-based.
+. Execute menu *bowtie-refflat*. The menu would create a file such as
+output/smutans12/run-analysis/refFlat.txt.
+
 .Compare two gene expression
+
+Configuration
+-------------
+File +conf/README.template+ must be used to create +conf/README+ that is used
+for accessing files. 
 
 Species File
 ------------
-
 A genome of bacterial species.
 
 Installation
 ------------
+Software packages are employed for the analysis. These should be installed on
+the local or remote machine.
 
 BWA
 ~~~
 Dowanload BWA source code at http://bio-bwa.sourceforge.net. You could compile
-the source in this repository.
+the source in this repository. Edit +conf/README+ if necessary.
 ----
 $ cd src/bwa-0.5.9
 $ make
+----
+
+BOWTIE
+~~~~~~
+Download BOWTIE and install it under +src+ directory. The following command
+should print a help message from it. Edit +conf/README+ if necessary.
+----
+$ src/bowtie-0.12.7/bowtie
 ----
 
 SAMTools

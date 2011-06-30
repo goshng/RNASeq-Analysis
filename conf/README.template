@@ -23,5 +23,7 @@
 #
 # Global setup
 # ------------
-
-
+# BWA:src/bwa-0.5.9/bwa
+# SAMTOOLS:src/samtools-0.1.16/samtools
+# SEGEMEHL:src/segemehl_0_0_9_4/segemehl.x
+# BOWTIE:src/bowtie-0.12.7/bowtie

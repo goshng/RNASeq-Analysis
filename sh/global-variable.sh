@@ -23,6 +23,7 @@ function global-variable {
   NUMBERDIR=$BASEDIR/$REPETITION
   DATADIR=$NUMBERDIR/data
   BWADIR=$NUMBERDIR/bwa
+  BOWTIEDIR=$NUMBERDIR/bowtie
   RUNANALYSIS=$NUMBERDIR/run-analysis
 
   # The cluster has almost the same file system. I used to used Samba client to
@@ -39,38 +40,5 @@ function global-variable {
   X11_NUMBERDIR=$X11_OUTPUTDIR/$SPECIES/$REPETITION_DIR
   X11_DATADIR=$X11_NUMBERDIR/data
   X11_RUNANALYSIS=$X11_NUMBERDIR/run-analysis
-
-  # Jobs are submitted using a batch script. Their names are a batch.sh. This is
-  # for simplifying submission of jobs. Just execute
-  # nsub batch.sh
-  # to submit jobs. This would work usually when submitting a job that uses a
-  # single computing node. ClonalOrigin analysis should be done with multiple
-  # computing nodes. Then, execute
-  # bash batch.sh 8
-  # to submit a job that would use 8 computing nodes. In CAC cluster each
-  # computing node is equipped with 8 CPUs. The above command would use 64 CPUs
-  # at the same time. Note that you have to change many parts of the codes if
-  # the cluster's submission system is different from Cornell CAC Linux cluster.
-  #BATCH_SH_RUN_MAUVE=$RUNMAUVE/batch.sh
-  #BATCH_SH_RUN_CLONALFRAME=$RUNCLONALFRAME/batch.sh
-  #BATCH_SH_RUN_CLONALORIGIN=$RUNCLONALORIGIN/batch.sh
-  #BATCH_BODY_SH_RUN_CLONALORIGIN=$RUNCLONALORIGIN/batch_body.sh
-  #BATCH_TASK_SH_RUN_CLONALORIGIN=$RUNCLONALORIGIN/batch_task.sh
-  #BATCH_REMAIN_SH_RUN_CLONALORIGIN=$RUNCLONALORIGIN/batch_remain.sh
-  #BATCH_REMAIN_BODY_SH_RUN_CLONALORIGIN=$RUNCLONALORIGIN/batch_remain_body.sh
-
-  # Some of ClonalOrigin analysis uses file system that were used in the
-  # previous analysis such as Mauve alignment.  This may be a little long story,
-  # but I have to comment on it. The alignment file from Mauve lists the actual
-  # Genbank file names in its header. This information is used when finding core
-  # alignment blocks. See run-lcb and filter-blocks for detail. Finding core
-  # blocks is done in the local computer whereas the alignment is done in the
-  # cluster. To let run-lcb to work in the local computer I have to make the
-  # same temp directory in the local computer as in the cluster. When a job is
-  # submitted in the cluster in CAC cluster, the job creates a temporary
-  # directory where it can save the input and output files. JOBID is the CAC job
-  # id for run-mauve. This job ID should be found in the Mauve alignment file.
-  #TMPDIR=/tmp/$JOBID.scheduler.v4linux
-  #TMPINPUTDIR=$TMPDIR/input
 }
 

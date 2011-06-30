@@ -5,6 +5,12 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 Histories
 ---------
 
+
+Thu Jun 30 10:48:50 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DEGseq is used to compare FASTQ11 and FASTQ03. Bowtie alignments were explained
+in the tutorial of DEGseq. 
+
 Wed Jun 29 09:18:10 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 One file of reads, +FASTQ06+, was not mapped onto the U159 reference genome. 
@@ -296,6 +302,9 @@ http://seqanswers.com/forums/showthread.php?t=2952&page=3[here].
 
 Another thread was found
 http://seqanswers.com/forums/showthread.php?t=2952&page=5[here].
+
+The manual was found 
+http://www.bioconductor.org/packages/2.8/bioc/vignettes/DEGseq/inst/doc/DEGseq.pdf[here].
 
 baySeq
 ~~~~~~

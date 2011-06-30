@@ -1,7 +1,6 @@
 # Author: Sang Chul Choi
-# Date  : Tue May 17 22:47:18 EDT 2011
 
-function choose-species {
+function bwa-batch-align-to-bed {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -10,13 +9,15 @@ function choose-species {
     else  
       echo -n "What repetition do you wish to run? (e.g., 1) "
       read REPETITION
-      global-variable $SPECIES $REPETITION
 
-      mkdir -p $BASERUNANALYSIS
-      mkdir -p $NUMBERDIR
-      mkdir -p $DATADIR
-      mkdir -p $BWADIR
-      mkdir -p $BOWTIEDIR
+      BATCH=YES
+      BATCHFILE=batch.sh
+      echo "#!/bin/bash" > $BATCHFILE
+      bwa-align
+      bwa-samse
+      bwa-samtools-view
+      bwa-samtools-sort
+      bwa-samtools-bed
 
       break
     fi
