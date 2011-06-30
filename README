@@ -10,6 +10,8 @@ Wed Jun 29 09:18:10 EDT 2011
 One file of reads, +FASTQ06+, was not mapped onto the U159 reference genome. 
 It makes sense because the sample strain of the reads file is from U138. Can I
 use this file of reads for something such as genome construction? What is U138?
+About half of the reads seemed to be mapped.
+
 
 Tue Jun 28 13:56:07 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +98,9 @@ How to download EMBL genome for seqmonk
 
 Genome Reviews
 
+FastQC
+------
+A nice tool for examming FASTQ files.
 
 ``PRINSEQ'' seems to be also useful.
 [literal]
@@ -174,4 +179,124 @@ Place a wiggle file at +public_html+ of my swiftgen account.
 http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?db=SmuUA159&position=chr1&hgt.customText=http://compgen.bscb.cornell.edu/~choi/SRR031130.map.wig
 
 
+Interesting sites
+-----------------
 
+infernal RFAM:
+http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?insideX=148&revCmplDisp=0&hgsid=124&hgt_doJsCommand=&hgt.right1=+%3E+&position=chr1%3A1127041-1152113&hgtgroup_user_close=0&hgtgroup_map_close=0&hgtgroup_genes_close=0&hgtgroup_regulation_close=0&hgtgroup_varRep_close=0[Link]
+
+
+Mapped reads
+------------
+FASTQ: FASTQ01
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 18931854
+The number of mapped reads is  13102917 (69 %)
+FASTQ: FASTQ02
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 19747584
+The number of mapped reads is  10326492 (52 %)
+FASTQ: FASTQ03
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 20591432
+The number of mapped reads is  13494893 (65 %)
+FASTQ: FASTQ04
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 24918598
+The number of mapped reads is  11017699 (44 %)
+FASTQ: FASTQ05
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_003_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 22534482
+The number of mapped reads is  11751227 (52 %)
+FASTQ: FASTQ06
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_003_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 19483712
+The number of mapped reads is   102150 (0 %)
+FASTQ: FASTQ07
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 22194404
+The number of mapped reads is  12060475 (54 %)
+FASTQ: FASTQ08
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 21131873
+The number of mapped reads is  10866409 (51 %)
+FASTQ: FASTQ09
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 20482548
+The number of mapped reads is  10596559 (51 %)
+FASTQ: FASTQ10
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 22392326
+The number of mapped reads is  10750003 (48 %)
+FASTQ: FASTQ11
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz
+
+gzip:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz:
+decompression OK, trailing garbage ignored
+The total number of short reads is 22160808
+The number of mapped reads is  15192418 (68 %)
+FASTQ: FASTQ12
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 20264101
+The number of mapped reads is  11156784 (55 %)
+
+Tools for differential expression
+---------------------------------
+
+See the following 
+https://djfextranet.agrsci.dk/sites/phd_cource/public/Documents/course%20material/Module_10_NGS_analysis.pdf[PPT]
+for discussion of the tools for differential expression.
+
+edgeR
+~~~~~
+
+DESeq
+~~~~~
+
+http://www-huber.embl.de/users/anders/DESeq/
+
+DEGseq
+~~~~~~
+Two versions of DEGseq were found. One of them was found at either
+http://www.bioconductor.org/packages/release/bioc/html/DEGseq.html[Version1]
+or
+http://www.bioconductor.org/packages/2.5/bioc/html/DEGseq.html[Version2.5].
+Another version was found and could be installed using the following R command:
+.The first method that I used to install DEGseq.
+----
+source("http://bioinfo.au.tsinghua.edu.cn/software/degseq/DEGseqInstall.R")
+----
+The first seemed to be newer, and was installed using the following R command:
+.The second method that I used to install DEGseq.
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DEGseq")
+----
+
+DEGexp function argments were different.
+
+A discussion thread for installing DEGseq was found 
+http://seqanswers.com/forums/showthread.php?t=2952[here].
+
+A discussion thread about the error in the tutorial can be found
+http://seqanswers.com/forums/showthread.php?t=2952&page=3[here].
+
+Another thread was found
+http://seqanswers.com/forums/showthread.php?t=2952&page=5[here].
+
+baySeq
+~~~~~~
+Another

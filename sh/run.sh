@@ -18,6 +18,7 @@ source sh/bwa-samtools-view.sh
 source sh/bwa-samtools-sort.sh
 source sh/bwa-samtools-bed.sh
 source sh/bwa-batch-align-to-bed.sh
+source sh/fastq-summary.sh
 
 source sh/bwa-R-saveimage.sh
 source sh/bwa-danko-writewiggle.sh
@@ -47,14 +48,19 @@ CHOICES=( init-file-system \
           choose-species \
           cp-genome \
           bwa-index-genome \
+          ---FASTQ---\
+          fastq-summary \
+          ---ALIGN---\
           bwa-align \
           bwa-samse \
           bwa-samtools-view \
           bwa-samtools-sort \
           bwa-samtools-bed \
           bwa-batch-align-to-bed \
+          ---TRACK---\
           bwa-R-saveimage \
           bwa-danko-writewiggle \
+          ---ETC---\
           bwa-danko-countreadsininterval \
           bwa-danko-metagene \
           bwa-danko-detecttranscriptsem \
@@ -87,6 +93,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-danko-detecttranscriptsem" ]; then $CHOICE; break
   elif [ "$CHOICE" == "fastxtoolkit-fastq_to_fasta" ]; then $CHOICE; break
   elif [ "$CHOICE" == "fastxtoolkit-fastx_quality_stats" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "fastq-summary" ]; then $CHOICE; break
   elif [ "$CHOICE" == "xxx" ]; then $CHOICE; break
   else
     echo -e "You need to enter something\n"
