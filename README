@@ -2,6 +2,20 @@ RNA-Seq Protocols and Analyses
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 
+To Do
+-----
+.Immediate term
+. To compare the result of RNA-Seq and that of microarray experiment.
+. Upload RNA-Seq gene expression tracks. 
+. Literature search on bacteria and RNA-Seq.
+
+.Intermediate term
+. Genome annotations using the RNA-Seq data sets.
+. de novo assembly using RNA-Seq (Find tools)
+
+.Long term
+. Study of evolution of bacterial gene expression 
+
 Histories
 ---------
 
@@ -24,10 +38,6 @@ Tue Jun 28 13:56:07 EDT 2011
 The analysis of +smutans12+ consists of 12 reads files. One of the 12 files was
 not successfully processed with *bwa-align*. +FASTQ11.sai+ was generated in the
 swiftgen. It was copied to my Mac mahcine to do the rest of analyses.
-
-To Do
------
-
 
 Directories
 -----------
@@ -309,3 +319,94 @@ http://www.bioconductor.org/packages/2.8/bioc/vignettes/DEGseq/inst/doc/DEGseq.p
 baySeq
 ~~~~~~
 Another
+
+How to add tracks to UCSC genome browser at Cornell
+---------------------------------------------------
+Because +compgen+ hosts the database, we must use commands of adding tracks to
+UCSC genome browser in +compgen+ machine not +swiftgen+ machine. We need the
+source code of the genome browser.
+
+.Pull the source code of UCSC genome browser at Cornell
+----
+$ export SVNROOT=svn+ssh://choi@compgen.bscb.cornell.edu/usr/local/svnroot
+$ svn co $SVNROOT/local_tracks/trunk local_tracks/
+$ cd local_tracks/trackDb/
+----
+
+.Create a table +rnaSeq01+
+----
+$ wigEncode FASTQ01.wig FASTQ01.temp.wig FASTQ01.wib
+$ hgLoadWiggle SmuUA159 rnaSeq01 FASTQ01.temp.wig
+$ rm FASTQ01.temp.wig 
+----
+
+.View the table +rnaSeq01+
+----
+$ hgsql SmuUA159 -e "select * from rnaSeq01" | less
+----
+
+.Move +wib+ files and change the file column
+----
+$ mv FASTQ01.wib /gbdb_cornell/SmuUA159/wib/
+$ hgsql SmuUA159 -e "update rnaSeq01 set file='/gbdb_cornell/SmuUA159/wib/FASTQ01.wib'"
+----
+
+.Edit +trackDb.ra+ file and compile it.
+----
+$ local_tracks/trackDb/streptococcus/SmuUA159/trackDb.ra 
+$ make cornell DBS=SmuUA159
+----
+
+.A script to upload the samples to UCSC genome browser tracks at Cornell.
+----
+#!/bin/bash
+NUMFASTQFILE=12
+for g in $(eval echo {1..$NUMFASTQFILE}); do
+  FASTQNUM=FASTQ$(printf "%02d" $g)
+  RNASEQNUM=rnaSeq$(printf "%02d" $g)
+  wigEncode $FASTQNUM.wig $FASTQNUM.temp.wig $FASTQNUM.wib
+  hgLoadWiggle SmuUA159 $RNASEQNUM $FASTQNUM.temp.wig
+  rm $FASTQNUM.temp.wig
+  mv $FASTQNUM.wib /gbdb_cornell/SmuUA159/wib/
+  hgsql SmuUA159 -e "update $RNASEQNUM set file='/gbdb_cornell/SmuUA159/wib/$FASTQNUM.wib'"
+done
+----
+
+
+Delete the following history.
+ 1004  wigEncode 
+ 1005  hgWiggle
+ 1006  wigEncode FASTQ01.wig /dev/stdout FASTQ01.wib | hgWiggle 
+ 1007  wigEncode FASTQ01.wig FASTQ01.temp.wig FASTQ01.wib
+ 1008  hgLoadWiggle 
+ 1009  hgLoadWiggle SmuUA159 rnaSeq01 FASTQ01.temp.wig 
+ 1010  pwd
+ 1011  rm FASTQ01.temp.wig 
+ 1012  ls
+ 1013  hgsql SmuUA159 -e "select * from rnaSeq01" | less
+ 1014  hgsql SmuUA159 -e "select * from rnaSeq01" | head -n 2
+ 1015  ls /gbdb_cornell/SmuUA159/wib/
+ 1016  mv FASTQ01.wib /gbdb_cornell/SmuUA159/wib/
+ 1017  hgsql SmuUA159 -e "update rnaSeq01 set file='/gbdb_cornell/SmuUA159/wib/FASTQ01.wib'"
+ 1018  echo $SVNROOT
+ 1019  export SVNROOT=svn+ssh://choi@compgen.bscb.cornell.edu/usr/local/svnroot
+ 1020  svn co $SVNROOT/local_tracks/trunk local_tracks/
+ 1021  cd local_tracks/trackDb/
+ 1022  ls
+ 1023  cd streptococcus/
+ 1024  ls
+ 1025  cd SmuUA159/
+ 1026  pwd
+ 1027  vi trackDb.ra 
+ 1028  vi ../../human/hg18/trackDb.ra 
+ 1029  vi trackDb.ra 
+ 1030  cd ..
+ 1031  cd ..
+ 1032  make cornell DBS=SmuUA159
+ 1033  vi trackDb.ra 
+ 1034  vi streptococcus/SmuUA159/trackDb.ra 
+ 1035  make cornell DBS=SmuUA159
+ 1036  vi streptococcus/SmuUA159/trackDb.ra 
+ 1037  vi streptococcus/SmuUA159/trackDb.ra 
+
+

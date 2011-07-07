@@ -1,6 +1,8 @@
 REFGENOMEGBK:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gbk
 REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
 REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
+REFGENOMELENGTH:2030921
+READLENGTH:100
 NUMFASTQFILE:12
 FASTQ01:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
 FASTQ02:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_4_sequence.txt.gz
@@ -14,7 +16,6 @@ FASTQ09:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_102
 FASTQ10:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_4_sequence.txt.gz
 FASTQ11:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz
 FASTQ12:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_4_sequence.txt.gz
-READLENGTH:100
 # Strain information of the 12 samples above.
 # 01 - UA159
 # 02 - 11VS1

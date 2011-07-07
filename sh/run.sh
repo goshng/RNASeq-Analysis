@@ -19,6 +19,7 @@ source sh/bwa-samtools-sort.sh
 source sh/bwa-samtools-bed.sh
 source sh/bwa-degseq-bed.sh
 source sh/bwa-batch-align-to-bed.sh
+source sh/bwa-samtools-wig.sh
 source sh/fastq-summary.sh
 
 source sh/bowtie-index-genome.sh
@@ -62,6 +63,7 @@ CHOICES=( init-file-system \
           bwa-samtools-sort \
           bwa-samtools-bed \
           bwa-batch-align-to-bed \
+          bwa-samtools-wig \
           bwa-degseq-bed \
           ---TRACK---\
           bwa-R-saveimage \
@@ -108,6 +110,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "fastxtoolkit-fastq_to_fasta" ]; then $CHOICE; break
   elif [ "$CHOICE" == "fastxtoolkit-fastx_quality_stats" ]; then $CHOICE; break
   elif [ "$CHOICE" == "fastq-summary" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-samtools-wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "xxx" ]; then $CHOICE; break
   else
     echo -e "You need to enter something\n"

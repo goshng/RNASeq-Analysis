@@ -28,6 +28,10 @@ Quick Start
 . Execute menu *bwa-batch-align-to-bed*
 . Execute +batch.sh+ script.
 
+.Create wigggle files with read lengths
+. After the execution of menu *bwa-samtools-bed*
+. Execute menu *bwa-samtools-wig*
+
 .Create genome tracks for the mapped reads
 . First align reads to a reference genome
 . Execute menu *bwa-R-saveimage*
@@ -99,6 +103,24 @@ Download FASTAX-Toolkit at
 http://hannonlab.cshl.edu/fastx_toolkit/fastx_toolkit-0.0.13.tar.bz2
 and 
 http://hannonlab.cshl.edu/fastx_toolkit/libgtextutils-0.6.tar.bz2.
+
+edgeR
+~~~~~
+In R, run the two lines of
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("edgeR")
+----
+
+DEGseq
+~~~~~~
+In R, run the two lines of
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DEGseq")
+----
+
+
 
 Menus
 -----
