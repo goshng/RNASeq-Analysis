@@ -165,6 +165,19 @@ my $lineNumber = 0;
 open BED, $bed or die "Could not open $bed";
 while (<BED>)
 {
+  $lineNumber++;
+}
+close BED;
+my $totalNumber = $lineNumber;
+my $onepercentNumber = int ($totalNumber / 100);
+
+$lineNumber = 0;
+my $processedTime = 0;
+my $elapsedTime = 0;
+my $startTime = time; 
+open BED, $bed or die "Could not open $bed";
+while (<BED>)
+{
   $lineNumber++; 
   my @e = split /\s+/;
   my $pos = $e[1];
@@ -194,6 +207,17 @@ while (<BED>)
   else
   {
     die "$strand must be + or -";
+  }
+
+  if ($lineNumber % $onepercentNumber == 0)
+  {
+    my $endTime = time; 
+    my $elapsedTime = $endTime - $startTime;
+    $processedTime += $elapsedTime;
+    my $remainedNumber = $totalNumber - $lineNumber;
+    my $remainedTime = int(($processedTime/$lineNumber) * $remainedNumber / 60);
+    print STDERR "$remainedTime min to go\r";
+    $startTime = $endTime; 
   }
 }
 close BED;

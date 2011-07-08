@@ -20,6 +20,10 @@ Histories
 ---------
 
 
+Thu Jul  7 23:28:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+velvet and oases were tried.
+
 Thu Jun 30 10:48:50 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 DEGseq is used to compare FASTQ11 and FASTQ03. Bowtie alignments were explained
@@ -315,6 +319,11 @@ http://seqanswers.com/forums/showthread.php?t=2952&page=5[here].
 
 The manual was found 
 http://www.bioconductor.org/packages/2.8/bioc/vignettes/DEGseq/inst/doc/DEGseq.pdf[here].
+
+.A test run wt and tw1-glucose
+----
+test/DEGseq/wt2tw/output_score.txt
+----
 
 baySeq
 ~~~~~~
