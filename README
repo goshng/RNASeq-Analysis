@@ -24,6 +24,14 @@ Thu Jul  7 23:28:02 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 velvet and oases were tried.
 
+.DEGseq results and microarray data
+----
+test/microarray/CcpAvWTGlu.txt
+test/DEGseq/wt2tw/output_score.txt
+test/microarray/CcpAGluvGal.txt
+test/DEGseq/tw1glucosegalactose/output_score.txt
+----
+
 Thu Jun 30 10:48:50 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 DEGseq is used to compare FASTQ11 and FASTQ03. Bowtie alignments were explained

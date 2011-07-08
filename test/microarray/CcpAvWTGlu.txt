@@ -1,0 +1,171 @@
+0.0003325 43.729  SMU.1422  putative pyruvate dehydrogenase E1 component beta subunit)
+4.30E-06  23.885  SMU.1424  putative dihydrolipoamide dehydrogenase
+4.84E-05  20.653  SMU.1423  putative pyruvate dehydrogenase, alpha-subunit
+7.15E-05  20.098  SMU.1421  putative dihydrolipoamide acetyltransferase, E2 component
+2.50E-06  15.367  SMU.1961c putative PTS system, sugar-specific enzyme IIA component
+1.53E-05  7.509 SMU.1958c putative PTS system, mannose-specific IIC component
+6.90E-06  6.37  SMU.1957  putative PTS system, mannose-specific IID component
+3.80E-06  5.667 SMU.1960c putative PTS system, mannose-specific IIB component
+1.62E-05  5.605 SMU.101 putative sorbose PTS system, IIC component
+5.70E-06  5.33  SMU.179 conserved hypothetical protein
+5.34E-05  4.393 SMU.102 putative PTS system, IID component
+0.0001083 3.884 SMU.100 putative sorbose PTS system, IIB component
+6.00E-07  3.85  SMU.85  putative phosphomethylpyrimidine kinase
+0.00056 3.686 SMU.1011  putative CitG protein
+2.51E-05  3.647 SMU.2038  putative PTS system, trehalose-specific IIABC component
+9.00E-07  3.426 SMU.503c  hypothetical protein
+0.0009172 3.36  SMU.1657c putative nitrogen regulatory protein PII
+0.000161  3.347 SMU.252 hypothetical protein
+1.02E-05  3.178 SMU.1700c conserved hypothetical protein possible LrgB family protein
+0.0002519 3.148 SMU.139 conserved hypothetical protein
+1.20E-06  3.116 SMU.1537  putative glycogen biosynthesis protein GlgD
+0.0004765 3.056 SMU.799c  conserved hypothetical protein
+0.0005071 2.991 SMU.613 hypothetical protein
+0.0002011 2.984 SMU.531 putative chorismate mutase
+0.0001958 2.979 SMU.1006  putative ABC transporter, ATP-binding protein
+0.0001016 2.936 SMU.1803c hypothetical protein
+0.0001485 2.892 SMU.71  putative cation efflux pump (multidrug resistance protein)
+0.0002745 2.878 SMU.534 putative phosphoribosyl anthranilate transferase
+0.0001549 2.849 SMU.335 argininosuccinate lyase
+0.0009752 2.821 SMU.532 putative anthranilate synthase, alpha subunit
+8.78E-05  2.79  SMU.1089  conserved hypothetical protein
+0.0008982 2.784 SMU.538 putative tryptophan synthase, alpha subunit
+8.47E-05  2.78  SMU.1375c hypothetical protein
+0.0001873 2.78  SMU.138 putative malate permease
+5.76E-05  2.726 SMU.706c  conserved hypothetical protein
+0.0004928 2.603 SMU.535 putative indoleglycerol phosphate synthase
+4.00E-07  2.601 SMU.87  conserved hypothetical protein
+8.01E-05  2.583 SMU.1402c conserved hypothetical protein
+0.0004755 2.574 SMU.1403c conserved hypothetical protein
+0.0002632 2.561 SMU.195c  hypothetical protein similar to ORF 5 of
+8.49E-05  2.549 SMU.1404c conserved hypothetical protein
+0.0006187 2.527 SMU.140 putative glutathione reductase
+0.0001343 2.514 SMU.1642c conserved hypothetical protein
+2.72E-05  2.5 SMU.537 putative tryptophan synthase, beta subunit
+0.0001228 2.431 SMU.1495  galactose-6-phosphate isomerase, subunit LacB
+0.0007152 2.424 SMU.270 putative PTS system, possible ribulose-monophosphate
+0.0001433 2.407 SMU.167 hypothetical protein
+0.0007197 2.401 SMU.1747c putative phosphatase
+1.30E-06  2.254 SMU.2126c putative purine-nucleoside phosphorylase
+0.0004205 2.223 SMU.1592  putative dipeptidase PepQ
+0.000279  2.208 SMU.807 putative membrane protein
+0.0004708 2.196 SMU.1569  putative maltose/maltodextrin ABC transporter, MalF
+3.63E-05  2.169 SMU.1108c conserved hypothetical protein
+9.04E-05  2.167 SMU.2037  putative trehalose-6-phosphate hydrolase TreA
+0.0004372 2.163 SMU.204c  hypothetical protein
+0.0005366 2.155 SMU.577 putative histidine kinase LytS
+0.000512  2.109 SMU.1141c conserved hypothetical protein
+0.0004924 2.1 SMU.1291c putative chorismate mutase
+0.0004501 2.054 SMU.870 putative transcriptional regulator of sugar metabolism
+0.0004817 2.022 SMU.2042  dextranase precursor
+0.0005045 2.015 SMU.1579  hypothetical protein
+0.0007342 0.5 SMU.229 conserved hypothetical protein
+0.0007825 0.5 SMU.1875  putative exodeoxyribonuclease V
+0.0007805 0.493 SMU.1344c putative malonyl-CoA acyl-carrier-protein transacylase
+0.0007646 0.49  SMU.1670c conserved hypothetical protein
+0.0005743 0.484 SMU.547 conserved hypothetical protein
+0.0006779 0.48  SMU.505 putative adenine-specific DNA methylase
+0.0002475 0.477 SMU.396 putative glycerol uptake facilitator protein
+0.0001575 0.476 SMU.67  putative acyltransferase
+6.44E-05  0.475 SMU.690 hypothetical protein
+1.29E-05  0.474 SMU.1737  putative 3-hydroxymyristoyl-(acyl carrier protein) dehydratase
+0.0005845 0.474 SMU.1230c conserved hypothetical protein
+0.0002809 0.469 SMU.699 50S ribosomal protein L20
+8.94E-05  0.467 SMU.1457  putative dTDP-glucose-4,6-dehydratase
+0.0002577 0.458 SMU.1783  putative prolyl-tRNA synthetase
+0.0006502 0.458 SMU.1860  30S ribosomal protein S6
+0.0001097 0.457 SMU.1743  putative acyl carrier protein
+0.0008683 0.454 SMU.1969c putative transcriptional regulator
+0.0001272 0.453 SMU.1945  hypothetical protein
+0.0001325 0.452 SMU.1638c hypothetical protein
+0.0004767 0.444 SMU.2001  DNA-directed RNA polymerase, alpha subunit
+0.0006052 0.444 SMU.562 ATP-dependent protease ClpE
+0.0001374 0.438 SMU.1276c putative septation ring formation regulator
+7.10E-06  0.434 SMU.2005  putative adenylate kinase
+0.0005041 0.432 SMU.860 carbamoylphosphate synthetase, large subunit
+0.0001391 0.431 SMU.2024c 50S ribosomal protein L4
+0.0001391 0.431 SMU.478 putative guanylate kinase
+9.94E-05  0.428 SMU.156 conserved hypothetical protein
+7.40E-05  0.421 SMU.787 putative transcriptional regulator
+0.0001378 0.421 SMU.993 putative GTP-binding protein
+0.0001961 0.42  SMU.410 putative transcriptional regulator
+0.0006015 0.42  SMU.2077c conserved hypothetical protein
+0.0008488 0.419 SMU.2036  putative peptidase
+9.23E-05  0.411 SMU.453 conserved hypoyhetical protein
+0.0002392 0.409 SMU.475 conserved hypothetical protein
+3.85E-05  0.407 SMU.482 putative RNA-binding Sun protein possible rRNA methylase
+0.0002112 0.401 SMU.650 putative alanyl-tRNA synthetase (alanine--tRNA ligase)
+0.0002052 0.399 SMU.1279c putative cell division protein (cell shape determining
+0.0002163 0.399 SMU.1838  preprotein translocase subunit SecA
+2.36E-05  0.398 SMU.2012  30S ribosomal protein S8
+0.0008249 0.393 SMU.1584c putative 67 kDa myosin-crossreactive streptococcal antigen 
+2.35E-05  0.39  SMU.819 putative large conductance mechanosensitive channel
+0.0005184 0.388 SMU.891 type I restriction-modification system DNA methylase
+0.0001556 0.387 SMU.2101  aspartyl-tRNA synthetase
+0.0002418 0.384 SMU.1992  putative tyrosyl-tRNA synthetase
+0.0009516 0.384 SMU.1752c hypothetical protein
+0.0007026 0.381 SMU.1716c conserved hypothetical protein
+0.0001748 0.375 SMU.24  putative amino acid aminotransferase
+0.0003356 0.369 SMU.1990  DNA-dependent RNA polymerase, beta subunit
+6.10E-06  0.363 SMU.589 putative DNA-binding protein
+0.000246  0.361 SMU.866 conserved hypothetical protein
+0.0006655 0.36  SMU.1346  putative thioesterase BacT
+0.0005385 0.358 SMU.1210  putative DNA topoisomerase IV, subunit B
+0.0002599 0.357 SMU.1051  putative iron-sulfur cofactor synthesis protein NifS family
+0.0009133 0.354 SMU.1079c putative ABC transporter, ATP-binding protein
+0.000157  0.353 SMU.1322  putative acetoin dehydrogenase
+0.0002368 0.351 SMU.1339  putative bacitracin synthetase
+0.0001854 0.347 SMU.1836  putative phospho-2-dehydro-3-deoxyphosphoheptonate aldolase
+0.0007954 0.347 SMU.989 aspartate-semialdehyde dehydrogenase
+0.0001592 0.345 SMU.775c  conserved hypothetical protein 
+0.000825  0.344 SMU.231 acetolactate synthase, large subunit (AHAS)
+2.55E-05  0.339 SMU.484 putative serine/threonine protein kinase
+0.0003629 0.326 SMU.941c  conserved hypothetical protein
+0.0001048 0.323 SMU.1461  putative glucose-1-phosphate thymidyltransferase
+0.0003521 0.317 SMU.287 putative ComB, accessory factor for ComA
+0.0006074 0.317 SMU.795 conserved hypothetical protein probable esterase
+1.76E-05  0.316 SMU.1002  putative DNA topoisomerase I
+3.41E-05  0.316 SMU.1341c putative gramicidin S synthetase
+2.29E-05  0.311 SMU.2128  putative dihydroxy-acid dehydratase
+1.05E-05  0.308 SMU.235 conserved hypothetical protein
+2.24E-05  0.303 SMU.361 phosphoglycerate kinase
+0.0009716 0.296 SMU.433 putative transcriptional regulator
+3.00E-06  0.295 SMU.1687  putative manganese-dependent inorganic pyrophosphatase
+7.40E-06  0.294 SMU.949 ATP-dependent protease Clp, ATPase subunit ClpX
+0.0001116 0.294 SMU.495 glycerol dehydrogenase
+0.0004449 0.285 SMU.1151c conserved hypothetical protein
+4.35E-05  0.284 SMU.2004  putative translation initiation factor IF-1
+1.01E-05  0.279 SMU.36  conserved hypothetical protein
+2.23E-05  0.278 SMU.1738  putative biotin carboxyl carrier protein of acetyl-CoA
+6.30E-05  0.277 SMU.299c  putative bacteriocin peptide precursor
+0.0001224 0.277 SMU.975 putative spermidine/putrescine ABC transporter
+0.0004245 0.276 SMU.618 hypothetical protein
+0.0002256 0.27  SMU.905 putative ABC transporter, ATP-binding protein
+9.22E-05  0.265 SMU.35  putative phosphoribosylglycinamide formyltransferase (GART)
+5.96E-05  0.254 SMU.48  putative phosphoribosylamine-glycine ligase phosphoribosyl glycinamide synthetase (GARS)
+0.0001499 0.252 SMU.1541  putative pullulanase
+6.33E-05  0.248 SMU.1073  putative formyl-tetrahydrofolate synthetase
+3.39E-05  0.239 SMU.34  putative phosphoribosylformylglycinamide cyclo-ligase (AIRS) phosphoribosyl aminoimidazole synthetase
+1.07E-05  0.238 SMU.1527  FoF1 proton-translocating ATPase, epsilon subunit
+2.74E-05  0.225 SMU.27  putative acyl carrier protein AcpP; ACP
+3.20E-06  0.221 SMU.59  adenylosuccinate lyase
+5.80E-06  0.22  SMU.1586  putative threonyl-tRNA synthetase
+1.00E-07  0.218 SMU.51  putative phosphoribosylaminoimidazole carboxylase subunit
+5.21E-05  0.212 SMU.32  phosphoribosylpyrophosphate amidotransferase
+0.0001467 0.211 SMU.714 translation elongation factor EF-Tu
+7.11E-05  0.209 SMU.54  putative amino acid recemase
+1.00E-07  0.208 SMU.53  conserved hypothetical protein
+0.0001121 0.205 SMU.307 glucose-6-phosphate isomerase
+4.60E-06  0.204 SMU.2028  levansucrase precursor beta-D-fructosyltransferase
+4.90E-06  0.2 SMU.360 extracellular glyceraldehyde-3-phosphate dehydrogenase
+0.0009201 0.193 SMU.1529  F1FO proton-translocating ATPase, gamma subunit
+4.88E-05  0.181 SMU.1342  putative bacitracin synthetase 1 BacA
+0.0002435 0.169 SMU.37  putative formyltransferase/IMP cyclohydrolase
+5.60E-06  0.168 SMU.49  hypothetical protein
+5.30E-06  0.165 SMU.56  conserved hypothetical protein
+0.00025 0.126 SMU.55  hypothetical protein
+0.0008908 0.106 SMU.910 glucosyltransferase-S
+1.10E-06  0.097 SMU.52  conserved hypothetical protein
+2.00E-07  0.086 SMU.1590  intracellular alpha-amylase
+0.0003595 0.061 SMU.30  putative phosphoribosylformylglycinamidine synthase
+1.00E-07  0.035 SMU.1591  catabolite control protein A, CcpA Genes confirmed by Real-Time PCR are indicated in bold.
