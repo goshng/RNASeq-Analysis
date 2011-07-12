@@ -96,7 +96,6 @@ $ cd src/segemehl_0_0_9_4
 $ make
 ----
 
-
 FASTAX-Toolkit
 ~~~~~~~~~~~~~~
 Download FASTAX-Toolkit at
@@ -120,7 +119,15 @@ source("http://www.bioconductor.org/biocLite.R")
 biocLite("DEGseq")
 ----
 
+TopHat
+~~~~~~
+Download the Mac OS X x86_64 binary from http://tophat.cbcb.umd.edu[here].
+Untar it and add the directory to PATH so that I can run it without full path.
 
+Cufflinks
+~~~~~~~~~
+Download the Mac OS X x86_64 binary from http://cufflinks.cbcb.umd.edu[here].
+Untar it and add the directory to PATH so that I can run it without full path
 
 Menus
 -----

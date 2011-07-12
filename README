@@ -5,9 +5,18 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
-. To compare the result of RNA-Seq and that of microarray experiment.
-. Upload RNA-Seq gene expression tracks. 
+. To compare the result of RNA-Seq and that of microarray experiment. (done)
+. Upload RNA-Seq gene expression tracks. (done)
 . Literature search on bacteria and RNA-Seq.
+. Find papers that Burne mentioned.
+. Compile emails with Robert Burne.
+. Simulate data with positive control.
+. Find segmentation algorithm softwares to call operon (What is known about
+operon structures of S. mutans?).
+. Meeting time 1 P.M. on Saturday
+. Write a short report on the RNA-Seq data.
+. Suboperons prediction using two samples of RNA-Seq data.
+. small RNAs in S. mutans.
 
 .Intermediate term
 . Genome annotations using the RNA-Seq data sets.
