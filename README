@@ -5,18 +5,21 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
-. To compare the result of RNA-Seq and that of microarray experiment. (done)
-. Upload RNA-Seq gene expression tracks. (done)
+. Send two emails about the latest update of RNA-Seq result.
+Write a short report on the RNA-Seq data.
+.. Short reads map in the genome track
+.. Comparison with microarray results (OMZ, TW1)
+.. Use Bowtie to map the short reads.
 . Literature search on bacteria and RNA-Seq.
-. Find papers that Burne mentioned.
-. Compile emails with Robert Burne.
-. Simulate data with positive control.
 . Find segmentation algorithm softwares to call operon (What is known about
 operon structures of S. mutans?).
-. Meeting time 1 P.M. on Saturday
-. Write a short report on the RNA-Seq data.
 . Suboperons prediction using two samples of RNA-Seq data.
 . small RNAs in S. mutans.
+. To compare the result of RNA-Seq and that of microarray experiment. (done)
+. Upload RNA-Seq gene expression tracks. (done)
+. Find papers that Burne mentioned. (done)
+. Compile emails with Robert Burne. (done)
+. Meeting time 1 P.M. on Saturday (done)
 
 .Intermediate term
 . Genome annotations using the RNA-Seq data sets.
@@ -289,6 +292,57 @@ FILE:
 /Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_4_sequence.txt.gz
 The total number of short reads is 20264101
 The number of mapped reads is  11156784 (55 %)
+
+# 01 - UA159
+# 02 - 11VS1
+# 03 - TW1-Galactose
+# 04 - N29
+# 05 - 1SM1
+# 06 - U138
+# 07 - OMZ/HKRR
+# 08 - NMT4863
+# 09 - OMZ175
+# 10 - NLML4
+# 11 - TW1-Glucose
+# 12 - 15JP3
+
+FASTQ: FASTQ01
+The total number of short reads is 18931854
+The number of mapped reads is  13102917 (69 %)
+FASTQ: FASTQ02
+The total number of short reads is 19747584
+The number of mapped reads is  10326492 (52 %)
+FASTQ: FASTQ03
+The total number of short reads is 20591432
+The number of mapped reads is  13494893 (65 %)
+FASTQ: FASTQ04
+The total number of short reads is 24918598
+The number of mapped reads is  11017699 (44 %)
+FASTQ: FASTQ05
+The total number of short reads is 22534482
+The number of mapped reads is  11751227 (52 %)
+FASTQ: FASTQ06
+The total number of short reads is 19483712
+The number of mapped reads is   102150 (0 %)
+FASTQ: FASTQ07
+The total number of short reads is 22194404
+The number of mapped reads is  12060475 (54 %)
+FASTQ: FASTQ08
+The total number of short reads is 21131873
+The number of mapped reads is  10866409 (51 %)
+FASTQ: FASTQ09
+The total number of short reads is 20482548
+The number of mapped reads is  10596559 (51 %)
+FASTQ: FASTQ10
+The total number of short reads is 22392326
+The number of mapped reads is  10750003 (48 %)
+FASTQ: FASTQ11
+The total number of short reads is 22160808
+The number of mapped reads is  15192418 (68 %)
+FASTQ: FASTQ12
+The total number of short reads is 20264101
+The number of mapped reads is  11156784 (55 %)
+
 
 Tools for differential expression
 ---------------------------------

@@ -1,12 +1,14 @@
 
 pdf("wt2tw.pdf")
 x <-read.table("wt2tw.txt")
-plot(x$V2~x$V3,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="U159 versus TW1")
+# plot(x$V2~x$V3,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="U159 versus TW1")
+plot(x=x$V3, y=x$V2,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="U159 versus TW1")
 abline(0,1)
 dev.off()
 
 pdf("tw.pdf")
 y <-read.table("tw.txt")
-plot(y$V2~y$V3,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="TW1-glucose versus TW1-galactose")
+# plot(y$V2~y$V3,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="TW1-glucose versus TW1-galactose")
+plot(x=y$V3, y=y$V2,xlab="Log2 fold changes in microarray",ylab="Log2 fold change in RNA-Seq",main="TW1-glucose versus TW1-galactose")
 abline(0,1)
 dev.off()
