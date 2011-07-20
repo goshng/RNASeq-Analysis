@@ -20,15 +20,15 @@ function bwa-samse {
         FASTQNUM=FASTQ$(printf "%02d" $g)
         GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
         COMMAND="$BWA samse -n 1 \
-          -f $DATADIR/$FASTQNUM.sam \
-          $DATADIR/$GENOMEFASTA-bwa \
-          $DATADIR/$FASTQNUM.sai \
+          -f $BWADIR/$FASTQNUM.sam \
+          $BWADIR/$GENOMEFASTA-bwa \
+          $BWADIR/$FASTQNUM.sai \
           $GZIPFASTAQFILE"
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND >> $BATCHFILE
         else
-          $COMMAND
-          echo "Check $DATADIR/$FASTQNUM.sam"
+          echo $COMMAND | bash
+          echo "Check $BWADIR/$FASTQNUM.sam"
         fi
       done
 

@@ -12,16 +12,16 @@ function bwa-degseq-bed {
       READLENGTH=$(grep READLENGTH $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       # for g in $(eval echo {1..$NUMFASTQFILE}); do
-      for g in $(eval echo {4..10}); do
+      for g in $(eval echo {1..1}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         for i in {1..6}; do
-          cut -f$i $DATADIR/$FASTQNUM.bed > $i
+          cut -f$i $BWADIR/$FASTQNUM.bed > $i
         done
         awk '{print "chr1"}' 1 > 11
         awk '{s=$1+"'"$READLENGTH"'";print s}' 2 > 3
-        paste 11 2 3 4 5 6 > $DATADIR/$FASTQNUM.bed.degseq
+        paste 11 2 3 4 5 6 > $BWADIR/$FASTQNUM.bed.degseq
         rm 1 11 2 3 4 5 6
-        echo "Check file $DATADIR/$FASTQNUM.bed.degseq"
+        echo "Check file $BWADIR/$FASTQNUM.bed.degseq"
       done
       break
     fi

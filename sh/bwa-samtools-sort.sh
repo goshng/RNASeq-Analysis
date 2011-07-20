@@ -17,13 +17,13 @@ function bwa-samtools-sort {
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        COMMAND="$SAMTOOLS sort $DATADIR/$FASTQNUM.bam \
-          $DATADIR/$FASTQNUM.sorted"
+        COMMAND="$SAMTOOLS sort $BWADIR/$FASTQNUM.bam \
+          $BWADIR/$FASTQNUM.sorted"
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND >> $BATCHFILE
         else
-          $COMMAND
-          echo "Check $DATADIR/$FASTQNUM.sorted.bam"
+          echo $COMMAND | bash
+          echo "Check $BWADIR/$FASTQNUM.sorted.bam"
         fi
       done
 

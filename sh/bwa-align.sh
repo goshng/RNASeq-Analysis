@@ -17,15 +17,16 @@ function bwa-align {
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+        # COMMAND="$BWA aln -t $NUMBERCPU \
         COMMAND="$BWA aln -I -t $NUMBERCPU \
-                 $DATADIR/$GENOMEFASTA-bwa \
-                 $GZIPFASTAQFILE > $DATADIR/$FASTQNUM.sai"
+                 $BWADIR/$GENOMEFASTA-bwa \
+                 $GZIPFASTAQFILE > $BWADIR/$FASTQNUM.sai"
 
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND >> $BATCHFILE
         else
-          $COMMAND
-          echo "Check $DATADIR/$FASTQNUM.sai"
+          echo $COMMAND | bash
+          echo "Check $BWADIR/$FASTQNUM.sai"
         fi
 
       done

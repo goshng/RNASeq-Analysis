@@ -1,5 +1,21 @@
-# Author: Sang Chul Choi
-# Date  : Tue May 17 17:48:48 EDT 2011
+###############################################################################
+# Copyright (C) 2011 Sang Chul Choi
+#
+# This file is part of Mauve Analysis.
+# 
+# Mauve Analysis is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Mauve Analysis is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
+###############################################################################
 
 function bwa-index-genome {
   PS3="Choose the species for $FUNCNAME: "
@@ -8,14 +24,14 @@ function bwa-index-genome {
       echo -e "You need to enter something\n"
       continue
     else  
-      echo -n "What repetition do you wish to run? (e.g., 1) "
+     echo -n "What repetition do you wish to run? (e.g., 1) "
       read REPETITION
       global-variable $SPECIES $REPETITION
       read-species
 
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
-      $BWA index -p $DATADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
-
+      $BWA index -p $BWADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
+      echo "Check $BWADIR/$GENOMEFASTA"
       break
     fi
   done

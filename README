@@ -31,6 +31,14 @@ operon structures of S. mutans?).
 Histories
 ---------
 
+Mon Jul 18 20:47:27 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to see how BWA and Bowtie work.
+
+.DEGseq source file
+----
+test/DEGseq/tw1.R
+----
 
 Thu Jul  7 23:28:02 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,6 +117,14 @@ A video tutorial of fastqc was found at
 http://www.youtube.com/watch?v=bz93ReOv87Y.
 Its documentation can be found at
 http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/Help/.
+
+samtools
+--------
+http://samtools.sourceforge.net/samtools.shtml
+
+BWA
+---
+http://bio-bwa.sourceforge.net/bwa.shtml
 
 SeqMonk
 ~~~~~~~

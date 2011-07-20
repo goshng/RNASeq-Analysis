@@ -1,7 +1,5 @@
-# Author: Sang Chul Choi
-# Date  : 
 
-function bwa-samtools-bed {
+function fastq-sample {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -16,15 +14,13 @@ function bwa-samtools-bed {
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        COMMAND="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/sam2bed.pl > $BWADIR/$FASTQNUM.bed"
-
-        if [ "$BATCH" == "YES" ]; then
-          echo $COMMAND >> $BATCHFILE
-        else
-          echo $COMMAND | bash
-          echo "Check $BWADIR/$FASTQNUM.bed"
-        fi
+        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+        perl pl/$FUNCNAME.pl \
+          --fastq $GZIPFASTAQFILE \
+          --out $DATADIR/$FASTQNUM.subsample \
+          --interval 1000
+        gzip $DATADIR/$FASTQNUM.subsample
+        echo "Check $DATADIR/$FASTQNUM.subsample.gz"
       done
 
       break

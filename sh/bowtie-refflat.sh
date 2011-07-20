@@ -10,9 +10,14 @@ function bowtie-refflat {
       echo "expression data that DEGseq can process."
       echo "Create a file with chrom, chromStart, chromEnd, name,"
       echo "and strand using a UCSC genome browser or other method"
-      echo "you would like. Note that you have to make sure that"
+      echo "you would like. Go to strep-genome.bscb.cornell.edu."
+      echo "Clock Tables. Select S. mutans UA159. Select Genes and Gene"
+      echo "Prediction Tracks. Select Known Genes. Then, click get output"
+      echo "Choose chrom, chromStart, chromEnd, name, and strand."
+      echo "Click get output."
+      echo "Note that you have to make sure that"
       echo "genomic positions are 0-based or 1-based."
-      echo -n "What is the file name? (e.g., hgTables.txt) "
+      echo -n "What is the file name? (e.g., data/hgTables.txt) "
       read HGTABLES
       # HGTABLES=hgTables.txt
       for i in {1..5}; do

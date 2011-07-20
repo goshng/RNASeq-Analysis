@@ -3,6 +3,70 @@ RNASEQ Analysis
 Sang Chul Choi <goshng@yahoo.co.kr>
 v1.0, May 2011
 
+Introduction
+------------
+A list of RAN-Seq data files are sampled from bacteria. I use these files to
+analyze transcriptome of the bacteria. Three steps should be performed before
+executing any menus provided by *RNASEQ Analysis*. First, a configuration file
+needs to be placed at +conf+ direcotry. Second, the software packages that are
+specified in the configuration file need to be installed. Third, a species file
+needs to be placed at +species+ directory, and the data files that are specified
+in the species file need to be placed at the corresponding places.
+Now, you are ready to start to analyze RNA-Seq samples using *RNASEQ Analysis*.
+
+Execute the main menu using
+----
+$ ./run
+----
+First, call *init-file-system* to create directories for output files. Then,
+call *choose-species* menu to create directories for your project.
+The FASTQ files must be gzipped files. Try to call *fastq-summary*. The number
+of reads in the FASTQ files will be shown. 
+
+BWA Alignment
+~~~~~~~~~~~~~
+Call *cp-genome* to copy the genome file in FASTA format to the data directory.
+Call *bwa-index-genome* just right after *cp-genome* menu. 
+Call *bwa-align*, *bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*, and
+*bwa-samtools-bed* menus in order. Now, call *fastq-summary* again to see the
+proportions of short reads mapped on the reference genome.
+Menus from *bwa-aling* to *bwa-samtools-bed* can be run in a single command
+using *bwa-batch-align-to-bed*, which creates a +batch+ file at the base
+directory. Just execute the +batch+ file with BASH shell.
+
+Bowtie Alignemnt
+~~~~~~~~~~~~~~~~
+Call *bowtie-index-genome* and *bowtie-align* to index the reference genome, and
+align short reads to the reference genome.
+
+DEGseq
+~~~~~~
+DEGseq takes uniquely mapped reads from RNA-seq data with a gene annotation as input.
+After menu *bwa-samtools-bed* is finished, you can execute *bwa-degseq-bed* to
+create a bed for detecting genes differentially expressed using DEGseq. DEGseq
+requires a refflat file. Call menu *bowtie-refflat* to create the file. You need
+to prepare a _refFlat_ file to convert bowtie mapped reads to expression data
+that DEGseq can process.  Create a file with chrom, chromStart, chromEnd, name,
+and strand using a UCSC genome browser or other method you would like. Go to
+strep-genome.bscb.cornell.edu.  Clock Tables. Select S. mutans UA159. Select
+Genes and Gene Prediction Tracks. Select Known Genes. Then, click get output
+Choose chrom, chromStart, chromEnd, name, and strand.  Click get output.  Note
+that you have to make sure that genomic positions are 0-based or 1-based.
+.The table should look like this
+----
+#chrom  chromStart      chromEnd        name    strand
+chr1    193     1552    SMU_01  +
+chr1    1707    2844    SMU_02  +
+----
+Menu *degseq* takes two RNA-Seq samples to compare gene expression level.
+Menus *bowtie-refflat* and *bwa-samtools-bed* must be called before the call of
+*degseq*. You need to decide which RNA-Seq samples are compared.
+
+edgeR
+~~~~~
+First, do DEGseq menu. Then, use this menu. I use the output file from DEGseq.
+
+
 Quick Start
 -----------
 
@@ -129,7 +193,61 @@ Cufflinks
 Download the Mac OS X x86_64 binary from http://cufflinks.cbcb.umd.edu[here].
 Untar it and add the directory to PATH so that I can run it without full path
 
+Configuration
+-------------
+
+species
+~~~~~~~
+
+----
+REFGENOMEGBK:bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gbk
+REFGENOMEFASTA:bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+REFGENOMEGFF:bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
+REFGENOMELENGTH:2030921
+READLENGTH:100
+NUMFASTQFILE:2
+FASTQ01:data/FASTQ01.gz
+FASTQ02:data/FASTQ02.gz
+----
+
 Menus
 -----
 
+choose-species
+~~~~~~~~~~~~~~
+Create a file in +species+ directory before calling this menu.
 
+fastq-sample
+~~~~~~~~~~~~
+Subsample the set of FASTQ files.
+
+bowtie-align.sh
+bowtie-index-genome.sh
+bowtie-refflat.sh
+bwa-R-saveimage.sh
+bwa-align.sh
+bwa-batch-align-to-bed.sh
+bwa-danko-countreadsininterval.sh
+bwa-danko-detecttranscriptsem.sh
+bwa-danko-metagene.sh
+bwa-danko-writewiggle.sh
+bwa-degseq-bed.sh
+bwa-index-genome.sh
+bwa-samse.sh
+bwa-samtools-bed.sh
+bwa-samtools-sort.sh
+bwa-samtools-view.sh
+bwa-samtools-wig.sh
+choose-species.sh
+conf.sh
+cp-genome.sh
+fastq-summary.sh
+fastxtoolkit-fastq_to_fasta.sh
+fastxtoolkit-fastx_quality_stats.sh
+feature-genome.sh
+global-variable.sh
+hpylori.sh
+init-file-system.sh
+read-species.sh
+run.sh
+segemehl-index-genome.sh
