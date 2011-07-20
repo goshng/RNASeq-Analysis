@@ -30,6 +30,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
+use Scalar::Util qw(looks_like_number);
 require 'pl/sub-error.pl';
 
 $| = 1; # Do not buffer output
@@ -72,22 +73,26 @@ my $degoutput = raDegoutParse ("$degseqout/output_score.txt");
 ###############################################################################
 open DATALIST, ">", "$degseqout/datalist" or die "$!";
 print DATALIST "files\tgroup\n";
-print DATALIST "value1\tvalue1\n";
-print DATALIST "value2\tvalue2\n";
+print DATALIST "value1.txt\tvalue1\n";
+print DATALIST "value2.txt\tvalue2\n";
 close DATALIST;
 
 for (my $i = 1; $i <= 2; $i++)
 {
-open 
-for (my $i = 0; $i <= $#$degoutput; $i++)
-{
-  my $g = $degoutput->[$i];
-  for my $j (keys %$g)
-  {
-    print "$j\n";
-  }
-  last;
-}
+  open VALUE, ">", "$degseqout/value$i.txt" or die $!;
+	print VALUE "Tag_Sequence\tCount\n";
+	for (my $j = 0; $j <= $#$degoutput; $j++)
+	{
+		my $g = $degoutput->[$j];
+		if (looks_like_number($g->{"value$i"}))
+		{
+			print VALUE $g->{GeneNames};
+			print VALUE "\t";
+			print VALUE $g->{"value$i"}; 
+			print VALUE "\n";
+		}
+	}
+	close VALUE;
 }
 
 sub raDegoutParse ($)

@@ -21,7 +21,7 @@ function edgeR {
       # Check $DEGSEQOUT directory.
       perl pl/edgeR.pl --degseqout $DEGSEQOUT
 
-      RTEMP=$BWADIR/$RANDOM.R
+      RTEMP=$DEGSEQOUT/$RANDOM.R
       ROUT=$DEGSEQOUT/edgeR.out
       COMMAND="Rscript $RTEMP > $ROUT"
 cat>$RTEMP<<EOF
@@ -40,7 +40,7 @@ EOF
         echo $COMMAND >> $BATCHFILE
       else
         echo $COMMAND | bash
-        rm $RTEMP
+        # rm $RTEMP
         echo "Check $DEGSEQOUT"
       fi
       break
