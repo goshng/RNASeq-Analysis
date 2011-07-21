@@ -58,19 +58,19 @@ else
   &printError("fastq file is missing");
 }
 
+if (exists $params{interval}) 
+{
+  $interval = $params{interval};
+}
+
 if (exists $params{out})
 {
-  $out = $params{out};
+  $out = "$params{out}-$interval";
   open ($outfile, ">", $out) or die "cannot open > $out: $!";
 }
 else
 {
   $outfile = *STDOUT;   
-}
-
-if (exists $params{interval}) 
-{
-  $interval = $params{interval};
 }
 
 ###############################################################################

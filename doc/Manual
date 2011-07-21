@@ -66,6 +66,9 @@ edgeR
 ~~~~~
 First, do DEGseq menu. Then, use this menu. I use the output file from DEGseq.
 
+transcript-cufflinks
+~~~~~~~~~~~~~~~~~~~~
+You can use this menu to call transcripts.
 
 Quick Start
 -----------

@@ -5,8 +5,6 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
-. Send two emails about the latest update of RNA-Seq result.
-Write a short report on the RNA-Seq data.
 .. Short reads map in the genome track
 .. Comparison with microarray results (OMZ, TW1)
 .. Use Bowtie to map the short reads.
@@ -20,6 +18,8 @@ operon structures of S. mutans?).
 . Find papers that Burne mentioned. (done)
 . Compile emails with Robert Burne. (done)
 . Meeting time 1 P.M. on Saturday (done)
+. Send two emails about the latest update of RNA-Seq result.
+Write a short report on the RNA-Seq data. (done)
 
 .Intermediate term
 . Genome annotations using the RNA-Seq data sets.
@@ -30,6 +30,14 @@ operon structures of S. mutans?).
 
 Histories
 ---------
+
+Wed Jul 20 16:50:27 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am looking at three software packages: Bowtie, TopHat, and Cufflink.
+There is a tutorial for Cufflink
+http://cufflinks.cbcb.umd.edu/tutorial.html[here].
+I am following the tutorial to learn how to use Cufflink.
+The tutorial has a part of using TopHat. I have to use TopHat now.
 
 Mon Jul 18 20:47:27 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -436,6 +444,8 @@ $ hgLoadWiggle SmuUA159 rnaSeq01 FASTQ01.temp.wig
 $ rm FASTQ01.temp.wig 
 ----
 
+
+
 .View the table +rnaSeq01+
 ----
 $ hgsql SmuUA159 -e "select * from rnaSeq01" | less
@@ -466,6 +476,11 @@ for g in $(eval echo {1..$NUMFASTQFILE}); do
   mv $FASTQNUM.wib /gbdb_cornell/SmuUA159/wib/
   hgsql SmuUA159 -e "update $RNASEQNUM set file='/gbdb_cornell/SmuUA159/wib/$FASTQNUM.wib'"
 done
+----
+
+.A script to load the sample
+----
+hgLoadBed SmuUA159 rnaSeq01Transcript cufflinks100.bed
 ----
 
 

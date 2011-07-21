@@ -59,6 +59,7 @@ source sh/fastxtoolkit-fastx_quality_stats.sh
 source sh/fastq-sample.sh
 source sh/degseq.sh
 source sh/edgeR.sh
+source sh/transcript-cufflinks.sh
 
 
 #####################################################################
@@ -103,6 +104,8 @@ CHOICES=( init-file-system \
           bowtie-refflat \
           degseq \
           edgeR \
+          ---TRANSCRIPT---\
+          transcript-cufflinks \
           ---ETC---\
           bwa-danko-countreadsininterval \
           bwa-danko-metagene \
@@ -149,6 +152,8 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"
