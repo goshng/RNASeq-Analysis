@@ -60,6 +60,7 @@ source sh/fastq-sample.sh
 source sh/degseq.sh
 source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
+source sh/maq-align.sh
 
 
 #####################################################################
@@ -97,6 +98,8 @@ CHOICES=( init-file-system \
           ---BOWTIE-ALIGN---\
           bowtie-index-genome \
           bowtie-align \
+          ---MAQ-ALIGN---\
+          maq-align \
           ---FASTQ---\
           fastq-sample \
           ---DE---\
@@ -154,6 +157,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

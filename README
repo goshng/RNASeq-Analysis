@@ -31,6 +31,24 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Wed Jul 27 16:14:14 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am checking the mapping of short reads.
+
+UCSC genome browser mirror for testing purposes:
+http://choi.genome_mirror.bscb.cornell.edu
+
+Use the following command
+----
+make update DBS=SmuUA159
+----
+
+Manual of MAQ was found 
+http://maq.sourceforge.net/maq-man.shtml[here].
+
+FASTQ format in Wikipedia was found
+http://en.wikipedia.org/wiki/FASTQ_format[here].
+
 Wed Jul 20 16:50:27 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am looking at three software packages: Bowtie, TopHat, and Cufflink.

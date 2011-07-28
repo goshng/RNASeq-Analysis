@@ -16,6 +16,7 @@ function choose-species {
       mkdir -p $NUMBERDIR
       mkdir -p $DATADIR
       mkdir -p $BWADIR
+      mkdir -p $MAQDIR
       mkdir -p $BOWTIEDIR
 
       break

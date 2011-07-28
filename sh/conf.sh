@@ -11,6 +11,7 @@ function conf {
   BATCHACCESS=$(grep BATCHACCESS $CONFFILE | cut -d":" -f2)
   QUEUENAME=$(grep QUEUENAME $CONFFILE | cut -d":" -f2)
 
+  MAQ=$(grep MAQ $CONFFILE | cut -d":" -f2)
   BWA=$(grep BWA $CONFFILE | cut -d":" -f2)
   BOWTIE=$(grep BOWTIE $CONFFILE | cut -d":" -f2)
   SAMTOOLS=$(grep SAMTOOLS $CONFFILE | cut -d":" -f2)
