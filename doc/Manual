@@ -34,6 +34,17 @@ Menus from *bwa-aling* to *bwa-samtools-bed* can be run in a single command
 using *bwa-batch-align-to-bed*, which creates a +batch+ file at the base
 directory. Just execute the +batch+ file with BASH shell.
 
+.BWA alignment procedure
+. +bwa index+ Index a reference genome
+. +bwa aln+ Align short reads on the reference genome
+. +bwa samse+ Convert SAI to SAM
+. +samtools view -bS+ Convert SAM to BAM
+. +samtools sort+ Sort BAM
+. +samtools view+ Convert BAM to SAM
+
+*bwa-align* produce the sorted alignment in BAM format. I do not use
+*bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*.
+
 Bowtie Alignemnt
 ~~~~~~~~~~~~~~~~
 Call *bowtie-index-genome* and *bowtie-align* to index the reference genome, and

@@ -17,7 +17,7 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-function bwa-align {
+function bwa-sam {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -29,7 +29,7 @@ function bwa-align {
       global-variable $SPECIES $REPETITION
       read-species
 
-      echo -n "Do you wish to run a batch? (e.g., y/n) "
+      echo -n "Do you wish to run a batch? (e.g., y/n)"
       read WISH
       if [ "$WISH" == "y" ]; then
         BATCH=YES
@@ -37,44 +37,26 @@ function bwa-align {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
-        COMMAND1="$BWA aln -I -t $NUMBERCPU \
-                  $BWADIR/$GENOMEFASTA-bwa \
-                  $GZIPFASTAQFILE > $BWADIR/$FASTQNUM.sai"
-        COMMAND2="$BWA samse -n 1 \
-                  -f $BWADIR/$FASTQNUM.sam \
-                  $BWADIR/$GENOMEFASTA-bwa \
-                  $BWADIR/$FASTQNUM.sai \
-                  $GZIPFASTAQFILE"
-        COMMAND3="$SAMTOOLS view -bS -o $BWADIR/$FASTQNUM.bam \
-                  $BWADIR/$FASTQNUM.sam"
-        COMMAND4="$SAMTOOLS sort $BWADIR/$FASTQNUM.bam \
-                  $BWADIR/$FASTQNUM.sorted"
-        DELETE1="rm $BWADIR/$FASTQNUM.sai \
-                    $BWADIR/$FASTQNUM.sam \
-                    $BWADIR/$FASTQNUM.bam"
+        COMMAND1="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl size > $BWADIR/$FASTQNUM-sum.size"
+        COMMAND2="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl mapq > $BWADIR/$FASTQNUM-sum.mapq"
+
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND1 >> $BATCHFILE
           echo $COMMAND2 >> $BATCHFILE
-          echo $COMMAND3 >> $BATCHFILE
-          echo $COMMAND4 >> $BATCHFILE
-          echo $DELETE1 >> $BATCHFILE
         else
           echo $COMMAND1 | bash
           echo $COMMAND2 | bash
-          echo $COMMAND3 | bash
-          echo $COMMAND4 | bash
-          echo $DELETE1 | bash
-          echo "Check $BWADIR/$FASTQNUM.sorted.bam"
-          echo "Use $SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam"
-          echo "to view the alignment."
+          echo "Check $BWADIR/$FASTQNUM.bed"
         fi
       done
+
       break
     fi
   done
+
 }

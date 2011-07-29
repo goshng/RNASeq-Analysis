@@ -31,6 +31,18 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Fri Jul 29 14:34:57 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Directory +emails/from/melissa/072911+ contains SMU109 or OMZ strain's contigs
+and genes.
+
+Thu Jul 28 15:56:16 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++wgsim+ is a simulator of short reads from a reference genome. There is a thread
+in
+http://seqanswers.com/forums/showthread.php?t=806[here]
+about simulators of short reads.
+
 Wed Jul 27 16:14:14 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am checking the mapping of short reads.

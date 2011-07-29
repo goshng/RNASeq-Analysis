@@ -61,7 +61,8 @@ source sh/degseq.sh
 source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
 source sh/maq-align.sh
-
+source sh/bwa-sam.sh
+source sh/bwa-mpileup.sh
 
 #####################################################################
 # Read configuration file
@@ -79,19 +80,20 @@ SPECIESS=$(ls species|grep -v ^sim)
 PS3="Select what you want to do with : "
 CHOICES=( init-file-system \
           choose-species \
-          ---BWA-INDEX-GENOME---\
-          cp-genome \
-          bwa-index-genome \
           ---BWA-SUMMARY---\
           fastq-summary \
           ---BWA-ALIGN---\
+          cp-genome \
+          bwa-index-genome \
           bwa-align \
-          bwa-samse \
-          bwa-samtools-view \
-          bwa-samtools-sort \
-          bwa-samtools-bed \
-          bwa-batch-align-to-bed \
+          # bwa-samse \
+          # bwa-samtools-view \
+          # bwa-samtools-sort \
+          bwa-mpileup \
+          # bwa-samtools-bed \
+          # bwa-batch-align-to-bed \
           bwa-samtools-wig \
+          bwa-sam \
           ---TRACK---\
           bwa-R-saveimage \
           bwa-danko-writewiggle \
@@ -135,6 +137,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "segemehl-index-genome" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-align" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samse" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-mpileup" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-view" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-sort" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-bed" ]; then $CHOICE; break
@@ -158,6 +161,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
   elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-sam" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"
