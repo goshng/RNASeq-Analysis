@@ -5,13 +5,13 @@ v1.0, May 2011
 
 Introduction
 ------------
-A list of RAN-Seq data files are sampled from bacteria. I use these files to
+A list of RNA-Seq data files are sampled from bacteria. Using these files I
 analyze transcriptome of the bacteria. Three steps should be performed before
-executing any menus provided by *RNASEQ Analysis*. First, a configuration file
-needs to be placed at +conf+ direcotry. Second, the software packages that are
-specified in the configuration file need to be installed. Third, a species file
+executing any menus provided by *RNASEQ Analysis*. Firstly, a configuration file
+needs to be placed at +conf+ direcotry. Secondly, the software packages that are
+specified in the configuration file need to be installed. Thirdly, a species file
 needs to be placed at +species+ directory, and the data files that are specified
-in the species file need to be placed at the corresponding places.
+in the species file need to be placed at the proper places.
 Now, you are ready to start to analyze RNA-Seq samples using *RNASEQ Analysis*.
 
 Execute the main menu using
@@ -30,7 +30,7 @@ Call *bwa-index-genome* just right after *cp-genome* menu.
 Call *bwa-align*, *bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*, and
 *bwa-samtools-bed* menus in order. Now, call *fastq-summary* again to see the
 proportions of short reads mapped on the reference genome.
-Menus from *bwa-aling* to *bwa-samtools-bed* can be run in a single command
+Menus from *bwa-align* to *bwa-samtools-bed* can be run in a single command
 using *bwa-batch-align-to-bed*, which creates a +batch+ file at the base
 directory. Just execute the +batch+ file with BASH shell.
 
@@ -45,10 +45,50 @@ directory. Just execute the +batch+ file with BASH shell.
 *bwa-align* produce the sorted alignment in BAM format. I do not use
 *bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*.
 
+Call menu *bwa-mpileup* to create a pileup file, and to create a wiggle file to
+upload RNA-Seq sample tracks. The species file should have READDEPTH, which is
+used in +samtools mpileup+ -d option value. If the uploaded track is limited by
+the value you specified, you should increase the value.
+----
+READDEPTH:300000
+----
+
+*bwa-summary* creates +sum.pos+ files. For example, +sum.pos+ files contains three
+columns: short read names, start, and end positions of the short reads in the
+reference sequence.
+*bwa-summary* creates summary files: number of reads, number of reads uniquely
+mapped. 
+*bwa-summary* finds the total number of reads, the number of reads mapped.
+A +sum+ file, e.g.,  output/omz/1/bwa/FASTQ01.sum, contains RNA-Seq short
+sequence file, total number of the reads, and the number of short reads mapped.
+
 Bowtie Alignemnt
 ~~~~~~~~~~~~~~~~
 Call *bowtie-index-genome* and *bowtie-align* to index the reference genome, and
 align short reads to the reference genome.
+
+DESeq
+~~~~~
+*deseq* works with _omz_ species.
+
+Prepare a file named +gene.pos+ with 4 columns of gene name, chromosome name,
+gene start, and gene end. UCSC genome browser can be used to extract information
+of known genes: go to Table menu at the top of the UCSC genome browser of
+http://strep-genome.bscb.cornell.edu/, click Table menu, choose 
+Group +Genes and Gene Prediction Tracks+, track +Known Genes+, and choose output
+format +selected fields from primary and related tables+.
+
+.A script to create gene.pos file from the table from the UCSC genome browser
+----
+awk '{ print $4 "\t" $1 "\t" $2 "\t" $3}' hgTables.ua159 > ../output/smutans12/1/data/gene.pos
+----
+
+.A gene.pos file
+----
+SMU109_00005    SMU109-OMZ175.contig1   44      283
+----
+
+Call *bwa-summary* to create +FASTQXX-sum.pos+ file.
 
 DEGseq
 ~~~~~~
@@ -60,10 +100,11 @@ to prepare a _refFlat_ file to convert bowtie mapped reads to expression data
 that DEGseq can process.  Create a file with chrom, chromStart, chromEnd, name,
 and strand using a UCSC genome browser or other method you would like. Go to
 strep-genome.bscb.cornell.edu.  Clock Tables. Select S. mutans UA159. Select
-Genes and Gene Prediction Tracks. Select Known Genes. Then, click get output
+Genes and Gene Prediction Tracks. Select Known Genes.  choose output format
++selected fields from primary and related tables+.  Then, click get output
 Choose chrom, chromStart, chromEnd, name, and strand.  Click get output.  Note
-that you have to make sure that genomic positions are 0-based or 1-based.
-.The table should look like this
+that you have to make sure that genomic positions are 0-based or 1-based.  .The
+table should look like this
 ----
 #chrom  chromStart      chromEnd        name    strand
 chr1    193     1552    SMU_01  +
@@ -76,6 +117,16 @@ Menus *bowtie-refflat* and *bwa-samtools-bed* must be called before the call of
 edgeR
 ~~~~~
 First, do DEGseq menu. Then, use this menu. I use the output file from DEGseq.
+
+DESeq
+~~~~~
+The number of reads in a gene, or _read count_, is known to be somewhat linear
+to the abundance of the RNA transcript of the gene. I wish to test whether an
+observed difference in read counts for a gene is statistically significant. For
+this test I need a model for the expected number of reads. For a set of given
+genes with a range of lengths the read counts would be distributed. The number
+of reads that are assigned to a gene is assumed to be distributed as a negative
+binomial distribution with a mean and a variance.
 
 transcript-cufflinks
 ~~~~~~~~~~~~~~~~~~~~

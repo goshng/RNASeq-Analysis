@@ -31,6 +31,28 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Thu Aug  4 18:01:26 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A file R/deseq.R is created for a detailed study of DESeq R package.
+
+Wed Aug  3 16:49:04 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are two version: release and devel.
+http://www-huber.embl.de/users/anders/DESeq/
+
+R package library tutorial:
+http://user2010.org/tutorials/Ligges.pdf
+http://en.wikipedia.org/wiki/Package_development_process
+http://cran.r-project.org/doc/contrib/Leisch-CreatingPackages.pdf
+
+Mon Aug  1 13:59:22 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Download DESeq
+----
+source("http://bioconductor.org/biocLite.R")
+biocLite("DESeq")
+----
+
 Fri Jul 29 14:34:57 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Directory +emails/from/melissa/072911+ contains SMU109 or OMZ strain's contigs

@@ -26,6 +26,7 @@ function fastq-summary {
         TOTALLENGTH=$(zcat $GZIPFASTAQFILE|wc -l)
         TOTALLENGTH=$(($TOTALLENGTH / 4))
         echo "The total number of short reads is $TOTALLENGTH"
+
         NUMBERMAPPEDREAD=$(trim $(cat $BWADIR/$FASTQNUM.bed|wc -l))
         PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
         echo "The number of mapped reads using BWA is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"

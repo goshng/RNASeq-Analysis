@@ -122,6 +122,7 @@ elsif ($cmd eq "parse")
       chomp;
       my @e = split /\t/;
       my $flag = $e[1];
+      my $chr = $e[2];
       my $mapQuality = $e[4];
       unless ($#e > 10)
         {
@@ -137,6 +138,38 @@ elsif ($cmd eq "parse")
       $e[17] =~ /XG:i:(\d+)/; my $xg = $1;
       $e[18] =~ /MD:Z:(.+)/;  my $md = $1;
       print "$flag\t$mapQuality\t$xt\t$nm\t$x0\t$x1\t$xm\t$xo\t$xg\t$md\n";
+      if ($s % 1000000 == 0)
+        {
+          print STDERR "Reads $s\r";
+        }
+    }
+  print STDERR "Skipped reads: $skippedRead\n"; 
+}
+elsif ($cmd eq "pos")
+{
+
+  my $s = 0;
+  my $skippedRead = 0;
+  while (<$infile>)
+    {
+      $s++;
+      chomp;
+      # See this thread of dicussion for finding ending positions.
+      # http://sourceforge.net/mailarchive/forum.php?thread_name=4A6F0237.30806%40broadinstitute.org&forum_name=samtools-help
+      my @e = split /\t/;
+      my $chr = $e[2];
+      my $mapQuality = $e[4];
+      unless ($mapQuality > $mapq and $#e > 10)
+        {
+          $skippedRead++; 
+          next;
+        }
+      my $shortReadIdentifier = $e[0];
+      my $shortReadStart = $e[3];
+      $_ = $e[5];
+      my $shortReadEnd = $e[3]-1;
+      s/(\d+)[NMD]/$shortReadEnd+=$1/eg;
+      print $outfile "$shortReadIdentifier\t$chr\t$shortReadStart\t$shortReadEnd\n"; 
       if ($s % 100000 == 0)
         {
           print STDERR "Reads $s\r";
@@ -174,6 +207,7 @@ Command:
   mapq  - print MAPQ values
   size  - print the number of short reads mapped
   parse - print FLAG, MAPQ, XT, X0, X1, XM, XO, XG
+  pos   - print short read name, chr, start, and end positions
 
   1  QNAME   String
   2  FLAG    Int 
@@ -190,6 +224,10 @@ Command:
 =head1 OPTIONS
 
 =over 8
+
+=item B<-mapq> <number>
+
+Minimum mapping quality to be called short read maps.
 
 =item B<-in> <file>
 

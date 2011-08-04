@@ -1,0 +1,406 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+Robert Burne's Lab extracted RNA from OMZ175 and OMZ/HKRR, and Michael Stanhope'
+s Lab sequenced RNA transcripts with Illumina GenomeAnalyzer.
+ The total number of short reads from OMZ175 was 20482548.
+ While the complete genome sequence of OMZ175 was not available, an incomplete
+ genome of the strain was available.
+ The short short reads were mapped to 130 contigs of OMZ175 genome.
+ A large proportoin of the short reads, or 19648819 of 20482548, were mapped
+ with positive values of mapping quality, which means that reads were mapped
+ uniquely.
+ I am surprised because only half of the total short reads were uniquely
+ mapped onto the genome of UA159.
+\end_layout
+
+\begin_layout Standard
+There were 1997 genes in the 130 contigs of OMZ175 genome (see 
+\bar under
+SMU109-OMZ175.gff
+\bar default
+).
+ Alignments of short reads with a gene could start and end within the gene.
+ They could also start within a gene and end out of the gene.
+ Because the way that I count short reads for genes could be an important
+ issue, I mention how I counted them here: I counted reads that were aligned
+ any parts of each gene (see 
+\bar under
+count.txt
+\bar default
+).
+ For each gene, I tested the null hypothesis 
+\begin_inset Formula $q_{i,A}=q_{i,B}$
+\end_inset
+
+ where 
+\begin_inset Formula $q_{i,A}$
+\end_inset
+
+ is the expression level for samples of condition 
+\begin_inset Formula $A$
+\end_inset
+
+ for gene 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $q_{i,B}$
+\end_inset
+
+ is similarly defined.
+ Among the 1997 genes in OMZ175 we found 54 genes that were differentially
+ expressed (see 
+\bar under
+de-gene.txt
+\bar default
+).
+ Last time, Robert asked me if we can find genes that are present in OMZ175
+ but not in UA159.
+ Michael Stanhope's Lab found 227 genes that are present in OMZ175 but absent
+ in UA159 (see 
+\bar under
+smu109.gene
+\bar default
+).
+ I have looked at how many genes are present only in OMZ175 among the 54
+ differentially expressed genes, and 15 of the 54 genes are present in OMZ175
+ but not in UA159 (see 
+\bar under
+omzonly.txt
+\bar default
+).
+\end_layout
+
+\begin_layout Standard
+The list of genes differentially expressed should be found in file 
+\bar under
+de-gene.txt
+\bar default
+ that is a tab delimited by columns of arbitrary number, id, baseMean, baseMeanA
+, baseMeanB, foldChange, log2FoldChange, pval, padj resVarA, and resVarB
+ (see Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:col"
+
+\end_inset
+
+ for the description of the columns).
+ Because we did not have replicates for OMZ175 and OMZ/HKRR, the result
+ of 54 differentially expressed genes should be of limited reliability.
+ In other words, the difference we are seeing could be due to not only different
+ conditions of OMZ175 and OMZ/HKRR but also different procedures of the
+ two samples.
+ However, Robert might be able to make sense of the 54 genes, and especially
+ the 15 genes that are unique to OMZ175.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:col"
+
+\end_inset
+
+Column description of the file 
+\bar under
+de-gene.txt
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Columns
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+id
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+gene name
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMean
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from OMZ175
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from OMZ/HKRR
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+foldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+fold change from OMZ175 to OMZ/HKRR
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log2FoldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log base 2 value of foldChange
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pval
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+raw P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+padj
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+multiple testing adjusted P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

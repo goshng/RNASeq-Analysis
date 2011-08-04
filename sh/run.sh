@@ -58,10 +58,12 @@ source sh/fastxtoolkit-fastx_quality_stats.sh
 
 source sh/fastq-sample.sh
 source sh/degseq.sh
+source sh/deseq.sh
 source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
 source sh/maq-align.sh
-source sh/bwa-sam.sh
+source sh/bwa-summary.sh
+source sh/de-count.sh
 source sh/bwa-mpileup.sh
 
 #####################################################################
@@ -93,7 +95,7 @@ CHOICES=( init-file-system \
           # bwa-samtools-bed \
           # bwa-batch-align-to-bed \
           bwa-samtools-wig \
-          bwa-sam \
+          bwa-summary \
           ---TRACK---\
           bwa-R-saveimage \
           bwa-danko-writewiggle \
@@ -105,6 +107,8 @@ CHOICES=( init-file-system \
           ---FASTQ---\
           fastq-sample \
           ---DE---\
+          de-count \
+          deseq \
           bwa-degseq-bed \
           bowtie-refflat \
           degseq \
@@ -155,13 +159,15 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-samtools-wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "fastq-sample" ]; then $CHOICE; break
   elif [ "$CHOICE" == "degseq" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "deseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
   elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-sam" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-summary" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"
