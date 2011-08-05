@@ -163,6 +163,10 @@ Quick Start
 
 .Create genome tracks for the mapped reads
 . First align reads to a reference genome
+. Execute menu *bwa-align*
+. Execute menu *bwa-mpileup*
+
+.Outdated
 . Execute menu *bwa-R-saveimage*
 . Execute menu *bwa-danko-writewiggle* 
 

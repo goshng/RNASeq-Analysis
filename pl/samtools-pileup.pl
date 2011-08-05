@@ -22,6 +22,7 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 require 'pl/sub-error.pl';
+require 'pl/sub-fasta.pl';
 
 ###############################################################################
 # COMMAND LINE
@@ -44,6 +45,7 @@ GetOptions( \%params,
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
             'genomeLength=i',
+            'refgenome=s',
             'in=s',
             'out=s',
             '<>' => \&process
@@ -55,8 +57,19 @@ my $out;
 my $in;
 my $outfile;
 my $infile;
+my $refgenome;
 my $genomeLength;
 
+if (exists $params{refgenome})
+{
+  $refgenome = $params{refgenome};
+}
+else
+{
+  &printError("Reference genome is missing");
+}
+
+=cut
 if (exists $params{genomeLength}) 
 {
   $genomeLength = $params{genomeLength};
@@ -65,6 +78,7 @@ else
 {
   &printError("genome length is missing");
 }
+=cut
 
 if (exists $params{out})
 {
@@ -106,30 +120,51 @@ if ($cmd eq "test")
       last;
     }
 }
+
 if ($cmd eq "wiggle")
 {
-  my @map = (0) x ($genomeLength + 1);
+  my %fl = peachFastaLength ($refgenome);
+=cut
+  foreach my $i (keys %fl)
+  {
+    print "$i: $fl{$i}\n";
+  }
+=cut
+  my %maps;
+  foreach my $i (keys %fl)
+  {
+    my $l = $fl{$i};
+    my @map = (0) x ($l + 1);
+    $maps{$i} = [ @map ];
+  }
+
   my $s = 0;
   while (<$infile>)
     {
       $s++;
       chomp;
       my @e = split /\t/;
+      my $chromosome = $e[0];
       my $pos = $e[1];
       my $reads = $e[3];
-      $map[$pos] = $reads;
-      if ($s % 10000 == 0)
+      $maps{$chromosome}[$pos] = $reads;
+
+      if ($s % 100000 == 0)
         {
-          my $percent = int($s/$genomeLength);
-          print STDERR "Progress $percent%\r";
+          print STDERR "Line $s\r";
         }
     }
+
   print $outfile "track type=wiggle_0\n";
-  print $outfile "fixedStep chrom=chr1 start=1 step=1 span=1\n";
-  for (my $i = 1; $i <= $#map; $i++)
+  foreach my $i (keys %fl)
+  {
+    print $outfile "fixedStep chrom=$i start=1 step=1 span=1\n";
+    my $l = scalar @{ $maps{$i} };
+    for (my $j = 1; $j < $l; $j++)
     {
-      print $outfile "$map[$i]\n";
+      print $outfile "$maps{$i}[$j]\n";
     }
+  }
 }
 
 if (exists $params{in})
@@ -186,8 +221,8 @@ Sang Chul Choi, C<< <goshng_at_yahoo_dot_co_dot_kr> >>
 
 =head1 BUGS
 
-If you find a bug please post a message rnaseq_analysis project at codaset dot
-com repository so that I can make map2graph better.
+If you find a bug please post a message RNASeq Analysis at codaset dot
+com repository so that I can make RNASeq Analysis better.
 
 =head1 COPYRIGHT
 

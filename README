@@ -31,6 +31,11 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+
+Fri Aug  5 18:03:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am starting to code the differential expression level study.
+
 Thu Aug  4 18:01:26 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A file R/deseq.R is created for a detailed study of DESeq R package.
