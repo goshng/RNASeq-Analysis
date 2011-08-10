@@ -1,20 +1,22 @@
+# library(Biobase)
+
 # install.packages("matrixStats")
 library(locfit)
 library(matrixStats)
-library(Biobase)
+countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
+conds <- c("OMZ175", "OMZHKRR")
+condA <- "OMZ175"
+condB <- "OMZHKRR"
+eps <- 1e-8
 
-####################################################################################
-# class_and_slots.R: Class, get, and set functions
-# Class definition
-setClass( "CountDataSet", 
-   contains = "eSet",
-   representation = representation( 
-      rawVarFuncs = "environment",
-      rawVarFuncTable = "character",
-      multivariateConditions = "logical" ),
-   prototype = prototype( new( "VersionedBiobase",
-      versions = c( classVersion("eSet"), CountDataSet = "1.1.0" ) ) )
-)
+# Read a read counts file
+countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+rownames(countsTable) <- countsTable$gene
+countsTable <- countsTable[,-1]
+conditions <- factor( conds )
+
+# Test of the null hypotheses
+
 
 # Gets counts
 counts <- function( cds ) {
@@ -308,30 +310,6 @@ adjustScvForBias <- function( scv, nsamples ) {
    else
       pmax( safepredict( scvBiasCorrectionFits[[ nsamples-1 ]], scv ), 1e-8 * scv )
 }      
-   
-estimateVarianceFunctionFromBaseMeansAndVariances <- function( means, 
-   variances, sizeFactors, locfit_extra_args=list(), lp_extra_args=list() ) {
-   
-   variances <- variances[ means > 0 ]
-   means <- means[ means > 0 ]
-   
-   fit <- do.call( "locfit", c( 
-      list( 
-         variances ~ do.call( "lp", c( list( log(means) ), lp_extra_args ) ),
-         family = "gamma" ), 
-      locfit_extra_args ) )
-   
-   rm( means )
-   rm( variances )
-   xim <- sum( 1/sizeFactors ) / length( sizeFactors )
-      
-   function( q ) {
-      ans <- pmax( safepredict( fit, log(q) ) - xim * q, 1e-8 * q )
-      attr( ans, "size" ) <- length( sizeFactors )
-      ans }
-   # Note: The 'pmax' construct above serves to limit the overdispersion to a minimum
-   # of 10^-8, which should be indistinguishable from 0 but ensures numerical stability.
-}   
 
 safepredict <- function( fit, x )
 {
@@ -368,145 +346,11 @@ nbinomTestForMatricesRaw <- function( kA, kB, muA, vA, muB, vB, eps=0 )
    pobs <- pobs * ( 1 + 1e-7 )
    # This is to avoid rounding errors in checking for p <= pobs
 
-   # totals <- calc_pvals ( as.integer(kA+kB), pobs, muA, vA, muB, vB, eps )
    totals <- .Call( "calc_pvals", as.integer(kA+kB), pobs, muA, vA, muB, vB, eps )
    min( unname( totals[2] / totals[1] ), 1 )
    # The 'min' is to avoid p values slightly exceeding 1 due to
    # approximation errors
 }
-
-add_from_both_sides <- function( left, right, kS, pobs, muA, vA, muB, vB, eps)
-{
-   sizeA = muA*muA / (vA-muA)
-   probA = muA/vA
-   sizeB = muB*muB / (vB-muB)
-   probB = muB/vB
-
-   kl = left
-   kr = right
-   lval = dnbinom( kl, sizeA, probA ) * dnbinom( kS-kl, sizeB, probB )
-   rval = dnbinom( kr, sizeA, probA ) * dnbinom( kS-kr, sizeB, probB )
-   prevlval = lval
-   prevrval = rval
-   total = lval + rval
-   esttotalperlength = total/2
-   obstotal = 0
-
-   step = 1
-   steps = 0
-   do_left = TRUE
-   if( lval <= pobs )
-   {
-      obstotal = obstotal + lval
-   }
-   if( rval <= pobs )
-   {
-      obstotal = obstotal + rval
-   }
-   while( kl < kr ) {
-      #if (steps %% 1000 == 0)
-      #{
-        #print (steps)
-      #}
-      steps <- steps + 1
-      if( abs( ( prevrval - rval ) ) / prevrval > .01 )
-      {
-         do_left = TRUE
-      }
-      else 
-      if( abs( ( prevlval - lval ) ) / prevlval > .01 )
-      {
-         do_left = FALSE
-      }
-      else
-      {
-         do_left = lval > rval
-      }
-      if( do_left ) {
-         prevlval = lval
-         if( kl + step > kr )
-         {
-            step = kr - kl
-         }
-         kl = kl + step
-         lval = dnbinom( kl, sizeA, probA ) * dnbinom( kS-kl, sizeB, probB )
-         if( step == 1 )
-         {
-            total = total + lval
-         }
-         else
-         {
-            total = total + min( lval, prevlval ) * step
-         }
-         if( lval <= pobs ) {
-            if( step == 1 )
-            {
-               obstotal = obstotal + lval
-            }
-            else {       
-               if( prevlval <= pobs )
-               {
-                  obstotal = obstotal + max( lval, prevlval ) * step
-               }
-               else
-               {
-                  obstotal = obstotal + max( lval, prevlval ) * step * abs( (pobs-lval) / (prevlval-lval) )
-               }
-            }
-         }       
-         if( abs( prevlval - lval ) / prevlval < eps )
-         {
-            step = max( step + 1, round(step * 1.5) )
-         }
-      } else {
-         prevrval = rval
-         if( kr - step < kl )
-         {
-            step = kr - kl
-         }
-         kr = kr - step
-         rval = dnbinom( kr, sizeA, probA ) * dnbinom( kS-kr, sizeB, probB )
-         if( step == 1 )
-         {
-            total = total + rval
-         }
-         else
-         {
-            total = total + min( rval, prevrval ) * step
-         }
-         if( rval <= pobs ) {
-            if( step == 1 )
-            {
-               obstotal = obstotal + rval
-            }
-            else {       
-               if( prevrval <= pobs )
-               {
-                  obstotal = obstotal + max( rval, prevrval ) * step
-               }
-               else
-               {
-                  obstotal = obstotal + max ( rval, prevrval ) * step * abs( (pobs-rval) / (prevrval-rval) )
-               }
-            }
-         }       
-         if( abs( ( prevrval - rval ) ) / prevrval < eps )
-         {
-            step = max( step + 1, round(step * 1.5) )
-         }
-      }
-   }
-   
-   list(total=total, obstotal=obstotal)
-}   
-calc_pvals <- function ( kS, pobs, muA, vA, muB, vB, eps ) 
-{
-   kexp <- round(kS * muA / ( muA + muB ))
-   vl <- add_from_both_sides( 0,      kexp, kS, pobs, muA, vA, muB, vB, eps)
-   vr <- add_from_both_sides( kexp+1, kS,   kS, pobs, muA, vA, muB, vB, eps)
-
-   c(vl$total + vr$total, vl$obstotal + vr$obstotal)
-}   
 
 nbinomTestForMatrices <- function( countsA, countsB, sizeFactorsA, sizeFactorsB, 
    rawScvA, rawScvB, eps=1e-4 )
@@ -524,23 +368,17 @@ nbinomTestForMatrices <- function( countsA, countsB, sizeFactorsA, sizeFactorsB,
    fullVarB <- pmax( muBs + rawScvB * baseMeans^2 * sum(sizeFactorsB^2), muBs * (1+1e-8) )
    
    sapply( 1:nrow(cbind(countsA)), function(i) {
-   #if (i %% 100 == 0)
-     #print (i)
       nbinomTestForMatricesRaw( kAs[i], kBs[i], muAs[i], fullVarA[i], muBs[i], fullVarB[i], eps )
    } )
 }
 
 ####################################################################################
 # Main function
-# data file, column names from the second one, two conditions to compare
-# Read a table of counts: the first column is gene. Each column represents
-# a sample, and the column names does not mean much. You need to specify 
-# which columns to compare.
-# countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
-# conds <- c("OMZ175", "OMZHKRR")
-# e.g., r1 <- de(countsFile, conds, "OMZ175", "OMZHKRR")
-de <- function(countsFile, conditions, condA, condB, method)
+de <- function(countsFile, conditions)
 {
+  # Read a table of counts: the first column is gene. Each column represents
+  # a sample, and the column names does not mean much. You need to specify 
+  # which columns to compare.
   countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
   rownames(countsTable) <- countsTable$gene
   countsTable <- countsTable[,-1]
@@ -548,6 +386,7 @@ de <- function(countsFile, conditions, condA, condB, method)
   sizeFactors=NULL
   phenoData = NULL
   featureData = NULL
+  conditions <- conds 
   countData <- countsTable 
   countData <- as.matrix( countData )
   if( any( round( countData ) != countData ) )
@@ -593,14 +432,11 @@ de <- function(countsFile, conditions, condA, condB, method)
     rawVarFuncs = new.env( hash=TRUE ),
     rawVarFuncTable = rvft )
   cds <- estimateSizeFactors(cds)
-  cds <- estimateVarianceFunctions(cds,method=method)
-  res <- nbinomTest(cds, condA, condB)
+  cds <- estimateVarianceFunctions(cds,method="blind")
+  res <- nbinomTest(cds, "OMZ175", "OMZHKRR")
 }
 
-countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
-conds <- c("OMZ175", "OMZHKRR")
-method <- "blind"
-r1 <- de(countsFile, conds, "OMZ175", "OMZHKRR", method)
+r1 <- de(countsFile, conds)
 
 
 # R: apply's
@@ -609,3 +445,363 @@ r1 <- de(countsFile, conds, "OMZ175", "OMZHKRR", method)
 # for rowVars
 # install.packages("matrixStats")
 # library(matrixStats)
+
+# Step 1: Read a table
+newCountDataSet <- function()
+{
+  library(DESeq)
+  countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
+  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+  rownames(countsTable) <- countsTable$gene
+  countsTable <- countsTable[,-1]
+  conds <- c("OMZ175", "OMZHKRR")
+
+  sizeFactors=NULL
+  phenoData = NULL
+  featureData = NULL
+  conditions <- conds 
+  countData <- countsTable 
+  countData <- as.matrix( countData )
+  if( any( round( countData ) != countData ) )
+    stop( "The countData is not integer." )
+  mode( countData ) <- "integer"
+
+  if ( is.null( sizeFactors ) )
+    sizeFactors <- rep( NA_real_, ncol(countData) )
+  if ( is.null( phenoData ) )
+    phenoData <- annotatedDataFrameFrom( countData, byrow=FALSE )
+  if ( is.null( featureData ) ) 
+    featureData <- annotatedDataFrameFrom( countData, byrow=TRUE )
+
+  phenoData$`sizeFactor` <- sizeFactors
+  varMetadata( phenoData )[ "sizeFactor", "labelDescription" ] <-
+    "size factor (relative estimate of sequencing depth)"
+  if( is( conditions, "matrix" ) )
+    conditions <- as.data.frame( conditions )
+
+  if( is( conditions, "data.frame" ) || is( conditions, "AnnotatedDataFrame" ) ) {
+     stopifnot( nrow( conditions ) == ncol( countData ) )
+     conditions <- as( conditions, "AnnotatedDataFrame" )
+     dimLabels( conditions ) <- dimLabels( phenoData )
+     rownames( pData(conditions) ) <- rownames( pData(phenoData) )
+        # TODO: What if the rownames were set?
+     phenoData <- combine( phenoData, conditions )
+     multivariateConditions <- TRUE
+     rvft <- c( `_all` = NA_character_ )
+  } else {
+     conditions <- factor( conditions )
+     stopifnot( length( conditions ) == ncol( countData ) )
+     phenoData$`condition` <- factor( conditions )
+     varMetadata( phenoData )[ "condition", "labelDescription" ] <-
+       "experimental condition, treatment or phenotype"
+     multivariateConditions <- FALSE
+     rvft <- rep( NA_character_, length(levels(conditions)) )
+  }
+  cds <- new( "CountDataSet",
+    assayData = assayDataNew( "environment", counts=countData ),
+    phenoData = phenoData, 
+    featureData = featureData,
+    multivariateConditions = multivariateConditions,
+    rawVarFuncs = new.env( hash=TRUE ),
+    rawVarFuncTable = rvft )
+  cds
+}
+
+
+# Step 2: compute the size factor
+estimateSizeFactorsSangChulChoi <- function()
+{
+   loggeomeans <- rowMeans( log(counts(cds)) ) 
+   sizeFactors(cds) <- apply( counts(cds), 2, function(cnts) exp( median( ( log(cnts) - loggeomeans )[ is.finite(loggeomeans) ] ) ) )
+}
+
+########################################################################
+# Step 3: returns a function for local regression. I skip this procedure.
+getBaseMeansAndVariances <- function( counts, sizeFactors ) {
+
+   # Devides the counts by sizeFactors and calculates the estimates for
+   # base means and variances for each gene.
+   
+   data.frame(
+      baseMean = rowMeans( t( t(counts) / sizeFactors ) ),
+      baseVar = rowVars( t( t(counts) / sizeFactors ) ) )
+}   
+
+estimateVarianceFunctionFromBaseMeansAndVariances <- function( means, 
+   variances, sizeFactors, locfit_extra_args=list(), lp_extra_args=list() ) {
+   
+   variances <- variances[ means > 0 ]
+   means <- means[ means > 0 ]
+   
+   fit <- do.call( "locfit", c( 
+      list( 
+         variances ~ do.call( "lp", c( list( log(means) ), lp_extra_args ) ),
+         family = "gamma" ), 
+      locfit_extra_args ) )
+   
+   rm( means )
+   rm( variances )
+   xim <- sum( 1/sizeFactors ) / length( sizeFactors )
+      
+   function( q ) {
+      ans <- pmax( safepredict( fit, log(q) ) - xim * q, 1e-8 * q )
+      attr( ans, "size" ) <- length( sizeFactors )
+      ans }
+   # Note: The 'pmax' construct above serves to limit the overdispersion to a minimum
+   # of 10^-8, which should be indistinguishable from 0 but ensures numerical stability.
+}   
+   
+safepredict <- function( fit, x )
+{
+   # A wrapper around predict to avoid the issue that predict.locfit cannot
+   # propagate NAs and NaNs properly.
+
+   res <- rep.int( NA_real_, length(x) )
+   res[ is.finite(x) ] <- predict( fit, x[is.finite(x)] )
+   res   
+}
+
+# Use this function at Step 3
+# from methods.R
+#estimateVarianceFunctions <- function( cds, 
+#   method = c( "normal", "blind", "pooled" ), pool=NULL, 
+#   locfit_extra_args=list(), lp_extra_args=list(), modelFrame = NULL )
+estimateVarianceFunctionsSangChulChoi <- function()
+{
+   stopifnot( is( cds, "CountDataSet" ) )   
+   if( any( is.na( sizeFactors(cds) ) ) )
+      stop( "NAs found in size factors. Have you called already 'estimateSizeFactors'?" )
+   method="blind"
+
+   locfit_extra_args=list()
+   lp_extra_args=list()
+   cds@rawVarFuncs <- new.env( hash=TRUE )
+   cds@rawVarFuncs[["_blind"]] <- estimateVarianceFunctionForMatrix( counts(cds), 
+	                                    sizeFactors(cds), locfit_extra_args, lp_extra_args )
+   a <- rep( "_blind", length( levels( conditions(cds) ) ) )
+	 names(a) <- levels( conditions(cds) )
+	 rawVarFuncTable(cds) <- a 
+
+   #c1 <- counts(cds)
+   #s1 <- sizeFactors(cds)
+   #baseMean = rowMeans( t( t(c1) / s1 ) )
+   #baseVar = rowVars( t( t(c1) / s1 ) ) 
+   #bmv <- data.frame(baseMean, baseVar) 
+
+   # From estimateVarianceFunctionFromBaseMeansAndVariances <- function
+   #baseVar <- baseVar[ baseMean > 0 ]
+   #baseMean <- baseMean [ baseMean > 0 ]
+
+   # Test of local regression 
+   # data(ethanol, package="locfit")
+   # fit <- locfit(NOx ~ E, data=ethanol)
+   # fit <- locfit(NOx~lp(E,nn=0.5),data=ethanol)
+   # fit <- locfit(NOx~lp(E,C,scale=TRUE),data=ethanol)
+   # plot(fit, get.data=TRUE)
+
+   # Return a function
+   validObject( cds )
+   cds
+}
+
+#########################################################################
+# Step 4-1: nbiomtest
+ensureHasVarFuncs <- function( cds ) {
+   stopifnot( is( cds, "CountDataSet" ) )
+   if( length(ls(cds@rawVarFuncs)) == 0 )
+      stop( "CountDataSet object does not contain any variance functions. Call 'estimateVarianceFunctions' first." )
+   TRUE
+}   
+
+nbinomTestSangChulChoi <- function()
+{
+  # cds, 
+  condA <- "OMZ175"
+  condB <- "OMZHKRR"
+  pvals_only=FALSE
+  eps=1e-4
+  ensureHasVarFuncs( cds )
+  colA <- conditions(cds)==condA
+  colB <- conditions(cds)==condB
+
+  bmv <- getBaseMeansAndVariances( counts(cds)[,colA|colB], sizeFactors(cds)[colA|colB] )
+  rvfA <- rawVarFunc( cds, condA )
+  rvfB <- rawVarFunc( cds, condB )
+   
+  rawScvA <- rvfA( bmv$baseMean ) / bmv$baseMean^2
+  rawScvB <- rvfB( bmv$baseMean ) / bmv$baseMean^2
+}
+
+#########################################################################
+# Step 4-3: nbiomtest
+nbinomTestForMatricesRawSangChulChoi <- function(i) 
+{
+  kA <- kAs[i]
+  kB <- kBs[i]
+  muA <- muAs[i]
+  vA <- fullVarA[i]
+  muB <- muBs[i]
+  vB <- fullVarB[i]
+  eps <- eps
+
+   # Let kA and kB be two count observations from two random variables, for
+   # which the null hypothesis assumes negative binomial distributions with
+   # means muA, muB and vA and vB. Calculate the probability that kA and kB
+   # or as or more extreme counts are observed, conditioned to the sum of the 
+   # counts being kA+kB. "As or more extreme" means having conditional probability 
+   # at most 
+   #                     fNB( kA, muA, vA ) fNB( kA, muA, vA )
+   #       -------------------------------------------------------------------
+   #        sum of fNB( k, muA, vA ) fNB( kA+kB-k, muA, vA ) for k=0,..,kA+kB
+   #
+   # 'eps' is a roughly followed guidance on the required presision
+   
+   if( !all( is.finite( c( kA, kB, muA, vA, muB, vB, eps ) ) ) )
+      return( NA )
+
+   pobs <- dnbinom( kA, prob = muA/vA, size = muA^2/(vA-muA) ) * 
+           dnbinom( kB, prob = muB/vB, size = muB^2/(vB-muB) )
+           
+   stopifnot( is.finite( pobs ) )
+   
+   pobs <- pobs * ( 1 + 1e-7 )
+   # This is to avoid rounding errors in checking for p <= pobs
+
+   totals <- .Call( "calc_pvals_sangchulchoi", as.integer(kA+kB), pobs, muA, vA, muB, vB, eps )
+   min( unname( totals[2] / totals[1] ), 1 )
+   # The 'min' is to avoid p values slightly exceeding 1 due to
+   # approximation errors
+}
+
+#########################################################################
+# Step 4-2: nbiomtest
+nbinomTestForMatricesSangChulChoi <- function()
+{
+  countsA <- counts(cds)[,colA]
+  countsB <- counts(cds)[,colB]
+  sizeFactorsA <- sizeFactors(cds)[colA]
+  sizeFactorsB <- sizeFactors(cds)[colB]
+  rawScvA <- rawScvA 
+  rawScvB <- rawScvB
+  eps <- 1e-4
+
+  # pval <- nbinomTestForMatrices( 
+
+  kAs <- rowSums( cbind(countsA) )
+  kBs <- rowSums( cbind(countsB) )
+   
+  baseMeans <- rowMeans( cbind(t( t( countsA ) / sizeFactorsA ), t( t( countsB ) / sizeFactorsB ) ) )      
+
+  muAs <- baseMeans * sum( sizeFactorsA )
+  muBs <- baseMeans * sum( sizeFactorsB )
+
+  fullVarA <- pmax( muAs + rawScvA * baseMeans^2 * sum(sizeFactorsA^2), muAs * (1+1e-8) )
+  fullVarB <- pmax( muBs + rawScvB * baseMeans^2 * sum(sizeFactorsB^2), muBs * (1+1e-8) )
+   
+  # pval <- sapply( 1:nrow(cbind(countsA)), function(i) {
+  pval <- sapply( 1:5, function(i) {
+    # nbinomTestForMatricesRaw( kAs[i], kBs[i], muAs[i], fullVarA[i], muBs[i], fullVarB[i], eps )
+    nbinomTestForMatricesRawSangChulChoi(i) 
+  } )
+}
+
+nbinomTest <- function( cds, condA, condB, pvals_only=FALSE, eps=1e-4 )
+{
+   stopifnot( is( cds, "CountDataSet" ) )   
+   ensureHasVarFuncs( cds )
+   if( cds@multivariateConditions )
+      stop( "For CountDataSets with multivariate conditions, only the GLM-based test can be used." )
+   stopifnot( condA %in% levels(conditions(cds)) )  
+   stopifnot( condB %in% levels(conditions(cds)) )     
+   
+   colA <- conditions(cds)==condA
+   colB <- conditions(cds)==condB
+
+   bmv <- getBaseMeansAndVariances( counts(cds)[,colA|colB], sizeFactors(cds)[colA|colB] )
+
+   # Functions? I need to set this somehow? I have different functions for different conditions.
+   rvfA <- rawVarFunc( cds, condA )
+   rvfB <- rawVarFunc( cds, condB )
+   
+   rawScvA <- rvfA( bmv$baseMean ) / bmv$baseMean^2
+   rawScvB <- rvfB( bmv$baseMean ) / bmv$baseMean^2
+   
+   rawScvA <- adjustScvForBias( rawScvA, attr( rawScvA, "size" ) )
+   rawScvB <- adjustScvForBias( rawScvB, attr( rawScvB, "size" ) )
+
+   pval <- nbinomTestForMatrices( 
+      counts(cds)[,colA], 
+      counts(cds)[,colB], 
+      sizeFactors(cds)[colA], 
+      sizeFactors(cds)[colB], 
+      rawScvA, 
+      rawScvB,
+      eps )
+      
+   if( pvals_only )
+      pval
+   else {
+      bmvA <- getBaseMeansAndVariances( counts(cds)[,colA], sizeFactors(cds)[colA] )
+      bmvB <- getBaseMeansAndVariances( counts(cds)[,colB], sizeFactors(cds)[colB] )
+      data.frame( 
+         id    = rownames( counts(cds) ),
+         baseMean  = bmv$baseMean,
+         baseMeanA = bmvA$baseMean,
+         baseMeanB = bmvB$baseMean,
+         foldChange = bmvB$baseMean / bmvA$baseMean,
+         log2FoldChange = log2( bmvB$baseMean / bmvA$baseMean ), 
+         pval = pval,
+         padj = p.adjust( pval, method="BH" ), 
+         resVarA = bmvA$baseVar / ( bmvA$baseMean * sum( 1/sizeFactors(cds)[colA] ) / length(condA) +
+            rawVarFunc( cds, condA )( bmv$baseMean ) ),
+         resVarB = bmvB$baseVar / ( bmvB$baseMean * sum( 1/sizeFactors(cds)[colB] ) / length(condB) +
+            rawVarFunc( cds, condB )( bmv$baseMean ) ),
+         stringsAsFactors = FALSE ) }
+}
+
+commentfunc2 <- function ()
+{
+library(DESeq)
+countsFile <- "/Users/goshng/Documents/Projects/rnaseq/output/omz/1/bwa/count.txt"
+countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+rownames(countsTable) <- countsTable$gene
+countsTable <- countsTable[,-1]
+conds <- c("OMZ175", "OMZHKRR")
+cds <- newCountDataSet(countsTable, conds)
+cds <- estimateSizeFactors(cds)
+cds <- estimateVarianceFunctions(cds,method="blind")
+res <- nbinomTest(cds, "OMZ175", "OMZHKRR")
+}
+
+plotDE <- function( res )
+{
+   plot(res$baseMean, res$log2FoldChange, log="x", pch=20, cex=.5, 
+        col = ifelse( res$padj < .1, "red", "black" ) )
+}
+
+commentfunc <- function ()
+{
+cat ("SCV file: count-de.ps\n")
+postscript ("/Users/goshng/Documents/Projects/rnaseq/output/omz/1/bwa/count-de.ps",  width=10, height=10, horizontal = FALSE, onefile = FALSE,
+paper = "special")
+plotDE(res)
+y <- dev.off()
+
+cat ("SCV file: count-scv.ps\n")
+postscript ("/Users/goshng/Documents/Projects/rnaseq/output/omz/1/bwa/count-scv.ps",  width=10, height=10, horizontal = FALSE, onefile = FALSE,
+paper = "special")
+scvPlot(cds)
+y <- dev.off()
+
+resSig <- res[res$padj < .1,]
+y <- length(countsTable[,1])
+cat ("Total number of genes is ", y, "\n",sep="")
+y <- length(resSig[,1])
+cat ("The number of differentially expressed genes is ", y, "\n",sep="")
+cat ("\nList of differentially expressed genes\n")
+print(resSig[order(resSig$pval),],with=1000)
+cat ("\nThe same table as above but in order of down-regulated first of the differentially expressed genes\n")
+print(resSig[order(resSig$foldChange,-resSig$baseMean),])
+cat ("\nThe same table as above but in order of up-regulated first of the differentially expressed genes\n")
+print(resSig[order(-resSig$foldChange,-resSig$baseMean),])
+}

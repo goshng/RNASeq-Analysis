@@ -64,7 +64,6 @@ estimatePooledVarianceFunctionForMatrix <- function( counts, sizeFactors,
       bmv$baseVar, sizeFactors, locfit_extra_args, lp_extra_args )
 }      
    
-   
 estimateVarianceFunctionFromBaseMeansAndVariances <- function( means, 
    variances, sizeFactors, locfit_extra_args=list(), lp_extra_args=list() ) {
    
