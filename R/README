@@ -1,0 +1,21 @@
+
+deseq-detail.R
+--------------
+A single procedure for finding genes differentially expressed.
+
+bayseq.R
+--------
+A test run.
+
+bayseq-detail.R
+---------------
+A run of rnaseq data with bayseq.
+
+WriteWigFileUsingR.R
+class_and_slots.R
+core.R
+deseq-backup.R
+
+deseq.R
+methods.R
+pval.c

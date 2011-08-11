@@ -182,7 +182,8 @@ calc_pvals <- function ( kS, pobs, muA, vA, muB, vB, eps )
 #
 #################################################################################
 
-
+#################################################################################
+# Main procedure
 library(locfit)
 library(matrixStats)
 countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
@@ -284,4 +285,5 @@ result <- data.frame(
          resVarB = bmvB$baseVar / ( bmvB$baseMean * sum( 1/sizeFactors[colB] ) / length(condB) +
             rvfB( bmvAB$baseMean ) ),
          stringsAsFactors = FALSE )
+
 
