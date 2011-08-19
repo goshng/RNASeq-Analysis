@@ -47,3 +47,19 @@ FASTQ12:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_102
 # UA159 vs. TW1-Glucose or 01 vs. 11
 # I do not have UA159-Galactose strain to compare UA159-Glucose.
 # I do not have a reference genome for U138.
+#
+# Here is a list of adapters used:
+# UA159 - adapter AR002
+# TWI glucose - AR004
+# TWI galactose - AR005
+# OMZ175 - AR006
+# OMZ/HKRR - AR007
+# 1SM1 - AR012
+# 11VS1 - AR002
+# 15JP3 - AR004
+# N29 - AR005
+# NLML4 - AR006
+# NMT4863 - AR007
+# U138 - AR012
+#
+# TruSeq Adapter, Index 2: GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTTG

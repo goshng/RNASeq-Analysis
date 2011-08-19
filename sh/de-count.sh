@@ -45,8 +45,8 @@ function de-count {
                   -genepos $DATADIR/gene.pos \
                   -o $BWADIR/$FASTQNUM.de"
         COMMAND2="perl pl/$FUNCNAME.pl join \
-                  -shortread input/$FASTQNUM-sum.pos \
-                  -genepos input/gene.pos \
+                  -shortread $BWADIR/$FASTQNUM-sum.pos \
+                  -genepos $DATADIR/gene.pos \
                   -o output/$FASTQNUM.de&"
 
         if [ "$BATCH" == "YES" ]; then
@@ -63,7 +63,7 @@ function de-count {
       COUNTFILE=$BWADIR/count.txt
       COLNAME="0"
       printf "gene" > x
-      cut -f1 $BWADIR/$FASTQNUM.de > 0
+      cut -f1 $BWADIR/FASTQ01.de > 0
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         cut -f2 $BWADIR/$FASTQNUM.de > $g

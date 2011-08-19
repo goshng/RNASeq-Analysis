@@ -1,10 +1,10 @@
-installBaySeq <- function ()
+#installBaySeq <- function ()
 {
 source("http://www.bioconductor.org/biocLite.R")
 biocLite("baySeq")
 }
 
-loadBaySeq <- function ()
+#loadBaySeq <- function ()
 {
 library(baySeq)
 # library(snow)
@@ -12,9 +12,10 @@ library(baySeq)
 cl <- NULL
 }
 
-loadSimData <- function ()
+#loadSimData <- function ()
 {
-countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
+# countsFile <- "/Users/goshng/Documents/Projects/rnaseq-analysis/output/omz/1/bwa/count.txt"
+countsFile <- "/Users/goshng/Documents/Projects/rnaseq/output/omz/1/bwa/count.txt"
 countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
 rownames(countsTable) <- countsTable$gene
 countsTable <- countsTable[,-1]

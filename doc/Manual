@@ -8,7 +8,7 @@ Introduction
 A list of RNA-Seq data files are sampled from bacteria. Using these files I
 analyze transcriptome of the bacteria. Three steps should be performed before
 executing any menus provided by *RNASEQ Analysis*. Firstly, a configuration file
-needs to be placed at +conf+ direcotry. Secondly, the software packages that are
+needs to be placed at +conf+ direcotry. Secondly, the software packages 
 specified in the configuration file need to be installed. Thirdly, a species file
 needs to be placed at +species+ directory, and the data files that are specified
 in the species file need to be placed at the proper places.
@@ -69,6 +69,14 @@ align short reads to the reference genome.
 
 DESeq
 ~~~~~
+The number of reads in a gene, or _read count_, is known to be somewhat linear
+to the abundance of the RNA transcript of the gene. I wish to test whether an
+observed difference in read counts for a gene is statistically significant. For
+this test I need a model for the expected number of reads. For a set of given
+genes with a range of lengths the read counts would be distributed. The number
+of reads that are assigned to a gene is assumed to be distributed as a negative
+binomial distribution with a mean and a variance.
+
 *deseq* works with _omz_ species.
 
 Prepare a file named +gene.pos+ with 4 columns of gene name, chromosome name,
@@ -83,12 +91,29 @@ format +selected fields from primary and related tables+.
 awk '{ print $4 "\t" $1 "\t" $2 "\t" $3}' hgTables.ua159 > ../output/smutans12/1/data/gene.pos
 ----
 
+.A script to create a count.txt for UA159 and TW1-Glucose, and TW1-Glucose and
+TW1-Galactose
+----
+awk '{ print $1 "\t" $2 "\t" $12 }' count.txt > count-1-11.txt
+awk '{ print $1 "\t" $12 "\t" $4 }' count.txt > count-11-3.txt
+----
+
 .A gene.pos file
 ----
 SMU109_00005    SMU109-OMZ175.contig1   44      283
 ----
 
 Call *bwa-summary* to create +FASTQXX-sum.pos+ file.
+
+Menu *bwa-pos2wig* creates a wiggle file from a pos file that is created by menu
+*bwa-summary*. I want to use short reads with exact match to the reference
+genome. I will use this short reads to call transcripts. The wiggle file can be
+used to find regions with positive values as potential transcripts.
+
+.A pos file 
+----
+shortReadIdentifier chr shortReadStart shortReadEnd flag mapQuality xt nm x0 x1 xm xo xg md
+----
 
 DEGseq
 ~~~~~~
@@ -117,16 +142,6 @@ Menus *bowtie-refflat* and *bwa-samtools-bed* must be called before the call of
 edgeR
 ~~~~~
 First, do DEGseq menu. Then, use this menu. I use the output file from DEGseq.
-
-DESeq
-~~~~~
-The number of reads in a gene, or _read count_, is known to be somewhat linear
-to the abundance of the RNA transcript of the gene. I wish to test whether an
-observed difference in read counts for a gene is statistically significant. For
-this test I need a model for the expected number of reads. For a set of given
-genes with a range of lengths the read counts would be distributed. The number
-of reads that are assigned to a gene is assumed to be distributed as a negative
-binomial distribution with a mean and a variance.
 
 transcript-cufflinks
 ~~~~~~~~~~~~~~~~~~~~
@@ -289,6 +304,17 @@ Create a file in +species+ directory before calling this menu.
 fastq-sample
 ~~~~~~~~~~~~
 Subsample the set of FASTQ files.
+
+transcript-summary
+~~~~~~~~~~~~~~~~~~
+Transcripts are defined to be genomic features with constant expression. I use
+RNA-Seq data to predict transcripts using either Martin's ParseRNAseq or Danko's
+GROseq. I summarize the transcripts with known genes, small RNAs, and other
+information.
+
+How can I find the list of short reads that are not mapped? Use menu
+*bwa-summary*. Use +pl/bwa-sam.pl+ with +unmapped+ command to create a FASTA
+file with unmapped short reads.
 
 bowtie-align.sh
 bowtie-index-genome.sh

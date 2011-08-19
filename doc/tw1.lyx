@@ -1,0 +1,1067 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Part
+Differential gene expression of UA159, TW1-Glucose, TW1-Galactose, OZM175,
+ and OMZ/HKRR with UA159 reference genome
+\end_layout
+
+\begin_layout Standard
+We study differential gene expression of three pairs of treatments among
+ 12 samples of the first round of RNA-Seq; TW1 Gluclose versus TW1 Galactose,
+ UA159 versus TW1 Glucose, and OMZ175 versus OMZ/HKRR.
+ The analysis is based on UA159 as the reference genome.
+\end_layout
+
+\begin_layout Section
+Differential expression of TW1 Glucose vs.
+ Galactose
+\end_layout
+
+\begin_layout Standard
+We describe a technical procedure of comparing differential gene expression
+ from TW1-Glucose and TW1-Galactose.
+ Burne Lab prepared RNA samples from the two conditions, and Stanhope Lab
+ sequenced RNA transcripts with Illumina Genome Analyzer.
+ Total number of short reads from TW1-Glucose (sample#11) was 22160808,
+ and that from TW1-Galactose (sample#03) was 20591432 (see 
+\bar under
+FASTQ11-sum.rrna
+\bar default
+, and 
+\bar under
+FASTQ03-sum.rrna
+\bar default
+).
+ The numbers of reads uniquely mapped to the reference genome UA159 were
+ 15192361, and 13494893, respectively.
+ Most of reads mapped to multiple places of the reference genome were mapped
+ to ribosomal RNAs (6008709, and 6107642, respectively).
+ It appears that ribosomal RNA depletion may have been incomplete.
+ I used only the reads uniquely mapped to UA159 in the following differential
+ expression study.
+\end_layout
+
+\begin_layout Standard
+Each of the genes (Genes are just annotated features.
+ A rRNA or tRNA can be a gene.) annotated in UA159 genome (see 
+\bar under
+gene.pos
+\bar default
+) was assigned with a number of short reads; I counted reads that were aligned
+ with any parts of each gene (see 
+\bar under
+count-11-3.txt
+\bar default
+).
+ The total number of genes was 2040.
+ Genes (35) with few reads (sum of read counts from the two samples is less
+ than 5) were removed from the analysis, resulting in 2005 genes.
+ For each gene of the 2005 genes, I tested the null hypothesis 
+\begin_inset Formula $q_{i,A}=q_{i,B}$
+\end_inset
+
+ where 
+\begin_inset Formula $q_{i,A}$
+\end_inset
+
+ is the expression level for samples of condition 
+\begin_inset Formula $A$
+\end_inset
+
+ for gene 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $q_{i,B}$
+\end_inset
+
+ is similarly defined.
+ Of the 2005 genes in UA159 we found 29 genes that were differentially expressed
+ (see 
+\bar under
+count-11-3.out
+\bar default
+).
+ A figure is created from 
+\bar under
+count-11-3.out
+\bar default
+ in a file 
+\bar under
+count-11-3-de.ps:
+\bar default
+ X-axis is the baseMean column (average of read counts from TW1 glucose
+ and TW1 galactose for a gene), and Y-axis is log2 fold change [log2(#reads
+ from TW1-Galactose/#reads from TW1-Glucose)].
+ Red colored dots represent genes found to be differentially expressed at
+ 10% of FDR.
+\end_layout
+
+\begin_layout Standard
+The list of genes differentially expressed should be found in file 
+\bar under
+count-11-3.out
+\bar default
+, a tab delimited file by columns of arbitrary number, id, baseMean, baseMeanA,
+ baseMeanB, foldChange, log2FoldChange, pval, padj resVarA, and resVarB
+ (see Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:col"
+
+\end_inset
+
+ for the description of the columns).
+ Because we still did not have replicates for TW1-Glucose and TW1-Galactose,
+ the result of 29 differentially expressed genes should be interpreted with
+ caution.
+ In other words, the difference we are seeing could be due to not only different
+ conditions of the two RNA-Seq samples but also different procedures of
+ the two samples.
+ 
+\end_layout
+
+\begin_layout Standard
+Yet, the comparison of this RNA-Seq result and microarray seems to be helpful
+ for validating RNA-Seq experiment and RNA sampling procedure.
+ The comparison of microarray result and this RNA-Seq result is shown in
+ the figure of the file 
+\bar under
+count-11-3.ps
+\bar default
+.
+ Each dot represents a gene with log2 fold changes or log2(#reads from TW1-Galac
+tose/#reads from TW1-Glucose).
+ Because the number of genes from microarray (571) result is still smaller
+ than that of RNA-Seq, the plot has a hole around the center.
+ Genes that are present only in RNA-Seq result are not shown.
+ Many of the genes were centered around the 0 of X-axis.
+ The red open circles in the figure are genes that have been found to be
+ differentially expressed from RNA-Seq experiment.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:col"
+
+\end_inset
+
+Column description of the file 
+\bar under
+count-11-3.out
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Columns
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+id
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+gene name
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMean
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from TW1-Glucose
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from TW1-Galactose
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+foldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+fold change TW1-Galactose/TW1-Glucose
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log2FoldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log base 2 value of foldChange
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pval
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+raw P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+padj
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+multiple testing adjusted P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Differential expression of UA159 and TW1 with glucose nutrient 
+\end_layout
+
+\begin_layout Standard
+I describe the result of the differential expression of UA159 and TW1 under
+ glucose nutrient environment.
+ We used short reads uniquely mapped to UA159 genome, and counted any reads
+ that span genes annotated in UA159 (see 
+\bar under
+count-1-11.txt
+\bar default
+).
+ 
+\end_layout
+
+\begin_layout Standard
+The list of genes found to be differentially expressed is in the file 
+\bar under
+count-1-11.out
+\bar default
+.
+ A plot of log2 fold change against mean counts is shown in 
+\bar under
+count-1-11-de.ps
+\bar default
+.
+ The columns are described in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:coltw1wt"
+
+\end_inset
+
+.
+ Thirty four genes with few reads mapped were removed from the 2040 genes.
+ Thirty nine of the remaining 2006 genes were found to be differentially
+ expressed at 10% of FDR.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:coltw1wt"
+
+\end_inset
+
+Column description of the file 
+\bar under
+count-1-11.out
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Columns
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+id
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+gene name
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMean
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from UA159
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from TW1 Glucose
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+foldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+fold change TW1 Glucose/UA159
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log2FoldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log base 2 value of foldChange
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pval
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+raw P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+padj
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+multiple testing adjusted P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Differential expression of OMZ175 vs.
+ OMZ/HKRR
+\end_layout
+
+\begin_layout Standard
+Similarly, I describe the result of the differential expression of OMZ175
+ and OMZ/HKRR.
+ Please, note that previously we compared these two samples but using 130
+ contigs of OMZ175 genome as a reference genome.
+ This result is different from that because we map the same short reads
+ of OMZ175 and OMZ/HKRR RNA-Seq sampels to UA159 genome.
+ We used short reads uniquely mapped to UA159 genome, and counted any reads
+ that span genes annotated in UA159 (see 
+\bar under
+count-9-7.txt
+\bar default
+).
+\end_layout
+
+\begin_layout Standard
+The list of genes found to be differentially expressed is in the file 
+\bar under
+count-9-7.out
+\bar default
+.
+ A plot of log2 fold change against mean counts is shown in 
+\bar under
+count-9-7-de.ps
+\bar default
+.
+ The columns are described in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:colomz"
+
+\end_inset
+
+.
+ Hundred forty two genes with few reads mapped were removed from the 2040
+ genes.
+ Thirth eight of the remaining 1898 genes were found to be differentially
+ expressed at 10% of FDR.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:colomz"
+
+\end_inset
+
+Column description of the file 
+\bar under
+count-9-7.out
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Columns
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+id
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+gene name
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMean
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from OMZ175
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+baseMeanB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mean value of counts from OMZ/HKRR
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+foldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+fold change OMZHKRR/OMZ175
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log2FoldChange
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+log base 2 value of foldChange
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pval
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+raw P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+padj
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+multiple testing adjusted P-value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+resVarB
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not applicable due to no replicate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

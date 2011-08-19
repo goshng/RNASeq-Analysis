@@ -63,8 +63,11 @@ source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
 source sh/maq-align.sh
 source sh/bwa-summary.sh
+source sh/bwa-pos2wig.sh
 source sh/de-count.sh
 source sh/bwa-mpileup.sh
+source sh/bwa-bam-check.sh
+source sh/transcript-summary.sh
 
 #####################################################################
 # Read configuration file
@@ -96,6 +99,7 @@ CHOICES=( init-file-system \
           # bwa-batch-align-to-bed \
           bwa-samtools-wig \
           bwa-summary \
+          bwa-pos2wig \
           ---TRACK---\
           bwa-R-saveimage \
           bwa-danko-writewiggle \
@@ -114,6 +118,7 @@ CHOICES=( init-file-system \
           degseq \
           edgeR \
           ---TRANSCRIPT---\
+          transcript-summary \
           transcript-cufflinks \
           ---ETC---\
           bwa-danko-countreadsininterval \
@@ -124,6 +129,8 @@ CHOICES=( init-file-system \
           ---READ-QUALITY-CHECK--- \
           fastxtoolkit-fastq_to_fasta \
           fastxtoolkit-fastx_quality_stats \
+          ---BAM-CHECK--- \
+	  bwa-bam-check \
           warranty \
           copyright \
           quit )
@@ -163,11 +170,13 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "transcript-summary" ]; then $CHOICE; break
   elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-summary" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-bam-check" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

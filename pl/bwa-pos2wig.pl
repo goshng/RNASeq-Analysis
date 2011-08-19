@@ -27,7 +27,7 @@ require 'pl/sub-error.pl';
 # COMMAND LINE
 ###############################################################################
 $| = 1; # Do not buffer output
-my $VERSION = 'bwa-sam.pl 1.0';
+my $VERSION = 'bwa-pos2wig.pl 1.0';
 
 my $cmd = ""; 
 sub process {
@@ -43,10 +43,6 @@ GetOptions( \%params,
             'man',
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
-            'gff=s',
-            'mapq=i',
-            'genomeLength=i',
-            'reads=s',
             'in=s',
             'out=s',
             '<>' => \&process
@@ -54,30 +50,10 @@ GetOptions( \%params,
 pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
-my $fastq;
 my $out;
 my $in;
 my $outfile;
 my $infile;
-my $gff = "";
-my $mapq = 0;
-my $genomeLength;
-my $reads;
-
-if (exists $params{genomeLength}) 
-{
-  $genomeLength = $params{genomeLength};
-}
-
-if (exists $params{gff})
-{
-  $gff = $params{gff};
-}
-
-if (exists $params{mapq})
-{
-  $mapq = $params{mapq};
-}
 
 if (exists $params{out})
 {
@@ -99,35 +75,22 @@ else
   $infile = *STDIN;   
 }
 
-if (exists $params{reads})
-{
-  $reads = $params{reads};
-}
-
-if ($cmd eq "wiggle" or $cmd eq "genemark")
-{
-  unless (exists $params{genomeLength}) 
-  {
-    &printError("genome length is missing");
-  }
-}
-
-if ($cmd eq "filterfastq")
-{
-  unless (exists $params{reads})
-  {
-    &printError("reads is missing");
-  }
-}
 ###############################################################################
 # DATA PROCESSING
 ###############################################################################
 
-if ($cmd eq "size")
+if ($cmd eq "perfect")
 {
   my $s = 0;
   while (<$infile>)
     {
+      $shortReadIdentifier = $e[0];
+      $chr = $e[1];
+      $shortReadStart = $e[2];
+      $shortReadEnd = $e[3];
+      $flag = $e[4];
+      $mapQuality = $e[5];
+      $xt = $e[6];$nm\t$x0\t$x1\t$xm\t$xo\t$xg\t$md\n"; 
       $s++;
     }
   print "$s\n";
@@ -221,89 +184,6 @@ elsif ($cmd eq "pos")
         }
     }
   print STDERR "Skipped reads: $skippedRead\n"; 
-}
-elsif ($cmd eq "wiggle" or $cmd eq "genemark")
-{
-  # The code is copied from pos command.
-  # The mapped BAM/SAM file is converted to a wiggle file.
-  my @map = (0) x ($genomeLength + 1);
-
-  my $s = 0;
-  my $skippedRead = 0;
-  while (<$infile>)
-    {
-      $s++;
-      chomp;
-      # See this thread of dicussion for finding ending positions.
-      # http://sourceforge.net/mailarchive/forum.php?thread_name=4A6F0237.30806%40broadinstitute.org&forum_name=samtools-help
-      my @e = split /\t/;
-      my $flag = $e[1];
-      my $chr = $e[2];
-      my $mapQuality = $e[4];
-      unless ($mapQuality > $mapq and $#e > 10)
-        {
-          $skippedRead++; 
-          next;
-        }
-      $e[11] =~ /XT:A:(.+)/;  my $xt = $1;
-      $e[12] =~ /NM:i:(\d+)/; my $nm = $1;
-      $e[13] =~ /X0:i:(\d+)/; my $x0 = $1;
-      $e[14] =~ /X1:i:(\d+)/; my $x1 = $1;
-      $e[15] =~ /XM:i:(\d+)/; my $xm = $1;
-      $e[16] =~ /XO:i:(\d+)/; my $xo = $1;
-      $e[17] =~ /XG:i:(\d+)/; my $xg = $1;
-      $e[18] =~ /MD:Z:(.+)/;  my $md = $1;
-      my $shortReadIdentifier = $e[0];
-      my $shortReadStart = $e[3];
-      $_ = $e[5];
-      my $shortReadEnd = $e[3]-1;
-      s/(\d+)[NMD]/$shortReadEnd+=$1/eg;
-
-      # print $outfile "$shortReadIdentifier\t$chr\t$shortReadStart\t$shortReadEnd\t$flag\t$mapQuality\t$xt\t$nm\t$x0\t$x1\t$xm\t$xo\t$xg\t$md\n"; 
-
-      unless (0 < $shortReadStart and $shortReadStart <= $genomeLength
-              and 0 < $shortReadEnd and $shortReadEnd <= $genomeLength)
-      {
-        die "$shortReadStart and $shortReadEnd are out of genome length range.";
-      }
-      if ($mapQuality > 30 and $xt eq "U" and $nm == 0
-          and $x0 == 1 and $xm == 0 and $xo == 0 and $xg == 0
-	  and $md eq "100")
-      {
-	# Add this short read to the pileup.
-	for (my $i = $shortReadStart; $i <= $shortReadEnd; $i++)
-	{
-	  $map[$i]++;
-	}
-      }
-      else
-      {
-        $skippedRead++; 
-      }
-
-      if ($s % 1000000 == 0)
-        {
-          print STDERR "Reads $s\r";
-        }
-    }
-  print STDERR "Skipped reads: $skippedRead\n"; 
-  # Print the pileup.
-  if ($cmd eq "wiggle")
-  {
-    print $outfile "track type=wiggle_0\n";
-    print $outfile "fixedStep chrom=chr1 start=1 step=1 span=1\n";
-    for (my $i = 1; $i <= $genomeLength; $i++)
-    {
-      print $outfile "$map[$i]\n";
-    }
-  }
-  elsif ($cmd eq "genemark")
-  {
-    for (my $i = 1; $i <= $genomeLength; $i++)
-    {
-      print $outfile "$i\t$map[$i]\n";
-    }
-  }
 }
 elsif ($cmd eq "rrna")
 {
@@ -491,93 +371,6 @@ elsif ($cmd eq "rrna")
   print $outfile "The sum of the 5 groups is $sumRead\n";
   print $outfile "The total number of reads is $counts{total}\n";
 }
-elsif ($cmd eq "unmapped")
-{
-  my $s = 0;
-  my $skippedRead = 0;
-  while (<$infile>)
-    {
-      $s++;
-      if ($s % 1000000 == 0)
-        {
-          print STDERR "Reads $s\r";
-        }
-      chomp;
-      # See this thread of dicussion for finding ending positions.
-      # http://sourceforge.net/mailarchive/forum.php?thread_name=4A6F0237.30806%40broadinstitute.org&forum_name=samtools-help
-      my @e = split /\t/;
-      my $name = $e[0];
-      my $flag = $e[1];
-      my $chr = $e[2];
-      my $mapQuality = $e[4];
-      my $seq = $e[9];
-      unless ($#e > 10)
-        {
-	  print $outfile ">$name\n$seq\n";
-          $skippedRead++; 
-        }
-    }
-  print STDERR "Unmapped reads: $skippedRead\n"; 
-}
-elsif ($cmd eq "filterfastq")
-{
-  # Read short reads
-  my %filterRead;
-  open READS, $reads or die "cannot open $reads $!";
-  while (<READS>)
-  {
-    chomp;
-    my @e = split /\t/;
-    $e[0] = substr $e[0], 1;
-    $filterRead{$e[0]} = $e[1];
-  }
-  close READS;
-
-  my $s = 0;
-  my $skippedRead = 0;
-  while (<$infile>)
-    {
-      $s++;
-      if ($s % 1000000 == 0)
-        {
-          print STDERR "Reads $s\r";
-        }
-      chomp;
-      # See this thread of dicussion for finding ending positions.
-      # http://sourceforge.net/mailarchive/forum.php?thread_name=4A6F0237.30806%40broadinstitute.org&forum_name=samtools-help
-      my @e = split /\t/;
-      my $name = $e[0];
-      my $flag = $e[1];
-      my $chr = $e[2];
-      my $mapQuality = $e[4];
-      my $seq = $e[9];
-      my $qual = $e[10];
-      unless ($#e > 10)
-      {
-        # print $outfile ">$name\n$seq\n";
-
-        foreach my $r (keys %filterRead)
-        {
-          # print STDERR "Line1: $line1";
-          # print STDERR "Line1-R: $r\n";
-          my $ii = index ($name, $r);
-          if ($ii >= 0)
-          {
-            my $shortenLine2 = substr ($seq, 0, $filterRead{$r} - 1);
-            my $shortenLine4 = substr ($qual, 0, $filterRead{$r} - 1);
-            print $outfile "\@$r\n";
-            print $outfile "$shortenLine2\n"; 
-            print $outfile "+$r\n";
-            print $outfile "$shortenLine4\n"; 
-            last;
-          }
-        }
-
-        $skippedRead++; 
-      }
-    }
-  print STDERR "Unmapped reads: $skippedRead\n"; 
-}
 if (exists $params{in})
 {
   close $infile;
@@ -589,44 +382,28 @@ if (exists $params{out})
 __END__
 =head1 NAME
 
-bwa-sam - summary of BWA alignment
+bwa-pos2wig - summary of BWA alignment
 
 =head1 VERSION
 
-bwa-sam 1.0
+bwa-pos2wig 1.0
 
 =head1 SYNOPSIS
 
-perl bwa-sam.pl [command] [-in file] [-out file]
+perl bwa-pos2wig.pl [command] [-in file] [-out file]
 
-samtools view fastq.bam | perl pl/bwa-sam.pl rrna -gff a.gff > sum.rrna
-
-samtools view fastq.bam | perl pl/bwa-sam.pl wiggle -genomeLength 2030921 > sum.wig
-
-samtools view fastq.bam | perl pl/bwa-sam.pl unmapped > a.fasta
-
-samtools view fastq.bam | perl pl/bwa-sam.pl filterfastq -reads > a.fasta
+samtools view fastq.bam | perl pl/bwa-pos2wig.pl rrna -gff a.gff > sum.rrna
 
 =head1 DESCRIPTION
 
-bwa-sam will help you to summarize BWA alignment in SAM format.
+bwa-pos2wig will help you to summarize BWA alignment in SAM format.
 
 Command:
-  mapq     - print MAPQ values
-  size     - print the number of short reads mapped
-  parse    - print FLAG, MAPQ, XT, X0, X1, XM, XO, XG
-  pos      - print short read name, chr, start, and end positions
-  rrna     - check if reads are in the set of rRNA
-  wiggle   - print out a wiggle file
-  genemark - print out a genemark file
-  unmapped - print short reads that are not mapped to a FASTA file.
-  filterfastq - print short reads that are not mapped to a FASTA file.
-
-  wiggle: I use only the short reads mapped to the reference genome with 100%
-  match. The start and end positions are used to make a wiggle file. A genome
-  length is needed.
-
-  genemark: A pileup file is created for transcript prediction.
+  mapq  - print MAPQ values
+  size  - print the number of short reads mapped
+  parse - print FLAG, MAPQ, XT, X0, X1, XM, XO, XG
+  pos   - print short read name, chr, start, and end positions
+  rrna  - check if reads are in the set of rRNA
 
   1  QNAME   String
   2  FLAG    Int 

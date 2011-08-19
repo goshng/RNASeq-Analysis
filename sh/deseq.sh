@@ -29,7 +29,14 @@ function deseq {
       global-variable $SPECIES $REPETITION
       read-species
 
-      DESEQIN=count
+      echo -n "What is the count file name? (e.g., count-1-11) "
+      read DESEQIN
+      echo -n "Enter the first sample? (e.g., UA159) "
+      read FRISTSAMPLE
+      echo -n "Enter the second sample? (e.g., TW1Glucose) "
+      read SECONDSAMPLE
+      # DESEQIN=count
+
       RTEMP=$BWADIR/$RANDOM.R
       OUT=$BWADIR/$DESEQIN.out
       COMMAND="Rscript $RTEMP > $OUT"
@@ -39,11 +46,13 @@ countsFile <- "$BWADIR/$DESEQIN.txt"
 countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
 rownames(countsTable) <- countsTable\$gene
 countsTable <- countsTable[,-1]
-conds <- c("OMZ175", "OMZHKRR")
+countsTable <- countsTable[countsTable[,1]+countsTable[,2]>5,]
+conds <- c("$FRISTSAMPLE", "$SECONDSAMPLE")
 cds <- newCountDataSet(countsTable, conds)
 cds <- estimateSizeFactors(cds)
 cds <- estimateVarianceFunctions(cds,method="blind")
-res <- nbinomTest(cds, "OMZ175", "OMZHKRR")
+res <- nbinomTest(cds, "$FRISTSAMPLE", "$SECONDSAMPLE")
+      
 
 plotDE <- function( res )
 {
@@ -82,10 +91,11 @@ EOF
       if [ "$BATCH" == "YES" ]; then
         echo $COMMAND >> $BATCHFILE
       else
-        echo $COMMAND | bash
+        #echo $COMMAND | bash
         #rm $RTEMP
-        echo $RTEMP
-        echo "Check $BWADIR/$DESEQIN.out"
+        #echo $RTEMP
+        echo "Edit and run $BWADIR/$RTEMP"
+	echo "e.g., Rscript $RTEMP > $DESEQIN.out"
       fi
       break
     fi

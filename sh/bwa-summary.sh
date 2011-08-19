@@ -37,9 +37,14 @@ function bwa-summary {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
+      REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
+
+        COMMAND1="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl wiggle -genomeLength $REFGENOMELENGTH \
+	  > $BWADIR/$FASTQNUM-sum.wig"
 
         COMMAND2="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
           | perl pl/bwa-sam.pl parse > $BWADIR/$FASTQNUM-sum.parse"
@@ -47,14 +52,29 @@ function bwa-summary {
         COMMAND3="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
           | perl pl/bwa-sam.pl pos > $BWADIR/$FASTQNUM-sum.pos"
 
+        COMMAND4="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl genemark -genomeLength $REFGENOMELENGTH \
+	  > $BWADIR/$FASTQNUM-sum.gmk"
+
+        COMMAND5="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl unmapped \
+	  > $BWADIR/$FASTQNUM-sum.unmapped"
+
         if [ "$BATCH" == "YES" ]; then
-          echo $COMMAND2 >> $BATCHFILE
+          #echo $COMMAND1 >> $BATCHFILE
+          #echo $COMMAND2 >> $BATCHFILE
           #echo $COMMAND3 >> $BATCHFILE
+          #echo $COMMAND4 >> $BATCHFILE
+          echo $COMMAND5 >> $BATCHFILE
         else
-          echo $COMMAND2 | bash
+          #echo $COMMAND1 | bash
+          #echo $COMMAND2 | bash
           #echo $COMMAND3 | bash
+          #echo $COMMAND4 | bash
           echo "Check $BWADIR/$FASTQNUM-sum files"
         fi
+	continue
+
         # Find the total number of reads and mapped reads.
         SUMMARY=$BWADIR/$FASTQNUM.sum
         GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)

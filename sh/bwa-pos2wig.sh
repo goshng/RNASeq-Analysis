@@ -17,7 +17,7 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-function bwa-mpileup {
+function bwa-pos2wig {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -37,33 +37,20 @@ function bwa-mpileup {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
-      REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
-      READDEPTH=$(grep READDEPTH $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
-      #for g in $(eval echo {1..1}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        COMMAND1="$SAMTOOLS mpileup -6 -C50 -d $READDEPTH \
-                  -f $DATADIR/$GENOMEFASTA \
-                  $BWADIR/$FASTQNUM.sorted.bam \
-                  > $BWADIR/$FASTQNUM.pileup"
-        COMMAND2="perl pl/samtools-pileup.pl \
-                  wiggle \
-                  -refgenome $DATADIR/$GENOMEFASTA \
-                  -in $BWADIR/$FASTQNUM.pileup \
-                  -out $BWADIR/$FASTQNUM.wig" 
+
+        COMMAND1="perl pl/$FUNCNAME.pl perfect -in $BWADIR/$FASTQNUM-sum.pos -out $BWADIR/$FASTQNUM-perfect.wig"
 
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND1 >> $BATCHFILE
-          echo $COMMAND2 >> $BATCHFILE
         else
           echo $COMMAND1 | bash
-          echo $COMMAND2 | bash
-          echo "Check $BWADIR/$FASTQNUM.pileup"
-          echo "Check $BWADIR/$FASTQNUM.wig"
+          echo "Check $BWADIR/$FASTQNUM-perfect.wig"
         fi
       done
+
       break
     fi
   done

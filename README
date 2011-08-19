@@ -5,12 +5,15 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
-.. Short reads map in the genome track
+. Predict transcripts using RNA-Seq and annotated genes
+. Document features including genes, small RNAs using predicted transcripts
+. Study DE using the transcripts
+.. Short reads map in the genome track (done)
 .. Comparison with microarray results (OMZ, TW1)
-.. Use Bowtie to map the short reads.
 . Literature search on bacteria and RNA-Seq.
 . Find segmentation algorithm softwares to call operon (What is known about
 operon structures of S. mutans?).
+.. Use Charles's method or Martin's method to predict transcripts
 . Suboperons prediction using two samples of RNA-Seq data.
 . small RNAs in S. mutans.
 . To compare the result of RNA-Seq and that of microarray experiment. (done)
@@ -31,6 +34,126 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Thu Aug 18 17:20:06 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RNA fold prediction:
+http://rna.tbi.univie.ac.at/cgi-bin/RNAfold.cgi
+
+Tue Aug 16 09:11:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Genemark, transcript prediction using RNA-Seq.
+
+.A hgTables is created from UCSC genome browser.
+----
+#chromStart	chromEnd	name	strand
+193	1552	SMU_01	+
+1707	2844	SMU_02	+
+3105	3297	SMU_05	+
+----
+
+----
+awk '{ print $3 "\t" $4 "\t" $1 "\t" $2}'  hgTables.txt > 1
+----
+
+I tried to run ParseRNAseq, but it failed to read the gene file.
+
+.How to install GROseq
+----
+$ R CMD install GROseq_2.0.2.tar.gz
+> library(GROseq)
+----
+
+Mon Aug 15 10:10:24 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use only perfect matches of short reads.
+
+output/smutans12/1/bwa/count.txt is created from the 12 FASTQNN.de files using
+menu *de-count*. To compare TW1-Glucose(RNA-Seq 11) and TW1-Galactose(RNA-Seq
+03) I created output/smutans12/1/bwa/count-11-3.txt using
+
+.A script to create a count.txt for UA159 and TW1-Glucose, and TW1-Glucose and
+TW1-Galactose, 
+----
+in the directory output/smutans12/1/bwa
+awk '{ print $1 "\t" $2 "\t" $12 }' count.txt > count-1-11.txt
+awk '{ print $1 "\t" $12 "\t" $4 }' count.txt > count-11-3.txt
+awk '{ print $1 "\t" $10 "\t" $8 }' count.txt > count-9-7.txt
+----
+
+.An R script
+----
+Rscript count-1-11.R > count-1-11.out
+Rscript count-11-3.R > count-11-3.out
+Rscript count-9-7.R > count-9-7.out
+----
+
+Menu *deseq* is used to create output/smutans12/1/bwa/count-11-3.out file. All
+of the list of genes with fold changes are created from count-11-3.out:
+output/smutans12/1/bwa/tw1glugal.deseq
+
+Burne Lab sent me emails/from/burne/072711/STW1GluvGal.doc, which is used to
+create emails/from/burne/072711/tw1glugal.txt. A command 
+
+----
+perl pl/combine-deseq-microarray.pl deseq -rnaseq output/smutans12/1/bwa/tw1glugal.deseq -micro emails/from/burne/072711/tw1glugal.txt > R/tw1glugal.dat
+----
+
+is used to combine RNA-Seq result and microarray result. An R script is used 
+
+----
+Rscript R/tw1glugal.R
+----
+
+to create a figure, count-11-3.ps.
+
+
+Fri Aug 12 10:34:21 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+From smutans12/1/bwa/FASTQ01.sorted.bam
+HWI-ST397_0000:3:2102:2215:138075#GCCAAT        0 gi|24378532|ref|NC_004350.1|    16663   0       100M    *       0       0 AAAACAGAAAAAAAGCGAGAAAAGCTATTGACAAAGGGGGGAAGAGCTGGTAGAATAAAGAAGTTGTCTCAGAAAGAGGCAGAGCCCTTTGAAAACTGAA FFFDFCB=C=EEBBEFDFFFFBFDDEDEEE=DBDDFED@EE?FBFBDD=D@CD@B?4A@6CFEFBEF;FFFFDFFFFD@FFFBDFFFEFFFE@FF8EEEE XT:A:R  NM:i:0  X0:i:4  X1:i:0  XM:i:0  XO:i:0  XG:i:0 MD:Z:100
+-> hypothetical proteins
+
+HWI-ST397_0000:3:2203:12149:21055#GCCAAT        0 gi|24378532|ref|NC_004350.1|    16842   0       100M    *       0       0 GGACAGTAATGAGAAAGAACTCAAACGATTAAATGAGAGTTCGATCCTGGCTCAGGACGAACGCTGGCGGCGGGCCTAATACATGCAAGTGGGACGCAAG HHHHHHHHHHHHHFHHHFHHHHHH HHGEGGFGEFFGEGDBBEDECFFEHEFHHEHHCHBHHHBFHHFAEB26%/0DBCCAAAC'B@@??>EDCC=:DDE; XT:A:R  NM:i:2  X0:i:5  X1:i:0  XM:i:2  XO:i:0  XG:i:0 MD:Z:41T30T27
+-> rRNA-16S ribosomal RNA
+16663 - 16842
+16877..18428
+
+.A rRNA
+----
+     rRNA            16877..18428
+                     /locus_tag="SMUr01"
+                     /product="16S ribosomal RNA"
+                     /db_xref="GeneID:2886073"
+----
+
+
+
+Thu Aug 11 12:11:12 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Do we have reads counts for the 12 samples?
+
+W: I characterize the S. mutans transcriptome using RNA-Seq.
+RNA was prepared from [SAMPLE NAME: Ask Robert] grown to mid-log phase in LB
+broth [GROWTH CONDITIONS: Ask Robert]. 
+Some rRNA, or 16S and 23S rRNA, was expected to be the most abundant RNA
+species. Ribosomal RNAs were depleted prior to high-throughput sequencing.
+The depleted RNA was reverse-transcribed to cDNA, which was sequenced using an
+Illumina GA II. 
+The resulting 100-base short reads were mapped to the S. mutans UA159 genome.
+The sequence coverage per base was plotted and visualized using the UCSC genome
+browser and DNAplotter.
+
+W: Information of short reads includes mass of total RNA in microgram, totoal
+number of reads, reads mapped, proportion of total mapped, number of reads that
+mapped uniquely, proportion of mapped uniquely, reads mapped to CDS, reads
+mapped to non-coding sequences, reads mapped to hypothetical genes, reads mapped
+to tRNA.
+
+W: The sequence coverage varied across CDS, indicated by peaks and troughs. The
+profile was consistent between biological replicates.
 
 Fri Aug  5 18:03:02 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -389,7 +512,7 @@ The number of mapped reads is  11156784 (55 %)
 
 FASTQ: FASTQ01
 The total number of short reads is 18931854
-The number of mapped reads is  13102917 (69 %)
+The number of mapped reads is  13102917 (69 %) 4871824 mapped to rRNA
 FASTQ: FASTQ02
 The total number of short reads is 19747584
 The number of mapped reads is  10326492 (52 %)
@@ -407,13 +530,13 @@ The total number of short reads is 19483712
 The number of mapped reads is   102150 (0 %)
 FASTQ: FASTQ07
 The total number of short reads is 22194404
-The number of mapped reads is  12060475 (54 %)
+The number of mapped reads is  12060475 (54 %) 7719140 mapped to rRNA
 FASTQ: FASTQ08
 The total number of short reads is 21131873
 The number of mapped reads is  10866409 (51 %)
 FASTQ: FASTQ09
 The total number of short reads is 20482548
-The number of mapped reads is  10596559 (51 %)
+The number of mapped reads is  10596559 (51 %) 7918014 mapped to rRNA
 FASTQ: FASTQ10
 The total number of short reads is 22392326
 The number of mapped reads is  10750003 (48 %)
