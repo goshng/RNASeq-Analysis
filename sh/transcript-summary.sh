@@ -17,7 +17,11 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-function fastq-summary {
+# Usages:
+# perl pl/transcript-summary.pl summary -subcmd unannotated -feature /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/feature.pos -transcript /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/transcript/FASTQ01.bed > 1.unannotated
+# perl pl/transcript-summary.pl getsequence -in 1 -col 2 -size 50 -fasta /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/NC_004350.fna > 2
+
+function transcript-summary {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -29,31 +33,33 @@ function fastq-summary {
       global-variable $SPECIES $REPETITION
       read-species
 
-      BATCH=YES
-      BATCHFILE=batch.sh
+      echo -n "Do you wish to run a batch? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        BATCH=YES
+        BATCHFILE=batch.sh
+        echo "#!/bin/bash" > $BATCHFILE
+      fi
 
-      GENOMEFASTA=$(basename $REFGENOMEFASTA)
+      REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
-      for g in $(eval echo {1..$NUMFASTQFILE}); do
+      # for g in $(eval echo {1..$NUMFASTQFILE}); do
+      for g in $(eval echo {1..1}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
-        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
 
-        echo "FASTQ: $FASTQNUM"
-        echo "FILE: $GZIPFASTAQFILE"
-        TOTALLENGTH=$(zcat $GZIPFASTAQFILE|wc -l)
-        TOTALLENGTH=$(($TOTALLENGTH / 4))
-        echo "The total number of short reads is $TOTALLENGTH"
-
-        NUMBERMAPPEDREAD=$(trim $(cat $BWADIR/$FASTQNUM.bed|wc -l))
-        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-        echo "The number of mapped reads using BWA is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
-        NUMBERMAPPEDREAD=$(trim $(cat $BOWTIEDIR/$FASTQNUM.bed|wc -l))
-        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-        echo "The number of mapped reads using Bowtie is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
+        COMMAND1="perl pl/$FUNCNAME.pl summary \
+          -feature $DATADIR/feature.pos \
+          -transcript $TRANSCRIPTDIR/$FASTQNUM.bed"
+  
+        if [ "$BATCH" == "YES" ]; then
+          echo $COMMAND1 >> $BATCHFILE
+        else
+          #echo $COMMAND1 | bash
+          echo "Check $BWADIR/$FASTQNUM-sum files"
+        fi
       done
 
       break
     fi
   done
-
 }

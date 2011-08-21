@@ -22,13 +22,12 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 require 'pl/sub-error.pl';
-require 'pl/sub-fasta.pl';
 
 ###############################################################################
 # COMMAND LINE
 ###############################################################################
 $| = 1; # Do not buffer output
-my $VERSION = 'samtools-pileup.pl 1.0';
+my $VERSION = 'blast-parse-adapter.pl 1.0';
 
 my $cmd = ""; 
 sub process {
@@ -44,10 +43,9 @@ GetOptions( \%params,
             'man',
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
-            'genomeLength=i',
-            'refgenome=s',
             'in=s',
             'out=s',
+            'reads=s',
             '<>' => \&process
             ) or pod2usage(2);
 pod2usage(1) if $help;
@@ -57,28 +55,12 @@ my $out;
 my $in;
 my $outfile;
 my $infile;
-my $refgenome;
-my $genomeLength;
+my $reads;
 
-if (exists $params{refgenome})
+if (exists $params{reads})
 {
-  $refgenome = $params{refgenome};
+  $reads = $params{reads};
 }
-else
-{
-  &printError("Reference genome is missing");
-}
-
-=cut
-if (exists $params{genomeLength}) 
-{
-  $genomeLength = $params{genomeLength};
-}
-else
-{
-  &printError("genome length is missing");
-}
-=cut
 
 if (exists $params{out})
 {
@@ -100,71 +82,126 @@ else
   $infile = *STDIN;   
 }
 
+if ($cmd eq "filterfastq")
+{
+  unless (exists $params{reads})
+  {
+    &printError("reads is missing");
+  }
+}
+
 ###############################################################################
 # DATA PROCESSING
 ###############################################################################
 
-if ($cmd eq "test")
+if ($cmd eq "plusplus")
 {
-  my $s = 0;
-  while (<$infile>)
-    {
-      $s++;
-      chomp;
-      my @e = split /\t/;
+  my $line;
+  # Go to the first alignment.
+  while ($line = <$infile>)
+  {
+    chomp $line;
+    last if $line =~ /^>/;
+  }
 
-      for (my $i = 0; $i <= $#e; $i++)
-        {
-          print $outfile "[$i]: $e[$i]\n";
-        }
-      last;
+  # Start to find reads and adapter's position
+  my %aln;
+  $aln{readsName} = $line;
+  while ($line = <$infile>)
+  {
+    chomp $line;
+    if ($line =~ /^>/)
+    {
+      # Print the previous reads
+      if ($aln{identities} == 100 and $aln{adapterPos} > 10)
+      {
+        print $outfile "$aln{readsName}\t$aln{adapterPos}\n";
+      }
+
+      # Start reading a new short read.
+      $aln{readsName} = $line;
     }
+    if ($line =~ /Identities\s+=\s+\d+\/\d+\s+\((\d+)\%\)/)
+    {
+      $aln{identities} = $1;
+    }
+    if ($line =~ /Strand\s+=\s+Plus\s+\/\s+Plus/)
+    {
+      $aln{strand} = "okay";
+    }
+    if ($line =~ /Query:\s+1\s+/)
+    {
+      $line = <$infile>;
+      $line = <$infile>;
+      if ($line =~ /Sbjct:\s+(\d+)\s+/)
+      {
+        $aln{adapterPos} = $1;
+      }
+      else
+      {
+        die "Error: There must be Sbjct";
+      }
+    }
+  }
+  # Print the previous reads
+  if ($aln{identities} == 100 and $aln{adapterPos} > 10)
+  {
+    print $outfile "$aln{readsName}\t$aln{adapterPos}\n";
+  }
 }
-
-if ($cmd eq "wiggle")
+elsif ($cmd eq "filterfastq")
 {
-  my %fl = peachFastaLength ($refgenome);
-=cut
-  foreach my $i (keys %fl)
+  # Read short reads
+  my %filterRead;
+  open READS, $reads or die "cannot open $reads $!";
+  while (<READS>)
   {
-    print "$i: $fl{$i}\n";
+    chomp;
+    my @e = split /\t/;
+    $e[0] = substr $e[0], 1;
+    $filterRead{$e[0]} = $e[1];
   }
-=cut
-  my %maps;
-  foreach my $i (keys %fl)
-  {
-    my $l = $fl{$i};
-    my @map = (0) x ($l + 1);
-    $maps{$i} = [ @map ];
-  }
+  close READS;
 
   my $s = 0;
-  while (<$infile>)
-    {
-      $s++;
-      chomp;
-      my @e = split /\t/;
-      my $chromosome = $e[0];
-      my $pos = $e[1];
-      my $reads = $e[3];
-      $maps{$chromosome}[$pos] = $reads;
-
-      if ($s % 100000 == 0)
-        {
-          print STDERR "Line $s\r";
-        }
-    }
-
-  print $outfile "track type=wiggle_0\n";
-  foreach my $i (keys %fl)
+  my $line1;
+  my $line2;
+  my $line3;
+  my $line4;
+  while ($line1 = <$infile>)
   {
-    print $outfile "fixedStep chrom=chr1 start=1 step=1 span=1\n";
-    my $l = scalar @{ $maps{$i} };
-    for (my $j = 1; $j < $l; $j++)
+    $s++;
+    $line2 = <$infile>;
+    $line3 = <$infile>;
+    $line4 = <$infile>;
+    
+    foreach my $r (keys %filterRead)
     {
-      print $outfile "$maps{$i}[$j]\n";
+      # print STDERR "Line1: $line1";
+      # print STDERR "Line1-R: $r\n";
+      my $ii = index ($line1, $r);
+      if ($ii >= 0)
+      {
+        my $shortenLine2 = substr ($line2, 0, $filterRead{$r} - 1);
+        my $shortenLine4 = substr ($line2, 0, $filterRead{$r} - 1);
+        print $outfile $line1;
+        print $outfile "$shortenLine2\n"; 
+        print $outfile $line3;
+        print $outfile "$shortenLine4\n"; 
+        last;
+      }
+    }
+    # print STDERR "\n\n";
+    if ($s % 100 == 0)
+    {
+      print STDERR "Read $s\r";
     }
   }
+
+  #foreach my $r (keys %filterRead)
+  #{
+    #print $outfile "$r\t$filterRead{$r}\n";
+  #}
 }
 
 if (exists $params{in})
@@ -178,22 +215,26 @@ if (exists $params{out})
 __END__
 =head1 NAME
 
-samtools-pileup - convert pileups to a wiggle file
+blast-parse-adapter - summary of BWA alignment
 
 =head1 VERSION
 
-samtools-pileup 1.0
+blast-parse-adapter 1.0
 
 =head1 SYNOPSIS
 
-perl samtools-pileup.pl wiggle -genomeLength 1000000 -in fastq.pileup -out fastq.wig
+perl pl/blast-parse-adapter.pl plusplus -in blast.result -out reads.txt
+
+zcat FASTQ.gz | perl pl/blast-parse-adapter.pl filterfastq -reads adapter.reads
 
 =head1 DESCRIPTION
 
-samtools-pileup will help you to summarize a pileup file.
+blast-parse-adapter will help you to parse BLAST results for positions at which
+an adapter is aligned.
 
 Command:
-  wiggle - convert the input pileup file to a wiggle file
+  plusplus - print short reads and adapter positions
+  filterfastq - find short reads given by -reads option and shorten them
 
 =head1 OPTIONS
 
@@ -201,17 +242,12 @@ Command:
 
 =item B<-in> <file>
 
-A pileup file from samtools. If no input file is not specified, standard input
-is considered. 
+If no input file is not specified, standard input is considered.
 
 =item B<-out> <file>
 
 An output file name. Standard output is used unless an output file name is
 specified.
-
-=item B<-genomeLength> <number>
-
-A length of the reference genome.
 
 =back
 
@@ -221,8 +257,8 @@ Sang Chul Choi, C<< <goshng_at_yahoo_dot_co_dot_kr> >>
 
 =head1 BUGS
 
-If you find a bug please post a message RNASeq Analysis at codaset dot
-com repository so that I can make RNASeq Analysis better.
+If you find a bug please post a message rnaseq_analysis project at codaset dot
+com repository so that I can make map2graph better.
 
 =head1 COPYRIGHT
 

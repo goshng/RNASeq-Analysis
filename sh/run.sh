@@ -68,6 +68,7 @@ source sh/de-count.sh
 source sh/bwa-mpileup.sh
 source sh/bwa-bam-check.sh
 source sh/transcript-summary.sh
+source sh/job-truncate-reads.sh 
 
 #####################################################################
 # Read configuration file
@@ -82,7 +83,7 @@ SPECIESS=$(ls species|grep -v ^sim)
 #####################################################################
 # Menus
 #####################################################################
-PS3="Select what you want to do with : "
+PS3="Select the menu : "
 CHOICES=( init-file-system \
           choose-species \
           ---BWA-SUMMARY---\
@@ -97,6 +98,7 @@ CHOICES=( init-file-system \
           bwa-mpileup \
           # bwa-samtools-bed \
           # bwa-batch-align-to-bed \
+          ---BWA-OTHER---\
           bwa-samtools-wig \
           bwa-summary \
           bwa-pos2wig \
@@ -131,6 +133,8 @@ CHOICES=( init-file-system \
           fastxtoolkit-fastx_quality_stats \
           ---BAM-CHECK--- \
 	  bwa-bam-check \
+          ---JOBS--- \
+	  job-truncate-reads \
           warranty \
           copyright \
           quit )
@@ -177,6 +181,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-bam-check" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

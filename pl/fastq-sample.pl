@@ -29,6 +29,12 @@ require 'pl/sub-error.pl';
 $| = 1; # Do not buffer output
 my $VERSION = 'fastq-sample.pl 1.0';
 
+my $cmd = ""; 
+sub process {
+  my ($a) = @_; 
+  $cmd = $a; 
+}
+
 my $man = 0;
 my $help = 0;
 my %params = ('help' => \$help, 'h' => \$help, 'man' => \$man);        
@@ -39,7 +45,9 @@ GetOptions( \%params,
             'version' => sub { print $VERSION."\n"; exit; },
             'fastq=s',
             'out=s',
-            'interval=i'
+            'interval=i',
+            'cutsize=i',
+            '<>' => \&process
             ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
@@ -48,6 +56,7 @@ my $fastq;
 my $interval = 100;
 my $out;
 my $outfile;
+my $cutsize;
 
 if (exists $params{fastq}) 
 {
@@ -65,7 +74,7 @@ if (exists $params{interval})
 
 if (exists $params{out})
 {
-  $out = "$params{out}-$interval";
+  $out = "$params{out}";
   open ($outfile, ">", $out) or die "cannot open > $out: $!";
 }
 else
@@ -73,39 +82,93 @@ else
   $outfile = *STDOUT;   
 }
 
+if (exists $params{cutsize}) 
+{
+  $cutsize = $params{cutsize};
+}
+
+if ($cmd eq "sample")
+{
+  unless (exists $params{interval}) 
+  {
+    &printError("command sample needs -interval");
+  }
+}
+elsif ($cmd eq "cut")
+{
+  unless (exists $params{cutsize}) 
+  {
+    &printError("command cut needs -cutsize");
+  }
+}
+
 ###############################################################################
 # DATA PROCESSING
 ###############################################################################
-# $random = int( rand( $Y-$X+1 ) ) + $X;
-my $X = 1;
-my $Y = $interval*2;
-my $line;
-open FASTQ, "zcat $fastq|" or die "cannot open < $fastq $!";
-while ($line = <FASTQ>)
+if ($cmd eq "sample")
 {
-  $line = <FASTQ>;
-  $line = <FASTQ>;
-  $line = <FASTQ>;
-  my $random = int (rand($Y-$X+1)) + $X;
-  for (my $i = 0; $i < $random; $i++)
+  # $random = int( rand( $Y-$X+1 ) ) + $X;
+  my $X = 1;
+  my $Y = $interval*2;
+  my $line;
+  open FASTQ, "zcat $fastq|" or die "cannot open < $fastq $!";
+  while ($line = <FASTQ>)
   {
+    $line = <FASTQ>;
+    $line = <FASTQ>;
+    $line = <FASTQ>;
+    my $random = int (rand($Y-$X+1)) + $X;
+    for (my $i = 0; $i < $random; $i++)
+    {
+      for my $j (1..4) 
+      {
+	$line = <FASTQ>;
+      }
+    }
     for my $j (1..4) 
     {
-      $line = <FASTQ>;
+      $line = <FASTQ>; 
+      unless ($line)
+      {
+	last;
+      }
+      print $outfile $line;
     }
   }
-  for my $j (1..4) 
-  {
-    $line = <FASTQ>; 
-    unless ($line)
-    {
-      last;
-    }
-    print $outfile $line;
-  }
+  close FASTQ;
 }
-close FASTQ;
-close $outfile;
+elsif ($cmd eq "cut")
+{
+  my $s = 0;
+  my ($line1, $line2, $line3, $line4);
+  open FASTQ, "zcat $fastq|" or die "cannot open < $fastq $!";
+  while ($line1 = <FASTQ>)
+  {
+    $s++;
+    $line2 = <FASTQ>;
+    chomp $line2;
+    my $l = length $line2;
+    my $shortenedLine2 = substr ($line2, 0, $l - $cutsize);
+    $line3 = <FASTQ>;
+    $line4 = <FASTQ>;
+    chomp $line4;
+    my $shortenedLine4 = substr ($line4, 0, $l - $cutsize);
+    print $outfile $line1;
+    print $outfile "$shortenedLine2\n";
+    print $outfile $line3;
+    print $outfile "$shortenedLine4\n";
+    if ($s % 1000000 == 0)
+    {
+      print STDERR "Read $s\r";
+    }
+  }
+  print STDERR "Finished Read $s for cutting $cutsize tailing bases.\n";
+}
+
+if (exists $params{out})
+{
+  close $outfile;
+}
 __END__
 =head1 NAME
 
@@ -119,6 +182,9 @@ fastq-sample 1.0
 
 perl fastq-sample.pl [-fastq file] [-out file] [-interval number]
 
+perl fastq-sample.pl sample -fastq file -out file -interval number
+perl fastq-sample.pl cut -fastq file -out file -cutsize 10
+
 =head1 DESCRIPTION
 
 fastq-sample will help you to subsample a FASTQ file to create a smaller FASTQ
@@ -126,11 +192,19 @@ file from the original one.
 
 =head1 OPTIONS
 
+command: sample, cut
+  sample - sample short reads
+  cut    - truncate tailing nucleotides from short reads
+
 =over 8
 
 =item B<-fastq> <file>
 
 A FASTQ file name.
+
+=item B<-cutsize> <number>
+
+Number of tailing nucleotides.
 
 =item B<-interval> <number>
 

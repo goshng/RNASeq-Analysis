@@ -5,7 +5,7 @@ v1.0, May 2011
 
 Introduction
 ------------
-A list of RNA-Seq data files are sampled from bacteria. Using these files I
+A list of RNA-Seq data files are sampled from bacteria. I
 analyze transcriptome of the bacteria. Three steps should be performed before
 executing any menus provided by *RNASEQ Analysis*. Firstly, a configuration file
 needs to be placed at +conf+ direcotry. Secondly, the software packages 
@@ -27,9 +27,17 @@ BWA Alignment
 ~~~~~~~~~~~~~
 Call *cp-genome* to copy the genome file in FASTA format to the data directory.
 Call *bwa-index-genome* just right after *cp-genome* menu. 
-Call *bwa-align*, *bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*, and
-*bwa-samtools-bed* menus in order. Now, call *fastq-summary* again to see the
+Call *bwa-align* to produce the sorted alignment in BAM format.
+Call *bwa-mpileup* to create pileup and wiggle files.
+
+
+
+
+Now, call *fastq-summary* again to see the
 proportions of short reads mapped on the reference genome.
+
+Call *bwa-align*, *bwa-samse*, *bwa-samtools-view*, *bwa-samtools-sort*, and
+*bwa-samtools-bed* menus in order. 
 Menus from *bwa-align* to *bwa-samtools-bed* can be run in a single command
 using *bwa-batch-align-to-bed*, which creates a +batch+ file at the base
 directory. Just execute the +batch+ file with BASH shell.
@@ -154,7 +162,7 @@ Quick Start
 . Create a conf/README file using conf/README.template
 . Execute menu *init-file-system*
 
-.Index a genome file
+.Index a genome file for BWA alignment
 . Create a species file
 . Execute menu *choose-species*
 . Execute menu *cp-genome* 
@@ -163,23 +171,21 @@ Quick Start
 .Align short reads to a reference genome
 . Execute menu *bwa-index-genome*
 . Execute menu *bwa-align*
-. Execute menu *bwa-samse*
-. Execute menu *bwa-samtools-view*
-. Execute menu *bwa-samtools-sort*
-. Execute menu *bwa-samtools-bed*
-
-.Run a batch job from *bwa-align* to *bwa-samtools-bed*
-. Execute menu *bwa-batch-align-to-bed*
-. Execute +batch.sh+ script.
-
-.Create wigggle files with read lengths
-. After the execution of menu *bwa-samtools-bed*
-. Execute menu *bwa-samtools-wig*
 
 .Create genome tracks for the mapped reads
 . First align reads to a reference genome
 . Execute menu *bwa-align*
 . Execute menu *bwa-mpileup*
+
+.Shorten reads
+. Execute menu *bwa-sample*
+
+
+IMPORTANT: The following needs attention.
+
+.Create wigggle files with read lengths
+. After the execution of menu *bwa-samtools-bed*
+. Execute menu *bwa-samtools-wig*
 
 .Outdated
 . Execute menu *bwa-R-saveimage*
@@ -312,37 +318,12 @@ RNA-Seq data to predict transcripts using either Martin's ParseRNAseq or Danko's
 GROseq. I summarize the transcripts with known genes, small RNAs, and other
 information.
 
+fastq-sample
+~~~~~~~~~~~~
+I subsample RNA-Seq short sequences. I can shorten RNA-Seq sequences.
+
 How can I find the list of short reads that are not mapped? Use menu
 *bwa-summary*. Use +pl/bwa-sam.pl+ with +unmapped+ command to create a FASTA
 file with unmapped short reads.
 
-bowtie-align.sh
-bowtie-index-genome.sh
-bowtie-refflat.sh
-bwa-R-saveimage.sh
-bwa-align.sh
-bwa-batch-align-to-bed.sh
-bwa-danko-countreadsininterval.sh
-bwa-danko-detecttranscriptsem.sh
-bwa-danko-metagene.sh
-bwa-danko-writewiggle.sh
-bwa-degseq-bed.sh
-bwa-index-genome.sh
-bwa-samse.sh
-bwa-samtools-bed.sh
-bwa-samtools-sort.sh
-bwa-samtools-view.sh
-bwa-samtools-wig.sh
-choose-species.sh
-conf.sh
-cp-genome.sh
-fastq-summary.sh
-fastxtoolkit-fastq_to_fasta.sh
-fastxtoolkit-fastx_quality_stats.sh
-feature-genome.sh
-global-variable.sh
-hpylori.sh
-init-file-system.sh
-read-species.sh
-run.sh
-segemehl-index-genome.sh
+

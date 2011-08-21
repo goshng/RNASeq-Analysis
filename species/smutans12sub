@@ -1,8 +1,0 @@
-REFGENOMEGBK:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gbk
-REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
-REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
-REFGENOMELENGTH:2030921
-READLENGTH:100
-NUMFASTQFILE:2
-FASTQ01:/Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/FASTQ01.subsample.gz
-FASTQ02:/Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/FASTQ02.subsample.gz

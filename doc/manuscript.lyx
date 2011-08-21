@@ -318,6 +318,42 @@ UA159 Transcriptome
 \end_layout
 
 \begin_layout Standard
+Aspects of bacterial transcriptome include transcript structure, operon
+ linkages, abundance, and so on.
+\end_layout
+
+\begin_layout Standard
+Valuable insights into gene function and regulation.
+\end_layout
+
+\begin_layout Standard
+A high-throughput sequencing approach, or RNA-Seq.
+\end_layout
+
+\begin_layout Standard
+We sampled the Streptococcus mutans transcriptome.
+\end_layout
+
+\begin_layout Standard
+Under what conditions? TW1, OMZ175
+\end_layout
+
+\begin_layout Standard
+Goals: to enhance the accuracy of genome annotations, to quantify transcript
+ abundance, to understand the structure of Streptococcus mutans transcriptome
+ (operon linkage, trancript boundaries)
+\end_layout
+
+\begin_layout Standard
+Current status: Understanding of bacterial transcriptomes lag behind.
+\end_layout
+
+\begin_layout Standard
+Understanding the structure of bacterial transcriptomes is a crucial step
+ in investingating the functional and regulatory architecture of the genome.
+\end_layout
+
+\begin_layout Standard
 whole transcriptome sequencing.
 \end_layout
 
@@ -366,8 +402,134 @@ key "Siezen2010"
 .
 \end_layout
 
+\begin_layout Standard
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Passalacqua2009"
+
+\end_inset
+
+ used RNA-Seq to attempt to define the transcriptome of Bacillus anthracis.
+ It is evident that transcription start sites are very difficult to locate
+ using the standard RNA-Seq.
+\end_layout
+
+\begin_layout Standard
+Very little known about non-coding transcripts in Streptococcus mutans.
+\end_layout
+
+\begin_layout Standard
+We identified XX non-coding small RNAs from intergenic regions.
+ Many of them had no predicted functions.
+\end_layout
+
+\begin_layout Standard
+We identified transcript structures in the genome.
+ 
+\end_layout
+
+\begin_layout Standard
+Operon structures and novel small RNAs are identified.
+ This study enhance our understanding of the transcriptome of Streptococcus
+ mutans.
+ 
+\end_layout
+
+\begin_layout Standard
+Large-scale identification of small RNAs is a step towards understanding
+ functions in bacterial physiology and virulence.
+\end_layout
+
+\begin_layout Standard
+Short introduction to Streptococcus mutans: [DESCRIBE IT]
+\end_layout
+
+\begin_layout Standard
+There is a need for increased identification of non-coding functional elements
+ in the Streptococcus mutans genome.
+\end_layout
+
+\begin_layout Standard
+To date, experimental approaches for small RNA identification in the Streptococc
+us mutans have not been reported.
+ We describe a RNA-Seq approach for comprehensive identification of small
+ RNAs in S.
+ mutans.
+ 
+\end_layout
+
+\begin_layout Standard
+S.
+\begin_inset space \space{}
+\end_inset
+
+mutans genomic RNA-Seq identified XX novel small RNAs in the genome.
+ We also verified some of them using qRT-PCR.
+ We used computational approaches to predict the functions of small RNAs:
+ Rfam database searches, BLAST search, sequence motif analysis.
+\end_layout
+
+\begin_layout Standard
+Our results provide insights into the complex regulatory repertoir of the
+ S.
+\begin_inset space \space{}
+\end_inset
+
+mutans.
+ 
+\end_layout
+
+\begin_layout Standard
+Transcriptional active regions (TAR).
+ 
+\end_layout
+
+\begin_layout Standard
+The genome size of S.
+\begin_inset space \space{}
+\end_inset
+
+mutans is 2030921 base pairs, of which XX% is annotated as genes and rest
+ XX% as intergenic regions.
+ Our results show that XX% of the annotated regions of the genome are expressed
+ during [WHAT] phase.
+ Approximated XX% of the intergenic region was expressed: small RNAs, UTR
+ of messenger RNAs, and intergenic regions.
+ 
+\end_layout
+
+\begin_layout Standard
+The identified small RNAs range from XX to XX in length.
+ The start and end for small RNA refer to the boundaries of transcriptionally
+ active regions.
+ 
+\end_layout
+
+\begin_layout Standard
+Comparative genomics of small RNA sequences: []
+\end_layout
+
+\begin_layout Standard
+Comparison between Rfam and found small RNAs: []
+\end_layout
+
+\begin_layout Standard
+Motif and structural analysis of small RNAs: [] Use MEME Suite.
+ Small RNAs with similar functions share common motif sequences.
+ MFOLD predicted small RNA structures.
+\end_layout
+
+\begin_layout Standard
+DOOR, like OperonDB: Using operon structures to predict unannotated gene
+ function.
+\end_layout
+
 \begin_layout Section
 RNA sample preparation
+\end_layout
+
+\begin_layout Standard
+Growth of Streptococcus mutans (STRAIN NAME).
 \end_layout
 
 \begin_layout Standard
@@ -377,6 +539,62 @@ RNA samples: [Burne Lab should be able to describe the RNA sample preparation.]
 \begin_layout Standard
 RNA-Seq sequencing: [Stanhope Lab should be able to describe the high-throughput
  sequencing.]
+\end_layout
+
+\begin_layout Standard
+Mapping and processing sequence data: Illumina sequence data were mapped
+ to the Streptococcus mutans genome using BWA.
+\end_layout
+
+\begin_layout Standard
+Quality control of RNA-Seq data: []
+\end_layout
+
+\begin_layout Standard
+Transcription start sites:
+\end_layout
+
+\begin_layout Standard
+Transcript boundaries: 
+\end_layout
+
+\begin_layout Standard
+Measurement of gene expression: We count reads that cover a gene to quantify
+ the expression level of the gene.
+\end_layout
+
+\begin_layout Standard
+Sequnce data availability: 
+\end_layout
+
+\begin_layout Standard
+We studied Streptococcus mutans, [WHAT] bacterium and [WHAT DISEASE CAUSING]
+ agent.
+\end_layout
+
+\begin_layout Standard
+We enriched for messenger RNAs and small RNAs.
+ We deplete the ribosomal RNAs from our sample.
+ RNAs were converted to cDNAs and subjected to massively parallele sequencing
+ using the Illumina Genome Analyzer II.
+\end_layout
+
+\begin_layout Standard
+Table S1.
+ Basic statistics of short reads of 12 RNA-Seq samples.
+\end_layout
+
+\begin_layout Standard
+We used BWA to map the short sequence reads to the Streptococcus mutans
+ genome.
+ We used only unambiguously mapped reads to produce a coverage profile for
+ each sample.
+ Coverage is the depth of sequence data at each position in the Streptococcus
+ mutans genome.
+\end_layout
+
+\begin_layout Standard
+We call transcript boundaries in the entire genome.
 \end_layout
 
 \begin_layout Section
