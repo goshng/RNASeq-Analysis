@@ -44,25 +44,25 @@ function bwa-summary {
         FASTQNUM=FASTQ$(printf "%02d" $g)
 
         COMMAND1="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl wiggle -genomeLength $REFGENOMELENGTH \
+          | perl pl/$FUNCNAME.pl wiggle -genomeLength $REFGENOMELENGTH \
 	  > $BWADIR/$FASTQNUM-sum.wig"
 
         COMMAND2="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl parse > $BWADIR/$FASTQNUM-sum.parse"
+          | perl pl/$FUNCNAME.pl parse > $BWADIR/$FASTQNUM-sum.parse"
 
         COMMAND3="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl pos > $BWADIR/$FASTQNUM-sum.pos"
+          | perl pl/$FUNCNAME.pl pos > $BWADIR/$FASTQNUM-sum.pos"
 
         COMMAND4="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl genemark -genomeLength $REFGENOMELENGTH \
+          | perl pl/$FUNCNAME.pl genemark -genomeLength $REFGENOMELENGTH \
 	  > $BWADIR/$FASTQNUM-sum.gmk"
 
         COMMAND5="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl unmapped \
+          | perl pl/$FUNCNAME.pl unmapped \
 	  > $BWADIR/$FASTQNUM-sum.unmapped"
 
         COMMAND6="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
-          | perl pl/bwa-sam.pl rrna \
+          | perl pl/$FUNCNAME.pl rrna \
 	  -gff $REFGENOMEGFF > $BWADIR/$FASTQNUM-sum.rrna"
 
         if [ "$BATCH" == "YES" ]; then
