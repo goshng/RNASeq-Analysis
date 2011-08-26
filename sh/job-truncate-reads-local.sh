@@ -17,68 +17,38 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-function job-truncate-reads {
+function job-truncate-reads-local {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
       echo -e "You need to enter something\n"
       continue
     else  
-      BATCHDIR=b
-      STARTREPETITION=12
-      HOWMANYREPETITION=20
+      HOWMANYREPETITION=99
       #HOWMANYREPETITION=8
-      BATCHFILE=$BATCHDIR/batch.sh
-      BWA=./bwa
-      SAMTOOLS=./samtools
+      BATCHFILE=batch.sh
+      # BWA=./bwa
+      # SAMTOOLS=./samtools
 
       echo "#!/bin/bash" > $BATCHFILE
 
       global-variable $SPECIES 1
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
 
-      for REPETITION in $(eval echo {$STARTREPETITION..$HOWMANYREPETITION}); do
-        BATCHJOBFILENAME=batch$(printf "%02d" $REPETITION)
-        BATCHJOBFILE=$BATCHDIR/batch$(printf "%02d" $REPETITION)
-        echo "nsub $BATCHJOBFILENAME" >> $BATCHFILE
+      for REPETITION in $(eval echo {1..$HOWMANYREPETITION}); do
+        BATCHJOBFILE=batch$(printf "%02d" $REPETITION)
+        echo "bash $BATCHJOBFILE" >> $BATCHFILE
 
         # For CAC cluster
-        ROOTANALYSISDIR=/v4scratch/sc2265/rnaseq
         global-variable $SPECIES $REPETITION
         read-species
         
-        CUTSIZE=$REPETITION
+        SIZE=$REPETITION
         GENOMEFASTA=$(basename $REFGENOMEFASTA)
         REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
         READDEPTH=$(grep READDEPTH $SPECIESFILE | cut -d":" -f2)
 
 cat>$BATCHJOBFILE<<EOF
-#!/bin/bash
-#PBS -l walltime=59:00:00,nodes=1
-#PBS -A acs4_0001
-#PBS -j oe
-#PBS -N rnaseq
-#PBS -q v4
-#PBS -m e
-#PBS -M schoi@cornell.edu
-
-# Create input and output directory
-OUTPUTDIR=\$TMPDIR/output
-INPUTDIR=\$TMPDIR/input
-mkdir \$INPUTDIR
-mkdir \$OUTPUTDIR
-
-DATADIR=/v4scratch/sc2265/rnaseq/data
-PLDIR=/v4scratch/sc2265/rnaseq/pl
-# copy data
-cp \$DATADIR/NC_004350.fna \$INPUTDIR/
-cp -r \$PLDIR \$TMPDIR
-cp /v4scratch/sc2265/rnaseq/samtools-0.1.16/samtools \$TMPDIR
-cp /v4scratch/sc2265/rnaseq/bwa-0.5.9/bwa \$TMPDIR
-cp \$PBS_O_WORKDIR/batch* \$TMPDIR
-
-cd \$TMPDIR
-
 # Create a number directory
 mkdir -p $BASERUNANALYSIS
 mkdir -p $NUMBERDIR
@@ -89,21 +59,14 @@ mkdir -p $BOWTIEDIR
 # Copy the genome file
 cp $REFGENOMEFASTA $DATADIR
 # BWA index the genome
-./bwa index -p $BWADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
+$BWA index -p $BWADIR/$GENOMEFASTA-bwa -a is $DATADIR/$GENOMEFASTA
 
-for g in \$(eval echo {2..$NUMFASTQFILE}); do
-  BATCHJOBFILENUM=$BATCHJOBFILENAME\$(printf "%02d" \$g)
-  bash \$BATCHJOBFILENUM&
-done
-
-wait
+g=1
+BATCHJOBFILENUM=$BATCHJOBFILE\$(printf "%02d" \$g)
+bash \$BATCHJOBFILENUM
 
 rm -f $DATADIR/$GENOMEFASTA* $BWADIR/$GENOMEFASTA-bwa.*
 
-cp -r output \$PBS_O_WORKDIR
-
-cd
-rm -rf \$TMPDIR
 EOF
 
         for g in $(eval echo {1..$NUMFASTQFILE}); do
@@ -115,20 +78,18 @@ EOF
           GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
           FASTAQFILE=${GZIPFASTAQFILE%.*}
           # GZIPFASTAQDIR=$DATADIR
-          OUTFILE=$DATADIR/$FASTQNUM.cut-$CUTSIZE
+          OUTFILE=$DATADIR/$FASTQNUM.sample-$SIZE
 
-            #--fastq $FASTAQFILE \
-          COMMAND1="perl pl/fastq-sample.pl cut \
+          COMMAND1="perl pl/fastq-sample.pl sample \
             --fastq $GZIPFASTAQFILE \
             --out $OUTFILE \
-            --cutsize $CUTSIZE"
+            --samplesize $SIZE"
           echo $COMMAND1 > $BATCHJOBFILENUM
-
           echo "gzip $OUTFILE" >> $BATCHJOBFILENUM
 
           ############################################
           # BWA align
-          GZIPFASTAQFILE=$DATADIR/$FASTQNUM.cut-$CUTSIZE.gz
+          GZIPFASTAQFILE=$OUTFILE.gz
           COMMAND1="$BWA aln -I -t $NUMBERCPU \
                     $BWADIR/$GENOMEFASTA-bwa \
                     $GZIPFASTAQFILE > $BWADIR/$FASTQNUM.sai"
@@ -139,7 +100,6 @@ EOF
                     $GZIPFASTAQFILE"
           COMMAND3="$SAMTOOLS view -bS -o $BWADIR/$FASTQNUM.bam \
                     $BWADIR/$FASTQNUM.sam"
-
           COMMAND4="$SAMTOOLS sort $BWADIR/$FASTQNUM.bam \
                     $BWADIR/$FASTQNUM.sorted"
 
@@ -151,7 +111,7 @@ EOF
 
           ############################################
           # Pileup
-          COMMAND1="$SAMTOOLS mpileup -C50 -d $READDEPTH \
+          COMMAND1="$SAMTOOLS mpileup -q 20 -d $READDEPTH \
                     -f $DATADIR/$GENOMEFASTA \
                     $BWADIR/$FASTQNUM.sorted.bam \
                     > $BWADIR/$FASTQNUM.pileup"
@@ -171,7 +131,7 @@ EOF
                       $BWADIR/$FASTQNUM.bam \
                       $BWADIR/$FASTQNUM.sorted.bam \
                       $BWADIR/$FASTQNUM.pileup \
-                      $DATADIR/$FASTQNUM.cut-$CUTSIZE.gz"
+                      $OUTFILE.gz"
           echo $DELETE1 >> $BATCHJOBFILENUM
         done
                       

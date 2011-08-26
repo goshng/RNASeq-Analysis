@@ -45,7 +45,7 @@ function bwa-mpileup {
       #for g in $(eval echo {1..1}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         # COMMAND1="$SAMTOOLS mpileup -6 -C50 -d $READDEPTH \
-        COMMAND1="$SAMTOOLS mpileup -C50 -d $READDEPTH \
+        COMMAND1="$SAMTOOLS mpileup -q 15 -d $READDEPTH \
                   -f $DATADIR/$GENOMEFASTA \
                   $BWADIR/$FASTQNUM.sorted.bam \
                   > $BWADIR/$FASTQNUM.pileup"
@@ -59,7 +59,9 @@ function bwa-mpileup {
           echo $COMMAND1 >> $BATCHFILE
           echo $COMMAND2 >> $BATCHFILE
         else
+          echo $COMMAND1
           echo $COMMAND1 | bash
+          echo $COMMAND2
           echo $COMMAND2 | bash
           echo "Check $BWADIR/$FASTQNUM.pileup"
           echo "Check $BWADIR/$FASTQNUM.wig"

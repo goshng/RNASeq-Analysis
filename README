@@ -34,6 +34,61 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Fri Aug 26 11:24:15 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DE study of intergenic regions and predicted small RNAs is pursued.
+SIPHT is used for small RNA predictions: NC_004350_sRNA.out_annotated is emailed
+to me after predicting sRNAs using SIPHT. I used a default option with UA159
+being a reference and all other streptococcus species genomes as query for
+sequence alignment.
+
+.Create a BED file from sRNA predicted with sRNAPredict3 or SIPHT.
+----
+perl pl/srnapredict2bed.pl bed -srnapredict NC_004350_sRNA.out_annotated -out srna.bed
+----
+
+.Create gene and intergenic regions (min. of 30 base pairs)
+----
+perl pl/feature-genome.pl ptt 
+-in bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.ptt
+-intergenicregion -out output/smutans12/1/data/feature-genome.out-intergenic
+----
+
+.Concatenate both files.
+----
+cat output/smutans12/1/data/feature-genome.out-intergenic srna.bed > output/smutans12/1/data/feature-genome.out-srna
+----
+
+.Count reads using feature-genome file.
+----
+output/smutans12/1/data/feature-genome.out-srna
+----
+
+.Create sum.pos file for all trimmed FASTQ files
+----
+Align FASTQ03 and FASTQ11.
+----
+
+.Compare gene expression of FASTQ03 and FASTQ11 
+----
+Make a directory to analyze the expression levels.
+----
+
+
+Thu Aug 25 09:13:33 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+An interesting website for a kind of tutorial of sRNAPredict3:
+http://bcrc.bio.umass.edu/courses/fall2008/cmpsci/cmpsci691k/index.php/SRNA/operon_Discovery
+
+WU-BLAST2.0 old version:
+http://www.advbiocomp.com/blast/obsolete/
+http://www.advbiocomp.com/blast/obsolete/blast2.linux-5.1.tar.Z version seems to
+be runnable at swiftgen. The version does not contain the xdformat command.
+
+All streptococcus species genomes in FASTA format available for download are
+stored at:
+test/wublast
+
 Thu Aug 18 17:20:06 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

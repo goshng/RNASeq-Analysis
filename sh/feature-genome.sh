@@ -1,5 +1,21 @@
-# Author: Sang Chul Choi
-# Date  : 
+###############################################################################
+# Copyright (C) 2011 Sang Chul Choi
+#
+# This file is part of Mauve Analysis.
+# 
+# Mauve Analysis is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Mauve Analysis is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
+###############################################################################
 
 function feature-genome {
   PS3="Choose the species for $FUNCNAME: "
@@ -12,6 +28,18 @@ function feature-genome {
       read REPETITION
       global-variable $SPECIES $REPETITION
       read-species
+
+      REFGENOMEPTT=$(grep REFGENOMEPTT $SPECIESFILE | cut -d":" -f2)
+      perl pl/$FUNCNAME.pl ptt \
+        -in $REFGENOMEPTT \
+        -out $DATADIR/$FUNCNAME.out-geneonly
+      perl pl/$FUNCNAME.pl ptt \
+        -in $REFGENOMEPTT \
+        -intergenicregion \
+        -out $DATADIR/$FUNCNAME.out-intergenic
+
+      break
+
       # CHROMOSOME="gi|15644634|ref|NC_000915.1|"
       CHROMOSOME="gi|24378532|ref|NC_004350.1|"
 

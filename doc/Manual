@@ -70,6 +70,8 @@ mapped.
 A +sum+ file, e.g.,  output/omz/1/bwa/FASTQ01.sum, contains RNA-Seq short
 sequence file, total number of the reads, and the number of short reads mapped.
 
+
+
 Bowtie Alignemnt
 ~~~~~~~~~~~~~~~~
 Call *bowtie-index-genome* and *bowtie-align* to index the reference genome, and
@@ -77,6 +79,10 @@ align short reads to the reference genome.
 
 DESeq
 ~~~~~
+Prepare a +gene.pos+ file that contains gene name, chromosome, start, and end
+position. Let's use ptt file for getting genes positions. What menu do I use?
+Menu *feature-genome* could find genes.
+
 The number of reads in a gene, or _read count_, is known to be somewhat linear
 to the abundance of the RNA transcript of the gene. I wish to test whether an
 observed difference in read counts for a gene is statistically significant. For
@@ -105,6 +111,8 @@ TW1-Galactose
 awk '{ print $1 "\t" $2 "\t" $12 }' count.txt > count-1-11.txt
 awk '{ print $1 "\t" $12 "\t" $4 }' count.txt > count-11-3.txt
 ----
+
+Given the count data we can proceed to compare gene expression.
 
 .A gene.pos file
 ----
@@ -310,6 +318,9 @@ Create a file in +species+ directory before calling this menu.
 fastq-sample
 ~~~~~~~~~~~~
 Subsample the set of FASTQ files.
+I subsample RNA-Seq short sequences. I can shorten RNA-Seq sequences.
+I can keep reads with minimum lengths.
+
 
 transcript-summary
 ~~~~~~~~~~~~~~~~~~
@@ -318,12 +329,18 @@ RNA-Seq data to predict transcripts using either Martin's ParseRNAseq or Danko's
 GROseq. I summarize the transcripts with known genes, small RNAs, and other
 information.
 
-fastq-sample
-~~~~~~~~~~~~
-I subsample RNA-Seq short sequences. I can shorten RNA-Seq sequences.
-
 How can I find the list of short reads that are not mapped? Use menu
 *bwa-summary*. Use +pl/bwa-sam.pl+ with +unmapped+ command to create a FASTA
 file with unmapped short reads.
 
+job-truncate-reads-local
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Scripts
+-------
+
+.Subtract B from A where A and B are single-column number files
+----
+bash colsubtract.sh A B > C
+----
 

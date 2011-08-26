@@ -38,6 +38,7 @@ function bwa-summary {
       fi
 
       REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
+      REFGENOMEGFF=$(grep REFGENOMEGFF $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
@@ -60,17 +61,24 @@ function bwa-summary {
           | perl pl/bwa-sam.pl unmapped \
 	  > $BWADIR/$FASTQNUM-sum.unmapped"
 
+        COMMAND6="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
+          | perl pl/bwa-sam.pl rrna \
+	  -gff $REFGENOMEGFF > $BWADIR/$FASTQNUM-sum.rrna"
+
         if [ "$BATCH" == "YES" ]; then
           #echo $COMMAND1 >> $BATCHFILE
           #echo $COMMAND2 >> $BATCHFILE
-          #echo $COMMAND3 >> $BATCHFILE
+          echo $COMMAND3 >> $BATCHFILE
           #echo $COMMAND4 >> $BATCHFILE
-          echo $COMMAND5 >> $BATCHFILE
+          #echo $COMMAND5 >> $BATCHFILE
+          #echo $COMMAND6 >> $BATCHFILE
         else
           #echo $COMMAND1 | bash
           #echo $COMMAND2 | bash
           #echo $COMMAND3 | bash
           #echo $COMMAND4 | bash
+          #echo $COMMAND5 | bash
+          #echo $COMMAND6 | bash
           echo "Check $BWADIR/$FASTQNUM-sum files"
         fi
 	continue

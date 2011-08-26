@@ -66,9 +66,9 @@ source sh/bwa-summary.sh
 source sh/bwa-pos2wig.sh
 source sh/de-count.sh
 source sh/bwa-mpileup.sh
-source sh/bwa-bam-check.sh
 source sh/transcript-summary.sh
 source sh/job-truncate-reads.sh 
+source sh/job-truncate-reads-local.sh 
 
 #####################################################################
 # Read configuration file
@@ -113,6 +113,7 @@ CHOICES=( init-file-system \
           ---FASTQ---\
           fastq-sample \
           ---DE---\
+          feature-genome \
           de-count \
           deseq \
           bwa-degseq-bed \
@@ -127,14 +128,12 @@ CHOICES=( init-file-system \
           bwa-danko-metagene \
           bwa-danko-detecttranscriptsem \
           segemehl-index-genome \
-          feature-genome \
           ---READ-QUALITY-CHECK--- \
           fastxtoolkit-fastq_to_fasta \
           fastxtoolkit-fastx_quality_stats \
-          ---BAM-CHECK--- \
-	  bwa-bam-check \
           ---JOBS--- \
 	  job-truncate-reads \
+	  job-truncate-reads-local \
           warranty \
           copyright \
           quit )
@@ -180,8 +179,8 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-summary" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-bam-check" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"
