@@ -61,6 +61,8 @@ source sh/degseq.sh
 source sh/deseq.sh
 source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
+source sh/transcript-genecoverage.sh
+source sh/transcript-parsernaseq.sh
 source sh/maq-align.sh
 source sh/bwa-summary.sh
 source sh/bwa-pos2wig.sh
@@ -121,6 +123,8 @@ CHOICES=( init-file-system \
           degseq \
           edgeR \
           ---TRANSCRIPT---\
+          transcript-genecoverage \
+          transcript-parsernaseq \
           transcript-summary \
           transcript-cufflinks \
           ---ETC---\
@@ -173,6 +177,8 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "transcript-genecoverage" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "transcript-parsernaseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
   elif [ "$CHOICE" == "transcript-summary" ]; then $CHOICE; break
   elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break

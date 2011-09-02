@@ -17,7 +17,11 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-function bwa-pos2wig {
+# Usages:
+# perl pl/transcript-summary.pl summary -subcmd unannotated -feature /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/feature.pos -transcript /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/transcript/FASTQ01.bed > 1.unannotated
+# perl pl/transcript-summary.pl getsequence -in 1 -col 2 -size 50 -fasta /Users/goshng/Documents/Projects/rnaseq/output/smutans12/1/data/NC_004350.fna > 2
+
+function transcript-genecoverage {
   PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
     if [ "$SPECIES" == "" ];  then
@@ -37,23 +41,22 @@ function bwa-pos2wig {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
-      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
-      #for g in $(eval echo {1..$NUMFASTQFILE}); do
+      NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+      # for g in $(eval echo {1..$NUMFASTQFILE}); do
       for g in $(eval echo {1..1}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
 
-        # COMMAND1="perl pl/$FUNCNAME.pl perfect -in $BWADIR/$FASTQNUM-sum.pos -out $BWADIR/$FASTQNUM-perfect.wig"
-        COMMAND1="perl pl/$FUNCNAME.pl end \
-          -genomeLength $REFGENOMELENGTH \
-          -in $BWADIR/$FASTQNUM-sum.pos \
-          -out $BWADIR/$FASTQNUM-end.wig"
-
+        COMMAND1="perl pl/$FUNCNAME.pl coverage \
+          -feature $DATADIR/feature-genome.out-geneonly \
+          -wiggle $BWADIR/$FASTQNUM.wig"
+  
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND1 >> $BATCHFILE
         else
-          echo $COMMAND1 | bash
-          echo "Check $BWADIR/$FASTQNUM-perfect.wig"
+          # echo $COMMAND1 | bash
+          echo $COMMAND1
+          echo "Check $BWADIR/$FASTQNUM-sum files"
         fi
       done
 

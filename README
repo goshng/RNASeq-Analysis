@@ -34,6 +34,67 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+
+Thu Sep  1 17:19:48 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I have to summarize transcript information. 
+
+Find ParseRNAseq in the following directory.
+----
+swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.0
+----
+
+I used ParseRNAseq options: -c 10 -b 25. 
+----
+output/smutanstrimmed/1/bwa/FASTQ01.operon
+----
+
+/Users/goshng/Documents/Projects/rnaseq/output/smutanstrimmed/1/bwa/FASTQ01.bed2
+----
+perl pl/transcript-parsernaseq.pl operon -feature geneonly 
+-parsernaseq FASTQ01.parsernaseq2 
+-out FASTQ01.operon
+----
+
+Wed Aug 31 11:08:13 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to assess effects of smaller coverages on RNA-Seq analyses. There are
+three studies that I can do: DE study, transcript calls, and small RNAs. 
+I use the mapping results in +output/smutans10sub+. We start with map files:
+e.g., FASTQ01.sorted.bam. Menu *bwa-summary* can be used to create +sum.pos+
+files from +sorted.bam+ files.  Now, we need to count reads using menu
+*de-count*. Gene annotations are required for counting reads. The file name of
+default gene annotation is +gene.pos+. In the main output directory
++output/smutans12+ I have compiled genes and potential small RNAs. I copy the
+file to gene.pos for smutans10sub. Counting reads appears to be a bottleneck: it
+took a couple of days for processing 2 million reads. They may take about 3
+hours to finish. During the time, I am trying to call transcripts using
+ParseRNASeq and Charles's software. I need to call menu *bwa-mpilup*.
+The counting procedure was finished. Menu *de-count* is used again to combine
+all of the counts.
+
+.Copy gene annotation
+----
+cp output/smutans12/1/data/feature-genome.out-geneandsrna output/smutans10sub/1/data/gene.pos
+----
+
+.Gene coverage values
+----
+perl pl/transcript-genecoverage.pl coverage 
+-feature output/smutans10sub/1/data/feature-genome.out-geneonly
+-wiggle output/smutans10sub/1/bwa/FASTQ01.wig > 1
+----
+
+
+Mon Aug 29 17:42:20 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Scripts for counting reads
+----
+perl pl/de-count.pl join -shortread output/smutanstrimmed/1/bwa/FASTQ11-sum.pos -genepos output/smutans12/1/data/feature-genome.out-srna -o output/FASTQ11.de
+perl pl/de-count.pl join -shortread output/smutanstrimmed/1/bwa/FASTQ03-sum.pos -genepos output/smutans12/1/data/feature-genome.out-srna -o output/FASTQ03.de
+----
+
 Fri Aug 26 11:24:15 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 DE study of intergenic regions and predicted small RNAs is pursued.
@@ -67,6 +128,7 @@ output/smutans12/1/data/feature-genome.out-srna
 .Create sum.pos file for all trimmed FASTQ files
 ----
 Align FASTQ03 and FASTQ11.
+Use menu bwa-summary.
 ----
 
 .Compare gene expression of FASTQ03 and FASTQ11 
@@ -74,6 +136,16 @@ Align FASTQ03 and FASTQ11.
 Make a directory to analyze the expression levels.
 ----
 
+Perez et al. (2009) studied small RNAs in S. pyogenes. They found 40 small RNAs
+using tiling array. I want to know where these are aligned to S. mutans.
+----
+cp bacteria/Streptococcus_pyogenes_MGAS5005_uid58337/NC_007297.fna .
+cp bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna .
+----
+
+snippets/perez contains sequence alignments of sRNA found experimentally to
+UA159. I conclude that not many small RNAs found in Perez et al. (2009) do not
+seem to overlap with UA159's pileup.
 
 Thu Aug 25 09:13:33 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,6 +185,7 @@ awk '{ print $3 "\t" $4 "\t" $1 "\t" $2}'  hgTables.txt > 1
 ----
 
 I tried to run ParseRNAseq, but it failed to read the gene file.
+see output/smutans12/1/transcript
 
 .How to install GROseq
 ----

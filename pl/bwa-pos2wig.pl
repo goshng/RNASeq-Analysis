@@ -43,6 +43,9 @@ GetOptions( \%params,
             'man',
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
+            'genomeLength=i',
+            'size=i',
+            'mincoverage=i',
             'in=s',
             'out=s',
             '<>' => \&process
@@ -54,6 +57,9 @@ my $out;
 my $in;
 my $outfile;
 my $infile;
+my $genomeLength;
+my $size = 1;
+my $mincoverage = 3;
 
 if (exists $params{out})
 {
@@ -75,6 +81,29 @@ else
   $infile = *STDIN;   
 }
 
+if (exists $params{mincoverage}) 
+{
+  $mincoverage = $params{mincoverage};
+}
+
+if (exists $params{size}) 
+{
+  $size = $params{size};
+}
+
+if (exists $params{genomeLength}) 
+{
+  $genomeLength = $params{genomeLength};
+}
+
+if ($cmd eq "end")
+{
+  unless (exists $params{genomeLength}) 
+  {
+    &printError("command end needs -genomeLength");
+  }
+}
+
 ###############################################################################
 # DATA PROCESSING
 ###############################################################################
@@ -83,16 +112,8 @@ if ($cmd eq "perfect")
 {
   my $s = 0;
   while (<$infile>)
-    {
-      $shortReadIdentifier = $e[0];
-      $chr = $e[1];
-      $shortReadStart = $e[2];
-      $shortReadEnd = $e[3];
-      $flag = $e[4];
-      $mapQuality = $e[5];
-      $xt = $e[6];$nm\t$x0\t$x1\t$xm\t$xo\t$xg\t$md\n"; 
-      $s++;
-    }
+  {
+  }
   print "$s\n";
 }
 elsif ($cmd eq "mapq")
@@ -146,6 +167,7 @@ elsif ($cmd eq "parse")
 }
 elsif ($cmd eq "pos")
 {
+  my $mapq = 30;
   print $outfile "shortReadIdentifier\tchr\tshortReadStart\tshortReadEnd\tflag\tmapQuality\txt\tnm\tx0\tx1\txm\txo\txg\tmd\n"; 
   my $s = 0;
   my $skippedRead = 0;
@@ -187,6 +209,7 @@ elsif ($cmd eq "pos")
 }
 elsif ($cmd eq "rrna")
 {
+  my $gff;
   die "Command rrna needs a gff file" unless length($gff) > 0;
 
   #####################################################################
@@ -371,6 +394,82 @@ elsif ($cmd eq "rrna")
   print $outfile "The sum of the 5 groups is $sumRead\n";
   print $outfile "The total number of reads is $counts{total}\n";
 }
+elsif ($cmd eq "end")
+{
+  $genomeLength++;
+  my @map1 = (0) x $genomeLength;
+  my @map2 = (0) x $genomeLength;
+  my @map3 = (0) x $genomeLength;
+  $genomeLength--;
+
+  #####################################################################
+  # Read a pos file.
+  # shortReadIdentifier chr     shortReadStart  shortReadEnd    flag
+  # mapQuality  xt      nm      x0      x1      xm      xo      xg      md
+  my $s = 0;
+  my $line = <$infile>;
+  while (<$infile>)
+  {
+    $s++;
+    chomp;
+    my @e = split /\t/;
+    my $readName       = $e[0];
+    my $chr            = $e[1];
+    my $shortReadStart = $e[2];
+    my $shortReadEnd   = $e[3];
+    my $flag           = $e[4];
+    my $mapQuality     = $e[5];
+    my $xt             = $e[6];
+    my $nm             = $e[7];
+    my $x0             = $e[8];
+    my $x1             = $e[9];
+    my $xm             = $e[10];
+    my $xo             = $e[11]; 
+    my $xg             = $e[12]; 
+    my $md             = $e[13];
+
+    for (my $i = $shortReadStart; $i <= $shortReadEnd; $i++)
+    {
+      $map1[$i]++;
+    }
+    for (my $i = $shortReadStart; $i < $shortReadStart + $size; $i++)
+    {
+      $map2[$i]++;
+    }
+    for (my $i = $shortReadEnd; $i > $shortReadEnd - $size; $i--)
+    {
+      $map2[$i]--;
+    }
+
+    # $map2[$shortReadStart]++;
+    # $map2[$shortReadEnd]++;
+
+    if ($s % 1000000 == 0)
+    {
+      print STDERR "Reads $s\r";
+    }
+  }
+  #
+  #####################################################################
+  for (my $i = 1; $i <= $genomeLength; $i++)
+  {
+    if (abs($map2[$i]) > $mincoverage)
+    {
+      $map3[$i] = $map2[$i]/$map1[$i];
+    }
+    else
+    {
+      $map3[$i] = 0;
+    }
+  }
+
+  print $outfile "track type=wiggle_0\n";
+  print $outfile "fixedStep chrom=chr1 start=1 step=1 span=1\n";
+  for (my $i = 1; $i <= $genomeLength; $i++)
+  {
+    print $outfile "$map3[$i]\n";
+  }
+}
 if (exists $params{in})
 {
   close $infile;
@@ -404,6 +503,7 @@ Command:
   parse - print FLAG, MAPQ, XT, X0, X1, XM, XO, XG
   pos   - print short read name, chr, start, and end positions
   rrna  - check if reads are in the set of rRNA
+  end   - counts the either one base pairs are counted.
 
   1  QNAME   String
   2  FLAG    Int 

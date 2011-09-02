@@ -29,11 +29,16 @@ sub rnaseqPosParse ($) {
     chomp;
     my @e = split /\t/;
     my $rec = {};
-    $rec->{name}  = $e[0]; 
-    $rec->{chr}   = $e[1]; 
-    $rec->{start} = $e[2]; 
-    $rec->{end}   = $e[3]; 
-    $rec->{count} = 0;
+    # $rec->{name}  = $e[0]; 
+    # $rec->{chr}   = $e[1]; 
+    # $rec->{start} = $e[2]; 
+    # $rec->{end}   = $e[3]; 
+    $rec->{chr}    = $e[0]; 
+    $rec->{start}  = $e[1]; 
+    $rec->{end}    = $e[2]; 
+    $rec->{name}   = $e[3]; 
+    $rec->{strand} = $e[4]; 
+    $rec->{count}  = 0;
     unless ($rec->{start} < $rec->{end})
     {
       die "feature start must be less than its end";

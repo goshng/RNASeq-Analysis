@@ -47,6 +47,7 @@ GetOptions( \%params,
             'transcript=s',
             'feature=s',
             'subcmd=s',
+            'format=s',
             'in=s',
             'size=i',
             'col=i',
@@ -66,6 +67,12 @@ my $in;
 my $size = 50;
 my $col = 1;
 my $fasta;
+my $format = "single";
+
+if (exists $params{format})
+{
+  $format = $params{format};
+}
 
 if (exists $params{in})
 {
@@ -314,7 +321,14 @@ elsif ($cmd eq "getsequence")
   {
     my $o = $p - $size - 1; 
     my $s = substr ($seq, $o, $size + 10);
-    print $outfile "$s\n";
+    if ($format eq "single")
+    {
+      print $outfile "$s\n";
+    }
+    else 
+    {
+      print $outfile ">$p\n$s\n";
+    }
   }
 }
 
@@ -336,6 +350,8 @@ transcript-summary 1.0
 perl pl/transcript-summary.pl summary -feature gene.pos -transcript FASTQ01.bed
 
 perl pl/transcript-summary.pl getsequence -in 1 -col 2 -size 50 -fasta NC_004350.fna
+
+perl pl/transcript-summary.pl getsequence -format fasta -in 1 -col 2 -size 50 -fasta NC_004350.fna
 
 =head1 DESCRIPTION
 

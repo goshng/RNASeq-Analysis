@@ -153,6 +153,7 @@ elsif ($cmd eq "join")
 
   my $c = 0;
   open SHORTREAD, $shortread or die "cannot open < $shortread";
+  my $line = <SHORTREAD>;
   while (<SHORTREAD>)
   {
     chomp;
@@ -176,7 +177,7 @@ elsif ($cmd eq "join")
     {
       my $g = $genes[$i];
       my $v = $g->{count};
-      if ($g->{chr} eq $s->{chr})
+      #if ($g->{chr} eq $s->{chr})
       {
         if ($g->{start} <= $s->{start} and $s->{start} <= $g->{end})
         { 
@@ -198,9 +199,16 @@ elsif ($cmd eq "join")
       $g->{count} = $v;
     }
     $c++;
-    if ($c % 1000000 == 0)
+    #if ($c % 1000000 == 0)
+    if ($c % 10000 == 0)
     {
-      print STDERR "$c\r";
+      print STDERR "Read $c\r";
+      # print STDERR "The first 5 genes are printed (Read $c)\n";
+      # for (my $i = 0; $i <= 5; $i++)
+      # {
+        # my $g = $genes[$i];
+        # print STDERR "$g->{name}\t$g->{count}\n";
+      # }
     }
   }
   for (my $i = 0; $i <= $#genes; $i++)
