@@ -42,6 +42,7 @@ GetOptions( \%params,
             'chromosome=s',
             'feature=s',
             'intergenicregion',
+            'intergenicregiononly',
             'out=s',
             '<>' => \&process
             ) or pod2usage(2);
@@ -58,7 +59,7 @@ my $out;
 my $outfile;
 my $feature;
 my $chromosome = "chr1";
-my $minLenNoncoding = 30;
+my $minLenNoncoding = 50;
 
 if (exists $params{chromosome}) {
   $chromosome = $params{chromosome};
@@ -114,7 +115,8 @@ if ($cmd eq "ptt")
       $noncoding->{end}    = $start - 1;
       $noncoding->{strand} = '+';
       push @igr, $noncoding;
-      if (exists $params{intergenicregion})
+      if (exists $params{intergenicregion}
+          or exists $params{intergenicregiononly})
       {
         print $outfile "$chromosome\t";
         print $outfile "$noncoding->{start}\t";
@@ -124,7 +126,10 @@ if ($cmd eq "ptt")
       }
     }
     $prevEnd = $end;
-    print $outfile "$chromosome\t$start\t$end\t$name\t0\t$strand\n";
+    unless (exists $params{intergenicregiononly})
+    {
+      print $outfile "$chromosome\t$start\t$end\t$name\t0\t$strand\n";
+    }
   }
 }
 elsif ($cmd eq "gff")

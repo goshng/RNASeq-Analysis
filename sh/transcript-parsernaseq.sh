@@ -66,6 +66,15 @@ function transcript-parsernaseq {
           -feature $DATADIR/feature-genome.out-geneonly \
           -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
           -out $BWADIR/$FASTQNUM.operon"
+        COMMAND7="perl pl/$FUNCNAME.pl adjust \
+          -end $BWADIR/$FASTQNUM-end.wig \
+          -operon $BWADIR/$FASTQNUM.operon \
+          -out $BWADIR/$FASTQNUM.operon2"
+        COMMAND8="perl pl/$FUNCNAME.pl slope \
+          -windowsize 95 \
+          -end $BWADIR/$FASTQNUM-end.wig \
+          -operon $BWADIR/$FASTQNUM.operon \
+          -out $BWADIR/$FASTQNUM.operon.slope"
         
         if [ "$BATCH" == "YES" ]; then
           echo $COMMAND1 >> $BATCHFILE
@@ -74,6 +83,8 @@ function transcript-parsernaseq {
           echo $COMMAND4 >> $BATCHFILE
           echo $COMMAND5 >> $BATCHFILE
           echo $COMMAND6 >> $BATCHFILE
+          echo $COMMAND7 >> $BATCHFILE
+          echo $COMMAND8 >> $BATCHFILE
         else
           # echo $COMMAND1 | bash
           echo $COMMAND1
@@ -82,6 +93,8 @@ function transcript-parsernaseq {
           echo $COMMAND4
           echo $COMMAND5
           echo $COMMAND6
+          echo $COMMAND7
+          echo $COMMAND8
         fi
       done
 

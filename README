@@ -35,6 +35,26 @@ Histories
 ---------
 
 
+Wed Sep  7 17:54:33 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need sequence alignments for RNAz. I align fourteen genomes using
+progressiveMauve. I use a tool of progressiveMauve, xmfa2maf, to convert the XMFA
+formated alignment to one in MAF format. Note that I also need to change the
+header information in the XMFA file and have input sequences in specified
+directory. Then, I will prepare a BED file for intergenic regions of S. mutans.
+This BED file will be fed into a PHAST tool, maf_parse, command to subselect
+parts of the alignment.
+
+Fri Sep  2 10:50:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using ends of coverage data to find a distribution of values.
+
+----
+output/smutanstrimmed/1/bwa/FASTQ01-end1-5.wig
+pl/
+----
+
+
 Thu Sep  1 17:19:48 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I have to summarize transcript information. 

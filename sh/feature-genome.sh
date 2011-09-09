@@ -29,15 +29,36 @@ function feature-genome {
       global-variable $SPECIES $REPETITION
       read-species
 
+      echo -n "Do you wish to run a batch? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        BATCH=YES
+        BATCHFILE=batch.sh
+        echo "#!/bin/bash" > $BATCHFILE
+      fi
+
       REFGENOMEPTT=$(grep REFGENOMEPTT $SPECIESFILE | cut -d":" -f2)
-      perl pl/$FUNCNAME.pl ptt \
+      COMMAND1="perl pl/$FUNCNAME.pl ptt \
         -in $REFGENOMEPTT \
-        -out $DATADIR/$FUNCNAME.out-geneonly
-      perl pl/$FUNCNAME.pl ptt \
+        -out $DATADIR/$FUNCNAME.out-geneonly"
+      COMMAND2="perl pl/$FUNCNAME.pl ptt \
         -in $REFGENOMEPTT \
         -intergenicregion \
-        -out $DATADIR/$FUNCNAME.out-intergenic
+        -out $DATADIR/$FUNCNAME.out-intergenic"
+      COMMAND3="perl pl/$FUNCNAME.pl ptt \
+        -intergenicregiononly \
+        -in $REFGENOMEPTT \
+        -out $DATADIR/$FUNCNAME.out-intergeniconly"
 
+      if [ "$BATCH" == "YES" ]; then
+        #echo $COMMAND1 >> $BATCHFILE
+        #echo $COMMAND2 >> $BATCHFILE
+        echo $COMMAND3 >> $BATCHFILE
+      else
+        #echo $COMMAND1 | bash
+        #echo $COMMAND2 | bash
+        echo $COMMAND3 | bash
+      fi
       break
 
       # CHROMOSOME="gi|15644634|ref|NC_000915.1|"

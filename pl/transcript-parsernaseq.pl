@@ -22,8 +22,11 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 require 'pl/sub-error.pl';
+require 'pl/sub-array.pl';
 require 'pl/sub-pos.pl';
 require 'pl/sub-fasta.pl';
+require 'pl/sub-wiggle.pl';
+require 'pl/sub-bed.pl';
 
 ###############################################################################
 # COMMAND LINE
@@ -46,8 +49,14 @@ GetOptions( \%params,
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
             'parsernaseq=s',
+            'operon=s',
             'wiggle=s',
             'feature=s',
+            'end=s',
+            'peakcutoff=i',
+            'sizecutoff=i',
+            'windowsize=i',
+            'updowncutoff=i',
             'in=s',
             'out=s',
             '<>' => \&process
@@ -62,10 +71,46 @@ my $outfile;
 my $wiggle;
 my $feature;
 my $parsernaseq;
+my $end;
+my $operon;
+my $peakcutoff = 0.3;
+my $sizecutoff = 70;
+my $updowncutoff = 200;
+my $windowsize = 100;
 
 if (exists $params{in})
 {
   $in = $params{in};
+}
+
+if (exists $params{windowsize})
+{
+  $windowsize = $params{windowsize};
+}
+
+if (exists $params{updowncutoff})
+{
+  $updowncutoff = $params{updowncutoff};
+}
+
+if (exists $params{peakcutoff})
+{
+  $peakcutoff = $params{peakcutoff};
+}
+
+if (exists $params{sizecutoff})
+{
+  $sizecutoff = $params{sizecutoff};
+}
+
+if (exists $params{operon})
+{
+  $operon = $params{operon};
+}
+
+if (exists $params{end})
+{
+  $end = $params{end};
 }
 
 if (exists $params{parsernaseq})
@@ -119,6 +164,13 @@ elsif ($cmd eq "operon")
   unless (exists $params{parsernaseq} and exists $params{feature})
   {
     &printError("Command $cmd needs -parsernaseq and -feature options");
+  }
+}
+elsif ($cmd eq "adjust" or $cmd eq "slope")
+{
+  unless (exists $params{operon} and exists $params{end})
+  {
+    &printError("Command $cmd needs -operon and -end options");
   }
 }
 
@@ -291,7 +343,7 @@ elsif ($cmd eq "operon")
   for (my $i = 0; $i <= $#m; $i++)
   {
     my $t = $m[$i];
-    print "$t->{name}: ";
+    # print "$t->{name}: ";
     my @genesT;
     if (exists $t->{gene})
     {
@@ -299,12 +351,12 @@ elsif ($cmd eq "operon")
       for (my $j = 0; $j <= $#genesT; $j++)
       {
         my $g = $genesT[$j];
-        print ":$g->{name}";
+        # print ":$g->{name}";
       } 
     }
-    print "\n";
+    # print "\n";
   }
-  print "\n++++++++++++++++++++++++++++++++\n";
+  # print "\n++++++++++++++++++++++++++++++++\n";
 
   my @m2;
   for (my $i = 0; $i <= $#m; $i++)
@@ -411,7 +463,7 @@ elsif ($cmd eq "operon")
       $t->{end} = $g->{end};
       $t->{strand} = $g->{strand};
     }
-    print "\n";
+    # print "\n";
   }
 
   for (my $i = 0; $i <= $#m2; $i++)
@@ -419,6 +471,327 @@ elsif ($cmd eq "operon")
     my $t = $m2[$i];
     print $outfile "chr1\t$t->{start}\t$t->{end}\t$t->{name}\t$t->{score}\t$t->{strand}\n";
     # print $outfile "chr1\t$t->{start}\t$t->{end}\t$t->{name}\t$t->{score}\t$t->{strand}\n";
+  }
+}
+elsif ($cmd eq "adjust")
+{
+  my @e = rnaseqWiggleParse ($end);
+  my @o = rnaseqBedParse ($operon);
+
+  my $genomeLength = $#e + 1;
+
+  # Use $peakcutoff and $sizecutoff
+  # Use $windowsize
+  for (my $i = 0; $i <= $#o; $i++)
+  {
+    my $t = $o[$i];
+    my @peaks;
+    if ($t->{strand} eq '+')
+    {
+      my $walkstart = $t->{start} - $windowsize;
+      my $walkend = $t->{start} + $windowsize;
+      if ($walkstart < 0)
+      {
+        $walkstart = 0;
+      }
+      if ($walkend >= $genomeLength)
+      {
+        $walkend = $#e;
+      }
+      for (my $j = $walkstart; $j < $walkend; $j++)
+      {
+        if ($e[$j] > $peakcutoff)
+        {
+          # Check if there are no sign change for the next sizecutoff positions.
+          my $signchange = 0;
+          my $jend = $j + $sizecutoff;
+          $jend = $#e if $jend >= $genomeLength;
+          for (my $k = $j; $k < $jend; $k++)
+          {
+            if ($e[$k] < 0)
+            {
+              $signchange = 1;
+            }
+          }
+          if ($signchange == 0)
+          {
+            push @peaks, $j;
+          }
+        }
+      }
+      my @peakFound = @peaks;
+      $t->{peak} = \@peakFound;
+    }
+    else
+    {
+      # Note that this is the same in the code above.
+      # Do this for the negative strand.
+      my $walkstart = $t->{end} - $windowsize;
+      my $walkend = $t->{end} + $windowsize;
+      if ($walkstart < 0)
+      {
+        $walkstart = 0;
+      }
+      if ($walkend >= $genomeLength)
+      {
+        $walkend = $#e;
+      }
+      for (my $j = $walkend; $j > $walkstart; $j--)
+      {
+        if ($e[$j] < 0 - $peakcutoff)
+        {
+          # Check if there are no sign change for the next sizecutoff positions.
+          my $signchange = 0;
+          my $jstart = $j - $sizecutoff;
+          $jstart = 0 if $jstart < 0;
+          for (my $k = $j; $k > $jstart; $k--)
+          {
+            if ($e[$k] > 0)
+            {
+              $signchange = 1;
+            }
+          }
+          if ($signchange == 0)
+          {
+            push @peaks, $j;
+          }
+        }
+      }
+      my @peakFound = @peaks;
+      $t->{peak} = \@peakFound;
+    }
+    # print STDERR "Processed ($i/$#o)\r";
+  }
+
+  for (my $i = 0; $i <= $#o; $i++)
+  {
+    my $t = $o[$i];
+    my @peaks = @{$t->{peak}};
+    if ($#peaks >= 0)
+    {
+      if ($t->{strand} eq '+')
+      {
+        $t->{thickstart} = $peaks[0];
+        $t->{thickend} = $t->{end};
+        if ($t->{thickstart} > $t->{thickend})
+        {
+          $t->{thickstart} = $t->{start};
+        }
+      }
+      else
+      {
+        $t->{thickstart} = $t->{start};
+        $t->{thickend} = $peaks[$#peaks];
+        if ($t->{thickstart} > $t->{thickend})
+        {
+          $t->{thickend} = $t->{end};
+        }
+      }
+    }
+    else
+    {
+      $t->{thickstart} = $t->{start};
+      $t->{thickend} = $t->{end};
+    }
+
+    print STDERR "$t->{name}\t$#peaks\n";
+    #print $outfile "chr1\t$t->{start}\t$t->{end}\t$t->{name}\t$t->{score}\t$t->{strand}\t$t->{thickstart}\t$t->{thickend}\t255,0,0\n";
+    print $outfile "chr1\t$t->{thickstart}\t$t->{thickend}\t$t->{name}\t$t->{score}\t$t->{strand}\n";
+    #for (my $j = 0; $j <= $#peaks; $j++)
+    #{
+      #print $outfile "$peaks[$j]\t";
+    #}
+    #print $outfile "\n";
+  }
+}
+elsif ($cmd eq "slope")
+{
+  my $windowsize2 = 10;
+  my $nonzerosize = 1;
+  my @e = rnaseqWiggleParse ($end);
+  my @o = rnaseqBedParse ($operon);
+
+  my $genomeLength = $#e + 1;
+  my @map1 = (0) x $genomeLength;
+  my @win1 = (0) x $windowsize;
+
+  ################################################
+  # The first windowsize-many elements are stored.
+  for (my $i = 0; $i < $windowsize; $i++)
+  {
+    $win1[$i] = $e[$i]; 
+  }
+
+  ################################################
+  # Find the sign of the windowsize-many elements.
+  my %numSign;
+  my $sign;
+  $numSign{plus} = 0;
+  $numSign{mnus} = 0;
+  $numSign{zero} = 0;
+  for (my $i = 1; $i < $windowsize; $i++)
+  {
+    if ($win1[$i] > 0)
+    {
+      $numSign{plus}++;
+    }
+    elsif ($win1[$i] < 0)
+    {
+      $numSign{mnus}++;
+    }
+    else 
+    {
+      $numSign{zero}++;
+    }
+  }
+
+  ################################################
+  # Start to check the windowsize-many elements.
+  for (my $i = 0; $i < $genomeLength - $windowsize - 1; $i++)
+  {
+    if ($numSign{mnus} == 0)
+    {
+      my $endrange = $windowsize2 - 1;
+      my @win2 = @win1[0..$endrange];
+      my $numberNonzero = arrayNumberNonzero (@win2);
+      my $slopeValue = 0;
+      if ($numberNonzero > $nonzerosize)
+      {
+        $slopeValue = arrayNumberSlope (@win2);
+      }
+      $map1[$i] = $slopeValue;
+    }
+    elsif ($numSign{plus} == 0)
+    {
+      my @win1r = arrayNumberNegate(reverse (@win1));
+      my $endrange = $windowsize2 - 1;
+      my @win2 = @win1r[0..$endrange];
+      my $numberNonzero = arrayNumberNonzero (@win2);
+      my $slopeValue = 0;
+      if ($numberNonzero > $nonzerosize)
+      {
+        $slopeValue = arrayNumberSlope (@win2);
+      }
+      $map1[$i+$windowsize-1] = -$slopeValue;
+    }
+
+    ###############################################
+    # Pop and push elements.
+    # Remove the first element.
+    # print STDERR "$i\n";
+    # last if ($i > 100);
+    if ($win1[0] > 0)
+    {
+      $numSign{plus}--;
+    }
+    elsif ($win1[0] < 0)
+    {
+      $numSign{mnus}--;
+    }
+    else 
+    {
+      $numSign{zero}--;
+    }
+    shift @win1;
+    push @win1, $e[$i+$windowsize];
+    if ($win1[$#win1] > 0)
+    {
+      $numSign{plus}++;
+    }
+    elsif ($win1[$#win1] < 0)
+    {
+      $numSign{mnus}++;
+    }
+    else 
+    {
+      $numSign{zero}++;
+    }
+  }
+
+  ################################################
+  # Find the position at which the slope is the largest
+  # among the sites within 200 bp up- and down-stream 
+  # of the start and end of transcripts.
+  for (my $i = 0; $i <= $#o; $i++)
+  {
+    my $t = $o[$i];
+    my @peaks;
+    my @valleys;
+
+    # Start of an operon
+    my $walkstart = ($t->{start} - 1) - $updowncutoff;
+    my $walkend = ($t->{start} - 1) + $updowncutoff;
+    $walkstart = 0 unless $walkstart >= 0;
+    $walkend = $genomeLength - 1 unless $walkend < $genomeLength;
+    my @win3 = @map1[$walkstart..$walkend];
+    my $idxMax = 0;
+    $win3[$idxMax] > $win3[$_] or $idxMax = $_ for 1 .. $#win3;
+    @peaks = ();
+    if ($win3[$idxMax] > 0)
+    {
+      push @peaks, $walkstart + $idxMax; 
+    }
+    my @peakFound = @peaks;
+    $t->{peak} = \@peakFound;
+
+    # End of an operon
+    $walkstart = ($t->{end} - 1) - $updowncutoff;
+    $walkend = ($t->{end} - 1) + $updowncutoff;
+    $walkstart = 0 unless $walkstart >= 0;
+    $walkend = $genomeLength - 1 unless $walkend < $genomeLength;
+    @win3 = @map1[$walkstart..$walkend];
+    $idxMax = 0;
+    $win3[$idxMax] < $win3[$_] or $idxMax = $_ for 1 .. $#win3;
+    @valleys = ();
+    if ($win3[$idxMax] < 0)
+    {
+      push @valleys, $walkstart + $idxMax; 
+    }
+    my @valleyFound = @valleys;
+    $t->{valley} = \@valleyFound;
+
+  }
+  
+  for (my $i = 0; $i <= $#map1; $i++)
+  {
+    print $map1[$i], "\n";
+  } 
+
+  for (my $i = 0; $i <= $#o; $i++)
+  {
+    my $t = $o[$i];
+    my @peaks = @{$t->{peak}};
+    my @valleys = @{$t->{valley}};
+    if ($#peaks >= 0)
+    {
+      $t->{thickstart} = $peaks[0];
+    }
+    else
+    {
+      $t->{thickstart} = $t->{start};
+    }
+    if ($#valleys >= 0)
+    {
+      $t->{thickend} = $valleys[0] + 1;
+    }
+    else
+    {
+      $t->{thickend} = $t->{end};
+    }
+    unless ($t->{thickstart} < $t->{thickend})
+    {
+      $t->{thickstart} = $t->{start};
+      $t->{thickend} = $t->{end};
+    }
+
+    print STDERR "$t->{name}\t$#peaks\t$#valleys\n";
+    #print $outfile "chr1\t$t->{start}\t$t->{end}\t$t->{name}\t$t->{score}\t$t->{strand}\t$t->{thickstart}\t$t->{thickend}\t255,0,0\n";
+    print $outfile "chr1\t$t->{thickstart}\t$t->{thickend}\t$t->{name}\t$t->{score}\t$t->{strand}\n";
+    #for (my $j = 0; $j <= $#peaks; $j++)
+    #{
+      #print $outfile "$peaks[$j]\t";
+    #}
+    #print $outfile "\n";
   }
 }
 
@@ -447,6 +820,10 @@ perl pl/transcript-parsernaseq.pl gff -parsernaseq out.parsernaseq -out bed.file
 
 perl pl/transcript-parsernaseq.pl operon -feature feature-genome.out-geneonly -parsernaseq out.parsernaseq -out operon.file
 
+perl pl/transcript-parsernaseq.pl adjust -end FASTQ01-end.wig -operon operon.file -out adjusted.file
+
+perl pl/transcript-parsernaseq.pl slope -end FASTQ01-end.wig -operon operon.file -out adjusted.file
+
 =head1 DESCRIPTION
 
 transcript-parsernaseq will help you to pre- and post-process files of
@@ -465,6 +842,18 @@ Command:
 
   operon - Using ParseRNAseq gff output to create an operon file.
 
+  adjust - Operons are merely groups of genes. Their start positions are those
+  of the first genes in the operons. RNA-Seq data ends information can be useful
+  in adjusting the start positions. Menu bwa-pos2wig should be used to have a
+  FASTQ01-end.wig file.
+
+  slope - For each position of a genome I compute the slope of increasing or
+  decreasing peaks using FASTQ01-end.wig file. A site with this pattern is a
+  candidate transcription start or end site. A site should pass filters: 1) the
+  following 95 base pairs must be the same sign including the site itself. 2)
+  Five of the the following 10 bases must be nonzero. 3) Using the following 10
+  bases I compute the slope.
+
 =head1 OPTIONS
 
 =over 8
@@ -480,6 +869,14 @@ The wiggle file of coverage values.
 =item B<-parsernaseq> <file>
 
 The output file from ParseRNAseq.
+
+=item B<-end> <file>
+
+The output file from bwa-pos2wig's end command.
+
+=item B<-operon> <file>
+
+The output file from operon command.
 
 =item B<-out> <file>
 

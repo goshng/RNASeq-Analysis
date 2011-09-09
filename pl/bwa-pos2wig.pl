@@ -470,6 +470,84 @@ elsif ($cmd eq "end")
     print $outfile "$map3[$i]\n";
   }
 }
+elsif ($cmd eq "first")
+{
+  my @map3;
+  my $line = <$infile>;
+  $line = <$infile>;
+  while ($line = <$infile>)
+  {
+    chomp $line;
+    push @map3, $line;
+  }
+
+  $genomeLength = $#map3 + 1;
+
+  for (my $i = 0; $i <= $#map3; $i++)
+  {
+    if ($map3[$i] == 0)
+    {
+      # print $outfile "0\t0\n";
+    }
+    elsif ($map3[$i] > 0)
+    {
+      my $d;
+      my $pos = $i + 1;
+      if ($pos < $genomeLength) 
+      {
+        my $v = $map3[$pos];
+        while ($v >= 0)
+        {
+          $pos++;
+          if ($pos < $genomeLength) 
+          {
+            $v = $map3[$pos];
+          }
+          else
+          {
+            $pos--;
+            last;
+          }
+        }
+        $d = $pos - $i;
+      }
+      else
+      {
+        $d = 0;
+      }
+      print $outfile "$map3[$i]\t$d\n";
+    }
+    else
+    {
+      my $d;
+      my $pos = $i - 1;
+      if ($pos >= 0) 
+      {
+        my $v = $map3[$pos];
+        while ($v <= 0)
+        {
+          $pos--;
+          if ($pos >= 0) 
+          {
+            $v = $map3[$pos];
+          }
+          else
+          {
+            $pos++;
+            last;
+          }
+        }
+        $d = $i - $pos;
+      }
+      else
+      {
+        $d = 0;
+      }
+      print $outfile "$map3[$i]\t$d\n";
+    }
+  }
+}
+
 if (exists $params{in})
 {
   close $infile;
@@ -489,9 +567,11 @@ bwa-pos2wig 1.0
 
 =head1 SYNOPSIS
 
-perl bwa-pos2wig.pl [command] [-in file] [-out file]
-
 samtools view fastq.bam | perl pl/bwa-pos2wig.pl rrna -gff a.gff > sum.rrna
+
+perl pl/bwa-pos2wig.pl end -in FASTQ01-pos.sum -out FASTQ01-end1-5.wig
+
+perl pl/bwa-pos2wig.pl first -in FASTQ01-end1-5.wig -out FASTQ01-end1-5.wig.first
 
 =head1 DESCRIPTION
 
@@ -503,7 +583,14 @@ Command:
   parse - print FLAG, MAPQ, XT, X0, X1, XM, XO, XG
   pos   - print short read name, chr, start, and end positions
   rrna  - check if reads are in the set of rRNA
+
   end   - counts the either one base pairs are counted.
+  first - find the distances to the first opposite signed value. Using the
+  output file from command ``end'' for a given position whose value is non-zero
+  I compute the distance to the first opposite signed value. If a given position
+  has a positive value, I go to the left to find the first position whose value
+  is negative. Otherwise, I go to the right to find the first position whose
+  value is postive.
 
   1  QNAME   String
   2  FLAG    Int 
