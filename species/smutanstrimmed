@@ -1,0 +1,65 @@
+REFGENOMEGBK:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gbk
+REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
+REFGENOMELENGTH:2030921
+READDEPTH:300000
+READLENGTH:100
+NUMFASTQFILE:12
+FASTQ01:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ01.trimmed.gz
+FASTQ02:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ02.trimmed.gz
+FASTQ03:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ03.trimmed.gz
+FASTQ04:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ04.trimmed.gz
+FASTQ05:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ05.trimmed.gz
+FASTQ06:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ06.trimmed.gz
+FASTQ07:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ07.trimmed.gz
+FASTQ08:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ08.trimmed.gz
+FASTQ09:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ09.trimmed.gz
+FASTQ10:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ10.trimmed.gz
+FASTQ11:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ11.trimmed.gz
+FASTQ12:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/FASTQ12.trimmed.gz
+# Strain information of the 12 samples above.
+# 01 - UA159
+# 02 - 11VS1
+# 03 - TW1-Galactose
+# 04 - N29
+# 05 - 1SM1
+# 06 - U138
+# 07 - OMZ/HKRR
+# 08 - NMT4863
+# 09 - OMZ175
+# 10 - NLML4
+# 11 - TW1-Glucose
+# 12 - 15JP3
+# UA159
+# 11VS1
+# TW1-Galactose
+# N29
+# 1SM1
+# U138
+# OMZ/HKRR
+# NMT4863
+# OMZ175
+# NLML4
+# TW1-Glucose
+# 15JP3
+# OMZ175 vs. OMZ/HKRR or 09 vs. 07
+# TW1-Glucose vs. TW1-Galactose or 11 vs. 03
+# UA159 vs. TW1-Glucose or 01 vs. 11
+# I do not have UA159-Galactose strain to compare UA159-Glucose.
+# I do not have a reference genome for U138.
+#
+# Here is a list of adapters used:
+# UA159 - adapter AR002
+# TWI glucose - AR004
+# TWI galactose - AR005
+# OMZ175 - AR006
+# OMZ/HKRR - AR007
+# 1SM1 - AR012
+# 11VS1 - AR002
+# 15JP3 - AR004
+# N29 - AR005
+# NLML4 - AR006
+# NMT4863 - AR007
+# U138 - AR012
+#
+# TruSeq Adapter, Index 2: GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTTG

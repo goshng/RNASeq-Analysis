@@ -29,6 +29,7 @@ function fastq-sample {
       global-variable $SPECIES $REPETITION
       read-species
 
+      mkdir $GZIPFASTAQDIR/$SPECIES
       echo -n "Do you wish to trim RNA-Seq (trimmed)? (e.g., y/n) "
       read WISH
       if [ "$WISH" == "y" ]; then
@@ -40,10 +41,10 @@ function fastq-sample {
           GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
           GZIPFASTAQDIR=${GZIPFASTAQFILE%/*}
           OUTFILE=$DATADIR/$FASTQNUM.trimmed.gz
-          echo cutadapt -a $ADAPTERSEQUENCE -o $OUTFILE $GZIPFASTAQFILE
-          cutadapt -a $ADAPTERSEQUENCE -o $OUTFILE $GZIPFASTAQFILE
-          mv $OUTFILE $GZIPFASTAQDIR
-          echo "Check $GZIPFASTAQDIR/$FASTQNUM.trimmed.gz"
+          echo cutadapt --minimum-length=25 -a $ADAPTERSEQUENCE -o $OUTFILE $GZIPFASTAQFILE
+          cutadapt --minimum-length=25 -a $ADAPTERSEQUENCE -o $OUTFILE $GZIPFASTAQFILE 
+          mv $OUTFILE $GZIPFASTAQDIR/$SPECIES
+          echo "Check $GZIPFASTAQDIR/$SPECIES/$FASTQNUM.trimmed.gz"
         done
         echo "Change raw sequence file names in $GZIPFASTAQDIR"
       fi
@@ -65,10 +66,12 @@ function fastq-sample {
             --proportion $PROPORTION
           echo "gzipping $OUTFILE"
           gzip $OUTFILE
-          mv $OUTFILE.gz $GZIPFASTAQDIR
-          echo "Check $GZIPFASTAQDIR/$FASTQNUM.sample-$PROPORTION.gz"
+          mv $OUTFILE.gz $GZIPFASTAQDIR/$SPECIES
+          echo "Check $GZIPFASTAQDIR/$SPECIES/$FASTQNUM.sample-$PROPORTION.gz"
         done
       fi
+
+      break
 
       echo -n "Do you wish to cut RNA-Seq (cut)? (e.g., y/n) "
       read WISH
@@ -158,9 +161,6 @@ function fastq-sample {
         done
       fi
 
-
-      break
     fi
   done
-
 }

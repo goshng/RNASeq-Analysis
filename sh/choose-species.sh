@@ -18,7 +18,7 @@ function choose-species {
       mkdir -p $BWADIR
       mkdir -p $MAQDIR
       mkdir -p $BOWTIEDIR
-
+      mkdir -p $TRANSCRIPTDIR
       break
     fi
   done

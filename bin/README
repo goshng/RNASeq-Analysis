@@ -1,0 +1,11 @@
+RNASEQ Analysis Binary Directory
+================================
+Sang Chul Choi <goshng@yahoo.co.kr>
+v1.0, September 2011
+
+Binary executable files are stored here:
+bowtie,
+bwa,
+maq,
+samtools, and
+segemehl.x.

@@ -34,6 +34,19 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 
+Mon Sep 12 15:19:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RNAz is used to find small RNA candidates. Sequence alignments appear to be a
+critical step for finding small RNAs. Phylogenies of streptococcus species could
+be considered to choose species related with Streptococcus mutans.
+Alternatively, I find sequences similar to intergenic regions, and refine the
+alignments using a multiple sequence alignment tool such as MUSCLE. Steps for
+achieving this goal include: 1. Exract intergenic regions including up- and
+down-stream, 2. BLAST the intergenic regions against non-redundant DB to find
+similar sequences, 3. Refine each alignment using MUSCLE, 4. Apply RNAz to the
+alignments for scoring regions for small RNAs, and 5. Find transcripts with high
+score of small RNAs. The transcripts must be defined in advance.
+
 
 Wed Sep  7 17:54:33 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

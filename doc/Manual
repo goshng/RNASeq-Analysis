@@ -1,5 +1,5 @@
-RNASEQ Analysis
-===============
+User Manual of RNASEQ Analysis
+==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 v1.0, May 2011
 
@@ -23,15 +23,56 @@ call *choose-species* menu to create directories for your project.
 The FASTQ files must be gzipped files. Try to call *fastq-summary*. The number
 of reads in the FASTQ files will be shown. 
 
+Output directory structures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Output directories contains directories for species names in +species+
+directory. A directory, e.g., +smutans+, contains one +run-analysis+ directory
+and numbered directories. The directories with numbered names contains several
+directories for analyses: +data+ would contain shared information such as genome
+annotation, and +bwa+ would contains results from analyses using *BWA*. In the
+BASH scripts I can access these directories using shell variables. See
++sh/global-variable.sh+ for details.
+
+.Shell variables
+----
+SPECIES=smutans
+BASERUNANALYSIS=output/smutans/run-analysis
+REPETITION=1
+DATADIR=output/smutans/1/data
+BWADIR=output/smutans/1/bwa
+----
+
+FASTQ filtering
+~~~~~~~~~~~~~~~
+The raw FASTQ files needs proprocessing. I might change the name of this
+procedure to *fastq-filter* because sampling short reads is one of two main
+procedures in *fastq-sample*. 
+
+Extract genome annotations
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can extract bacterial genome annotations using *feature-genome* menu. To use
+this menu identifier REFGENOMEPTT must be defined in the species file.
+Downloaded bacterial genome directories from NCBI would contain a file with
++ptt+ extension.
+
+.REFGENOMEPTT identifier in a species file
+----
+REFGENOMEPTT:bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.ptt
+----
+
+.Output files from genome annotations
+----
+$DATADIR/feature-genome.out-geneonly for protein coding genes
+$DATADIR/feature-genome.out-intergenic for protein coding genes as well as intergenic regions
+$DATADIR/feature-genome.out-intergeniconly for intergenic regions only
+----
+
 BWA Alignment
 ~~~~~~~~~~~~~
 Call *cp-genome* to copy the genome file in FASTA format to the data directory.
 Call *bwa-index-genome* just right after *cp-genome* menu. 
 Call *bwa-align* to produce the sorted alignment in BAM format.
 Call *bwa-mpileup* to create pileup and wiggle files.
-
-
-
 
 Now, call *fastq-summary* again to see the
 proportions of short reads mapped on the reference genome.
@@ -69,8 +110,6 @@ mapped.
 *bwa-summary* finds the total number of reads, the number of reads mapped.
 A +sum+ file, e.g.,  output/omz/1/bwa/FASTQ01.sum, contains RNA-Seq short
 sequence file, total number of the reads, and the number of short reads mapped.
-
-
 
 Bowtie Alignemnt
 ~~~~~~~~~~~~~~~~
