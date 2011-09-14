@@ -46,6 +46,7 @@ GetOptions( \%params,
             'feature=s',
             'intergenicregion',
             'intergenicregiononly',
+            'startcodon',
             'out=s',
             '<>' => \&process
             ) or pod2usage(2);
@@ -149,6 +150,56 @@ if ($cmd eq "ptt")
     }
   }
 }
+elsif ($cmd eq "ptt2")
+{
+  # Read all of the PTT file.
+
+
+  # Then, create a BED file depending on options.
+
+
+  my @igr;
+  my $prevEnd = 0;
+  my $line;
+  while ($line = <$infile>)
+  {
+    next unless $line =~ /^(\d+)\.\.(\d+)\s+/;
+    my @e = split /\t/, $line;
+    $e[0] =~ /^(\d+)\.\.(\d+)\s+/;
+    my $start  = $1 - 1; # PTT is 1-base, BED is 0-base.
+    my $end    = $2;
+    my $strand = $e[1];
+    my $name   = $e[5];
+
+    my $lengthNoncoding = $start - $prevEnd;
+    if ($lengthNoncoding > $minLenNoncoding)
+    {
+      my $startNoncoding = $prevEnd; # BED is 0-base
+      my $startNoncodingOnebase = $prevEnd + 1;
+      my $noncoding = {};
+      $noncoding->{name}   = "IGR$startNoncodingOnebase-$start";
+      $noncoding->{start}  = $startNoncoding;
+      $noncoding->{end}    = $start;
+      $noncoding->{strand} = '+';
+      push @igr, $noncoding;
+      if (exists $params{intergenicregion}
+          or exists $params{intergenicregiononly})
+      {
+        print $outfile "$chromosome\t";
+        print $outfile "$noncoding->{start}\t";
+        print $outfile "$noncoding->{end}\t";
+        print $outfile "$noncoding->{name}\t0\t";
+        print $outfile "$noncoding->{strand}\n";
+      }
+    }
+    $prevEnd = $end;
+    unless (exists $params{intergenicregiononly})
+    {
+      print $outfile "$chromosome\t$start\t$end\t$name\t0\t$strand\n";
+    }
+  }
+}
+
 elsif ($cmd eq "gff")
 {
   convert_gff_ingene($in, $feature, $out); 
@@ -221,6 +272,8 @@ feature-genome.pl 1.0
 perl feature-genome.pl ptt -in file.ptt
 
 perl feature-genome.pl ptt -in file.ptt -intergenicregion
+
+perl feature-genome.pl ptt -in file.ptt -startcodon
 
 =head1 DESCRIPTION
 

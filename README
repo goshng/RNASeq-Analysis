@@ -40,6 +40,8 @@ Wed Sep 14 16:19:34 EDT 2011
 RNAz found 40 known RNAs out of 111 loci that are found to contain structural
 RNAs.
 
+Target messenger RNAs of the predicted small RNAs might be found using RNAplex.
+
 Tue Sep 13 11:48:53 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sometimes I need to work on a few scripts that might not be incorporated into

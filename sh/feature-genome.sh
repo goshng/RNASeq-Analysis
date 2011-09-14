@@ -49,14 +49,20 @@ function feature-genome {
         -intergenicregiononly \
         -in $REFGENOMEPTT \
         -out $DATADIR/$FUNCNAME.out-intergeniconly"
+      COMMAND4="perl pl/$FUNCNAME.pl ptt2 \
+        -startcodon \
+        -in $REFGENOMEPTT \
+        -out $DATADIR/$FUNCNAME.out-startcodon"
 
       if [ "$BATCH" == "YES" ]; then
         #echo $COMMAND1 >> $BATCHFILE
         #echo $COMMAND2 >> $BATCHFILE
         echo $COMMAND3 >> $BATCHFILE
+        echo $COMMAND4 >> $BATCHFILE
       else
         #echo $COMMAND1 | bash
         #echo $COMMAND2 | bash
+        echo $COMMAND3 | bash
         echo $COMMAND3 | bash
       fi
 
@@ -68,7 +74,12 @@ function feature-genome {
           -bed $DATADIR/$FUNCNAME.out-intergeniconly \
           -in $REFGENOMEFASTA \
           -out $DATADIR/intergeniconly.fa"
-        echo $COMMAND1 # | bash
+        COMMAND2="perl pl/$FUNCNAME.pl extract \
+          -bed $DATADIR/$FUNCNAME.out-startcodon \
+          -in $REFGENOMEFASTA \
+          -out $DATADIR/startcodon.fa"
+        echo $COMMAND1 | bash
+        echo $COMMAND2 | bash
       fi
 
       break

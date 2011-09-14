@@ -65,6 +65,7 @@ REFGENOMEPTT:bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.ptt
 $DATADIR/feature-genome.out-geneonly for protein coding genes
 $DATADIR/feature-genome.out-intergenic for protein coding genes as well as intergenic regions
 $DATADIR/feature-genome.out-intergeniconly for intergenic regions only
+$DATADIR/feature-genome.out-startcodon for regions around start codons of genes
 ----
 
 Extract DNA sequences using feature-genome
