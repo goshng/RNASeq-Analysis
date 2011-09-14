@@ -136,4 +136,77 @@ sub peachFastaLength ($)
   return %fl;
 }
 
+sub rnaseqFastaCreate ($$$)
+{
+  my ($f, $header, $seq) = @_;
+  $seq =~ s/-//g;
+  open OUT, ">", $f or die "cannot open $f $!";
+  print OUT ">$header\n";
+  print OUT "$seq\n";
+  close OUT;
+}
+
+sub rnaseqFastaAdd ($$$)
+{
+  my ($f, $header, $seq) = @_;
+  $seq =~ s/-//g;
+  open OUT, ">>", $f or die "cannot open $f $!";
+  print OUT ">$header\n";
+  print OUT "$seq\n";
+  close OUT;
+}
+
+# Return 1 if there is a sequence with many gaps in the 
+# FASTA-format file.
+sub rnaseqFastaManyGap ($)
+{
+  my ($f) = @_;
+  my $v = 0;
+  my $seq = "";
+  my $line;
+  open OUT, $f or die "cannot < open $f $!";
+  while ($line = <OUT>)
+  {
+    chomp $line;
+    if ($line =~ /^>/)
+    {
+      if (length $seq > 0)
+      {
+        # Check the sequence has consecutive gaps.
+        my $prevChar = ".";
+        my $c = 0;
+        my $maxc = 0;
+        while ($seq =~ /(.)/g)
+        {
+          if ($1 eq "-" and $prevChar eq "-")
+          {
+            $c++;
+          }
+          else
+          {
+            $c = 0;
+          }
+          if ($maxc < $c)
+          {
+            $maxc = $c;
+          }
+          $prevChar = $1;
+        }
+        if ($maxc > 40)
+        {
+          $v = 1;
+          last;
+        }
+      }
+      $seq = "";
+    }
+    else
+    {
+      $seq .= $line;
+    }
+  }
+  close OUT;
+  return $v;
+}
+
 1;

@@ -26,21 +26,7 @@ INTERGENICFA=output/smutans12/1/data/intergeniconly.fa
 ###########
 # Run jobs.
 ###########
-$BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
-  -task blastn \
-  -num_threads 4 \
-  -evalue 0.001 \
-  -html \
-  -out $BASEDIR/intergeniconly.blasthtml
-exit
-$BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
-  -task blastn \
-  -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen qseq slen sseq' \
-  -num_threads 4 \
-  -evalue 0.001 \
-  -out $BASEDIR/intergeniconly.blast
-exit
-$BLASTN -help
+
 exit
 
 #################
@@ -57,15 +43,18 @@ $MAKEBLASTDB -in $BASEDIR/bacteria.fa \
 
 # BLAST intergenic regions against the BLAST DB.
 $BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
-  -task megablast \
+  -task blastn \
   -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen qseq slen sseq' \
   -num_threads 4 \
+  -evalue 0.001 \
   -out $BASEDIR/intergeniconly.blast
 
 # Extract sequence alignments.
+rm -rf $BASEDIR/intergeniconly 
 mkdir $BASEDIR/intergeniconly 
-perl pl/extract-msa.pl blast6 -in $BASEDIR/intergeniconly.blast \
+perl  pl/extract-msa.pl clust -in $BASEDIR/intergeniconly.blast \
   -reference NC_004350 \
+  -muscle $MUSCLE \
   -outdir $BASEDIR/intergeniconly
 
 # Align sequences using MUSCLE
@@ -77,14 +66,18 @@ done
 
 # Convert FASTA-format alignments to MSA-foramt ones.
 perl pl/extract-msa.pl muscle \
-  -indir $BASEDIR/aln
+  -genomeLength 2030921 \
+  -indir $BASEDIR/aln \
   -out $BASEDIR/intergeniconly.maf
 
 # Apply RNAz to the mulitple sequence alignments.
 rnazWindow.pl --max-seq=15 $BASEDIR/intergeniconly.maf > $BASEDIR/intergeniconly.rnaz
-RNAz --show-gaps --both-strands --predict-strand --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out
+# RNAz --show-gaps --both-strands --predict-strand --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out
+RNAz --show-gaps --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out
 rm -rf results
 rnazCluster.pl --html $BASEDIR/rnaz.out > $BASEDIR/results.dat
-rnazAnnotate.pl --bed $BASEDIR/rfam.bed $BASEDIR/results.dat > $BASEDIR/results.annotated
-#rnazIndex.pl --bed $BASEDIR/results.dat > $BASEDIR/results.bed
-#rnazIndex.pl --bed $BASEDIR/results.dat | rnazBEDsort.pl | rnazBEDstats.pl
+rnazAnnotate.pl --bed $BASEDIR/rfam.bed $BASEDIR/results.dat > $BASEDIR/annotated.dat
+rnazIndex.pl --bed $BASEDIR/annotated.dat > $BASEDIR/results.bed
+rnazIndex.pl --html $BASEDIR/annotated.dat > results/index.html
+grep "^locus" $BASEDIR/annotated.dat | cut -f 9 | sort > $BASEDIR/results.known
+open results/index.html
