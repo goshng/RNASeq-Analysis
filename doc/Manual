@@ -67,6 +67,17 @@ $DATADIR/feature-genome.out-intergenic for protein coding genes as well as inter
 $DATADIR/feature-genome.out-intergeniconly for intergenic regions only
 ----
 
+Extract DNA sequences using feature-genome
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I can create a FASTA file of DNA sequences that are extracted from a reference
+genome. Menu *extract-genome* is used to extract DNA sequences from a reference
+genome using a BED file.
+
+.FASTA files of extracted DNA sequences
+----
+$DATADIR/intergeniconly.fa is created using feature-genome.out-intergeniconly
+----
+
 BWA Alignment
 ~~~~~~~~~~~~~
 Call *cp-genome* to copy the genome file in FASTA format to the data directory.
@@ -382,4 +393,13 @@ Scripts
 ----
 bash colsubtract.sh A B > C
 ----
+
+Files
+-----
+Input and output files are created in *RNASeq Analysis*. 
+
+feature-genome.out-intergeniconly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A BED-format file contains intergenic regions of a reference genome.
+
 

@@ -22,6 +22,8 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 require 'pl/sub-error.pl';
+require 'pl/sub-bed.pl';
+require 'pl/sub-fasta.pl';
 $| = 1; # Do not buffer output
 my $VERSION = 'feature-genome.pl 1.0';
 
@@ -40,6 +42,7 @@ GetOptions( \%params,
             'version' => sub { print $VERSION."\n"; exit; },
             'in=s',
             'chromosome=s',
+            'bed=s',
             'feature=s',
             'intergenicregion',
             'intergenicregiononly',
@@ -60,6 +63,11 @@ my $outfile;
 my $feature;
 my $chromosome = "chr1";
 my $minLenNoncoding = 50;
+my $bed;
+
+if (exists $params{bed}) {
+  $bed = $params{bed};
+}
 
 if (exists $params{chromosome}) {
   $chromosome = $params{chromosome};
@@ -85,6 +93,14 @@ else
   $outfile = *STDOUT;   
 }
 
+if ($cmd eq "extract")
+{
+  unless (exists $params{bed})
+  {
+    &printError("command extract needs option -bed");
+  }
+}
+
 ################################################################################
 ## DATA PROCESSING
 ################################################################################
@@ -100,7 +116,7 @@ if ($cmd eq "ptt")
     next unless $line =~ /^(\d+)\.\.(\d+)\s+/;
     my @e = split /\t/, $line;
     $e[0] =~ /^(\d+)\.\.(\d+)\s+/;
-    my $start  = $1;
+    my $start  = $1 - 1; # PTT is 1-base, BED is 0-base.
     my $end    = $2;
     my $strand = $e[1];
     my $name   = $e[5];
@@ -108,11 +124,12 @@ if ($cmd eq "ptt")
     my $lengthNoncoding = $start - $prevEnd;
     if ($lengthNoncoding > $minLenNoncoding)
     {
-      my $startNoncoding = $prevEnd + 1;
+      my $startNoncoding = $prevEnd; # BED is 0-base
+      my $startNoncodingOnebase = $prevEnd + 1;
       my $noncoding = {};
-      $noncoding->{name}   = "IGR$startNoncoding";
+      $noncoding->{name}   = "IGR$startNoncodingOnebase-$start";
       $noncoding->{start}  = $startNoncoding;
-      $noncoding->{end}    = $start - 1;
+      $noncoding->{end}    = $start;
       $noncoding->{strand} = '+';
       push @igr, $noncoding;
       if (exists $params{intergenicregion}
@@ -135,6 +152,21 @@ if ($cmd eq "ptt")
 elsif ($cmd eq "gff")
 {
   convert_gff_ingene($in, $feature, $out); 
+}
+elsif ($cmd eq "extract")
+{
+  # I might want to use twoBitTwoFa.
+  my @bedfeature = rnaseqBedParse ($bed);
+  my $seq = maFastaParse ($in);
+  for (my $i = 0; $i <= $#bedfeature; $i++)
+  {
+    my $b = $bedfeature[$i];
+    my $offset = $b->{start};
+    my $l = $b->{end} - $b->{start};
+    my $subseq = substr $seq, $offset, $l;
+    print $outfile ">$b->{name}\n";
+    print $outfile "$subseq\n";
+  }
 }
 
 if (exists $params{in})
@@ -192,16 +224,22 @@ perl feature-genome.pl ptt -in file.ptt -intergenicregion
 
 =head1 DESCRIPTION
 
-feature-genome.pl parses a genome annotation file such as a gff file. An output
+feature-genome.pl parses a genome annotation file such as a gff file. A BED output
 file is created with tab-delimited columns: chrmosome, start, end, name, strand.
-The minimum length of intergenic regions is 30 base pairs long.
+The minimum length of intergenic regions is 30 base pairs long. The BED file can
+be used to create a FASTA-format file with DNA sequences that are extracted from
+a reference genome. Note that BED files have 0-base start positions. The length
+of a feature should be obtained by subtracting the start position from the end
+position.
 
 =head1 OPTIONS
 
   command: 
 
-  ptt - Reads a ptt file.
+  ptt - Reads a ptt file to create a BED file.
   gff - Reads a gff file.
+  extract - Extract DNA sequences using a BED file that could be created by ptt
+  command
 
 =over 8
 
@@ -230,6 +268,10 @@ An output file.
 =item B<-intergenicregion>
 
 Not only genes but also intergenic regions are also added to the output file.
+
+=item B<-bed>
+
+A BED file.
 
 =back
 

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+function ucsc {
+wget http://users.soe.ucsc.edu/~kent/src/blatSrc.zip
+wget http://hgdownload.cse.ucsc.edu/admin/jksrc.zip
+}
+
+function bedtools {
+wget http://bedtools.googlecode.com/files/BEDTools.v2.13.1.tar.gz
+}
+
+wget http://www.drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86darwin64.tar.gz

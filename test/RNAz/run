@@ -1,0 +1,90 @@
+#!/bin/bash
+# RNAz is used to find small RNA candidates. Sequence alignments appear to be a
+# critical step for finding small RNAs. Phylogenies of streptococcus species could
+# be considered to choose species related with Streptococcus mutans.
+# Alternatively, I find sequences similar to intergenic regions, and refine the
+# alignments using a multiple sequence alignment tool such as MUSCLE. Steps for
+# achieving this goal include: 1. Exract intergenic regions including up- and
+# down-stream, 2. BLAST the intergenic regions against non-redundant DB to find
+# similar sequences, 3. Refine each alignment using MUSCLE, 4. Apply RNAz to the
+# alignments for scoring regions for small RNAs, and 5. Find transcripts with high
+# score of small RNAs. The transcripts must be defined in advance.
+
+# TODO:
+# 1. Try different BLAST options.
+# 2. The reference genome name must be chr1 or change chr1 to the reference
+# genome name. This is needed for rnazAnnotate.pl to work.
+
+# Header information.
+BASEDIR=test/RNAz
+NCBIBACTERIADIR=/Volumes/Elements/Documents/Projects/mauve/bacteria
+MAKEBLASTDB=downloads/build/ncbi-blast-2.2.25+/bin/makeblastdb
+BLASTN=downloads/build/ncbi-blast-2.2.25+/bin/blastn
+MUSCLE=downloads/build/muscle3.8.31_i86darwin64
+INTERGENICFA=output/smutans12/1/data/intergeniconly.fa
+
+###########
+# Run jobs.
+###########
+$BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
+  -task blastn \
+  -num_threads 4 \
+  -evalue 0.001 \
+  -html \
+  -out $BASEDIR/intergeniconly.blasthtml
+exit
+$BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
+  -task blastn \
+  -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen qseq slen sseq' \
+  -num_threads 4 \
+  -evalue 0.001 \
+  -out $BASEDIR/intergeniconly.blast
+exit
+$BLASTN -help
+exit
+
+#################
+# Main procedures
+#################
+
+# Create a FASTA file with bacterial genome sequences.
+cat `find $NCBIBACTERIADIR -name *.fna | grep -v NC_013928` > $BASEDIR/bacteria.fa
+
+# Create BLAST DB of the FASTA file.
+$MAKEBLASTDB -in $BASEDIR/bacteria.fa \
+  -dbtype nucl -title bacteria -input_type fasta \
+  -out $BASEDIR/bacteria
+
+# BLAST intergenic regions against the BLAST DB.
+$BLASTN -db $BASEDIR/bacteria -query $INTERGENICFA \
+  -task megablast \
+  -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen qseq slen sseq' \
+  -num_threads 4 \
+  -out $BASEDIR/intergeniconly.blast
+
+# Extract sequence alignments.
+mkdir $BASEDIR/intergeniconly 
+perl pl/extract-msa.pl blast6 -in $BASEDIR/intergeniconly.blast \
+  -reference NC_004350 \
+  -outdir $BASEDIR/intergeniconly
+
+# Align sequences using MUSCLE
+rm -rf $BASEDIR/aln
+mkdir $BASEDIR/aln
+for f in `ls $BASEDIR/intergeniconly`; do
+  $MUSCLE -in $BASEDIR/intergeniconly/$f -out $BASEDIR/aln/$f -quiet
+done
+
+# Convert FASTA-format alignments to MSA-foramt ones.
+perl pl/extract-msa.pl muscle \
+  -indir $BASEDIR/aln
+  -out $BASEDIR/intergeniconly.maf
+
+# Apply RNAz to the mulitple sequence alignments.
+rnazWindow.pl --max-seq=15 $BASEDIR/intergeniconly.maf > $BASEDIR/intergeniconly.rnaz
+RNAz --show-gaps --both-strands --predict-strand --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out
+rm -rf results
+rnazCluster.pl --html $BASEDIR/rnaz.out > $BASEDIR/results.dat
+rnazAnnotate.pl --bed $BASEDIR/rfam.bed $BASEDIR/results.dat > $BASEDIR/results.annotated
+#rnazIndex.pl --bed $BASEDIR/results.dat > $BASEDIR/results.bed
+#rnazIndex.pl --bed $BASEDIR/results.dat | rnazBEDsort.pl | rnazBEDstats.pl

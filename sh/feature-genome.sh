@@ -59,6 +59,18 @@ function feature-genome {
         #echo $COMMAND2 | bash
         echo $COMMAND3 | bash
       fi
+
+      echo -n "Do you wish to extract DNA sequences as well? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        REFGENOMEFASTA=$(grep REFGENOMEFASTA $SPECIESFILE | cut -d":" -f2)
+        COMMAND1="perl pl/$FUNCNAME.pl extract \
+          -bed $DATADIR/$FUNCNAME.out-intergeniconly \
+          -in $REFGENOMEFASTA \
+          -out $DATADIR/intergeniconly.fa"
+        echo $COMMAND1 # | bash
+      fi
+
       break
 
       # CHROMOSOME="gi|15644634|ref|NC_000915.1|"

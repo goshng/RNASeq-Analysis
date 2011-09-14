@@ -33,6 +33,17 @@ Write a short report on the RNA-Seq data. (done)
 
 Histories
 ---------
+This history can be useful later.
+
+Tue Sep 13 11:48:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sometimes I need to work on a few scripts that might not be incorporated into
+*RNASeq Analysis* scripts. I put these scripts in the test directory.
+
+.RNAz for finding small RNAs 
+----
+test/RNAz
+----
 
 Mon Sep 12 15:19:02 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
