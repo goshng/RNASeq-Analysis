@@ -35,6 +35,11 @@ Histories
 ---------
 This history can be useful later.
 
+Thu Sep 15 10:53:41 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Target messenger RNAs are predicted for each predicted small RNAs as a query
+using RNAplex. Can I find their enrichment in functional categories?
+
 Wed Sep 14 16:19:34 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 RNAz found 40 known RNAs out of 111 loci that are found to contain structural
