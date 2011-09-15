@@ -21,11 +21,22 @@ NCBIBACTERIADIR=/Volumes/Elements/Documents/Projects/mauve/bacteria
 MAKEBLASTDB=downloads/build/ncbi-blast-2.2.25+/bin/makeblastdb
 BLASTN=downloads/build/ncbi-blast-2.2.25+/bin/blastn
 MUSCLE=downloads/build/muscle3.8.31_i86darwin64
+RNAPLEX=downloads/build/RNAplex-0.2/Progs/RNAplex
 INTERGENICFA=output/smutans12/1/data/intergeniconly.fa
+TARGETRNA=output/smutans12/1/data/startcodon.fa
+REFGENOMEFASTA=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
 
 ###########
 # Run jobs.
 ###########
+RNAplfold -W 240 -L 160 -u 30 -O < $TARGETRNA > $BASEDIR/target.rnaplfold
+RNAplfold -W 240 -L 160 -u 30 -O < $INTERGENICFA > $BASEDIR/igr.rnaplfold
+
+exit
+#perl pl/feature-genome.pl extract -bed $BASEDIR/results.bed.corrected \
+#     -in $REFGENOMEFASTA \
+#     -out $BASEDIR/results.fa
+$RNAPLEX -t $TARGETRNA -q $BASEDIR/results.fa > $BASEDIR/target.rnaplex
 
 exit
 

@@ -19,29 +19,46 @@
 use strict;
 use warnings;
 
-sub rnaseqBedParse ($) {
+sub rnaseqPttParse ($) {
   my ($f) = @_;
   my @v;
-  open BED, $f or die "cannot open $f $!";
-  while (<BED>)
+  # Location	Strand	Length	PID	Gene	Synonym	Code	COG	Product
+  open PTT, $f or die "cannot open $f $!";
+  my $line = <PTT>;
+  $line = <PTT>;
+  $line = <PTT>;
+  while ($line = <PTT>)
   {
     # print $outfile "chr1\t$t->{start}\t$t->{end}\t$t->{name}\t$t->{score}\t$t->{strand}\n";
-    chomp;
-    my @e = split /\t/;
+    chomp $line;
+    my @e = split /\t/, $line;
     my $rec = {};
-    $rec->{chr}    = $e[0];
-    $rec->{start}  = $e[1];
-    $rec->{end}    = $e[2];
-    $rec->{name}   = $e[3];
-    $rec->{score}  = $e[4];
-    if (scalar @e >= 6)
-    {
-      $rec->{strand} = $e[5];
-    }
+    # Location	Strand	Length	PID	Gene	Synonym	Code	COG	Product
+    $rec->{Location} = $e[0];
+    $rec->{Strand}   = $e[1];
+    $rec->{Length}   = $e[2];
+    $rec->{PID}      = $e[3];
+    $rec->{Gene}     = $e[4];
+    $rec->{Synonym}  = $e[5];
+    $rec->{Code}     = $e[6];
+    $rec->{COG}      = $e[7];
+    $rec->{Product}  = $e[8];
     push @v, $rec;
   }
-  close BED;
+  close PTT;
   return @v;
+}
+
+# Use PTT file to extract the genome length.
+sub rnaseqPttGetGenomeLength ($) {
+  my ($f) = @_;
+  my $v;
+  # Location	Strand	Length	PID	Gene	Synonym	Code	COG	Product
+  open PTT, $f or die "cannot open $f $!";
+  my $line = <PTT>;
+  $line =~ /(\d+)\.\.(\d+)/;
+  $v = $2;
+  return $v;
 }
 
 1;

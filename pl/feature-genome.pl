@@ -24,6 +24,7 @@ use Pod::Usage;
 require 'pl/sub-error.pl';
 require 'pl/sub-bed.pl';
 require 'pl/sub-fasta.pl';
+require 'pl/sub-ptt.pl';
 $| = 1; # Do not buffer output
 my $VERSION = 'feature-genome.pl 1.0';
 
@@ -47,6 +48,8 @@ GetOptions( \%params,
             'intergenicregion',
             'intergenicregiononly',
             'startcodon',
+            'windowsize=i',
+            'genomelength=i',
             'out=s',
             '<>' => \&process
             ) or pod2usage(2);
@@ -65,9 +68,19 @@ my $feature;
 my $chromosome = "chr1";
 my $minLenNoncoding = 50;
 my $bed;
+my $windowsize = 200;
+my $genomelength;
 
 if (exists $params{bed}) {
   $bed = $params{bed};
+}
+
+if (exists $params{genomelength}) {
+  $genomelength = $params{genomelength};
+}
+
+if (exists $params{windowsize}) {
+  $windowsize = $params{windowsize};
 }
 
 if (exists $params{chromosome}) {
@@ -153,49 +166,37 @@ if ($cmd eq "ptt")
 elsif ($cmd eq "ptt2")
 {
   # Read all of the PTT file.
-
+  my @ptt = rnaseqPttParse ($in);
+  $genomelength = rnaseqPttGetGenomeLength ($in); 
 
   # Then, create a BED file depending on options.
-
-
-  my @igr;
-  my $prevEnd = 0;
-  my $line;
-  while ($line = <$infile>)
+  if (exists $params{startcodon})
   {
-    next unless $line =~ /^(\d+)\.\.(\d+)\s+/;
-    my @e = split /\t/, $line;
-    $e[0] =~ /^(\d+)\.\.(\d+)\s+/;
-    my $start  = $1 - 1; # PTT is 1-base, BED is 0-base.
-    my $end    = $2;
-    my $strand = $e[1];
-    my $name   = $e[5];
-
-    my $lengthNoncoding = $start - $prevEnd;
-    if ($lengthNoncoding > $minLenNoncoding)
+    for (my $i = 0; $i <= $#ptt; $i++)
     {
-      my $startNoncoding = $prevEnd; # BED is 0-base
-      my $startNoncodingOnebase = $prevEnd + 1;
-      my $noncoding = {};
-      $noncoding->{name}   = "IGR$startNoncodingOnebase-$start";
-      $noncoding->{start}  = $startNoncoding;
-      $noncoding->{end}    = $start;
-      $noncoding->{strand} = '+';
-      push @igr, $noncoding;
-      if (exists $params{intergenicregion}
-          or exists $params{intergenicregiononly})
+      my $g = $ptt[$i];
+      $g->{Location} =~ /(\d+)\.\.(\d+)/;
+      my $start = $1 - 1; # PTT is 1-base, BED is 0-base.
+      my $end = $2;
+      if ($g->{Strand} eq '+')
       {
-        print $outfile "$chromosome\t";
-        print $outfile "$noncoding->{start}\t";
-        print $outfile "$noncoding->{end}\t";
-        print $outfile "$noncoding->{name}\t0\t";
-        print $outfile "$noncoding->{strand}\n";
+        $end    = $start + $windowsize + 1;
+        $start  -= $windowsize;
       }
-    }
-    $prevEnd = $end;
-    unless (exists $params{intergenicregiononly})
-    {
-      print $outfile "$chromosome\t$start\t$end\t$name\t0\t$strand\n";
+      else
+      {
+        $start = $end - $windowsize - 1;
+        $end   += $windowsize;
+      }
+      if ($start < 0)
+      {
+        $start = 0;
+      }
+      if ($end > $genomelength)
+      {
+        $end = $genomelength;
+      }
+      print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
     }
   }
 }
@@ -215,6 +216,14 @@ elsif ($cmd eq "extract")
     my $offset = $b->{start};
     my $l = $b->{end} - $b->{start};
     my $subseq = substr $seq, $offset, $l;
+    if (exists $b->{strand})
+    {
+      if ($b->{strand} eq '-')
+      {
+        $subseq =~ tr/AGCTUagctu/TCGAAtcgaa/;
+        $subseq = reverse $subseq;
+      }
+    }
     print $outfile ">$b->{name}\n";
     print $outfile "$subseq\n";
   }
@@ -275,6 +284,8 @@ perl feature-genome.pl ptt -in file.ptt -intergenicregion
 
 perl feature-genome.pl ptt -in file.ptt -startcodon
 
+perl feature-genome.pl ptt2 -startcodon -windowsize 100 -in file.ptt 
+
 =head1 DESCRIPTION
 
 feature-genome.pl parses a genome annotation file such as a gff file. A BED output
@@ -290,9 +301,16 @@ position.
   command: 
 
   ptt - Reads a ptt file to create a BED file.
+
   gff - Reads a gff file.
-  extract - Extract DNA sequences using a BED file that could be created by ptt
-  command
+
+  extract - Extract DNA sequences using a BED file.
+  I extract a reverse complementary sequences for the regions with minus strand.
+
+  ptt2 - Use a ptt file to create a BED file. This might replace the command
+  ptt. With option -startcodon regions centered around the start codon of genes
+  are extracted. Use option -windowsize to change the size of regions. Default
+  of -windowsize is 200: The length of a block is 401.
 
 =over 8
 
