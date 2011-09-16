@@ -38,7 +38,8 @@ function feature-genome {
       fi
 
       REFGENOMEPTT=$(grep REFGENOMEPTT $SPECIESFILE | cut -d":" -f2)
-      COMMAND1="perl pl/$FUNCNAME.pl ptt \
+      COMMAND1="perl pl/$FUNCNAME.pl ptt2 \
+        -geneonly \
         -in $REFGENOMEPTT \
         -out $DATADIR/$FUNCNAME.out-geneonly"
       COMMAND2="perl pl/$FUNCNAME.pl ptt \
@@ -55,15 +56,15 @@ function feature-genome {
         -out $DATADIR/$FUNCNAME.out-startcodon"
 
       if [ "$BATCH" == "YES" ]; then
-        #echo $COMMAND1 >> $BATCHFILE
+        echo $COMMAND1 >> $BATCHFILE
         #echo $COMMAND2 >> $BATCHFILE
         echo $COMMAND3 >> $BATCHFILE
         echo $COMMAND4 >> $BATCHFILE
       else
-        #echo $COMMAND1 | bash
+        echo $COMMAND1 | bash
         #echo $COMMAND2 | bash
         echo $COMMAND3 | bash
-        echo $COMMAND3 | bash
+        echo $COMMAND4 | bash
       fi
 
       echo -n "Do you wish to extract DNA sequences as well? (e.g., y/n) "
@@ -71,15 +72,21 @@ function feature-genome {
       if [ "$WISH" == "y" ]; then
         REFGENOMEFASTA=$(grep REFGENOMEFASTA $SPECIESFILE | cut -d":" -f2)
         COMMAND1="perl pl/$FUNCNAME.pl extract \
+          -bed $DATADIR/$FUNCNAME.out-geneonly \
+          -in $REFGENOMEFASTA \
+          -out $DATADIR/geneonly.fa"
+        COMMAND3="perl pl/$FUNCNAME.pl extract \
           -bed $DATADIR/$FUNCNAME.out-intergeniconly \
           -in $REFGENOMEFASTA \
           -out $DATADIR/intergeniconly.fa"
-        COMMAND2="perl pl/$FUNCNAME.pl extract \
+        COMMAND4="perl pl/$FUNCNAME.pl extract \
           -bed $DATADIR/$FUNCNAME.out-startcodon \
           -in $REFGENOMEFASTA \
           -out $DATADIR/startcodon.fa"
         echo $COMMAND1 | bash
-        echo $COMMAND2 | bash
+        # echo $COMMAND2 | bash
+        echo $COMMAND3 | bash
+        echo $COMMAND4 | bash
       fi
 
       break

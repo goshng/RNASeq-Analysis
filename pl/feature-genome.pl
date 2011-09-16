@@ -48,6 +48,7 @@ GetOptions( \%params,
             'intergenicregion',
             'intergenicregiononly',
             'startcodon',
+            'geneonly',
             'windowsize=i',
             'genomelength=i',
             'out=s',
@@ -196,6 +197,17 @@ elsif ($cmd eq "ptt2")
       {
         $end = $genomelength;
       }
+      print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
+    }
+  }
+  elsif (exists $params{geneonly})
+  {
+    for (my $i = 0; $i <= $#ptt; $i++)
+    {
+      my $g = $ptt[$i];
+      $g->{Location} =~ /(\d+)\.\.(\d+)/;
+      my $start = $1 - 1; # PTT is 1-base, BED is 0-base.
+      my $end = $2;
       print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
     }
   }

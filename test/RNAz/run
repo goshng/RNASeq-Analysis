@@ -24,18 +24,65 @@ BASEDIR=test/RNAz
 NCBIBACTERIADIR=/Volumes/Elements/Documents/Projects/mauve/bacteria
 MAKEBLASTDB=downloads/build/ncbi-blast-2.2.25+/bin/makeblastdb
 BLASTN=downloads/build/ncbi-blast-2.2.25+/bin/blastn
+BLASTP=downloads/build/ncbi-blast-2.2.25+/bin/blastp
 MUSCLE=downloads/build/muscle3.8.31_i86darwin64
 RNAPLEX=downloads/build/RNAplex-0.2/Progs/RNAplex
 INTERGENICFA=output/smutans12/1/data/intergeniconly.fa
 TARGETRNA=output/smutans12/1/data/startcodon.fa
 REFGENOMEFASTA=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+GENEONLYFA=output/smutans12/1/data/geneonly.fa
+REFPROTEINFASTA=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.faa
+REFGENOMEPTT=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.ptt
+REFGENOMEGFF=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
 
 ###########
 # Run jobs.
 ###########
 
+# Enrichment Test
 # Find functional categories that enrich for the predicted small RNAs.
-# How? I have values for each proteins.
+# How? I have values for each proteins
+# Useful files.
+# cp /Users/goshng/Documents/Projects/mauve-analysis/emails/to/mellisa/051811/mannwhitney.R .
+# cp /Users/goshng/Documents/Projects/mauve-analysis/emails/to/mellisa/051811/in.gene .
+# scp swiftgen:/usr/projects/strep/SpyMGAS315/* .
+#
+# Download gene_association.goa_uniprot_noiea at Thu Sep 15 17:14:12 EDT 2011
+# Download uniref90.fa.gz at Thu Sep 15 16:28:42 EDT 2011
+# Download gene_ontology.1_2.obo at Fri Sep 16 10:31:37 EDT 2011
+# 1. Prepare protein sequences of S. mutans in FASTA format (NC_004350.faa)
+# 2. Prepare protein sequences of uniref90 database in FASTA format, and create BLASTDB file.
+# 3. blastp S. mutans sequences against uniref90 database.
+# 4. Create a file like SpyMGAS315_go_bacteria.txt using gene_association.goa_uniprot_noiea
+# 5. Create another file like SpyMGAS315_go_category_names.txt
+# 6. Create a file file like in.gene 
+# 7. Use mannwhitney.R or a modified one to test the enrichment.
+#############
+#cp $REFPROTEINFASTA $BASEDIR
+#wget http://www.geneontology.org/gene-associations/submission/gene_association.goa_uniprot.gz -P $BASEDIR
+#gunzip $BASEDIR/gene_association.goa_uniprot.gz 
+#gunzip $BASEDIR/uniref90/uniref90.fasta.gz
+#$MAKEBLASTDB -in $BASEDIR/uniref90/uniref90.fasta \
+#  -dbtype prot -title uniref90 -input_type fasta \
+#  -out $BASEDIR/uniref90
+#$BLASTP -db $BASEDIR/uniref90 -query $REFPROTEINFASTA \
+#  -task blastp \
+#  -outfmt 6 \
+#  -num_threads 8 \
+#  -evalue 0.001 \
+#  -out $BASEDIR/geneonly.blast
+#wget http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo -P $BASEDIR
+# A machine at the cluster was used.
+#perl pl/geneontology.pl gene2go \
+#  -gff $REFGENOMEGFF \
+#  -blast $BASEDIR/geneonly.blast \
+#  -goa $BASEDIR/gene_association.goa_uniprot \
+#  -out $BASEDIR/smutans.gene2go
+
+perl pl/geneontology.pl go2ngene \
+  -gene2go $BASEDIR/smutans.gene2go \
+  -obo $BASEDIR/gene_ontology.1_2.obo \
+  -out $BASEDIR/smutans.go2ngene
 
 exit
 
@@ -81,6 +128,9 @@ perl pl/extract-msa.pl muscle \
   -out $BASEDIR/intergeniconly.maf
 
 # Apply RNAz to the mulitple sequence alignments.
+# From Stefan:
+# I guess the input to rnazCluster.pl was not sorted correctly.
+# Please sort the RNAz results first by chrom and start position and try again.
 rnazWindow.pl --max-seq=15 $BASEDIR/intergeniconly.maf > $BASEDIR/intergeniconly.rnaz
 # RNAz --show-gaps --both-strands --predict-strand --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out
 RNAz --show-gaps --cutoff=0.5 $BASEDIR/intergeniconly.rnaz > $BASEDIR/rnaz.out

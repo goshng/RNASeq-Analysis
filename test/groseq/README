@@ -1,0 +1,10 @@
+Transcript predictions using RNA-Seq Coverage data
+==================================================
+Sang Chul Choi
+Charles Danko
+
+FASTQ01-sum.wig : coverage for all of the sites.
+genes.txt: a gene annotation file: gene name, strand, start, end, and length of
+the gene.
+
+FASTQ01-end1-5.wig 
