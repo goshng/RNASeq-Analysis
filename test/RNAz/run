@@ -79,10 +79,11 @@ REFGENOMEGFF=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_m
 #  -goa $BASEDIR/gene_association.goa_uniprot \
 #  -out $BASEDIR/smutans.gene2go
 
-perl pl/geneontology.pl go2ngene \
-  -gene2go $BASEDIR/smutans.gene2go \
-  -obo $BASEDIR/gene_ontology.1_2.obo \
-  -out $BASEDIR/smutans.go2ngene
+#perl pl/geneontology.pl go2ngene \
+#  -gene2go $BASEDIR/smutans.gene2go \
+#  -obo $BASEDIR/gene_ontology.1_2.obo \
+#  -out $BASEDIR/smutans.go2ngene
+Rscript R/mannwhitney.R > $BASEDIR/target_go.txt
 
 exit
 

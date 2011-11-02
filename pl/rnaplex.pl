@@ -41,6 +41,7 @@ GetOptions( \%params,
             'help|h',
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
+            'sortbyenergy',
             'in=s',
             'out=s',
             '<>' => \&process
@@ -119,21 +120,47 @@ if ($cmd eq "rank")
   }
 
   # Sort by values.
-  foreach my $query (keys %queryTarget)
+  if (exists $params{sortbyenergy})
   {
-    my %targets = %{$queryTarget{$query}};
-    my $i = 0;
-    print $outfile "$query";
-    foreach my $value (sort {$targets{$a} <=> $targets{$b} } keys %targets)
+    foreach my $query (keys %queryTarget)
     {
-      $i++;
-      print $outfile "\t$value:$targets{$value}";
-      if ($i > 5)
+      my %targets = %{$queryTarget{$query}};
+      my $i = 0;
+      print $outfile "$query";
+      foreach my $value (sort {$targets{$a} <=> $targets{$b} } keys %targets)
       {
-        # last;
+        $i++;
+        print $outfile "\t$value:$targets{$value}";
+        if ($i > 5)
+        {
+          # last;
+        }
       }
+      print $outfile "\n";
+    }
+  }
+  else
+  {
+    my @queries = sort {$queryTarget{$b} cmp $queryTarget{$a}} keys (%queryTarget);
+    my $firstQuery = $queries[0];
+    my %targets = %{$queryTarget{$firstQuery}};
+
+    print $outfile "target";
+    foreach my $q (@queries)
+    {
+      print $outfile "\t$q";
     }
     print $outfile "\n";
+
+    foreach my $t (keys %targets)
+    {
+      print $outfile "$t";
+      foreach my $q (@queries)
+      {
+        print $outfile "\t$queryTarget{$q}{$t}";
+      }
+      print $outfile "\n";
+    }
   }
 }
 

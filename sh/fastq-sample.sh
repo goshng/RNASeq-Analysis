@@ -30,6 +30,28 @@ function fastq-sample {
       read-species
 
       mkdir $GZIPFASTAQDIR/$SPECIES
+
+      echo -n "Do you wish to remove :Y: short reads? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+        for g in $(eval echo {1..$NUMFASTQFILE}); do
+          FASTQNUM=FASTQ$(printf "%02d" $g)
+          GZIPFASTAQFILE=$(grep ^$FASTQNUM $SPECIESFILE | cut -d":" -f2)
+          GZIPFASTAQDIR=${GZIPFASTAQFILE%/*}
+          OUTFILE=$DATADIR/$FASTQNUM.gz
+
+          zcat $GZIPFASTAQFILE | \
+            grep -A 3 '^@.* [^:]*:N:[^:]*:' | \
+            sed '/^--$/d' | \
+            gzip > $OUTFILE
+
+          mv $OUTFILE $GZIPFASTAQDIR/$SPECIES
+          echo "Check $GZIPFASTAQDIR/$SPECIES/$FASTQNUM.trimmed.gz"
+        done
+        echo "Change raw sequence file names in $GZIPFASTAQDIR"
+      fi
+
       echo -n "Do you wish to trim RNA-Seq (trimmed)? (e.g., y/n) "
       read WISH
       if [ "$WISH" == "y" ]; then

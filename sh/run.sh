@@ -88,12 +88,14 @@ SPECIESS=$(ls species|grep -v ^sim)
 PS3="Select the menu : "
 CHOICES=( init-file-system \
           choose-species \
-          ---BWA-SUMMARY---\
+          ---FASTQ---\
           fastq-summary \
+          fastq-sample \
           ---BWA-ALIGN---\
           cp-genome \
           bwa-index-genome \
           bwa-align \
+          bwa-align-per-fastq \
           # bwa-samse \
           # bwa-samtools-view \
           # bwa-samtools-sort \
@@ -112,8 +114,6 @@ CHOICES=( init-file-system \
           bowtie-align \
           ---MAQ-ALIGN---\
           maq-align \
-          ---FASTQ---\
-          fastq-sample \
           ---DE---\
           feature-genome \
           de-count \
@@ -154,6 +154,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bowtie-refflat" ]; then $CHOICE; break
   elif [ "$CHOICE" == "segemehl-index-genome" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-align" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "bwa-align-per-fastq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samse" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-mpileup" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-samtools-view" ]; then $CHOICE; break

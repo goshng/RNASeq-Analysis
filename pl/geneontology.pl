@@ -247,6 +247,58 @@ if ($cmd eq "gene2go")
 }
 elsif ($cmd eq "go2ngene")
 {
+  # Parse gene2go.
+  my @genes;
+  open GENE2GO, $params{gene2go} or die "cannot open < $params{gene2go} $!";
+  while (<GENE2GO>)
+  {
+    chomp;
+    my $rec = {};
+    ($rec->{gene}, $rec->{goid}, $rec->{evalue}) = split /\t/; 
+    push @genes, $rec;
+  }
+  close GENE2GO;
+
+  # Parse obo.
+  my $line;
+  my %goterms;
+  open OBO, $params{obo} or die "cannot open < $params{obo} $!";
+  while ($line = <OBO>)
+  {
+    chomp $line;
+    if ($line =~ /^\[Term\]/)
+    {
+      $line = <OBO>; chomp $line;
+      $line =~ /^id\:\s+([\w\:]+)$/;
+      my $goid = $1;
+      $line = <OBO>; chomp $line;
+      $line =~ /^name\:\s+(.+)$/;
+      my $goname = $1;
+      $goterms{$goid} = $goname;
+    }
+  }
+  close OBO;
+
+  # Count genes for gene ontology ID.
+  my %gocat;
+  foreach my $i (0 .. $#genes)
+  {
+    my $g = $genes[$i];
+    unless (exists $gocat{$g->{goid}})
+    {
+      my $rec = {};
+      $rec->{ngene} = 0;
+      $rec->{desc} = $goterms{$g->{goid}};
+      $gocat{$g->{goid}} = $rec;
+    }
+    my $rec = $gocat{$g->{goid}}; 
+    $rec->{ngene}++;
+  }
+
+  foreach my $key (keys %gocat)
+  {
+    print $outfile "$key\t$gocat{$key}{ngene}\t$gocat{$key}{desc}\n";
+  }
 }
 
 if (exists $params{in})
