@@ -91,16 +91,27 @@ function bwa-align-per-fastq {
       global-variable $SPECIES $REPETITION
       read-species
 
+      echo -n "Do you wish to run a batch? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        BATCH=YES
+        BATCHFILE=batch.sh
+        echo "#!/bin/bash" > $BATCHFILE
+      fi
+
       echo -n "What FASTQ file do you wish to run? (e.g., 1) "
       read g
 
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
+
+      for g in $(eval echo {15..27}); do
+
       FASTQNUM=FASTQ$(printf "%02d" $g)
       GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
       GZIPFASTAQDIR=${GZIPFASTAQFILE%/*}
 
-      OUTFILE=input/$FASTQNUM.gz
+      OUTFILE=input/$FASTQNUM.fq.gz
       COMMANDFILTER="zcat $GZIPFASTAQFILE | \
                      grep -A 3 '^@.* [^:]*:N:[^:]*:' | \
                      sed '/^--$/d' | \
@@ -130,18 +141,15 @@ function bwa-align-per-fastq {
       DELETE1="rm $BWADIR/$FASTQNUM.sai \
                   $BWADIR/$FASTQNUM.sam \
                   $BWADIR/$FASTQNUM.bam"
-      BATCH=YES
       if [ "$BATCH" == "YES" ]; then
-        BATCHFILE=batch.sh
-        echo "#!/bin/bash" > $BATCHFILE
-        echo $COMMANDFILTER >> $BATCHFILE
+        #echo $COMMANDFILTER >> $BATCHFILE
         echo $COMMANDCUTADAPT >> $BATCHFILE
-        echo $COMMANDCUTADAPT2 >> $BATCHFILE
-        echo $COMMAND1 >> $BATCHFILE
-        echo $COMMAND2 >> $BATCHFILE
-        echo $COMMAND3 >> $BATCHFILE
-        echo $COMMAND4 >> $BATCHFILE
-        echo $DELETE1 >> $BATCHFILE
+        #echo $COMMANDCUTADAPT2 >> $BATCHFILE
+        #echo $COMMAND1 >> $BATCHFILE
+        #echo $COMMAND2 >> $BATCHFILE
+        #echo $COMMAND3 >> $BATCHFILE
+        #echo $COMMAND4 >> $BATCHFILE
+        #echo $DELETE1 >> $BATCHFILE
       else
         $COMMANDFILTER | bash
         $COMMANDCUTADAPT | bash
@@ -155,6 +163,7 @@ function bwa-align-per-fastq {
         echo "Use $SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam"
         echo "to view the alignment."
       fi
+      done
       break
     fi
   done

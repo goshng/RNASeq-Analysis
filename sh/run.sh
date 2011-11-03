@@ -71,6 +71,7 @@ source sh/bwa-mpileup.sh
 source sh/transcript-summary.sh
 source sh/job-truncate-reads.sh 
 source sh/job-truncate-reads-local.sh 
+source sh/batch.sh
 
 #####################################################################
 # Read configuration file
@@ -138,6 +139,7 @@ CHOICES=( init-file-system \
           ---JOBS--- \
 	  job-truncate-reads \
 	  job-truncate-reads-local \
+	  batch \
           warranty \
           copyright \
           quit )
@@ -188,6 +190,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "batch" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

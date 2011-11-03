@@ -40,9 +40,10 @@ function bwa-mpileup {
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
-      READDEPTH=$(grep READDEPTH $SPECIESFILE | cut -d":" -f2)
-      for g in $(eval echo {1..$NUMFASTQFILE}); do
-      #for g in $(eval echo {1..1}); do
+      READDEPTH=$(grep ^READDEPTH $SPECIESFILE | cut -d":" -f2)
+      FASTQFILES=$(grep ^FASTQFILES $SPECIESFILE | cut -d":" -f2)
+      #for g in $(eval echo {1..$NUMFASTQFILE}); do
+      for g in $FASTQFILES; do
         FASTQNUM=FASTQ$(printf "%02d" $g)
         COMMAND1="$SAMTOOLS mpileup -q 15 -d $READDEPTH \
                   -f $DATADIR/$GENOMEFASTA \
