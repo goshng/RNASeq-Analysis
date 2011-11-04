@@ -40,7 +40,9 @@ function bwa-summary {
       REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
       REFGENOMEGFF=$(grep REFGENOMEGFF $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
-      for g in $(eval echo {1..$NUMFASTQFILE}); do
+      FASTQFILES=$(grep ^FASTQFILES $SPECIESFILE | cut -d":" -f2)
+      for g in $FASTQFILES; do
+      # for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
 
         COMMAND1="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \

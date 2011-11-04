@@ -40,12 +40,15 @@ function de-count {
           echo "#!/bin/bash" > $BATCHFILE
         fi
         NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
-        for g in $(eval echo {1..$NUMFASTQFILE}); do
+        FASTQFILES=$(grep ^FASTQFILES $SPECIESFILE | cut -d":" -f2)
+        # for g in $(eval echo {1..$NUMFASTQFILE}); do
+        for g in $FASTQFILES; do
           FASTQNUM=FASTQ$(printf "%02d" $g)
           COMMAND1="perl pl/$FUNCNAME.pl join \
                     -shortread $BWADIR/$FASTQNUM-sum.pos \
-                    -genepos $DATADIR/gene.pos \
+                    -genepos $DATADIR/feature-genome.out-geneonly \
                     -o $BWADIR/$FASTQNUM.de"
+                    # -genepos $DATADIR/gene.pos \
 
           if [ "$BATCH" == "YES" ]; then
             echo $COMMAND1 >> $BATCHFILE
@@ -65,7 +68,7 @@ function de-count {
         printf "gene" > x
         cut -f1 $BWADIR/FASTQ01.de > 0
         # for g in $(eval echo {1..$NUMFASTQFILE}); do
-        for g in 1 3 7 9 11; do
+        for g in 1 3 7 9 11 15 16 17 18; do
           FASTQNUM=FASTQ$(printf "%02d" $g)
           cut -f2 $BWADIR/$FASTQNUM.de > $g
           COLNAME="$COLNAME $g"

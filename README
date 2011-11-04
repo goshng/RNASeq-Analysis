@@ -35,10 +35,44 @@ Histories
 ---------
 This history can be useful later.
 
+Today?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Do the DE test using 6 files.
+
+Thu Nov  3 10:10:38 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Menu *de-count* requires a gene.pos file.
+How can I create it?
+Menu *de-count* also requires FASTQXX-sum.pos as well, which is created using
+*bwa-summary*.
+Menu *bwa-pos2wig* seems to be outdated because *bwa-mpileup* already created
+wig files.
+File +feature-genome.out-geneonly+ seems to replace gene.pos.
+
+----
+cp /Volumes/Elements/Backups/Documents/Projects/rnaseq/output/smutans12/1/data/gene.pos output/smutans12/1/data/
+----
+
+Menu *de-count* is very slow; each run could take a day.
+
+Running: FASTQ19~27 to mpileup. wig files should be made.
+Running: FASTQ15~18 for *de-count*
+
+
+.Please, rename de files. 
+----
+output/smutans12/1/bwa/FASTQ15.de
+output/smutans12/1/bwa/FASTQ16.de.2
+output/smutans12/1/bwa/FASTQ17.de.2
+output/smutans12/1/bwa/FASTQ18.de.2
+----
+
 Wed Nov  2 20:27:03 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The 2nd round of RNASeq data is used. I am focusing on OMZ study. Menu
 *bwa-mpileup* was finished.
+
+
 
 Tue Nov  1 13:28:50 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

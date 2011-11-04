@@ -366,6 +366,24 @@ choose-species
 ~~~~~~~~~~~~~~
 Create a file in +species+ directory before calling this menu.
 
+batch
+~~~~~
+Many procedures are done in the cluster. I need a test procedure. 
+I want to do the DE study for now.
+
+.To install cutadapt in a linux cluster
+----
+python2.7 setup.py build_ext -i
+python2.7 path/to/cutadapt --help
+----
+
+.Install these in the CAC working directory
+----
+bwa-0.5.9.tar.gz
+cutadapt-1.0.tar.gz
+samtools-0.1.16.tar.gz
+----
+
 fastq-sample
 ~~~~~~~~~~~~
 Subsample the set of FASTQ files.

@@ -6,7 +6,7 @@ REFGENOMELENGTH:2030921
 READDEPTH:300000
 READLENGTH:100
 NUMFASTQFILE:12
-FASTQFILES:15 16 17 18
+FASTQFILES:15 16 17 18 19 20 21 22 24 25 26 27
 FASTQ01:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_3_sequence.fq.gz
 FASTQ02:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_4_sequence.fq.gz
 FASTQ03:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_3_sequence.fq.gz
