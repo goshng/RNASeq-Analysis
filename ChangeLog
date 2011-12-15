@@ -5,6 +5,8 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
+. Add the gene ontology analysis
+.Some of the old things to do 
 . Implement "contigwiggle" of samtools-pileup.pl
 . Predict transcripts using RNA-Seq and annotated genes
 . Document features including genes, small RNAs using predicted transcripts
@@ -35,9 +37,36 @@ Histories
 ---------
 This history can be useful later.
 
+Thu Dec 15 13:20:52 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am trying to test goseq with deseq. I need to find associations of genes
+with gene ontology. I may have done this before when I was testing RNAz. What I
+need is a list of genes and their associations with gene ontology terms.
+I find it interesting to apply goseq to KEGG. I am working on a file at
+----
+test/goseq/tutorial.R
+----
+to test goseq with a data set. What data set would I use for the testing? The
+comparison between UA159 and TW1 could be one. Where can I find the result of
+this comparison? A deseq file contains a list of DE genes:
+----
+output/cornell/1/bwa/cornell-UA159GLU-TW1GLU.deseq
+----
+The file contains genes and DE genes. Let me parse the file for genes. Now, I
+have all of the genes, and DE genes in files. I found the gene lengths in the
+following file
+----
+output/cornell/1/bwa/feature-genome.out-geneonly
+----
+I need to find category associations of genes. The following file contains genes
+and their associations with gene ontologies.
+----
+test/RNAz/smutans.gene2go
+----
+
 Thu Nov 17 10:34:39 EST 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-I am waiting for 
+I am waiting for ...
 
 Wed Nov 16 12:59:52 EST 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

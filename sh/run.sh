@@ -92,6 +92,8 @@ CHOICES=( init-file-system \
           ---FASTQ---\
           fastq-summary \
           fastq-sample \
+          ---BATCH---\
+	  batch \
           ---BWA-ALIGN---\
           cp-genome \
           bwa-index-genome \
@@ -128,6 +130,8 @@ CHOICES=( init-file-system \
           transcript-parsernaseq \
           transcript-summary \
           transcript-cufflinks \
+          ---SMALL-RNA---\
+          rna-rnaz \
           ---ETC---\
           bwa-danko-countreadsininterval \
           bwa-danko-metagene \
@@ -139,7 +143,6 @@ CHOICES=( init-file-system \
           ---JOBS--- \
 	  job-truncate-reads \
 	  job-truncate-reads-local \
-	  batch \
           warranty \
           copyright \
           quit )

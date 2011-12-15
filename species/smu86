@@ -1,0 +1,23 @@
+FASTQ040:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans3rd/2775-Richards_Smu86-1_no_CSP_R1.fastq.gz
+FASTQ041:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans3rd/2775-Richards_Smu86-2_no_CSP_R1.fastq.gz
+FASTQ042:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans3rd/2775-Richards_Smu86-1_200_nM_CSP_R1.fastq.gz
+FASTQ043:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans3rd/2775-Richards_Smu86-2_200_nM_CSP_R1.fastq.gz
+
+FASTQFILES:40 41 42 43
+CACWORKDIR:run/rnaseq/111011
+
+REFGENOMEGBK:NA
+REFGENOMEFASTA:data/SMU86.fa
+REFGENOMEGFF:data/SMU86.gff
+REFGENOMEPTT:NA
+REFGENOMELENGTH:NA
+READDEPTH:300000
+READLENGTH:100
+
+FASTQQCNNODE:1
+FASTQQCWALLTIME:24
+BWAALIGNNNODE:4
+BWAALIGNWALLTIME:24
+BWAALIGNNCPU:8
+DENNODE:20
+DEWALLTIME:36

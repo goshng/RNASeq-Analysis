@@ -249,6 +249,7 @@ elsif ($cmd eq "clust")
     }
     $alnNamePrev = $h->{qseqid};
   }
+  $n++;
   push @linenumbersFirstAlignment, $n;
   close $infile;
 
@@ -379,6 +380,7 @@ elsif ($cmd eq "clust")
         }
       }
     }
+
     unlink "$fastaFilename";
     unlink "$fastaFilename.muscle";
 
@@ -418,9 +420,9 @@ elsif ($cmd eq "muscle")
   my $end;
   my $strand;
   opendir (my $dh, $indir) or die "cannot open $indir";
-  while (readdir $dh) 
+  while (my $fileDh = readdir ($dh)) 
   {
-    next if $_ eq "." or $_ eq "..";
+    next if $fileDh eq "." or $fileDh eq "..";
 
     # The first sequence must be from the reference genome.
     my @alignedSequences;
@@ -429,10 +431,10 @@ elsif ($cmd eq "muscle")
     push @alignedSequences, $h;
 
     my $isFirstSequence = 1;
-    $_ =~ /IGR(\d+)-(\d+)\.fa/;
+    $fileDh =~ /IGR(\d+)-(\d+)\.fa/;
     my $qStart = $1;
     my $qEnd = $2;
-    my $f = "$indir/$_";
+    my $f = "$indir/$fileDh";
     open ALN, $f or die "cannot open < $f $!";
     while ($line = <ALN>)
     {

@@ -37,23 +37,22 @@ function transcript-parsernaseq {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
-      REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       REFGENOMEFASTA=$(grep REFGENOMEFASTA $SPECIESFILE | cut -d":" -f2)
       # for g in $(eval echo {1..$NUMFASTQFILE}); do
       for g in $(eval echo {1..1}); do
-        FASTQNUM=FASTQ$(printf "%02d" $g)
+        FASTQNUM=FASTQ$(printf "%03d" $g)
 
         COMMAND1="perl pl/$FUNCNAME.pl pileup \
           -wiggle $BWADIR/$FASTQNUM.wig \
           -out $BWADIR/$FASTQNUM.parsernaseq.pileup"
         COMMAND2="perl pl/$FUNCNAME.pl gene \
-          -feature $DATADIR/feature-genome.out-geneonly \
-          -out $DATADIR/feature-genome.out-parsernaseq"
+          -feature $BWADIR/feature-genome.out-geneonly \
+          -out $BWADIR/feature-genome.out-parsernaseq"
         COMMAND3="ParseRNASeq \
           $BWADIR/$FASTQNUM.parsernaseq.pileup \
           $REFGENOMEFASTA \
-          $DATADIR/feature-genome.out-parsernaseq2 \ 
+          $BWADIR/feature-genome.out-parsernaseq2 \
           $BWADIR/$FASTQNUM.parsernaseq \
           -c 10 -b 25 -force_gp -fmt"
         COMMAND4="perl pl/$FUNCNAME.pl bed \
@@ -63,7 +62,7 @@ function transcript-parsernaseq {
           -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
           -out $BWADIR/$FASTQNUM.bed2"
         COMMAND6="perl pl/$FUNCNAME.pl operon \
-          -feature $DATADIR/feature-genome.out-geneonly \
+          -feature $BWADIR/feature-genome.out-geneonly \
           -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
           -out $BWADIR/$FASTQNUM.operon"
         COMMAND7="perl pl/$FUNCNAME.pl adjust \

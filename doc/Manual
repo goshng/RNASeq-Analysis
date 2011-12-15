@@ -3,6 +3,12 @@ User Manual of RNASEQ Analysis
 Sang Chul Choi <goshng@yahoo.co.kr>
 v1.0, May 2011
 
+init-file-system  
+choose-species
+transcript-parsernaseq
+de-count
+batch
+
 Introduction
 ------------
 A list of RNA-Seq data files are sampled from bacteria. I
@@ -421,4 +427,58 @@ feature-genome.out-intergeniconly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A BED-format file contains intergenic regions of a reference genome.
 
+Softwares
+---------
+
+ncbi-blast
+~~~~~~~~~~
+
+ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ 
+ncbi-blast-2.2.25+-x64-linux.tar.gz
+is used in the cluster.
+
+MUSCLE
+~~~~~~
+
+http://www.drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86linux64.tar.gz
+
+.Create a +build+ directory at the base directory +run/rnaseq/110111+ of a cluster.
+----
+cac:run/rnaseq/110111/build/muscle3.8.31_i86linux64  
+cac:run/rnaseq/110111/build/ncbi-blast-2.2.25+
+cac:run/rnaseq/110111/build/RNAz-2.1
+----
+
+RNAz
+~~~~
+http://www.tbi.univie.ac.at/~wash/RNAz/
+
+----
+wget http://www.tbi.univie.ac.at/~wash/RNAz/RNAz-2.1.tar.gz
+wget http://www.tbi.univie.ac.at/RNA/ViennaRNA-1.8.5.tar.gz
+----
+
+In the CAC:
+----
+mkdir b
+cd b
+../configure --prefix=$HOME/usr 
+----
+
+uniprot90
+---------
+
+wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta
+
+RNAplex
+-------
+http://www.bioinf.uni-leipzig.de/Software/RNAplex/
+
+RNAz
+----
+https://github.com/wash/rnaz
+
+Vienna RNA Package
+------------------
+http://www.tbi.univie.ac.at/~ivo/RNA/RNAplfold.html
 

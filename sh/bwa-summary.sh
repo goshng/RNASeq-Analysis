@@ -45,6 +45,7 @@ function bwa-summary {
       # for g in $(eval echo {1..$NUMFASTQFILE}); do
         FASTQNUM=FASTQ$(printf "%02d" $g)
 
+        # We use pileups instead.
         COMMAND1="$SAMTOOLS view $BWADIR/$FASTQNUM.sorted.bam \
           | perl pl/$FUNCNAME.pl wiggle -genomeLength $REFGENOMELENGTH \
 	  > $BWADIR/$FASTQNUM-sum.wig"

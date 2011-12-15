@@ -11,6 +11,10 @@ SMU109-OMZ175.gff
 -----------------
 Genes annotations of OMZ strain. I received it from Melissa.
 
+SMU86.fa
+--------
+Reference sequences of SMU86. I created it using the Smutans 2bit file.
+
 hgTables.txt
 
 run

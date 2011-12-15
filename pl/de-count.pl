@@ -44,6 +44,7 @@ GetOptions( \%params,
             'man',
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
+            'first',
             'shortread=s',
             'genepos=s',
             'out=s',
@@ -153,7 +154,11 @@ elsif ($cmd eq "join")
 
   my $c = 0;
   open SHORTREAD, $shortread or die "cannot open < $shortread";
-  my $line = <SHORTREAD>;
+  my $line;
+  if (exists $params{first})
+  {
+    $line = <SHORTREAD>;
+  }
   while (<SHORTREAD>)
   {
     chomp;
@@ -176,9 +181,17 @@ elsif ($cmd eq "join")
     for (my $i = 0; $i <= $#genes; $i++)
     {
       my $g = $genes[$i];
-      my $v = $g->{count};
-      #if ($g->{chr} eq $s->{chr})
+
+      # When UA159 is used as a reference genome, there is no need to check if
+      # the chromosome of a short read and that of a gene are the same.
+      # When OMZ175 or SMU86 genome is used as a reference genome, we have to do
+      # this because the genome consists of contigs. Effectively, there are
+      # multiple chromosomes.
+      # We have to change feature-genome.out-geneonly or
+      # feature-genome.pl script.
+      if ($g->{chr} eq $s->{chr}) # Why did I comment this?
       {
+        my $v = $g->{count};
         if ($g->{start} <= $s->{start} and $s->{start} <= $g->{end})
         { 
           $v++; # case 1 or 3
@@ -195,26 +208,21 @@ elsif ($cmd eq "join")
         {
           # die "Impossible case: s-start $s->{start}, s-end $s->{end}, g-start $g->{start}, g-end  $g->{end}"
         }
+        $g->{count} = $v;
       }
-      $g->{count} = $v;
     }
     $c++;
-    #if ($c % 1000000 == 0)
-    if ($c % 10000 == 0)
+    if ($c % 1000000 == 0)
+    #if ($c % 100000 == 0)
     {
       print STDERR "Read $c\r";
-      # print STDERR "The first 5 genes are printed (Read $c)\n";
-      # for (my $i = 0; $i <= 5; $i++)
-      # {
-        # my $g = $genes[$i];
-        # print STDERR "$g->{name}\t$g->{count}\n";
-      # }
     }
   }
   for (my $i = 0; $i <= $#genes; $i++)
   {
     my $g = $genes[$i];
-    print $outfile "$g->{name}\t$g->{count}\n";
+    # print $outfile "$g->{name}\t$g->{count}\n";
+    print $outfile "$g->{count}\n";
   }
 }
 elsif ($cmd eq "strict")

@@ -1,12 +1,29 @@
+FASTQ004:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_3_sequence.fq.gz
+FASTQ005:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_3_sequence.fq.gz
+FASTQ015:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans2nd/2702_OMZ175-1_R1.fastq.gz
+FASTQ016:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans2nd/2703_OMZ175-2_R1.fastq.gz
+FASTQ017:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans2nd/2702_OMZ-HKRR-1_R1.fastq.gz
+FASTQ018:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans2nd/2703_OMZ-HKRR-2_R1.fastq.gz
+
+FASTQFILES: 4 5 15 16 17 18
+CACWORKDIR:run/rnaseq/110811
+
 REFGENOMEGBK:NA
 REFGENOMEFASTA:data/SMU109-OMZ175.fa
 REFGENOMEGFF:data/SMU109-OMZ175.gff
+REFGENOMEPTT:NA
 REFGENOMELENGTH:NA
 READDEPTH:300000
 READLENGTH:100
-NUMFASTQFILE:2
-FASTQ01:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_3_sequence.txt.gz
-FASTQ02:/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_3_sequence.txt.gz
+
 # Strain information of the 12 samples above.
-# 01 - OMZ175
-# 02 - OMZ/HKRR
+# 04 - OMZ175
+# 05 - OMZ/HKRR
+
+FASTQQCNNODE:1
+FASTQQCWALLTIME:24
+BWAALIGNNNODE:6
+BWAALIGNWALLTIME:24
+BWAALIGNNCPU:8
+DENNODE:20
+DEWALLTIME:36

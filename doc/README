@@ -14,6 +14,20 @@ as ccpA and manL mutants?
 . What are ncRNAs and antisense RNAs in S. mutans?
 . What are riboswitches in S. mutans?
 
+
+Files
+-----
+
+.Report on differential expression study based on UA159 genome
+----
+tw1.lyx
+----
+
+.Report on differential expression study based on OMZ genome contigs
+----
+omz.lyx
+----
+
 RNA-seq
 -------
 . Operon mapping: is strand-specific RNA-seq enough? Should I use differential

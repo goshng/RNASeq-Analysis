@@ -166,6 +166,57 @@ if ($cmd eq "wiggle")
     }
   }
 }
+elsif ($cmd eq "contigwiggle")
+{
+  # Test this command with a pileup file:
+  # output/smu86/1/bwa/FASTQ040.pileup
+
+  my %fl = peachFastaLength ($refgenome);
+=cut
+  foreach my $i (keys %fl)
+  {
+    print "$i: $fl{$i}\n";
+  }
+=cut
+  my %maps;
+  foreach my $i (keys %fl)
+  {
+    my $l = $fl{$i};
+    my @map = (0) x ($l + 1);
+    $maps{$i} = [ @map ];
+  }
+
+  my $s = 0;
+  while (<$infile>)
+    {
+      $s++;
+      chomp;
+      my @e = split /\t/;
+      my $chromosome = $e[0];
+      my $pos = $e[1];
+      my $reads = $e[3];
+      $maps{$chromosome}[$pos] = $reads;
+
+      if ($s % 100000 == 0)
+        {
+          print STDERR "Line $s\r";
+        }
+    }
+
+  print $outfile "track type=wiggle_0\n";
+  foreach my $i (keys %fl)
+  {
+    print $outfile "fixedStep chrom=chr1 start=1 step=1 span=1\n";
+    my $l = scalar @{ $maps{$i} };
+    for (my $j = 1; $j < $l; $j++)
+    {
+      print $outfile "$maps{$i}[$j]\n";
+    }
+  }
+}
+
+
+
 
 if (exists $params{in})
 {

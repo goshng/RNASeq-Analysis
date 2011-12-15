@@ -92,6 +92,7 @@ exit
 #################
 
 # Create a FASTA file with bacterial genome sequences.
+# I might not want S. mutans NN2025 to be aligned with S. mutans UA159.
 cat `find $NCBIBACTERIADIR -name *.fna | grep -v NC_013928` > $BASEDIR/bacteria.fa
 
 # Create BLAST DB of the FASTA file.
@@ -157,5 +158,5 @@ perl pl/feature-genome.pl extract -bed $BASEDIR/results.bed.corrected \
 $RNAPLEX -t $TARGETRNA -q $BASEDIR/results.fa -l 25 -a $BASEDIR/profiles > $BASEDIR/target.rnaplex.acc
 perl pl/rnaplex.pl rank -in $BASEDIR/target.rnaplex.acc -out $BASEDIR/target.rnaplex.acc.out
 
-# Find functional categories that enrich for the predicted small RNAs.
+# Find functional categories that enrich for targets of the predicted small RNAs.
 

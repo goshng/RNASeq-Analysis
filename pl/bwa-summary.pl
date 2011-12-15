@@ -44,6 +44,7 @@ GetOptions( \%params,
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
             'gff=s',
+            'rrna=s',
             'mapq=i',
             'genomeLength=i',
             'reads=s',
@@ -115,6 +116,14 @@ if ($cmd eq "wiggle" or $cmd eq "genemark")
 if ($cmd eq "filterfastq")
 {
   unless (exists $params{reads})
+  {
+    &printError("reads is missing");
+  }
+}
+
+if ($cmd eq "rrnaToTex")
+{
+  unless (exists $params{rrna})
   {
     &printError("reads is missing");
   }
@@ -491,6 +500,21 @@ elsif ($cmd eq "rrna")
   print $outfile "The sum of the 5 groups is $sumRead\n";
   print $outfile "The total number of reads is $counts{total}\n";
 }
+elsif ($cmd eq "rrnaToTex")
+{
+  open RRNA, $params{rrna} or die "cannot open $params{rrna} $!";
+  my $l = <RRNA>; $l =~ /(\d+)/; my $unmapped = $1;
+  $l = <RRNA>; $l =~ /(\d+)/; my $uniquelyMapped = $1;
+  $l = <RRNA>; $l =~ /(\d+)/; my $multiplyMapped = $1;
+  $l = <RRNA>; $l =~ /(\d+)/; my $rrnaUniquelyMapped = $1;
+  $l = <RRNA>; $l =~ /(\d+)/; my $rrnaMultiplyMapped = $1;
+  $l = <RRNA>; $l =~ /is\s+(\d+)/; my $total = $1;
+  my $percentUniquelyMapped = int($uniquelyMapped / $total * 100); 
+  close RRNA;
+  # print $outfile "& $unmapped & $uniquelyMapped & $multiplyMapped & $rrnaUniquelyMapped & $rrnaMultiplyMapped & $total\\\\\n";
+  print $outfile "$unmapped\t$uniquelyMapped ($percentUniquelyMapped)\t$multiplyMapped\t$rrnaUniquelyMapped\t$rrnaMultiplyMapped\t$total\n";
+ 
+}
 elsif ($cmd eq "unmapped")
 {
   my $s = 0;
@@ -600,6 +624,8 @@ bwa-sam 1.0
 perl bwa-sam.pl [command] [-in file] [-out file]
 
 samtools view fastq.bam | perl pl/bwa-sam.pl rrna -gff a.gff > sum.rrna
+
+perl pl/bwa-summary.pl rrnaToTex -rrna sum.rrna
 
 samtools view fastq.bam | perl pl/bwa-sam.pl wiggle -genomeLength 2030921 > sum.wig
 

@@ -62,14 +62,17 @@ function de-count {
       echo -n "Do you wish to merge de files? (e.g., y/n) "
       read WISH
       if [ "$WISH" == "y" ]; then
+        FASTQFILES=$(grep ^FASTQFILES\: $SPECIESFILE | cut -d":" -f2)
         # Create a gene count data file
         COUNTFILE=$BWADIR/count.txt
         COLNAME="0"
         printf "gene" > x
-        cut -f1 $BWADIR/FASTQ01.de > 0
-        # for g in $(eval echo {1..$NUMFASTQFILE}); do
-        for g in 1 3 7 9 11 15 16 17 18; do
-          FASTQNUM=FASTQ$(printf "%02d" $g)
+
+        FASTQFILESARRAY=( $FASTQFILES )
+        FASTQNUM=FASTQ$(printf "%03d" ${FASTQFILESARRAY[0]})
+        cut -f1 $BWADIR/$FASTQNUM.de > 0
+        for g in $FASTQFILES; do
+          FASTQNUM=FASTQ$(printf "%03d" $g)
           cut -f2 $BWADIR/$FASTQNUM.de > $g
           COLNAME="$COLNAME $g"
           printf "\t$g" >> x

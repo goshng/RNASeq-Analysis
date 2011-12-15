@@ -41,7 +41,8 @@ get.significant <- function(results, p.val) {
   format.data.frame(temp[order(temp[,p.val]),], digits=4)
 }
 
-x <- read.table("test/RNAz/target.rnaplex.acc.out", header=TRUE)
+# x <- read.table("test/RNAz/target.rnaplex.acc.out", header=TRUE)
+x <- read.table("output/cornell/1/bwa/rnaz/target.rnaplex.acc.out", header=TRUE)
 mw <- c()
 for (i in 2:length(x))
 {
