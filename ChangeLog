@@ -37,6 +37,27 @@ Histories
 ---------
 This history can be useful later.
 
+Fri Dec 16 17:31:11 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I want to test edgeR.
+Where can I find count data for the S. mutans?
+----
+output/cornell/1/bwa/FASTQ035.de
+----
+Using UA159 as a reference genome we have count data for each of RNA Sample. A
+target file is created.
+----
+test/edgeR/Targets.txt
+----
+29,30,31 (835NP) vs 32,33,34 (835P)
+
+What does the pseudocount do for us?
+What is TMM?
+What is common dispersion? What does it for us?
+What is conditional maximum likelihood method?
+What is quantile-to-quantile method?
+
+
 Thu Dec 15 13:20:52 EST 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am trying to test goseq with deseq. I need to find associations of genes
@@ -62,6 +83,16 @@ I need to find category associations of genes. The following file contains genes
 and their associations with gene ontologies.
 ----
 test/RNAz/smutans.gene2go
+----
+I conclude that length bias correction does something for finding associated gene
+ontologies.
+
+A guide from Matthew Young:
+----
+http://bioinf.wehi.edu.au/bioinfosummer2010/materials/RNAseq_Mapping_Tutorial.pdf
+http://precedings.nature.com/documents/4437/version/1/files/npre20104437-1.pdf
+http://arxiv.org/pdf/1104.3889
+http://www.docin.com/p-122481994.html
 ----
 
 Thu Nov 17 10:34:39 EST 2011

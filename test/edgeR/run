@@ -1,0 +1,4 @@
+BASE=/Users/goshng/Documents/Projects/RNASeq-Analysis/
+cp ../../output/cornell/1/bwa/*.de .
+
+
