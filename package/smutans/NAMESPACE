@@ -4,6 +4,7 @@ exportClasses( "Smutans" )
 
 exportMethods(
   smutans.counts, "smutans.counts<-",
+  smutans.title, "smutans.title<-",
   smutans.de2type,
   smutans.de2WithoutType,
   smutans.de2,
@@ -17,5 +18,6 @@ exportMethods(
 )
 
 export( 
-   newSmutans
+   newSmutans,
+   smutans.compareResult
 )

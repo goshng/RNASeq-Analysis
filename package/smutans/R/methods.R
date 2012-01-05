@@ -1,3 +1,20 @@
+setGeneric("smutans.title", function(object) standardGeneric("smutans.title"))
+setMethod("smutans.title",
+          "Smutans",
+  function( object ) {
+    object@title
+  }
+)
+
+setGeneric("smutans.title<-", function(object,value) standardGeneric("smutans.title<-"))
+setReplaceMethod("smutans.title", 
+                 "Smutans",
+  function( object, value ) {
+    object@title <- value
+    object
+  }
+)
+
 setGeneric("smutans.counts", function(object) standardGeneric("smutans.counts"))
 setMethod("smutans.counts",
           "Smutans",
@@ -11,23 +28,6 @@ setReplaceMethod("smutans.counts",
                  "Smutans",
   function( object, value ) {
     object@counts <- value
-    object
-  }
-)
-
-setGeneric("smutans.de2type", function(object,...) standardGeneric("smutans.de2type"))
-setMethod("smutans.de2type", 
-          "Smutans", 
-  function(object, type, condA, condB) {
-    ua159Samples <- pData(object@countDataSet)$type == type
-    countsTable <- counts(object@countDataSet)[ , ua159Samples ]
-    conds <- pData(object@countDataSet)$condition[ ua159Samples ]
-    cds <- newCountDataSet( countsTable, conds )
-    cds <- estimateSizeFactors( cds )
-    object@cds <- estimateDispersions( cds )
-    object@res <- nbinomTest( object@cds, condA, condB )
-    object@pval <- object@res$pval
-    object@padj <- object@res$padj
     object
   }
 )
@@ -82,19 +82,66 @@ setMethod("smutans.plotDiffExp",
   }
 )
 
-setGeneric("smutans.de2", function(object) standardGeneric("smutans.de2"))
+setGeneric("smutans.de2type", function(object,...) standardGeneric("smutans.de2type"))
+setMethod("smutans.de2type", 
+          "Smutans", 
+  function(object, type="", condition="", condA, condB) {
+    ua159Samples <- pData(object@countDataSet)$type == type
+    countsTable <- counts(object@countDataSet)[ , ua159Samples ]
+    conds <- pData(object@countDataSet)$condition[ ua159Samples ]
+    cds <- newCountDataSet( countsTable, conds )
+    cds <- estimateSizeFactors( cds )
+    object@cds <- estimateDispersions( cds )
+    object@res <- nbinomTest( object@cds, condA, condB )
+    object@pval <- object@res$pval
+    object@padj <- object@res$padj
+  
+    object
+  }
+)
+
+setGeneric("smutans.de2", function(object,...) standardGeneric("smutans.de2"))
 setMethod("smutans.de2", 
           "Smutans", 
-  function(object) {
-    design <- pData( object@countDataSet )[,c("type","condition")]
-    fullCountsTable <- counts( object@countDataSet )
-    cdsFull <- newCountDataSet( fullCountsTable, design )
-    cdsFull <- estimateSizeFactors( cdsFull )
-    object@cds <- estimateDispersions( cdsFull )
-    fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
-    fit0 <- fitNbinomGLMs( object@cds, count ~ type  )
-    object@pval <- nbinomGLMTest( fit1, fit0 )
-    object@padj <- p.adjust( object@pval, method="BH" )
+  function(object, compareCondition="yes", type="", condition="", condA="", condB="") {
+    if (type=="" && condition=="") {
+      design <- pData( object@countDataSet )[,c("type","condition")]
+      fullCountsTable <- counts( object@countDataSet )
+      cdsFull <- newCountDataSet( fullCountsTable, design )
+      cdsFull <- estimateSizeFactors( cdsFull )
+      object@cds <- estimateDispersions( cdsFull )
+      if (compareCondition == "yes") {
+        fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
+        fit0 <- fitNbinomGLMs( object@cds, count ~ type  )
+      } else {
+        fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
+        fit0 <- fitNbinomGLMs( object@cds, count ~ condition )
+      }
+      object@pval <- nbinomGLMTest( fit1, fit0 )
+      object@padj <- p.adjust( object@pval, method="BH" )
+    } else if (type!="" && condition=="") {
+      ua159Samples <- pData(object@countDataSet)$type == type
+      countsTable <- counts(object@countDataSet)[ , ua159Samples ]
+      conds <- pData(object@countDataSet)$condition[ ua159Samples ]
+
+      cds <- newCountDataSet( countsTable, conds )
+      cds <- estimateSizeFactors( cds )
+      object@cds <- estimateDispersions( cds )
+      object@res <- nbinomTest( object@cds, condA, condB )
+      object@pval <- object@res$pval
+      object@padj <- object@res$padj
+    } else if (type=="" && condition!="") {
+      ua159Samples <- pData(object@countDataSet)$condition == condition
+      countsTable <- counts(object@countDataSet)[ , ua159Samples ]
+      conds <- pData(object@countDataSet)$type[ ua159Samples ]
+
+      cds <- newCountDataSet( countsTable, conds )
+      cds <- estimateSizeFactors( cds )
+      object@cds <- estimateDispersions( cds )
+      object@res <- nbinomTest( object@cds, condA, condB )
+      object@pval <- object@res$pval
+      object@padj <- object@res$padj
+    }
     object
   }
 )
@@ -157,7 +204,9 @@ setMethod("smutans.de2TypeLfc",
       oldpar <- par (mar=c(4.5, 4.5, 0.5, 0.5))
     }
     # plot( lfc, mod_lfc, pch=20, cex=.3, col = ifelse( finite, "#80808040", "red" ) )
-    plot( lfc, mod_lfc, pch=20, cex=.3, col = ifelse( finite, "black", "red" ) )
+    plot( lfc, mod_lfc, 
+          xlab="Log fold changes", ylab="Moderated log fold changes", 
+          pch=20, cex=.3, col = ifelse( finite, "black", "red" ) )
     abline( a=0, b=1, col="#40404040" )
     if (file != "default")
     {
