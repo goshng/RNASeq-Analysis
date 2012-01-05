@@ -45,6 +45,7 @@ GetOptions( \%params,
             'verbose',
             'version' => sub { print $VERSION."\n"; exit; },
             'first',
+            'singlegenome',
             'shortread=s',
             'genepos=s',
             'out=s',
@@ -189,7 +190,7 @@ elsif ($cmd eq "join")
       # multiple chromosomes.
       # We have to change feature-genome.out-geneonly or
       # feature-genome.pl script.
-      if ($g->{chr} eq $s->{chr}) # Why did I comment this?
+      if (exists $params{singlegenome} || $g->{chr} eq $s->{chr}) # Why did I comment this?
       {
         my $v = $g->{count};
         if ($g->{start} <= $s->{start} and $s->{start} <= $g->{end})

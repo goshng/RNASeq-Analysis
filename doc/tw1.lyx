@@ -49,6 +49,90 @@ RNASeq data sets and differential expression
 deseq cutadapt
 \end_layout
 
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+UA159, TW1, glucose, and galactose.
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Standard
+What are the main findings?
+\end_layout
+
+\begin_layout Section
+Materials and Methods
+\end_layout
+
+\begin_layout Subsection
+Streptococcus mutans
+\end_layout
+
+\begin_layout Standard
+What are the samples? How do we grow them? In what conditions did the bacteria
+ grow? Do we know any sample number?
+\end_layout
+
+\begin_layout Subsection
+Library construction and Illumina sequencing
+\end_layout
+
+\begin_layout Standard
+13 samples - with two factors (UA159 vs.
+ TW1, and Glucose vs.
+ Galactose)
+\end_layout
+
+\begin_layout Subsection
+Transcript constructions
+\end_layout
+
+\begin_layout Standard
+Each library is used to construct transcript maps.
+\end_layout
+
+\begin_layout Subsection
+Differential expressed genes and qRT-PCR
+\end_layout
+
+\begin_layout Standard
+Differentially expressed genes are determined and qRT-PCR validation are
+ followed.
+\end_layout
+
+\begin_layout Subsection
+Functional categories of differentially expressed genes
+\end_layout
+
+\begin_layout Standard
+Differentially expressed genes are associated with functional categories.
+\end_layout
+
+\begin_layout Section
+Discussion
+\end_layout
+
+\begin_layout Standard
+What are the main findins? What are the implications of those?
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Section
+Tables
+\end_layout
+
+\begin_layout Section
+Figures
+\end_layout
+
 \begin_layout Standard
 \begin_inset Newpage clearpage
 \end_inset

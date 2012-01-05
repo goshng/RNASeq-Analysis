@@ -1,0 +1,333 @@
+%\VignetteIndexEntry{Analyzing Streptococcus mutans RNA-Seq data}
+%\VignettePackage{smutans}
+
+% To compile this document
+% library('weaver'); rm(list=ls()); Sweave('smutans.Rnw', driver=weaver()); system('pdflatex smutans')
+
+\documentclass{article}
+
+\usepackage{Sweave}
+\usepackage[letterpaper]{geometry}
+\usepackage{hyperref,graphicx}
+\usepackage{color}
+
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5}
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rclass}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}
+\newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
+
+\renewcommand{\floatpagefraction}{0.7}
+
+\author{Sang Chul Choi\\[1em]Cornell University,\\ Ithaca, NY\\[1em]
+\texttt{schoi@cornell.edu}}
+
+\title{\textsf{\textbf{Analysing \textit{Streptococcus mutans} RNA-Seq data using R packages}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+A number of RNA samples from \textit{Streptococcus mutans} are analyzed using R
+packages: \Rpackage{DESeq}, \Rpackage{edgeR}, \Rpackage{goseq}, and \Rpackage{baySeq}.
+Tasks include the analysis of count data from RNA-Seq for the detection of
+differentially expressed genes.
+Tests of enrichment for differentially expressed genes are performed using
+\Rpackage{goseq}.
+The package \Rpackage{smutans} contains the procedures.
+This vignette explains the use of the package. 
+\end{abstract}
+
+\tableofcontents
+
+%--------------------------------------------------
+\section{Input data and preparations} \label{sec:prep}
+%--------------------------------------------------
+
+The \Rpackage{smutans} package expects count data in
+the form of \Rclass{CountDataSet}. 
+
+
+To obtain such a count table for your own data, you will need
+to create it from your sequence alignments and suitable annotation. Within Bioconductor,
+you can use the function \Rfunction{summerizeOverlaps} in the
+\Rpackage{GenomicRanges} package. See the vignette, Ref.\ \cite{summerizeOverlaps},
+for a worked example. Another possibility (outside of Bioconductor)
+is the \emph{htseq-count} script distributed with the HTSeq Python framework
+\cite{htseq}. (You do not need to know any Python to use
+\texttt{htseq-count}.) A third possibility might be given by the Bioconductor
+package \Rpackage{easyrnaseq} (by Nicolas Delhomme; in preparation, available
+soon; package name may change).
+
+Another easy way to produce such a table from the output
+  of the aligner is to use the \texttt{htseq-count} script distributed
+  with the \emph{HTSeq} package. Even though \emph{HTSeq} is a Python
+  package, you do not need to know any Python to use
+  \texttt{htseq-count}. See
+  \url{http://www-huber.embl.de/users/anders/HTSeq/doc/count.html}. (If you use
+htseq-count, be sure to remove the extra lines with general counters (``ambiguous'' etc.)
+when importing the data.)
+
+The count values must be raw counts of
+sequencing reads. This is important for \Rpackage{smutans}'s statistical model to hold,
+as only raw reads allow to assess the measurement precision correctly. (Hence,
+do not supply rounded values of normalized counts, or counts of covered base pairs.)
+
+Furthermore, it is important that each column stems from an independent biological
+replicate.  For purely technical replicates (e.\,g. when the same
+library preparation was distributed over multiple lanes of the
+sequencer in order to increase coverage), please sum up their counts
+to get a single column, corresponding to a unique biological
+replicate.  This is needed in order to allow \Rpackage{DESEq} to
+estimate variability in the experiment correctly.
+
+As an example dataset, we use the gene level read counts from the
+\Rpackage{pasilla} data package. This dataset is from an experiment on
+\emph{Drosophila melanogaster} cell cultures and
+investigated the effect of RNAi knock-down of the splicing factor
+\emph{pasilla}~\cite{Brooks2010}. The data are presented in the object
+called \Robject{pasillaGenes}. For a description how this data object
+was created from the raw data of Ref.~\cite{Brooks2010}, see the vingette
+included with the \Rpackage{pasilla} package.
+
+The \Robject{pasillaGenes} object is of class
+\Rclass{CountDataSet}, which is the data container used by
+\Rpackage{smutans}. We load the needed packages and the data as
+follows.
+
+<<options,results=hide,echo=FALSE>>=
+options(digits=3)
+@
+
+There are 13 RNA-seq samples in \Robject{smutansGenes} that can be loaded
+from the package.
+<<smutans2,results=hide>>=
+library( "smutans" )
+data( "smutansGenes" )
+@
+
+\Robject{smutansGenes} contains the counts and also metadata about the samples:
+
+<<look_into_smutansGenes>>=
+head( counts(smutansGenes) )
+pData( smutansGenes )
+@
+
+As you can see, the samples differ by experimental condition (glucose or
+galactose) and by library type (ua159 or tw1). First, we only
+look at the ua159 data for now. We will look at the tw1 data later. 
+
+We create an \Rclass{Smutans} object using \Rclass{CountDataSet} object,
+smutansGenes.
+<<ua159onlySamples>>=
+ua159only <- newSmutans( smutansGenes )
+ua159only <- smutans.de2type( ua159only, type="ua159", 
+                              condA="glucose", condB="galactose" )
+@
+
+\Rfunction{smutans.de2type} uses a two-factor data set to test differential
+expression of genes.
+Note that the \Rclass{Smutans} contains \Rclass{CountDataSet} objects. 
+\Rfunction{smutans.de2type} estimates the effective library size, and the
+dispersions. Then, it tests for differential expression.
+
+Because it is recommended to check
+the dispersion estimates and to make sure that the data quality is as
+expected, we plot the per-gene estimates against the normalized mean
+expressions per gene, and then overlay the fitted curve in red. 
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figFit}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength.}
+\label{figFit}
+\end{figure}
+
+%Calling the function produces the plot (Fig.\ \ref{figFit}).
+
+<<figFit,fig=TRUE>>=
+smutans.plotDispersionEstimates(ua159only)
+@
+
+The plot in Figure~\ref{figFit} is doubly logarithmic; this may be
+helpful or misleading, and it is worth experimenting with other
+plotting styles.
+
+As we estimated the
+dispersion from only two samples, we should expect the estimates to
+scatter with quite some sampling variance around their true values.
+Hence, we \Rpackage{smutans} should not use the per-gene estimates directly in the test,
+because using too low dispersion values leads to false positives.
+Many of the values below the red line are likely to be underestimates of the
+true dispersions, and hence, it is prudent to instead rather use the fitted value.
+On the othe hand, not all of he values above the red line are overestimations, and
+hence, the conservative choice is to keep them instead of replacing them with
+their fitted values. If you do not like this default behaviour, you can change it
+with the option \texttt{sharingMode} of \Rfunction{estimateDispersions}. Note that
+
+In any case, the dispersion values which finally should be used by the subsequent testing are stored in
+the feature data slot of \texttt{cds}:
+
+%------------------------------------------------------------
+\section{Inference: Calling differential expression} \label{sec:DE}
+%------------------------------------------------------------
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figDE}
+\caption{Plot of normalised mean versus $log_2$ fold change
+(this plot is sometimes also called the ``MA-plot'') for the contrast ``untreated''
+versus ``treated''.}
+\label{figDE}
+\end{figure}
+
+\subsection{Standard comparison between two experimental conditions}
+
+Having estimated the dispersion for each gene, it is now straight-forward to look for
+differentially expressed genes. To contrast two conditions, e.g., to see whether there is differential
+expression between conditions ``untreated'' and ``treated'', we simply call the function \Rfunction{nbinomTest}.
+It performs the tests as described in the paper and returns a data frame with the $p$ values and other
+useful information.
+
+For each gene, we get its mean expression level (at the base scale) as a joint estimate from both conditions, and
+estimated separately for each  condition, the fold change from
+the first to the second condition, the logarithm (to basis 2) of the fold change, and the
+$p$ value for the statistical significance of this change. The \texttt{padj} column contains the
+$p$ values, adjusted for multiple testing with the Benjamini-Hochberg procedure (see the R function
+\Rfunction{p.adjust}), which controls false discovery
+rate (FDR).
+
+Let us first plot the $\log_2$ fold changes against the base means, colouring in red those genes
+that are significant at 10\% FDR.
+<<figDE,fig=TRUE>>=
+smutans.plotDiffExp(ua159only)
+@ %$
+See Figure~\ref{figDE} for the plot. As we will use this plot more often, we have
+stored its code in a function.
+
+%------------------------------------------------------------
+\section{Inference: Calling differential expression} \label{sec:DE}
+%------------------------------------------------------------
+
+<<allSamples>>=
+allSample <- newSmutans( smutansGenes )
+allSample <- smutans.de2( allSample )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figFit2}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength.}
+\label{figFit}
+\end{figure}
+
+Calling the function produces the plot (Fig.\ \ref{figFit2}).
+
+<<figFit2,fig=TRUE>>=
+smutans.plotDispersionEstimates(allSample)
+@
+
+<<compareUA159onlyAndAllSample>>=
+padj.ua159only <- smutans.padj( ua159only )
+padj.allSample <- smutans.padj( allSample )
+tab = table( "ua159 only" = padj.ua159only < .1, "all samples" = padj.allSample < .1 )
+addmargins( tab )
+@
+Of the \Sexpr{sum(tab)} gene, \Sexpr{tab[2,2]} genes are found in both analyses. The analysis using all
+of the sample found \Sexpr{tab[1,2]} genes. The analysis using only ua159 found \Sexpr{tab[2,1]} genes. 
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figCompareUA159onlyAndAllSample}
+\caption{Comparison of $p$ values (unadjusted) from the test using only the
+four paired-end samples and the test using all seven samples. We can see that
+the latter tend to be smaller, as expected from the higher power of the test with all samples.}
+\label{figCompareUA159onlyAndAllSample}
+\end{figure}
+
+<<figCompareUA159onlyAndAllSample,fig=TRUE>>=
+pval.ua159only <- smutans.pval( ua159only )
+pval.allSample <- smutans.pval( allSample )
+bottom = function(x, theta=1e-12) pmax(x, theta)
+plot( bottom(pval.ua159only), bottom(pval.allSample), log="xy", pch=20, cex=.3 )
+abline(a=0, b=1, col="blue")
+@
+
+<<allSampleWithoutType>>=
+allSampleWithoutType <- newSmutans( smutansGenes )
+allSampleWithoutType <- smutans.de2WithoutType( allSampleWithoutType,
+                                                condA="glucose", 
+                                                condB="galactose" )
+@
+
+<<compareUA159onlyAndAllSample>>=
+padj.allSampleWithoutType <- smutans.padj( allSampleWithoutType )
+tab2 <- table(
+   `all samples simple` = padj.allSampleWithoutType < 0.1,
+   `all samples GLM`    = padj.allSample < 0.1 )
+addmargins( tab2 )
+largeNumber <- 10
+@
+Of the \Sexpr{sum(tab2)} gene, \Sexpr{tab2[2,2]} genes are found in both analyses. The analysis using all
+of the sample found \Sexpr{tab2[1,2]} genes. The analysis using all of the same
+sample but without considering type found \Sexpr{tab2[2,1]} genes. 
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figLfc}
+\caption{Scatterplot of direct (\Robject{lfc}) versus \emph{moderated} log-ratios (\Robject{mod\_lfc}).
+  The moderation criterion used is variance stabilisation.
+  The red points correspond to values that were infinite in \Robject{lfc}
+  and were abitrarily set to $\pm\Sexpr{largeNumber}$ for the purpose of plotting.
+  These values vary in a finite range (as shown in the plot) in \Robject{mod\_lfc}.}
+\label{figLfc}
+\end{figure}
+
+<<figLfc,fig=TRUE>>=
+select <- 1:40
+smutans.de2TypeLfc( ua159only, condA="glucose", condB="galactose" )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figHeatmap1}
+\caption{Heatmaps showing the expression data of the top \Sexpr{length(select)}
+  differentially expressed genes. Left, the variance stabilisation
+  transformed data,
+  right, the original count data.
+  The right plot is dominated by a small number of data points with large values.}
+\label{figHeatmap1}
+\end{figure}
+
+<<figHeatmap1,fig=TRUE>>=
+smutans.de2TypeHeatmap( ua159only )
+@
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figClust}
+\caption{Heatmap showing the Euclidean distances between the samples
+  as calculated from the variance-stabilising transformation of the
+  count data.}
+\label{figClust}
+\end{figure}
+
+<<figClust,fig=TRUE>>=
+smutans.de2Clust( allSample )
+@
+
+\section{Session Info}
+<<sessi>>=
+sessionInfo()
+@
+
+\bibliographystyle{unsrt}
+\bibliography{smutans}
+
+\end{document}

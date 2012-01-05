@@ -1,0 +1,7 @@
+files group description
+FASTQ029.de NP NP
+FASTQ030.de NP NP
+FASTQ031.de NP NP
+FASTQ032.de P P
+FASTQ033.de P P
+FASTQ034.de P P

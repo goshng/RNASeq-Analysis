@@ -811,8 +811,8 @@ abline( v = 7000 / (7000+4000) * 10000 )
 
 ###################################################################
 # From the manual
-#library( "DESeq" )
-#library( "pasilla" )
-#data( "pasillaGenes" )
+library( "DESeq" )
+library( "pasilla" )
+data( "pasillaGenes" )
 
 

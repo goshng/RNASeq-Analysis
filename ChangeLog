@@ -6,6 +6,7 @@ To Do
 -----
 .Immediate term
 . Add the gene ontology analysis
+. Mult-factor analysis
 .Some of the old things to do 
 . Implement "contigwiggle" of samtools-pileup.pl
 . Predict transcripts using RNA-Seq and annotated genes
@@ -36,6 +37,90 @@ Write a short report on the RNA-Seq data. (done)
 Histories
 ---------
 This history can be useful later.
+
+Thu Jan  5 09:52:35 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.vims
+----
+~/.vim/session/package-smutans
+----
+
+Wed Jan  4 15:59:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Example of Sweave
+----
+test/Sweave_MCQ
+----
+
+Tue Jan  3 12:12:06 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.
+----
+R/deseq-cornell-ua159-tw1.R
+Rscript R/deseq-cornell-ua159-tw1.R count.txt qvalue
+----
+
+.Build and install smutans package.
+----
+cd package
+R CMD build --resave-data smutans
+R CMD install smutans_0.1.0.tar.gz
+> library(smutans)
+> data(smutansGenes)
+> head(counts(smutansGenes))
+----
+
+.Sweave sample code
+----
+test/Sweave_MCQ
+----
+
+A class is implemented. I do not subclass CountDataSet but use it.
+
+Mon Jan  2 15:30:43 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are several things that I have to do about RNA-seq of the S. mutans. 
+I use deseq-1-6-1.pdf to use DESeq.
+
+Fri Dec 23 09:46:46 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some R analysis with 
+
+Tue Dec 20 09:44:17 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's use multi-factor analysis.
+----
+test/edgeR/run.R
+----
+u for glucose, and a for galactose
+w for UA159, and m for TW1
+sugar <- factor(c(u,u,a,u,u,a,a,a,u,u,a,a,a))
+mutant <- factor(c(w,m,m,w,w,w,w,w,m,m,m,m,w))
+1
+2
+3
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+# UA159-TW1 Glu Comparison : 1,19,20     vs. 2,24,25
+# UA159-TW1 Gal Comparison : 21,22,23,28 vs. 3,26,27
+# TW1-Glu/Gal Comparison   : 2,24,25     vs. 3,26,27
+# UA159-Glu/Gal Comparison : 1,19,20     vs. 21,22,23,28
+
+NBPSeq is another method based on NB distribution.
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("qvalue")
+install.packages("NBPSeq")
+----
 
 Fri Dec 16 17:31:11 EST 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -522,6 +607,11 @@ profile was consistent between biological replicates.
 Fri Aug  5 18:03:02 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am starting to code the differential expression level study.
+
+.MacPort Package for removing inconsolata.sty error
+----
+sudo port install texlive-fonts-extra
+----
 
 Thu Aug  4 18:01:26 EDT 2011
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

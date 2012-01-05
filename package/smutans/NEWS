@@ -1,0 +1,9 @@
+version 0.1.1: (2012-01-04)
+
+- UA159 Glucose and Galactose
+
+version 0.1.0: (2012-01-03)
+
+- Data set for UA159, TW1, Glucose, and Galactose
+
+- Analysis of DE using DESeq

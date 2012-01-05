@@ -1,0 +1,21 @@
+import( DESeq )
+
+exportClasses( "Smutans" )
+
+exportMethods(
+  smutans.counts, "smutans.counts<-",
+  smutans.de2type,
+  smutans.de2WithoutType,
+  smutans.de2,
+  smutans.plotDispersionEstimates, 
+  smutans.plotDiffExp,
+  smutans.pval,
+  smutans.padj,
+  smutans.de2TypeLfc,
+  smutans.de2TypeHeatmap,
+  smutans.de2Clust
+)
+
+export( 
+   newSmutans
+)
