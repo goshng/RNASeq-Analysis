@@ -221,18 +221,21 @@ setGeneric("smutans.de2TypeHeatmap",
 )
 setMethod("smutans.de2TypeHeatmap", 
           "Smutans", 
-  function(object, file="default") {
+  function(object, file="default", nselect=40) {
     cdsBlind <- estimateDispersions( object@cds, method="blind" )
     vsd <- getVarianceStabilizedData( cdsBlind )
-    select <- order(object@res$pval)[1:40]
-    colors <- colorRampPalette(c("white","darkblue"))(100)
+    select <- order(object@res$pval)[1:nselect]
+    colors <- colorRampPalette(c("white","black"))(100)
+    # colors <- colorRampPalette(brewer.pal(9,"Blues"))(100)
 
     if (file != "default")
     {
       postscript(file, width=6, height=6, horizontal = FALSE, onefile = FALSE, paper = "special")
       oldpar <- par (mar=c(4.5, 4.5, 0.5, 0.5))
     }
-    heatmap( vsd[select,], col = colors, scale = "none")
+    # heatmap( vsd[select,], col = colors, scale = "none")
+    heatmap.2( vsd[select,], col = colors, scale = "none", trace="none",
+               density.info="none" ) 
     if (file != "default")
     {
       par(oldpar)
@@ -246,7 +249,7 @@ setGeneric("smutans.de2Clust",
 )
 setMethod("smutans.de2Clust", 
           "Smutans", 
-  function(object, file="default") {
+  function(object, file="default", margins=c(5,5)) {
     if (file != "default")
     {
       postscript(file, width=6, height=6, horizontal = FALSE, onefile = FALSE, paper = "special")
@@ -255,10 +258,15 @@ setMethod("smutans.de2Clust",
     cdsFullBlind <- estimateDispersions( object@cds, method = "blind" )
     vsdFull <- getVarianceStabilizedData( cdsFullBlind )
     dists <- dist( t( vsdFull ) )
-    heatmap( as.matrix( dists ),
-       symm=TRUE, scale="none", margins=c(10,10),
-       col = colorRampPalette(c("darkblue","white"))(100),
-       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type ) )
+    heatmap.2( as.matrix( dists ), Colv=TRUE,
+       symm=TRUE, scale="none", margins=margins,
+       col = colorRampPalette(c("black","white"))(100),
+       trace="none", density.info="none",
+       # col = colorRampPalette(c("darkblue","white"))(100),
+       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+       labCol = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+       dendrogram = "both", keysize = 1.2
+       )
     if (file != "default")
     {
       par(oldpar)
@@ -266,3 +274,56 @@ setMethod("smutans.de2Clust",
     }
   }
 )
+
+setGeneric("smutans.de2List", 
+  function(object,...) standardGeneric("smutans.de2List")
+)
+setMethod("smutans.de2List", 
+          "Smutans", 
+  function(object, file="default") {
+    write.csv(object@res, file=file)
+  }
+)
+
+setGeneric("smutans.de2Genes", 
+  function(object,...) standardGeneric("smutans.de2Genes")
+)
+setMethod("smutans.de2Genes", 
+          "Smutans", 
+  function(object, qval=0.05) {
+    # resSig <- object@res[object@padj < qval,]
+    # resSig$id
+    rownames(counts(object@cds))[object@padj < qval]
+  }
+)
+
+setGeneric("smutans.de2Goseq", 
+  function(object,...) standardGeneric("smutans.de2Goseq")
+)
+setMethod("smutans.de2Goseq", 
+          "Smutans", 
+  function(object, qval=0.05, feature.genes, go.genes, cat.desc) {
+    length.genes = feature.genes$V3 - feature.genes$V2
+    assayed.genes = feature.genes$V4
+
+    de.genes <- smutans.de2Genes ( object, qval=qval )
+    gene.vector = as.integer(assayed.genes %in% de.genes)
+    names(gene.vector) = assayed.genes
+
+    rm(feature.genes)
+    pwf = nullp( gene.vector, bias.data=length.genes, plot.fit=FALSE )
+
+    # go.hypergeometric = goseq(pwf,gene2cat=go.genes,method="Hypergeometric") # No length bias correction
+    go = goseq(pwf,gene2cat=go.genes,method="Wallenius") # Length bias correction - Approximation
+    # go.sample = goseq(pwf,gene2cat=go.genes,method="Sampling",repcnt=10000) # Length bias correction - Sampling
+    go.fdr = go[p.adjust(go$over_represented_pvalue,method="BH")<.05,]
+
+    for (i in go.fdr$category)
+    {
+      cat(as.character(cat.desc$V3[cat.desc$V1==i]),"\n")
+    }
+  }
+)
+
+
+

@@ -1,20 +1,105 @@
+sm835result <- function () {
+  library(smutans)
+  data( "sm835Genes" )
+  data( "smutans.feature.genes" )
+  data( "smutans.go.genes" )
+  data( "smutans.cat.desc" )
+  npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
+  npAndP <- smutans.de2( npAndP, type="ua159", 
+                         condA="835np", condB="835p" )
+  npAndUA159 <- newSmutans( sm835Genes, title="835NP vs. UA159" )
+  npAndUA159 <- smutans.de2( npAndUA159, type="ua159", 
+                             condA="835np", condB="ua159nocsp" )
+  pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
+  pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
+                            condA="835p", condB="ua159nocsp" )
+  smutans.de2List( npAndP, "npAndP.csv" )
+  smutans.de2List( npAndUA159, "npAndUA159.csv" )
+  smutans.de2List( pAndUA159, "pAndUA159.csv" )
+  smutans.de2Clust( npAndP )
+  # smutans.de2Clust( npAndP, margins=c(7,7) ) this is for v0.1.3
+}
+# smutans.de2Clust( npAndUA159 )
+# smutans.de2Clust( pAndUA159 )
+# smutans.de2TypeHeatmap( npAndP )
+# smutans.de2TypeHeatmap( npAndUA159 )
+# smutans.de2TypeHeatmap( pAndUA159 )
+#smutans.de2Goseq ( npAndP, qval=1e-2, 
+#                   feature.gene=smutans.feature.genes,
+#                   go.genes=smutans.go.genes,
+#                   cat.desc=smutans.cat.desc )
+
+
 #library(DESeq)
 #source("smutans/R/core.R")
+#smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #q("no")
-# library(DESeq)
-load("smutans/data/sm835Genes.RData")
+#library(DESeq)
+#library(goseq)
+#load("smutans/data/smutansGenes.RData")
+#load("smutans/data/sm835Genes.RData")
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
 
-head( counts(sm835Genes) )
-pData( sm835Genes )
+#head( counts(sm835Genes) )
+#pData( sm835Genes )
 
-npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
-npAndP <- smutans.de2( npAndP, type="ua159", 
-                       condA="835np", condB="835p" )
-smutans.plotDispersionEstimates(npAndP)
+#npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
+#npAndP <- smutans.de2( npAndP, type="ua159", 
+#                       condA="835np", condB="835p" )
+#allSample <- newSmutans( smutansGenes )
+#allSample <- smutans.de2( allSample )
+#npAndUA159 <- newSmutans( sm835Genes, title="835NP vs. UA159" )
+#npAndUA159 <- smutans.de2( npAndUA159, type="ua159", 
+#                           condA="835np", condB="ua159nocsp" )
+#pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
+#pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
+#                          condA="835p", condB="ua159nocsp" )
+# allSample
+# ua159only
+#smutans.de2Goseq ( ua159only, qval=1e-2, 
+#                   feature.gene=smutans.feature.genes,
+#                   go.genes=smutans.go.genes,
+#                   cat.desc=smutans.cat.desc )
+
+#load("smutans/data/smutans.cat.desc.RData")
+#load("smutans/data/smutans.feature.genes.RData")
+#load("smutans/data/smutans.go.genes.RData")
+
+#
+#feature.genes = smutans.feature.genes
+#length.genes = feature.genes$V3 - feature.genes$V2
+#assayed.genes = feature.genes$V4
+#
+##de.genes = scan(file="de.gene.2",what="character",quiet=T)
+#de.genes <- smutans.de2Genes ( npAndP, qval=1e-5 )
+#gene.vector = as.integer(assayed.genes %in% de.genes)
+#names(gene.vector) = assayed.genes
+#
+#go.genes = smutans.go.genes
+#cat.desc = smutans.cat.desc
+#rm(feature.genes)
+#pwf = nullp( gene.vector, bias.data=length.genes, plot.fit=FALSE )
+#
+## go.hypergeometric = goseq(pwf,gene2cat=go.genes,method="Hypergeometric") # No length bias correction
+#go = goseq(pwf,gene2cat=go.genes,method="Wallenius") # Length bias correction - Approximation
+## go.sample = goseq(pwf,gene2cat=go.genes,method="Sampling",repcnt=10000) # Length bias correction - Sampling
+#go.fdr = go[p.adjust(go$over_represented_pvalue,method="BH")<.05,]
+#
+#for (i in go.fdr$category)
+#{
+#  cat(as.character(cat.desc$V3[cat.desc$V1==i]),"\n")
+#}
+#
+#
+
+
+
+
+
+
 
 #ua159only <- smutans.de2type( ua159only, type="ua159", 
                               #condA="glucose", condB="galactose" )

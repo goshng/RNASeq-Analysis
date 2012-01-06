@@ -5,7 +5,10 @@ exportClasses( "Smutans" )
 exportMethods(
   smutans.counts, "smutans.counts<-",
   smutans.title, "smutans.title<-",
+  smutans.de2Goseq,
+  smutans.de2Genes,
   smutans.de2type,
+  smutans.de2List,
   smutans.de2WithoutType,
   smutans.de2,
   smutans.plotDispersionEstimates, 

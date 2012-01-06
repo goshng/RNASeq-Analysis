@@ -79,3 +79,15 @@ smutans.prepareData835NPP <- function ()
   save(sm835Genes, file=file.path("smutans", "data", "sm835Genes.RData"))
 }
 
+smutans.prepareGoseq <- function ()
+{
+  f <- "smutans/inst/extdata/feature-genome.out-geneonly"
+  smutans.feature.genes = read.table(file=f,head=F)
+  save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
+  f <- "smutans/inst/extdata/smutans.gene2go"
+  smutans.go.genes <- read.table(file=f,head=F)
+  save(smutans.go.genes, file=file.path("smutans", "data", "smutans.go.genes.RData"))
+  f <- "smutans/inst/extdata/smutans.go2ngene"
+  smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
+  save(smutans.cat.desc, file=file.path("smutans", "data", "smutans.cat.desc.RData"))
+}

@@ -1,6 +1,14 @@
-version 0.1.2: (2012-01-05)
+version 0.1.3: (2012-01-07)
+
+- Sample data and documents
+
+version 0.1.2: (2012-01-06)
 
 - Single-factor and two-factor analyses for smutansGenes
+
+- 835NP, 835P, and UA159 no CSP comparisons
+
+- R package goseq is added
 
 version 0.1.1: (2012-01-04)
 

@@ -73,6 +73,7 @@ library(DESeq)
 source("smutans/R/core.R")
 smutans.prepareData835NPP( )
 smutans.prepareDataUA159TW1( ) 
+smutans.prepareGoseq( )
 q("no")
 @
 
@@ -293,7 +294,7 @@ genes are found in both analyses. The analysis using all of galactose only found
 \label{subsec:allSample}
 %------------------------------------------------------------
 
-We must have at least one citation \cite{Anders:2010:GB}.
+% We must have at least one citation \cite{Anders:2010:GB}.
 
 We could compare the two conditions, glucose and galactose, using either type
 ua159 or tw1. This may or may not be desirable depending on the experimental
@@ -476,23 +477,86 @@ hence not biased towards a result supporting it.) Such an analysis is useful
 for quality control, and (even though we finish our vignette with it), it may
 be useful to this first in any analysis.
 
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{smutans-figClust}
-\caption{Heatmap showing the Euclidean distances between the samples
-  as calculated from the variance-stabilising transformation of the
-  count data.}
-\label{figClust}
-\end{figure}
+%\begin{figure}
+%\centering
+%\includegraphics[width=.9\textwidth]{smutans-figClust}
+%\caption{Heatmap showing the Euclidean distances between the samples
+%  as calculated from the variance-stabilising transformation of the
+%  count data.}
+%\label{figClust}
+%\end{figure}
 
 <<figClust,fig=TRUE>>=
-smutans.de2Clust( allSample )
+# smutans.de2Clust( allSample )
+@
+
+We find some functional categories enriched with differentially expressed genes.
+<<goseqUA159only>>=
+data( "smutans.feature.genes" )
+data( "smutans.go.genes" )
+data( "smutans.cat.desc" )
+smutans.de2Goseq ( ua159only, qval=1e-2, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
 @
 
 %--------------------------------------------------
 \section{Differential expression analysis using 835NP, 835P, and UA159 no CSP}
 \label{sec:de835}
 %--------------------------------------------------
+
+A count data set is a table of numbers of short reads that are assigned to
+predefined genes. We use one of R packages for testing for differential
+expression: \Rpackage{DESeq}. 
+
+To find functional categories enriched with differentially expressed genes we
+first find a list of differentially expressed genes. A set of genes are assigned
+to functional gene categories: \Robject{smutans.go.genes}. Features of the genes in
+UA159 include gene lengths: \Robject{smutans.feature.genes}.
+Functional categories with numbers of genes assigned are in
+\Robject{smutans.cat.desc}.
+
+We use RNA-seq data to define genes whose expression changes between
+samples \cite{Oshlack2010}. Short reads are first mapped to a
+reference genome using approaches such as BWA \cite{Li2009a}.
+Reads fitting into one of the annotated intervals are counted.
+These counts are passed to a statistical package which treats differences
+in read counts for statistical significance. For this purpose, we made
+use of DEseq \cite{Anders2010}. This prodecure returns a list of
+differentially expressed genes, which can be passed to downstream
+analysis, such as functionaly category enrichment test (e.g., Young et
+al., 2010).
+
+The abtract briefly describes main steps of analyzing RNA-seq data for
+determining differentially expressed genes \cite{Oshlack2010}. We
+used a short read aligner called BWA \cite{Li2009a} to map the
+sequenced short reads on a reference genome, \textit{Streptococcus mutans}
+UA159 (NCBI accession NC\_004350). Because the aligner allowed a few gaps
+for efficient alignment of millions of sequences of size being 100 base
+pairs long, short reads that consist of RNAs and sequencing adapter
+sequences would be not mapped. We used cutadapt \cite{Martin2011} to remove
+parts of adapter sequences from short reads before mapping on the reference
+genome. Mapped short read alignments were converted into readable formats
+\cite{Li2009b}. We counted short reads aligned to annotated genes in the
+reference genome, forming a table of read counts of the genes. Statistical
+software R \cite{R2011} with its one of R package
+called DEseq \cite{Anders2010} were subsequently employed to infer
+significantly differentially expressed in a pair of biological conditions.
+We also generated new tracks for our recently released Streptococcus Genome
+Browser (http://strep-genome.bscb.cornell.edu) that summarize gene
+expression levels based the short read alignments. This allowed us to
+visualize parts of the reference genome for comparing different RNA
+samples. Further analyses such as functionaly category enrichment test
+\cite{Young2010} were pursued.
+
+We could find no functional categories enriched with differentially expressed
+genes in the pairwise comparisons of 835NP, 835P, and UA159 no CSP.
+
+Let's make a list of differentially expressed genes. It could be interesting to
+see the cluster of the three kinds of samples. Another kind of heatmap plots for
+grouping genes could be interesting. But, basically we have a list of genes with
+some adjusted p-values for detecting differentially expressed genes.
 
 <<sm835,results=hide>>=
 data( "sm835Genes" )
@@ -503,21 +567,103 @@ head( counts(sm835Genes) )
 pData( sm835Genes )
 @
 
-<<ua159onlySamples>>=
+<<sm835Samples>>=
 npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
 npAndP <- smutans.de2( npAndP, type="ua159", 
                        condA="835np", condB="835p" )
+npAndUA159 <- newSmutans( sm835Genes, title="835NP vs. UA159" )
+npAndUA159 <- smutans.de2( npAndUA159, type="ua159", 
+                           condA="835np", condB="ua159nocsp" )
+pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
+pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
+                          condA="835p", condB="ua159nocsp" )
 @
 
 \begin{figure}
 \centering
 \includegraphics[width=.6\textwidth]{smutans-figFitNpAndP}
+\includegraphics[width=.6\textwidth]{smutans-figFitNpAndUA159}
+\includegraphics[width=.6\textwidth]{smutans-figFitPAndUA159}
 \caption{Empirical (black dots) and fitted (red lines) dispersion values
 plotted against mean expression strength. \textbf{figFitNpAndP}}
 \label{figFitNpAndP}
 \end{figure}
 <<figFitNpAndP,fig=TRUE>>=
 smutans.plotDispersionEstimates(npAndP)
+@
+<<figFitNpAndUA159,fig=TRUE>>=
+smutans.plotDispersionEstimates(npAndUA159)
+@
+<<figFitPAndUA159,fig=TRUE>>=
+smutans.plotDispersionEstimates(pAndUA159)
+@
+
+<<sm835Samples>>=
+smutans.de2List( npAndP, "npAndP.csv" )
+smutans.de2List( npAndUA159, "npAndUA159.csv" )
+smutans.de2List( pAndUA159, "pAndUA159.csv" )
+@
+
+%\begin{figure}
+%\centering
+%\includegraphics[width=.9\textwidth]{smutans-figClustNpAndP}
+%\caption{Empirical (black dots) and fitted (red lines) dispersion values
+%plotted against mean expression strength. \textbf{figClustNpAndP}}
+%\label{figClustNpAndP}
+%\end{figure}
+<<figClustNpAndP,fig=TRUE>>=
+# smutans.de2Clust( npAndP )
+@
+%\begin{figure}
+%\centering
+%\includegraphics[width=.9\textwidth]{smutans-figClustNpAndUA159}
+%\caption{Empirical (black dots) and fitted (red lines) dispersion values
+%plotted against mean expression strength. \textbf{figClustNpAndUA159}}
+%\label{figClustNpAndUA159}
+%\end{figure}
+<<figClustNpAndUA159,fig=TRUE>>=
+# smutans.de2Clust( npAndUA159 )
+@
+%\begin{figure}
+%\centering
+%\includegraphics[width=.9\textwidth]{smutans-figClustPAndUA159}
+%\caption{Empirical (black dots) and fitted (red lines) dispersion values
+%plotted against mean expression strength. \textbf{figClustPAndUA159}}
+%\label{figClustPAndUA159}
+%\end{figure}
+<<figClustPAndUA159,fig=TRUE>>=
+# smutans.de2Clust( pAndUA159 )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{smutans-figHeatmapNpAndP}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength. \textbf{figHeatmapNpAndP}}
+\label{figHeatmapNpAndP}
+\end{figure}
+<<figHeatmapNpAndP,fig=TRUE>>=
+smutans.de2TypeHeatmap( npAndP )
+@
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figHeatmapNpAndUA159}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength. \textbf{figHeatmapNpAndUA159}}
+\label{figHeatmapNpAndUA159}
+\end{figure}
+<<figHeatmapNpAndUA159,fig=TRUE>>=
+smutans.de2TypeHeatmap( npAndUA159 )
+@
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figHeatmapPAndUA159}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength. \textbf{figHeatmapPAndUA159}}
+\label{figHeatmapPAndUA159}
+\end{figure}
+<<figHeatmapPAndUA159,fig=TRUE>>=
+smutans.de2TypeHeatmap( pAndUA159 )
 @
 
 \section{Session Info}
@@ -526,6 +672,6 @@ sessionInfo()
 @
 
 \bibliographystyle{unsrt}
-\bibliography{smutans}
+\bibliography{siepel-mutans}
 
 \end{document}

@@ -2,7 +2,7 @@ setClass( "Smutans",
   representation = representation( 
     countDataSet = "CountDataSet", 
     cds = "ANY", 
-    res = "list", 
+    res = "ANY", 
     padj = "numeric",
     pval = "numeric",
     title = "character"
