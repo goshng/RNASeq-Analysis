@@ -33,10 +33,10 @@
 We analyze a number of RNA samples from \textit{Streptococcus mutans} using R
 packages: \Rpackage{DESeq}, \Rpackage{edgeR}, and \Rpackage{goseq}.
 Tasks include the analysis of count data from RNA-Seq for
-the detection of differentially expressed genes.  Tests of enrichment for
-differentially expressed genes are performed using \Rpackage{goseq}.  The
-package \Rpackage{smutans} contains the procedures.  This vignette explains the
-use of the package. 
+the detection of differentially expressed genes, and tests of enrichment for
+differentially expressed genes using \Rpackage{goseq}.  The
+package \Rpackage{smutans} contains procedures that make use of functions
+provided by the above R packages.  
 \end{abstract}
 
 \tableofcontents
@@ -67,10 +67,18 @@ exported. One should create an R script at the directory that contains the
 source code of the \Rpackage{smutans}. Put the following scripts in the R script
 and run the script at the directory. That should create RData files at
 the directory smutans/data: sm835Genes.RData, smutansGenes.RData.
+
+http://www.oralgen.lanl.gov/oralgen/downloads/smut.csv
+
+http://www.oralgen.lanl.gov/cgi-bin/gene_id_search.cgi?dbname=smut&gene_id=SMu0001
+
+\fixme{Where are flat files for genes of S. mutans UA159?}
+
 <<samplePreparation,eval=FALSE>>=
 #not run
 library(DESeq)
 source("smutans/R/core.R")
+smutans.prepareData34( )
 smutans.prepareData835NPP( )
 smutans.prepareDataUA159TW1( ) 
 smutans.prepareGoseq( )
@@ -665,6 +673,9 @@ plotted against mean expression strength. \textbf{figHeatmapPAndUA159}}
 <<figHeatmapPAndUA159,fig=TRUE>>=
 smutans.de2TypeHeatmap( pAndUA159 )
 @
+
+\fixme{OMZ175, UA159CSP, SMU86CSP pairwise comparisons should be done fairly
+easily after detailed analyses.}
 
 \section{Session Info}
 <<sessi>>=
