@@ -1,0 +1,6 @@
+PACKAGE=smutans_0.1.3
+rm ${PACKAGE}.tar.gz 
+rm -rf t; mkdir t
+R CMD build --resave-data smutans
+tar zxf ${PACKAGE}.tar.gz -C t
+open t/smutans/inst/doc/smutans.pdf
