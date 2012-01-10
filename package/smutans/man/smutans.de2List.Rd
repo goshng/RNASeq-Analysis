@@ -1,15 +1,15 @@
-\name{smutans.title}
+\name{smutans.de2List}
 \Rdversion{1.1}
-\alias{smutans.title}
+\alias{smutans.de2List}
 
 \title{
-  Returns a list of adjusted p-values
+  Writes an output file in CSV format
 }
 \description{
-  A list of multiple testing adjusted p-values.
+  Users can use a spreadsheet program to open a CSV format file.
 }
 \usage{
-smutans.title(object)
+smutans.de2List(object, file="default")
 }
 \arguments{
   \item{object}{
@@ -17,12 +17,15 @@ smutans.title(object)
     another is condition. See function \code{smutans.prepareDataUA159TW1} for
     example.
 }
+  \item{file}{
+    a file name.
+}
 }
 \details{
-  A list of p-values.
+  A CSV file will be created using this function.
 }
 \value{
-A list of p-values.
+A list of gene names.
 }
 \author{
    Sang Chul Choi, schoi@cornell.edu
@@ -30,5 +33,5 @@ A list of p-values.
 \examples{
 %data( "smutansGenes" )
 %x <- newSmutans(smutansGenes)
-%x <- smutans.title(x, type="ua159", condA="glucose", condB="galactose")
+%x <- smutans.de2List(x, type="ua159", condA="glucose", condB="galactose")
 }

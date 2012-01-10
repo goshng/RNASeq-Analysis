@@ -1,6 +1,6 @@
-\name{smutans.title}
+\name{smutans.pval}
 \Rdversion{1.1}
-\alias{smutans.title}
+\alias{smutans.pval}
 
 \title{
   Returns a list of adjusted p-values
@@ -9,7 +9,7 @@
   A list of multiple testing adjusted p-values.
 }
 \usage{
-smutans.title(object)
+smutans.pval(object)
 }
 \arguments{
   \item{object}{
@@ -30,5 +30,5 @@ A list of p-values.
 \examples{
 %data( "smutansGenes" )
 %x <- newSmutans(smutansGenes)
-%x <- smutans.title(x, type="ua159", condA="glucose", condB="galactose")
+%x <- smutans.pval(x, type="ua159", condA="glucose", condB="galactose")
 }

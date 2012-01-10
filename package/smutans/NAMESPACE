@@ -3,7 +3,6 @@ import( DESeq )
 exportClasses( "Smutans" )
 
 exportMethods(
-  smutans.counts, "smutans.counts<-",
   smutans.title, "smutans.title<-",
   smutans.de2Goseq,
   smutans.de2Genes,

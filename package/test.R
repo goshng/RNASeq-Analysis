@@ -35,18 +35,41 @@ sm835result <- function () {
 #smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #smutans.prepareData34 ()
+#smutans.prepareDataOMZ175( ) 
+#smutans.prepareDataUA159CSP( ) 
+#smutans.prepareDataSMU86CSP( )
 #q("no")
-#library(DESeq)
-#library(goseq)
-#load("smutans/data/smutansGenes.RData")
-#load("smutans/data/sm835Genes.RData")
-#load("smutans/data/sm34Genes.RData")
+library(DESeq)
+library(goseq)
+load("smutans/data/smutansGenes.RData")
+load("smutans/data/sm835Genes.RData")
+load("smutans/data/sm34Genes.RData")
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
-npAndP <- newSmutans( sm34Genes, title="835NP vs. 835P" )
-npAndP <- smutans.de2( npAndP, type="ua159", 
-                       condA="835NP", condB="835P" )
+# smutans.de2Clust( allSample )
+allSample <- newSmutans( smutansGenes, title="All Samples for Comparsing Conditions" )
+allSample <- smutans.de2( allSample )
+load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutans.feature.genes.RData")
+load("smutans/data/smutans.go.genes.RData")
+smutans.de2Goseq ( allSample, qval=1e-2, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+
+
+#allSample <- newSmutans( smutansGenes, title="All Samples for Comparsing Conditions" )
+#allSample <- smutans.de2( allSample )
+#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
+#tw1only <- smutans.de2type( tw1only, type="tw1", 
+#                            condA="glucose", condB="galactose" )
+#npAndP <- newSmutans( sm34Genes, title="835NP vs. 835P" )
+#npAndP <- smutans.de2( npAndP, type="ua159", 
+#                       condA="835NP", condB="835P" )
 
 #head( counts(sm835Genes) )
 #pData( sm835Genes )

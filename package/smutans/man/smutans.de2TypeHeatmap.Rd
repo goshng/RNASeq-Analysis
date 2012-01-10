@@ -9,11 +9,11 @@
    Draw a heatmap to compare samples.
 }
 \usage{
-smutans.de2TypeHeatmap(x, file="default", nselect=40)
+smutans.de2TypeHeatmap(object, file="default", nselect=40)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
+  \item{object}{
       a Smutans with an experimental design
 }
   \item{file}{
@@ -24,7 +24,7 @@ smutans.de2TypeHeatmap(x, file="default", nselect=40)
 }
 }
 \details{
-   See \code{\link{smutans.de2TypeHeatmapForMatrices}} for more technical informations
+   See \code{\link{smutans.de2TypeHeatmap}} for more technical informations
 }
 \value{
 A plot.

@@ -11,19 +11,29 @@
    over all of the sample.
 }
 \usage{
-smutans.plotDispersionEstimates(x, file="1.ps")
+smutans.plotDispersionEstimates(object, file="default", 
+  xlab="Base mean expression", ylab="Dispersion values", qval=0.05,...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
+  \item{object}{
       a Smutans with an experimental design
 }
   \item{file}{
       a postscript file name
 }
+  \item{xlab}{
+      a postscript file name
+}
+  \item{ylab}{
+      a postscript file name
+}
+  \item{qval}{
+      a postscript file name
+}
 }
 \details{
-   See \code{\link{smutans.plotDispersionEstimatesForMatrices}} for more technical informations
+   See \code{\link{smutans.plotDispersionEstimates}} for more technical informations
 }
 \value{
 An Smutans object.

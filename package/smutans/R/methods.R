@@ -15,24 +15,11 @@ setReplaceMethod("smutans.title",
   }
 )
 
-setGeneric("smutans.counts", function(object) standardGeneric("smutans.counts"))
-setMethod("smutans.counts",
-          "Smutans",
-  function( object ) {
-    counts( object@countDataSet )
-  }
+setGeneric("smutans.plotDispersionEstimates", 
+  function(object, file="default", 
+           xlab="Base mean expression", ylab="Dispersion values", qval=0.05,...) 
+           standardGeneric("smutans.plotDispersionEstimates")
 )
-
-setGeneric("smutans.counts<-", function(object,value) standardGeneric("smutans.counts<-"))
-setReplaceMethod("smutans.counts", 
-                 "Smutans",
-  function( object, value ) {
-    object@counts <- value
-    object
-  }
-)
-
-setGeneric("smutans.plotDispersionEstimates", function(object,...) standardGeneric("smutans.plotDispersionEstimates"))
 setMethod("smutans.plotDispersionEstimates", 
           "Smutans", 
   function(object, file="default", 
@@ -57,7 +44,11 @@ setMethod("smutans.plotDispersionEstimates",
   }
 )
 
-setGeneric("smutans.plotDiffExp", function(object,...) standardGeneric("smutans.plotDiffExp"))
+setGeneric("smutans.plotDiffExp", 
+  function( object, file="default", 
+            xlab="Base mean expression", ylab="Log base 2 fold changes", qval=0.05 ) 
+    standardGeneric("smutans.plotDiffExp")
+)
 setMethod("smutans.plotDiffExp", 
           "Smutans",
   function(object, file="default", 
@@ -100,16 +91,22 @@ setMethod("smutans.de2type",
   }
 )
 
-setGeneric("smutans.de2", function(object,...) standardGeneric("smutans.de2"))
+setGeneric("smutans.de2", 
+  function(object, compareCondition="yes", 
+           type="", condition="", condA="", condB="",
+           method="pooled") standardGeneric("smutans.de2")
+)
 setMethod("smutans.de2", 
           "Smutans", 
-  function(object, compareCondition="yes", type="", condition="", condA="", condB="") {
+  function(object, compareCondition="yes", 
+           type="", condition="", condA="", condB="",
+           method="pooled" ) {
     if (type=="" && condition=="") {
       design <- pData( object@countDataSet )[,c("type","condition")]
       fullCountsTable <- counts( object@countDataSet )
       cdsFull <- newCountDataSet( fullCountsTable, design )
       cdsFull <- estimateSizeFactors( cdsFull )
-      object@cds <- estimateDispersions( cdsFull )
+      object@cds <- estimateDispersions( cdsFull, method=method )
       if (compareCondition == "yes") {
         fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
         fit0 <- fitNbinomGLMs( object@cds, count ~ type  )
@@ -119,6 +116,7 @@ setMethod("smutans.de2",
       }
       object@pval <- nbinomGLMTest( fit1, fit0 )
       object@padj <- p.adjust( object@pval, method="BH" )
+      object@res <- data.frame(fit1,pval=object@pval,padj=object@padj)
     } else if (type!="" && condition=="") {
       ua159Samples <- pData(object@countDataSet)$type == type
       countsTable <- counts(object@countDataSet)[ , ua159Samples ]
@@ -217,11 +215,11 @@ setMethod("smutans.de2TypeLfc",
 )
 
 setGeneric("smutans.de2TypeHeatmap", 
-  function(object,...) standardGeneric("smutans.de2TypeHeatmap")
+  function(object,file="default", nselect=40) standardGeneric("smutans.de2TypeHeatmap")
 )
 setMethod("smutans.de2TypeHeatmap", 
           "Smutans", 
-  function(object, file="default", nselect=40) {
+  function(object,file="default", nselect=40) {
     cdsBlind <- estimateDispersions( object@cds, method="blind" )
     vsd <- getVarianceStabilizedData( cdsBlind )
     select <- order(object@res$pval)[1:nselect]
@@ -249,24 +247,33 @@ setGeneric("smutans.de2Clust",
 )
 setMethod("smutans.de2Clust", 
           "Smutans", 
-  function(object, file="default", margins=c(5,5)) {
+  function(object, file="default", margins=c(10,10)) {
     if (file != "default")
     {
       postscript(file, width=6, height=6, horizontal = FALSE, onefile = FALSE, paper = "special")
       oldpar <- par (mar=c(4.5, 4.5, 0.5, 0.5))
     }
-    cdsFullBlind <- estimateDispersions( object@cds, method = "blind" )
+    design <- pData( object@countDataSet )[,c("type","condition")]
+    fullCountsTable <- counts( object@countDataSet )
+    cdsFull <- newCountDataSet( fullCountsTable, design )
+    cdsFull <- estimateSizeFactors( cdsFull )
+    cdsFullBlind <- estimateDispersions( cdsFull, method = "blind" )
     vsdFull <- getVarianceStabilizedData( cdsFullBlind )
     dists <- dist( t( vsdFull ) )
-    heatmap.2( as.matrix( dists ), Colv=TRUE,
+    heatmap( as.matrix( dists ),
        symm=TRUE, scale="none", margins=margins,
        col = colorRampPalette(c("black","white"))(100),
-       trace="none", density.info="none",
-       # col = colorRampPalette(c("darkblue","white"))(100),
-       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
        labCol = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
-       dendrogram = "both", keysize = 1.2
+       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type)
        )
+#    heatmap( as.matrix( dists ), Colv=TRUE,
+#       symm=TRUE, scale="none", margins=margins,
+#       col = colorRampPalette(c("black","white"))(100),
+#       trace="none", density.info="none",
+#       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+#       labCol = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+#       dendrogram = "both", keysize = 1.2
+#       )
     if (file != "default")
     {
       par(oldpar)
@@ -276,17 +283,21 @@ setMethod("smutans.de2Clust",
 )
 
 setGeneric("smutans.de2List", 
-  function(object,...) standardGeneric("smutans.de2List")
+  function(object,file="default") standardGeneric("smutans.de2List")
 )
 setMethod("smutans.de2List", 
           "Smutans", 
   function(object, file="default") {
-    write.csv(object@res, file=file)
+    if (file == "default") {
+      return( object@res )
+    } else {
+      write.csv(object@res, file=file)
+    }
   }
 )
 
 setGeneric("smutans.de2Genes", 
-  function(object,...) standardGeneric("smutans.de2Genes")
+  function(object,qval=0.05) standardGeneric("smutans.de2Genes")
 )
 setMethod("smutans.de2Genes", 
           "Smutans", 
@@ -298,7 +309,8 @@ setMethod("smutans.de2Genes",
 )
 
 setGeneric("smutans.de2Goseq", 
-  function(object,...) standardGeneric("smutans.de2Goseq")
+  function(object,qval=0.05, feature.genes, go.genes, cat.desc) 
+    standardGeneric("smutans.de2Goseq")
 )
 setMethod("smutans.de2Goseq", 
           "Smutans", 
@@ -316,11 +328,15 @@ setMethod("smutans.de2Goseq",
     # go.hypergeometric = goseq(pwf,gene2cat=go.genes,method="Hypergeometric") # No length bias correction
     go = goseq(pwf,gene2cat=go.genes,method="Wallenius") # Length bias correction - Approximation
     # go.sample = goseq(pwf,gene2cat=go.genes,method="Sampling",repcnt=10000) # Length bias correction - Sampling
-    go.fdr = go[p.adjust(go$over_represented_pvalue,method="BH")<.05,]
+
+    #go.fdr = go[p.adjust(go$over_represented_pvalue,method="BH")<.05,]
+    go.fdr <- data.frame(go, qval=p.adjust(go$over_represented_pvalue,method="BH"))
+    go.fdr <- go.fdr[go.fdr$qval < .05,]
 
     for (i in go.fdr$category)
     {
-      cat(as.character(cat.desc$V3[cat.desc$V1==i]),"\n")
+      cat(go.fdr$qval[go.fdr$category==i], " & ", as.character(cat.desc$V3[cat.desc$V1==i]))
+      cat("\\\\\n")
     }
   }
 )
