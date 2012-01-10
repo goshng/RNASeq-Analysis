@@ -240,6 +240,26 @@ elsif ($cmd eq "extract")
     print $outfile "$subseq\n";
   }
 }
+elsif ($cmd eq "parsernaseq")
+{
+  my $i = 0;
+  while (<$infile>)
+  {
+    $i++;
+    my $istr = sprintf ("%04d", $i);
+    my @e = split /\t/;
+    print $outfile "$chromosome\t";
+    print $outfile "$e[3]\t$e[4]\ttx$istr\t0\t+\n";
+  }
+}
+elsif ($cmd eq "rnaz")
+{
+  while (<$infile>)
+  {
+    chomp;
+    print $outfile "$_+\n";
+  }
+}
 
 if (exists $params{in})
 {

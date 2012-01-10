@@ -318,10 +318,14 @@ were found using single-factor analyses at FDR of 10\%.
 \hline 
 Sample A & Sample B & Number of Genes & Result File \\
 \hline 
-UA159 Glucose & UA159 Galactose & \Sexpr{sum(tabUA159onlyTW1only[2,])} & ua159only.csv \\
-TW1 Glucose & TW1 Galactose & \Sexpr{sum(tabUA159onlyTW1only[,2])} & tw1only.csv \\
-UA159 Glucose & TW1 Glucose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[2,])} & glucoseOnly.csv \\
-UA159 Galactose & TW1 Galactose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[,2])} & galactoseOnly.csv \\
+UA159 Glucose & UA159 Galactose & \Sexpr{sum(ua159only@padj < .1,na.rm=T)} & ua159only.csv \\
+TW1 Glucose & TW1 Galactose & \Sexpr{sum(tw1only@padj < .1,na.rm=T)} & tw1only.csv \\
+UA159 Glucose & TW1 Glucose & \Sexpr{sum(glucoseOnly@padj < .1,na.rm=T)} & glucoseOnly.csv \\
+UA159 Galactose & TW1 Galactose & \Sexpr{sum(galactoseOnly@padj < .1,na.rm=T)} & galactoseOnly.csv \\
+% UA159 Glucose & UA159 Galactose & \Sexpr{sum(tabUA159onlyTW1only[2,])} & ua159only.csv \\
+% TW1 Glucose & TW1 Galactose & \Sexpr{sum(tabUA159onlyTW1only[,2])} & tw1only.csv \\
+% UA159 Glucose & TW1 Glucose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[2,])} & glucoseOnly.csv \\
+% UA159 Galactose & TW1 Galactose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[,2])} & galactoseOnly.csv \\
 \hline 
 \end{tabular}
 \par\end{centering}
@@ -683,6 +687,18 @@ smu86csp <- smutans.de2( smu86csp, type="ua159",
                          condA="Smu86noCSP", condB="Smu86CSP" )
 smutans.de2List( smu86csp, "smu86csp.csv" )
 @
+
+%--------------------------------------------------
+\section{DE analysis using predicted transcripts}
+\label{sec:detranscript}
+%--------------------------------------------------
+
+
+%--------------------------------------------------
+\section{DE analysis using predicted small RNAs and target genes}
+\label{sec:desmallrna}
+%--------------------------------------------------
+
 
 \section{Session Info}
 <<sessi>>=

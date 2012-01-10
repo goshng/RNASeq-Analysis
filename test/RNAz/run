@@ -16,7 +16,7 @@
 # genome name. This is needed for rnazAnnotate.pl to work.
 # 
 # Functional enrichment: 1. Find gene ontology categories for each gene of S.
-# mutans, 2. Do the enrichment test using R. Melissa should be able to do this.
+# mutans, 2. Do the enrichment test using R. Melissa could help me to do this.
 # 
 
 # Header information.
@@ -40,7 +40,7 @@ REFGENOMEGFF=/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_m
 ###########
 
 # Enrichment Test
-# Find functional categories that enrich for the predicted small RNAs.
+# Find functional categories that are enriched with the predicted small RNAs.
 # How? I have values for each proteins
 # Useful files.
 # cp /Users/goshng/Documents/Projects/mauve-analysis/emails/to/mellisa/051811/mannwhitney.R .

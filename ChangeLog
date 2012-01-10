@@ -5,26 +5,29 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 To Do
 -----
 .Immediate term
-. Add the gene ontology analysis
-. Mult-factor analysis
+. Develop (or improve ParseRNAseq) something to use processed RNA-seq data.
+. Summarize what I did for finding small RNAs and their targets (with GO
+analysis)
+. Send two emails about the latest update of RNA-Seq result.
+. Predict transcripts using RNA-Seq and annotated genes
+. Study DE using the transcripts and small RNAs in S. mutans.
+. p-values of small RNAs and p-values of their targets for DE
 .Some of the old things to do 
 . Implement "contigwiggle" of samtools-pileup.pl
-. Predict transcripts using RNA-Seq and annotated genes
 . Document features including genes, small RNAs using predicted transcripts
-. Study DE using the transcripts
 .. Comparison with microarray results (OMZ, TW1)
 . Literature search on bacteria and RNA-Seq.
 . Find segmentation algorithm softwares to call operon (What is known about
 operon structures of S. mutans?).
 .. Use Charles's method or Martin's method to predict transcripts
 . Suboperons prediction using two samples of RNA-Seq data.
-. small RNAs in S. mutans.
 . To compare the result of RNA-Seq and that of microarray experiment. (done)
 . Upload RNA-Seq gene expression tracks. (done)
 . Find papers that Burne mentioned. (done)
 . Compile emails with Robert Burne. (done)
-. Meeting time 1 P.M. on Saturday (done)
-. Send two emails about the latest update of RNA-Seq result.
+. Meeting time 1 P.M. on Friday (done)
+. Add the gene ontology analysis (done)
+. Mult-factor analysis (done)
 Write a short report on the RNA-Seq data. (done)
 
 .Intermediate term
@@ -34,9 +37,61 @@ Write a short report on the RNA-Seq data. (done)
 .Long term
 . Study of evolution of bacterial gene expression 
 
+Jobs to be finished
+-------------------
+
+cac:run/rnaseq/110111
+
 Histories
 ---------
 This history can be useful later.
+
+Tue Jan 10 13:29:33 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+R package smutans 0.1.3 is made for UA159/TW1 comparison.
+
+.found small RNAs using RNAz
+----
+test/RNAz/results.bed.corrected
+$ perl pl/feature-genome.pl rnaz
+  -in test/RNAz/results.bed.corrected
+  -out test/RNAz/feature-genome.out-rnaz
+----
+Let's convert results.bed.corrected to a feature file so that we can count short
+reads. How can I count short reads based on a feature file?
+
+.predicted transcripts
+----
+swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/genes10b25.out
+test/ParseRNAseq/genes10b25.out
+$ perl pl/feature-genome parsernaseq 
+  -in test/ParseRNAseq/genes10b25.out
+  -out test/ParseRNAseq/feature-genome.out-parsernaseq
+----
+I also want to convert it to a feature file.
+
+I created the two files:
+----
+test/RNAz/feature-genome.out-rnaz
+test/ParseRNAseq/feature-genome.out-parsernaseq
+----
+The two files are merged to the feature-genome.out.
+
+.All of the three feature-genome files are concatenated
+----
+cac:/v4scratch/sc2265/rnaseq/output/cornell/1/bwa/feature-genome.out-geneonly
+----
+Then, we run run-de-all.sh after changing some scripts.
+
+.The directory at cac
+----
+cac:run/rnaseq/110111
+bash run-de-all.sh
+----
+
+Mon Jan  9 09:21:26 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+R package smutans 0.1.3 is being developed.
 
 Thu Jan  5 09:52:35 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,11 +100,6 @@ Thu Jan  5 09:52:35 EST 2012
 ----
 ~/.vim/session/package-smutans
 ----
-
-
-Mon Jan  9 09:21:26 EST 2012
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 Wed Jan  4 15:59:03 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

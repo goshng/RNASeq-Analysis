@@ -482,3 +482,14 @@ Vienna RNA Package
 ------------------
 http://www.tbi.univie.ac.at/~ivo/RNA/RNAplfold.html
 
+How to count short reads mapped on features
+-------------------------------------------
+We first need to create a feature-genome.out file. The file has no header line.
+There are six columns as follows:
+
+.feature-genome.out-geneonly
+----
+chr1  193 1552  SMU.01  0 +
+----
+
+

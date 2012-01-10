@@ -1,4 +1,4 @@
-PACKAGE=smutans_0.1.3
+PACKAGE=smutans_$(grep Version smutans/DESCRIPTION | cut -d" " -f2)
 rm ${PACKAGE}.tar.gz 
 rm -rf t; mkdir t
 R CMD build --resave-data smutans
