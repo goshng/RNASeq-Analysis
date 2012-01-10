@@ -73,24 +73,6 @@ setMethod("smutans.plotDiffExp",
   }
 )
 
-setGeneric("smutans.de2type", function(object,...) standardGeneric("smutans.de2type"))
-setMethod("smutans.de2type", 
-          "Smutans", 
-  function(object, type="", condition="", condA, condB) {
-    ua159Samples <- pData(object@countDataSet)$type == type
-    countsTable <- counts(object@countDataSet)[ , ua159Samples ]
-    conds <- pData(object@countDataSet)$condition[ ua159Samples ]
-    cds <- newCountDataSet( countsTable, conds )
-    cds <- estimateSizeFactors( cds )
-    object@cds <- estimateDispersions( cds )
-    object@res <- nbinomTest( object@cds, condA, condB )
-    object@pval <- object@res$pval
-    object@padj <- object@res$padj
-  
-    object
-  }
-)
-
 setGeneric("smutans.de2", 
   function(object, compareCondition="yes", 
            type="", condition="", condA="", condB="",
