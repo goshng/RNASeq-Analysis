@@ -17,6 +17,7 @@
 \newcommand{\Rpackage}[1]{R package \textit{#1}}
 \newcommand{\Rclass}[1]{class \textit{#1}}
 \newcommand{\Rfunction}[1]{{function \small\texttt{#1}}}
+\newcommand{\program}[1]{{\texttt{#1}}}
 \newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
 
 \renewcommand{\floatpagefraction}{0.7}
@@ -24,24 +25,24 @@
 \author{Sang Chul Choi\\[1em]Cornell University,\\ Ithaca, NY\\[1em]
 \texttt{schoi@cornell.edu}}
 
-\title{\textsf{\textbf{Analyzing \textit{Streptococcus mutans} RNA-seq data using R packages}}}
+\title{\textsf{\textbf{Analyzing \textit{Streptococcus mutans} RNA-seq data\\using R packages}}}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-We analyze a number of RNA samples from \textit{Streptococcus mutans}.  We use
+We analyze RNA samples from \textit{Streptococcus mutans}.  We use
 RNA-seq to define genes whose expression changes between samples
 \cite{Oshlack2010}. Short reads are first mapped to a reference genome using
-approaches such as BWA \cite{Li2009a}.  Reads fitting into one of the annotated
+approaches such as \program{BWA} \cite{Li2009a}.  Reads fitting into one of the annotated
 intervals are counted.  These counts are passed to a statistical package which
 treats differences in read counts for statistical significance. For this
 purpose, we made use of \Rpackage{DEseq} \cite{Anders2010} or \Rpackage{edgeR}
 \cite{Robinson2010}. This prodecure returns a list of differentially expressed
 genes, which can be passed to downstream analysis, such as functional category
-enrichment test using \Rpackage{goseq} \cite{Young2010}.  This
-\Rpackage{smutans} contains procedures that make use of functions provided by
+enrichment test using \Rpackage{goseq} \cite{Young2010}.  The current
+\Rpackage{smutans} contains procedures that use functions provided by
 the above R packages. 
 \end{abstract}
 
@@ -52,28 +53,28 @@ the above R packages.
 %--------------------------------------------------
 
 Steps of analyzing RNA-seq data for determining differentially expressed genes
-are well described in \cite{Oshlack2010}. We used a short read aligner called
-BWA \cite{Li2009a} to map the sequenced short reads on a reference genome,
+are described in \cite{Oshlack2010}. We used a short read aligner called
+\program{BWA} \cite{Li2009a} to map the sequenced short reads on a reference genome,
 \textit{Streptococcus mutans} UA159 (NCBI accession NC\_004350). Because the
 aligner allowed a few gaps for efficient alignment of millions of sequences of
 size being 100 base pairs long, short reads that consist of RNAs and sequencing
-adapter sequences would be not mapped. We used cutadapt \cite{Martin2011} to
+adapter sequences would be not mapped. We used \program{cutadapt} \cite{Martin2011} to
 remove parts of adapter sequences from short reads before mapping on the
 reference genome. Mapped short read alignments were converted into readable
 formats \cite{Li2009b}. We counted short reads aligned to annotated genes in the
 reference genome, forming a table of read counts of the genes. Statistical
-software R \cite{R2011} with its one of R package called DEseq \cite{Anders2010}
+software R \cite{R2011} with \Rpackage{DEseq} \cite{Anders2010}
 was subsequently employed to infer differentially expressed in different
-biological conditions.  We also generated new tracks for our recently released
+biological conditions.  We also generated tracks for our recently released
 Streptococcus Genome Browser (http://strep-genome.bscb.cornell.edu) that
 summarize gene expression levels based the short read alignments. This allowed
 us to visualize parts of the reference genome for comparing different RNA
-samples. Further analyses such as functionaly category enrichment test
-\cite{Young2010} were employed.
+samples. Further analyses such as functional category enrichment test
+\cite{Young2010} were also employed.
 
 The \Rpackage{smutans} expects count data in the form of \Rclass{CountDataSet},
-which is a type provided by \Rpackage{DESeq}.  Using BWA \cite{Li2009a} and
-samtools \cite{Li2009b} we aligned short reads from RNA sequencing. Using gene
+which is a type provided by \Rpackage{DESeq}.  Using \program{BWA} \cite{Li2009a} and
+\program{samtools} \cite{Li2009b} we aligned short reads from RNA sequencing. Using gene
 annotations in the UA159 genome we counted short reads that overlapped the
 genes.  The count values are raw counts of sequencing reads. The
 \Rpackage{DESeq}'s statistical model, or negative binomial model, hold for raw

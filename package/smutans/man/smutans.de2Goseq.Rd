@@ -12,17 +12,17 @@
    condition. The function behaves differently depending arguments.
 }
 \usage{
-smutans.de2Goseq(x,qval=0.05, feature.gene, go.genes, cat.desc)
+smutans.de2Goseq(object,qval=0.05, feature.genes, go.genes, cat.desc)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
+  \item{object}{
       a Smutans with an experimental design
 }
   \item{qval}{
       a cutoff value for determining differentially expressed genes.
 }
-  \item{feature.gene}{
+  \item{feature.genes}{
       a table of six columns of chrmosome, start, end, gene name, 0, and strand.
 }
   \item{go.genes}{

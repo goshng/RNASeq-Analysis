@@ -143,7 +143,7 @@ setMethod("smutans.pval",
 )
 
 setGeneric("smutans.de2WithoutType", 
-  function(object,...) standardGeneric("smutans.de2WithoutType")
+  function(object, condA, condB) standardGeneric("smutans.de2WithoutType")
 )
 setMethod("smutans.de2WithoutType", 
           "Smutans", 
@@ -161,7 +161,7 @@ setMethod("smutans.de2WithoutType",
 )
 
 setGeneric("smutans.de2TypeLfc", 
-  function(object,...) standardGeneric("smutans.de2TypeLfc")
+  function(object, condA, condB, file="default") standardGeneric("smutans.de2TypeLfc")
 )
 setMethod("smutans.de2TypeLfc", 
           "Smutans", 
@@ -225,11 +225,11 @@ setMethod("smutans.de2TypeHeatmap",
 )
 
 setGeneric("smutans.de2Clust", 
-  function(object,...) standardGeneric("smutans.de2Clust")
+  function(object,file="default", margins=c(10,10)) standardGeneric("smutans.de2Clust")
 )
 setMethod("smutans.de2Clust", 
           "Smutans", 
-  function(object, file="default", margins=c(10,10)) {
+  function(object,file="default", margins=c(10,10)) {
     if (file != "default")
     {
       postscript(file, width=6, height=6, horizontal = FALSE, onefile = FALSE, paper = "special")
