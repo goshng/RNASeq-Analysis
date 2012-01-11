@@ -142,6 +142,10 @@ command.
 data( "sm835Genes" )
 @
 
+% Resources
+% Google charts - Venn Diagram
+% http://code.google.com/apis/chart/index.html
+
 \fixme{Describe other data objects as well.
 sm34Genes.RData,
 sm835Genes.RData,
@@ -694,11 +698,86 @@ smutans.de2List( smu86csp, "smu86csp.csv" )
 %--------------------------------------------------
 
 
+
 %--------------------------------------------------
 \section{DE analysis using predicted small RNAs and target genes}
 \label{sec:desmallrna}
 %--------------------------------------------------
 
+Create a file with intergenic regions sequences of \textit{S.\ mutans} UA159.
+Create a file with bacterial genome sequences except \textit{S.\ mutans} NN2025.
+BLAST the intergenic regions against the bacterial genomes. Extract sequence
+alignments from the BLAST output. Refine the alignment using MUSCLE. Convert the
+FASTA-format alignments to MSA-format ones.  Find small RNA candidates using
+RNAz.  Find targets of the small RNA candidates using RNAplex. Targets are
+scored for each small RNA candidate. The scores were used to do functional
+category enrichment tests of targets for each small RNA candidate. 
+
+Table \ref{tab:goseq} 
+shows functional categories enriched with target genes for predicted small
+RNAs. Let's use \Rfunction{smutans.mannwhitney} to the package and other data
+objects.
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{lcccl}
+\hline 
+small RNA & $q^a$ & count & GO & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<goseqUA159only,results=tex>>=
+data( "smutans.genes.criteria" )
+data( "smutans.go.genes" )
+data( "smutans.cat.desc" )
+smutans.mannwhitney( qval=0.05,
+                   genes.criteria=smutans.genes.criteria,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseq}
+\end{table}
+%-----------------------------------------------------------------------------
+
+<<smutansRNA>>=
+data( "smutansGenes2" )
+ua159only <- newSmutans( smutansGenes2, title="UA159 Only" )
+ua159only <- smutans.de2( ua159only, type="ua159", 
+                          condA="glucose", condB="galactose" )
+allSample <- newSmutans( smutansGenes2, 
+                         title="All Samples for Comparing Conditions" )
+allSample <- smutans.de2( allSample )
+tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
+                                                   allSample )
+addmargins( tabUA159onlyAndAllSample )
+@
+Of the total \Sexpr{sum(tabUA159onlyAndAllSample)} gene,
+\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found in both analyses. The
+analysis using all of the sample found \Sexpr{tabUA159onlyAndAllSample[1,2]}
+genes. The analysis using ua159-only sample found \Sexpr{tabUA159onlyAndAllSample[2,1]}
+genes. We found a few predicted small RNAs that appeared to be differentially
+expressed.
+<<smutansRNA>>=
+smutans.de2List( allSample )[grep("locus",rownames(smutans.de2List(allSample))),]
+@
+We also found a few predicted small RNAs that appeared to be differentially
+expressed in the comparison of the two types: ``ua159'' and ``tw1.''
+<<smutansRNA>>=
+allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
+allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
+@
 
 \section{Session Info}
 <<sessi>>=

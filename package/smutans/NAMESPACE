@@ -19,6 +19,7 @@ exportMethods(
 )
 
 export( 
-   newSmutans,
-   smutans.compareResult
+  newSmutans,
+  smutans.mannwhitney,
+  smutans.compareResult
 )

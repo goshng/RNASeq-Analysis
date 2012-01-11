@@ -9,7 +9,7 @@
   Users can use a spreadsheet program to open a CSV format file.
 }
 \usage{
-smutans.de2List(object, file="default")
+smutans.de2List(object, file="default",qval=0.1)
 }
 \arguments{
   \item{object}{
@@ -18,6 +18,9 @@ smutans.de2List(object, file="default")
     example.
 }
   \item{file}{
+    a file name.
+}
+  \item{qval}{
     a file name.
 }
 }

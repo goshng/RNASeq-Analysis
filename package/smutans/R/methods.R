@@ -93,7 +93,7 @@ setMethod("smutans.de2",
         fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
         fit0 <- fitNbinomGLMs( object@cds, count ~ type  )
       } else {
-        fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
+        fit1 <- fitNbinomGLMs( object@cds, count ~ condition + type )
         fit0 <- fitNbinomGLMs( object@cds, count ~ condition )
       }
       object@pval <- nbinomGLMTest( fit1, fit0 )
@@ -265,13 +265,16 @@ setMethod("smutans.de2Clust",
 )
 
 setGeneric("smutans.de2List", 
-  function(object,file="default") standardGeneric("smutans.de2List")
+  function(object,file="default", qval=0.1) standardGeneric("smutans.de2List")
 )
 setMethod("smutans.de2List", 
           "Smutans", 
-  function(object, file="default") {
+  function(object, file="default", qval=0.1) {
     if (file == "default") {
-      return( object@res )
+      resSig <- object@res[object@res$padj < qval,]
+      # options(width = 1000) 
+      return(resSig[order(resSig$pval),])
+      # return( object@res )
     } else {
       write.csv(object@res, file=file)
     }
@@ -322,6 +325,4 @@ setMethod("smutans.de2Goseq",
     }
   }
 )
-
-
 

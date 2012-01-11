@@ -38,25 +38,55 @@ sm835result <- function () {
 #smutans.prepareDataOMZ175( ) 
 #smutans.prepareDataUA159CSP( ) 
 #smutans.prepareDataSMU86CSP( )
+#smutans.prepareDataUA159TW1()
 #q("no")
 library(DESeq)
 library(goseq)
 load("smutans/data/smutansGenes.RData")
+load("smutans/data/smutansGenes2.RData")
 load("smutans/data/sm835Genes.RData")
 load("smutans/data/sm34Genes.RData")
+load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutans.genes.criteria.RData")
+load("smutans/data/smutans.go.genes.RData")
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
+# allSample2 <- newSmutans( smutansGenes2 )
+# smutans.de2Clust( allSample2 )
+#ua159only <- newSmutans( smutansGenes2, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#allSample <- newSmutans( smutansGenes2, 
+#                         title="All Samples for Comparing Conditions" )
+#allSample <- smutans.de2( allSample )
+#tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
+#                                                   allSample )
+#addmargins( tabUA159onlyAndAllSample )
+allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
+allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+print(
+smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
+)
+#smutans.plotDispersionEstimates(ua159only)
+#smutans.plotDiffExp(ua159only)
+#smutans.de2List( ua159only )
+
+#smutans.mannwhitney( qval=0.05,
+#                   genes.criteria=smutans.genes.criteria,
+#                   go.genes=smutans.go.genes,
+#                   cat.desc=smutans.cat.desc )
+
 # smutans.de2Clust( allSample )
-allSample <- newSmutans( smutansGenes, title="All Samples for Comparsing Conditions" )
-allSample <- smutans.de2( allSample )
-load("smutans/data/smutans.cat.desc.RData")
-load("smutans/data/smutans.feature.genes.RData")
-load("smutans/data/smutans.go.genes.RData")
-smutans.de2Goseq ( allSample, qval=1e-2, 
-                   feature.gene=smutans.feature.genes,
-                   go.genes=smutans.go.genes,
-                   cat.desc=smutans.cat.desc )
+#allSample <- newSmutans( smutansGenes, title="All Samples for Comparsing Conditions" )
+#allSample <- smutans.de2( allSample )
+#load("smutans/data/smutans.cat.desc.RData")
+#load("smutans/data/smutans.feature.genes.RData")
+#load("smutans/data/smutans.go.genes.RData")
+#smutans.de2Goseq ( allSample, qval=1e-2, 
+#                   feature.gene=smutans.feature.genes,
+#                   go.genes=smutans.go.genes,
+#                   cat.desc=smutans.cat.desc )
 
 
 #allSample <- newSmutans( smutansGenes, title="All Samples for Comparsing Conditions" )
