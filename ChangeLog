@@ -39,12 +39,147 @@ Write a short report on the RNA-Seq data. (done)
 
 Jobs to be finished
 -------------------
-
-cac:run/rnaseq/110111
+NA
 
 Histories
 ---------
 This history can be useful later.
+
+Fri Jan 13 12:52:52 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to summarize predicted transcripts. I may find Bioconductor R packages
+useful.
+----
+The following packages illustrate the diversity of functionality available; all
+are in the release version of Bioconductor.
+IRanges, GenomicRanges and genomeIntervals for range-based (e.g., chromosomal
+regions) calculation, data manipulation, and general-purpose data
+representation. Biostrings for alignment, pattern matching (e.g., primer
+removal), and data manipulation of large biological sequences or sets of
+sequences.
+ShortRead and Rsamtools for file I/O, quality assessment, and high-level,
+general purpose data summary. rtracklayer for import and export of tracks on the
+UCSC genome browser.
+BSgenome for accessing and manipulating curated whole-genome representations.
+GenomicFeatures for annotation of sequence features across common genomes,
+biomaRt for access to Biomart databases.
+SRAdb for querying and retrieving data from the Sequence Read Archive.
+ChIP-seq and related (e.g., motif discovery, identification of high-coverage
+segments) activities are facilitated by packages such as CSAR, chipseq,
+ChIPseqR, ChIPsim, ChIPpeakAnno, DiffBind, rGADEM, segmentSeq, BayesPeak, PICS.
+Differential expression and RNA-seq style analysis can be accomplished with
+edgeR, DESeq, baySeq, DEGseq, Genominator. The DEXSeq package, available with R
+>= 2.14, allows exon-level differential representation.
+----
+
+Thu Jan 12 10:47:32 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I do not know what I should do about the transcript determinations. It is clear
+that I have to have one map of transcripts. I do not know that I can do better
+than ParseRNAseq. I do not think that I can find a good transcript map with a
+single nucleotide resolution. This does not seem to be a tangible goal. I have a
+rough map of transcripts without clear transcript start and end positions.
+Manual determination is not a good way because I have too many transcripts and
+many more RNA-seq samples. I am wondering if I can run ParseRNAseq multiple
+times iteratively by removing predicted transcript regions from the input pileup
+file. This might give subsequent ParseRNAseq runs more power to discriminate
+more transcripts because the range of expression levels would be more refined.
+Let's remove C10 from the pileup. 
+
+I iterate the ParseRNAseq runs on consecutively modified pileup files. When
+should I stop the iteration? Until we could not gain more predicted transcripts.
+How do we know that we do not prediect good transcripts? We should do the logo
+values. We should find ways to show some statistics about the transcripts. Let's
+do this now than later. These might help me refine the transcript map. Now, we
+have multiple FASTQ001.parsernaseq files: FASTQ001.parsernaseq{number}. From
+the first parsernaseq file we grep C10 transcripts and name it C1. For the
+second, we name C10 transcripts C2, and the like. 
+
+.Ranges to note for transcript predictions
+----
+chr1:398,024-437,831
+chr1:440,609-474,830
+chr1:473,119-507,340
+chr1:570,649-604,870
+chr1:603,159-637,380
+chr1:798,508-814,553
+chr1:1,079,483-1,120,518
+chr1:1,396,705-1,449,863
+chr1:1,470,362-1,481,007
+----
+Note: 
+1. Lowly expressed regions are not yet included to the tx map.
+chr1:962,531-1,003,566
+2. Gene orientation conflicts: 
+chr1:570,649-604,870, chr1:1,703,498-1,733,833
+3. Regions between highly expressed transcripts are false: chr1:668,179-702,400
+I might use counts to remove these ``false positive''.
+4. More refined map is not always better than the original one:
+chr1:798,508-814,553, chr1:844,706-863,875, chr1:931,556-956,251
+5. Using gene annotation led to false predicted transcripts
+chr1:959,237-967,468, chr1:1,158,433-1,175,364, chr1:1,447,206-1,500,364
+* SMU.1005 contains two transcripts.
+
+ParseRNAseq -force_gp option may have some adverse effects. Although we zeroed
+parts of genes, we did not remove genes that were covered by those regions with
+zeroed pileup. We might need to remove gene annotations from
+feature-genome.out-parsernaseq when we zero pileups. 
+chr1:1,694,398-1,704,509
+Or, we could use ParseRNAseq without -force_gp option.
+We also need to remove genes with no expression in the first place.
+chr1:1,717,907-1,748,242
+
+I might try use ParseRNAseq without -force_gp option, or use it with the option
+but by removing gene annotations.
+I might try to use sample 35 (UA159-1 no CSP) that appears to be less spiky in
+pileup. Try samples 1, 19, 20, 35, and 36.
+Total 10 runs.
+
+.Submission place
+----
+cac:run/rnaseq/011212
+----
+
+Because tx mappings are not perfect, we need to analyze them using some
+statistics or some nice plots.
+
+
+Wed Jan 11 15:00:49 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Charles's idea of post-processing RNA-seq pileup results
+we wish to refine transcript predictions that are made by ParseRNAseq. A
+likelihood can be constructed by assuming geometric distribution of the
+post-processed RNA-seq pileups.
+
+.Things that I needed
+. A RNA-seq web sites
+. A ParseRNAseq output file
+. A pileup file and its processed one
+
+I need to have one transcript map and some supporting figures.
+
+I had perl scripts in transcript-parsernaseq.sh. They use the file,
+FASTQ001-end.wig, or a post-processed RNA-seq pileup file. Apparently, I tried
+to refine a predicted transcript map using an end.wig file. 
+----
+perl pl/transcript-parsernaseq.pl adjust
+perl pl/transcript-parsernaseq.pl slope
+----
+
+Menu transcript-parsernaseq can create the output file from ParseRNAseq.
+
+.A ParseRNAseq output file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq
+output/cornell/1/bwa/FASTQ001.bed2
+----
+
+Menu bwa-pos2wig can create an end.wig file.
+
+. A pileup file and its processed one
+----
+output/cornell/1/bwa/FASTQ001-end.wig
+----
 
 Tue Jan 10 13:29:33 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

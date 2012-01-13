@@ -41,7 +41,7 @@ function bwa-pos2wig {
       REFGENOMELENGTH=$(grep REFGENOMELENGTH $SPECIESFILE | cut -d":" -f2)
       #for g in $(eval echo {1..$NUMFASTQFILE}); do
       for g in $(eval echo {1..1}); do
-        FASTQNUM=FASTQ$(printf "%02d" $g)
+        FASTQNUM=FASTQ$(printf "%03d" $g)
 
         # COMMAND1="perl pl/$FUNCNAME.pl perfect -in $BWADIR/$FASTQNUM-sum.pos -out $BWADIR/$FASTQNUM-perfect.wig"
         COMMAND1="perl pl/$FUNCNAME.pl end \
@@ -53,7 +53,7 @@ function bwa-pos2wig {
           echo $COMMAND1 >> $BATCHFILE
         else
           echo $COMMAND1 | bash
-          echo "Check $BWADIR/$FASTQNUM-perfect.wig"
+          echo "Check $BWADIR/$FASTQNUM-end.wig"
         fi
       done
 

@@ -584,7 +584,7 @@ Command:
   pos   - print short read name, chr, start, and end positions
   rrna  - check if reads are in the set of rRNA
 
-  end   - counts the either one base pairs are counted.
+  end   - counts the either one base pairs
   first - find the distances to the first opposite signed value. Using the
   output file from command ``end'' for a given position whose value is non-zero
   I compute the distance to the first opposite signed value. If a given position

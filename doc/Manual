@@ -5,7 +5,6 @@ v1.0, May 2011
 
 init-file-system  
 choose-species
-transcript-parsernaseq
 de-count
 batch
 
@@ -492,4 +491,10 @@ There are six columns as follows:
 chr1  193 1552  SMU.01  0 +
 ----
 
+bwa-pos2wig
+-----------
+Where do I create an end.wig file, e.g., FASTQNUM-end.wig?
 
+transcript-parsernaseq
+----------------------
+To fine a transcript map.

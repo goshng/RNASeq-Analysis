@@ -697,7 +697,19 @@ smutans.de2List( smu86csp, "smu86csp.csv" )
 \label{sec:detranscript}
 %--------------------------------------------------
 
+We need ways of supporting the predicted transcripts. We need a way of using
+expression levels and counts of starts and ends of short reads to predict
+transcripts. For now, we just use an ad hoc method for finding transcript start
+and end sites. A likelihood can be constructed by multiplying geometric
+probabilities. Given a range of possible transcription boundaries we can find
+estimates of positions and geometirc parmeter $p$ that maximize the likelihood
+for both ends of a transcript.
 
+\Rpackage{GenomicRanges} might be useful in 
+<<tx,eval=FALSE>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("GenomicRanges")
+@
 
 %--------------------------------------------------
 \section{DE analysis using predicted small RNAs and target genes}
@@ -728,7 +740,7 @@ genes}}
 small RNA & $q^a$ & count & GO & Description \\
 \hline 
 %-----------------------------------------------------------------------------
-<<goseqUA159only,results=tex>>=
+<<goseqUA159only,echo=FALSE,results=tex>>=
 data( "smutans.genes.criteria" )
 data( "smutans.go.genes" )
 data( "smutans.cat.desc" )

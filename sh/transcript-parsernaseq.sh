@@ -40,31 +40,62 @@ function transcript-parsernaseq {
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
       REFGENOMEFASTA=$(grep REFGENOMEFASTA $SPECIESFILE | cut -d":" -f2)
       # for g in $(eval echo {1..$NUMFASTQFILE}); do
-      for g in $(eval echo {1..1}); do
+      # for g in $(eval echo {1..1}); do
+      for g in 1 19 20 35 36; do
         FASTQNUM=FASTQ$(printf "%03d" $g)
 
         COMMAND1="perl pl/$FUNCNAME.pl pileup \
           -wiggle $BWADIR/$FASTQNUM.wig \
-          -out $BWADIR/$FASTQNUM.parsernaseq.pileup"
+          -out $BWADIR/$FASTQNUM.parsernaseq.pileup1"
         COMMAND2="perl pl/$FUNCNAME.pl gene \
           -feature $BWADIR/feature-genome.out-geneonly \
           -out $BWADIR/feature-genome.out-parsernaseq"
-        COMMAND3="ParseRNASeq \
+
+        # scp $BWADIR/$FASTQNUM.parsernaseq.pileup swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
+        # scp $BWADIR/feature-genome.out-parsernaseq swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
+
+        COMMAND3="ParseRNAseq \
           $BWADIR/$FASTQNUM.parsernaseq.pileup \
           $REFGENOMEFASTA \
-          $BWADIR/feature-genome.out-parsernaseq2 \
+          $BWADIR/feature-genome.out-parsernaseq \
           $BWADIR/$FASTQNUM.parsernaseq \
           -c 10 -b 25 -force_gp -fmt"
-        COMMAND4="perl pl/$FUNCNAME.pl bed \
+        COMMAND3a="perl pl/$FUNCNAME.pl remove \
+          -feature $BWADIR/feature-genome.out-parsernaseq \
+          -inpileup $BWADIR/$FASTQNUM.parsernaseq.pileup \
           -parsernaseq $BWADIR/$FASTQNUM.parsernaseq \
+          -out $BWADIR/$FASTQNUM.parsernaseq.pileup2"
+        COMMAND3b="perl pl/$FUNCNAME.pl remove \
+          -inpileup $BWADIR/$FASTQNUM.parsernaseq.pileup2 \
+          -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
+          -out $BWADIR/$FASTQNUM.parsernaseq.pileup3"
+        # scp $BWADIR/$FASTQNUM.parsernaseq.pileup3 swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
+        # scp $BWADIR/$FASTQNUM.parsernaseq.pileup2 swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
+
+        # scp swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/$FASTQNUM.parsernaseq $BWADIR
+        # scp swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/$FASTQNUM.parsernaseq2 $BWADIR
+
+        # scp swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/$FASTQNUM.bed2-* $BWADIR
+        #scp swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/$FASTQNUM.parsernaseq? $BWADIR
+        #scp swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/$FASTQNUM.parsernaseq?? $BWADIR
+
+        PARSERNASEQOUT=$BWADIR/$FASTQNUM.parsernaseq1
+        COMMAND4="perl pl/$FUNCNAME.pl bed \
+          -parsernaseq $PARSERNASEQOUT \
           -out $BWADIR/$FASTQNUM.bed"
         COMMAND5="perl pl/$FUNCNAME.pl gff \
-          -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
+          -parsernaseq $PARSERNASEQOUT \
           -out $BWADIR/$FASTQNUM.bed2"
+          # -toplevel \
+        COMMAND5a="perl pl/$FUNCNAME.pl combine \
+          -parsernaseq $PARSERNASEQOUT \
+          -out $BWADIR/$FASTQNUM.bed2"
+        echo $BWADIR/$FASTQNUM.bed2
         COMMAND6="perl pl/$FUNCNAME.pl operon \
           -feature $BWADIR/feature-genome.out-geneonly \
-          -parsernaseq $BWADIR/$FASTQNUM.parsernaseq2 \
+          -parsernaseq $PARSERNASEQOUT \
           -out $BWADIR/$FASTQNUM.operon"
+
         COMMAND7="perl pl/$FUNCNAME.pl adjust \
           -end $BWADIR/$FASTQNUM-end.wig \
           -operon $BWADIR/$FASTQNUM.operon \
@@ -79,21 +110,28 @@ function transcript-parsernaseq {
           echo $COMMAND1 >> $BATCHFILE
           echo $COMMAND2 >> $BATCHFILE
           echo $COMMAND3 >> $BATCHFILE
+          echo $COMMAND3a >> $BATCHFILE
+          echo $COMMAND3b >> $BATCHFILE
           echo $COMMAND4 >> $BATCHFILE
           echo $COMMAND5 >> $BATCHFILE
+          echo $COMMAND5a >> $BATCHFILE
           echo $COMMAND6 >> $BATCHFILE
           echo $COMMAND7 >> $BATCHFILE
           echo $COMMAND8 >> $BATCHFILE
+
+          # scp $BATCHFILE swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
         else
-          # echo $COMMAND1 | bash
-          echo $COMMAND1
-          echo $COMMAND2
-          echo $COMMAND3
-          echo $COMMAND4
-          echo $COMMAND5
-          echo $COMMAND6
-          echo $COMMAND7
-          echo $COMMAND8
+          #echo $COMMAND1 | bash
+          #echo $COMMAND1
+          #echo $COMMAND2
+          #echo $COMMAND3
+          #echo $COMMAND3a
+          #echo $COMMAND4
+          echo $COMMAND5 | bash
+          #echo $COMMAND5a | bash
+          #echo $COMMAND6
+          #echo $COMMAND7
+          #echo $COMMAND8
         fi
       done
 

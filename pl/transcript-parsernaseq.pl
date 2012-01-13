@@ -53,9 +53,11 @@ GetOptions( \%params,
             'wiggle=s',
             'feature=s',
             'end=s',
+            'inpileup=s',
             'peakcutoff=i',
             'sizecutoff=i',
             'windowsize=i',
+            'toplevel',
             'updowncutoff=i',
             'in=s',
             'out=s',
@@ -152,7 +154,7 @@ elsif ($cmd eq "gene")
     &printError("Command $cmd needs -feature options");
   }
 }
-elsif ($cmd eq "bed" or $cmd eq "gff")
+elsif ($cmd eq "bed" or $cmd eq "gff" or $cmd eq "combine")
 {
   unless (exists $params{parsernaseq})
   {
@@ -171,6 +173,16 @@ elsif ($cmd eq "adjust" or $cmd eq "slope")
   unless (exists $params{operon} and exists $params{end})
   {
     &printError("Command $cmd needs -operon and -end options");
+  }
+}
+elsif ($cmd eq "remove")
+{
+  unless (exists $params{parsernaseq} and 
+          exists $params{inpileup} and 
+          exists $params{feature} and
+          exists $params{out})
+  {
+    &printError("Command $cmd needs -parsernaseq, -feature and -inpileup options");
   }
 }
 
@@ -276,6 +288,23 @@ elsif ($cmd eq "bed")
 }
 elsif ($cmd eq "gff")
 {
+  # Find the highest level.
+  my $topLevel = 1;
+  open PARSERNASEQ, $parsernaseq or die "cannot open < $parsernaseq $!";
+  while (<PARSERNASEQ>)
+  {
+    chomp;
+    my @e = split /\t/;
+    my $v2    = $e[8];
+    $v2 =~ /Name=C(\d+)\_/; 
+    my $v3 = $1;
+    if ($topLevel < $v3)
+    {
+      $topLevel = $v3;
+    }
+  }
+  close PARSERNASEQ;
+
   open PARSERNASEQ, $parsernaseq or die "cannot open < $parsernaseq $!";
   while (<PARSERNASEQ>)
   {
@@ -285,11 +314,191 @@ elsif ($cmd eq "gff")
     my $end   = $e[4];
     my $v1    = $e[5];
     my $v2    = $e[8];
-    $v2 =~ /Name=(C\d+)\_/; 
+    $v2 =~ /Name=C(\d+)\_/; 
     my $v3 = $1;
-    print $outfile "chr1\t$start\t$end\t$v3\t$v1\t+\n";
+    if (exists $params{toplevel})
+    {
+      if ($v3 == $topLevel)
+      {
+        print $outfile "chr1\t$start\t$end\tC$v3\t$v1\t+\n";
+      }
+    }
+    else
+    {
+      print $outfile "chr1\t$start\t$end\tC$v3\t$v1\t+\n";
+    }
   }
   close PARSERNASEQ;
+}
+elsif ($cmd eq "combine")
+{
+  # Find the number of parsernaseq files.
+  my $yes = 1;
+  my $i = 0;
+  while ($yes == 1)
+  {
+    $i++;
+    my $f = $parsernaseq.$i;
+    unless (-e $f)
+    {
+      $yes = 0;
+    }
+  }
+  print $i, "\n";
+  my $numberParseRNAseqFile = $i - 1;
+
+  for ($i = 1; $i <= $numberParseRNAseqFile; $i++)
+  {
+    my $f = $parsernaseq.$i;
+
+    my $topLevel = 1;
+    open PARSERNASEQ, $f or die "cannot open < $f $!";
+    while (<PARSERNASEQ>)
+    {
+      chomp;
+      my @e = split /\t/;
+      my $v2    = $e[8];
+      $v2 =~ /Name=C(\d+)\_/; 
+      my $v3 = $1;
+      if ($topLevel < $v3)
+      {
+        $topLevel = $v3;
+      }
+    }
+    close PARSERNASEQ;
+    
+    open PARSERNASEQ, $f or die "cannot open < $f $!";
+    while (<PARSERNASEQ>)
+    {
+      chomp;
+      my @e = split /\t/;
+      my $start = $e[3];
+      my $end   = $e[4];
+      my $v1    = $e[5];
+      my $v2    = $e[8];
+      $v2 =~ /Name=C(\d+)\_/; 
+      my $v3 = $1;
+      if ($i < $numberParseRNAseqFile)
+      {
+        if ($v3 == $topLevel)
+        {
+          print $outfile "chr1\t$start\t$end\tC$i\t$v1\t+\n";
+        }
+      }
+      else
+      {
+        if ($v3 > 4)
+        {
+          print $outfile "chr1\t$start\t$end\tC$i-$v3\t$v1\t+\n";
+        }
+      }
+    }
+    close PARSERNASEQ;
+  }
+}
+elsif ($cmd eq "remove")
+{
+  # Find the highest level.
+  my $topLevel = 1;
+  open PARSERNASEQ, $parsernaseq or die "cannot open < $parsernaseq $!";
+  while (<PARSERNASEQ>)
+  {
+    chomp;
+    my @e = split /\t/;
+    my $v2    = $e[8];
+    $v2 =~ /Name=C(\d+)\_/; 
+    my $v3 = $1;
+    if ($topLevel < $v3)
+    {
+      $topLevel = $v3;
+    }
+  }
+  close PARSERNASEQ;
+
+  # Find the regions with the highest level, and 
+  # zero the pileup values in the regions
+  my $iPileup = 1;
+  open PILEUP, $params{inpileup} or die "cannot open < $params{pileup} $!";
+  open PARSERNASEQ, $parsernaseq or die "cannot open < $parsernaseq $!";
+  while (<PARSERNASEQ>)
+  {
+    chomp;
+    my @e = split /\t/;
+    my $start = $e[3];
+    my $end   = $e[4];
+    my $v1    = $e[5];
+    my $v2    = $e[8];
+    $v2 =~ /Name=C(\d+)\_/; 
+    my $v3 = $1;
+    if ($v3 == $topLevel)
+    {
+      my $l;
+      for (; $iPileup < $start; $iPileup++)
+      {
+        $l = <PILEUP>;
+        print $outfile $l;
+      }
+      for (; $iPileup <= $end; $iPileup++)
+      {
+        $l = <PILEUP>;
+        $l =~ /^(\d+)\s+/;
+        print $outfile "$1\t0\n"; 
+      }
+    }
+  }
+  while (my $l = <PILEUP>) {
+    print $outfile $l;
+  }
+  close PARSERNASEQ;
+  close PILEUP;
+
+  # Use the new pileup file to remove genes in the feature file.
+  my @pileupValue;
+  push @pileupValue, 0; # The 1-index pileupValue
+  if (exists $params{out})
+  {
+    close $outfile;
+  }
+  $out = $params{out};
+  open NEWPILEUP, $out or die "cannot open < $out: $!";
+  while (<NEWPILEUP>)
+  {
+    /^(\d+)\s+(\d+)/;
+    push @pileupValue, $2;
+  }
+  close NEWPILEUP;
+  # SMU.01    0    193    1552    1360
+  $feature =~ /(.+feature-genome\.out-parsernaseq)(\d+)/;
+  my $iterationID = $2 + 1;
+  my $newFeature = "$1$iterationID";
+  open NEWFEATURE, ">", $newFeature or die "cannot open > $newFeature: $!";
+  open FEATURE, $feature or die "cannot open < $feature: $!";
+  while (my $l = <FEATURE>)
+  {
+    chomp $l;
+    my @e = split /\s+/, $l;
+    my $start = $e[2] + 1;
+    my $end = $e[3];
+    my $length = $end - $start + 1;
+    my $numberZero = 0;
+    for (my $i = $start; $i <= $end; $i++)
+    {
+      if ($pileupValue[$i] == 0)
+      {
+        $numberZero++; 
+      }
+    }
+    if ($numberZero/$length < 0.1)
+    {
+      print NEWFEATURE "$l\n";
+    }
+    else
+    {
+      print STDERR "$l\t$numberZero/$length\n";
+    }
+  }
+  close FEATURE;
+  close NEWFEATURE;
 }
 elsif ($cmd eq "operon")
 {
@@ -818,11 +1027,15 @@ perl pl/transcript-parsernaseq.pl bed -parsernaseq out.parsernaseq -out bed.file
 
 perl pl/transcript-parsernaseq.pl gff -parsernaseq out.parsernaseq -out bed.file
 
+perl pl/transcript-parsernaseq.pl combine -parsernaseq out.parsernaseq -out bed.file
+
 perl pl/transcript-parsernaseq.pl operon -feature feature-genome.out-geneonly -parsernaseq out.parsernaseq -out operon.file
 
 perl pl/transcript-parsernaseq.pl adjust -end FASTQ01-end.wig -operon operon.file -out adjusted.file
 
 perl pl/transcript-parsernaseq.pl slope -end FASTQ01-end.wig -operon operon.file -out adjusted.file
+
+perl pl/transcript-genecoverage.pl remove -feature feature.file -inpileup FASTQNUM.pileup -parsernaseq FASTQNUM.parsernaseq 
 
 =head1 DESCRIPTION
 
@@ -840,6 +1053,8 @@ Command:
 
   gff - Using ParseRNAseq gff output to create a bed file.
 
+  combine - Using ParseRNAseq gff output files to create one bed file.
+
   operon - Using ParseRNAseq gff output to create an operon file.
 
   adjust - Operons are merely groups of genes. Their start positions are those
@@ -853,6 +1068,13 @@ Command:
   following 95 base pairs must be the same sign including the site itself. 2)
   Five of the the following 10 bases must be nonzero. 3) Using the following 10
   bases I compute the slope.
+
+  remove - Remove regions of pileups where the highest level of expressed
+  transcripts are predicted. Or, make all values zeros at the regions of predicted
+  transcripts with highest expression level category. ParseRNAseq -force_gp
+  option uses annotated genes as transcribed regions. I do not want genes with
+  no pileup values to be used as transcribed ones. This command creates two
+  files: one is a new feature file, and another is a new pileup file.
 
 =head1 OPTIONS
 
