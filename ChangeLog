@@ -72,6 +72,29 @@ edgeR, DESeq, baySeq, DEGseq, Genominator. The DEXSeq package, available with R
 >= 2.14, allows exon-level differential representation.
 ----
 
+.Tests of GenomicRanges BioC R package
+----
+test/GenomicRanges
+----
+I need a pileup-value, annotated genes, and a transcript prediction files.
+
+.Pileup file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq.pileup
+----
+
+.Annotated genes
+----
+output/cornell/1/bwa/feature-genome.out-parsernaseq1
+output/cornell/1/bwa/feature-genome.out-geneonly
+----
+
+.Transcript prediction file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq1
+----
+
+
 Thu Jan 12 10:47:32 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I do not know what I should do about the transcript determinations. It is clear
