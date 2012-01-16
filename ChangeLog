@@ -45,6 +45,17 @@ Histories
 ---------
 This history can be useful later.
 
+
+Mon Jan 16 15:26:38 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GSE8850 is the data files from Abranches2008 study.
+----
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE8850
+downloads/gse8850
+http://www.tm4.org/midas.html
+http://linus.nci.nih.gov/BRB-ArrayTools.html
+----
+
 Fri Jan 13 12:52:52 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I need to summarize predicted transcripts. I may find Bioconductor R packages
