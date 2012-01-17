@@ -31,6 +31,9 @@ smutans.plotDispersionEstimates(object, file="default",
   \item{qval}{
       a postscript file name
 }
+  \item{...}{
+      a postscript file name
+}
 }
 \details{
    See \code{\link{smutans.plotDispersionEstimates}} for more technical informations

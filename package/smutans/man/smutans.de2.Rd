@@ -46,6 +46,9 @@ smutans.de2(object,compareCondition="yes",
   \item{condB}{
     a string for another condition
 }
+  \item{method}{
+    a string for another condition
+}
 }
 \details{
   We assume that the input data is of a two-factor. First, a two-factor data is
