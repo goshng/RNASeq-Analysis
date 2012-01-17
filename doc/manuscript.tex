@@ -1,0 +1,402 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color} 
+\usepackage{setspace} 
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{xr}
+\usepackage{../../latex/sty/genres}
+
+% Text layout
+\oddsidemargin 0in
+\evensidemargin 0in
+\topmargin -.5in
+\textwidth 6.5in
+\textheight 9in
+\usepackage[labelfont=bf,labelsep=period,justification=raggedright]{caption}
+
+\newcommand{\Rpackage}[1]{R package \textit{#1}}
+\newcommand{\program}[1]{{\texttt{#1}}}
+\newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
+
+\makeatother
+\pagestyle{myheadings}
+\markright{Transcriptome of Streptococcus mutans}
+
+\begin{document}
+
+\begin{titlepage}
+
+\title{Transcriptome \\
+in {\em Streptococcus mutans} }
+
+\author{Sang Chul Choi$^{1}$, Charles D.\ Danko$^{1}$, 
+Melissa J.\ Hubisz$^{1}$, \\
+Robert A.\ Burne$^{3}$
+Michael J.\ Stanhope$^{2}$, and Adam Siepel$^{1}$}
+
+\date{ }
+\maketitle
+
+\begin{footnotesize}
+\begin{center}
+$^1$Department of Biological Statistics and Computational Biology,\\
+Cornell University, Ithaca, NY 14853, USA
+\\[1ex]
+$^2$Department of Population Medicine and Diagnostic Sciences,\\
+College of Veterinary Medicine, Cornell University, Ithaca, NY 14853, USA
+\\[1ex]
+$^3$Department of Oral Biology,\\
+College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
+\\
+\end{center}
+\end{footnotesize}
+
+\vspace{1in}
+
+\begin{tabular}{lp{4.5in}}
+{\bf Submission type:}& Research Article
+\vspace{1ex}\\
+{\bf Keywords:}&Carbon catabolite repression, 
+{\em Streptococcus mutans}
+\vspace{1ex}\\
+{\bf Running Head:}&Transcriptome of {\em Streptococcus mutans}
+\vspace{1ex}\\ 
+{\bf Corresponding Author:}&
+\begin{minipage}[t]{4in}
+ Adam Siepel\\
+ 102E Weill Hall, Cornell University\\
+ Ithaca, NY 14853\\
+ Phone: +1-607-254-1157\\
+ Fax: +1-607-255-4698\\
+ Email: acs4@cornell.edu
+\end{minipage}
+\end{tabular}
+
+\thispagestyle{empty}
+\end{titlepage}
+
+\doublespacing
+
+\section{Prewriting about UA159 versus TW1}
+
+\subsection{Abstract}
+A bacterial transcriptome of the primary etiological agent of human dental caries,
+\textit{Stretptococcus mutans}, is described using RNA-seq data. Putative
+transcripts boundaries are defined. Small RNAs are predicted by computational
+methods, and confirmed by RNA-seq and Southern blot experiments. We refine the
+previously established importance of CcpA regulation as central metabolism and
+virulence gene expression using RNA-seq data.
+CcpA is known to play a direct role in carbon catabolite repression (CCR).
+We describe genes that are differentially expressed in glucose-grown wild-type
+(UA159) and CcpA-deficient (TW1) strains. We found that more
+genes were differentially expressed in the comparison between wild-type and
+CcpA-deficient strains in galactose-grown strains than in
+glucose-grown strains. How can I explain the reason?
+We also found that more genes differentially expressed in wild-type than in
+CcpA-deficient strain when comparing glucose- and galactose-grown cells. These
+two findings were different from those of \cite{Abranches2008}. \fixme{We may
+want to see effects of different p-value cutoff.} We confirmed that CcpA
+modulates the pathogenic potential of \textit{S.\ mutans} through global control
+of gene expression.
+We predicted a few small RNAs based on sequence alignments and RNA secondary
+structures. We confirmed them experimentally. Target genes of predicted small
+RNAs were predicted. The target genes were enriched in some functional
+categories. We listed highly potential small RNAs with their target genes
+functional categories. 
+Transcripts were predicted using RNA-seq short reads mapped on the wild-type
+UA159 genome. 
+
+\subsection{Reviews of papers that cited \cite{Abranches2008}}
+
+Bacteria can selectively use substrates from different carbon sources. In the
+presence of a
+preferred carbon source, catabolic system of secondary substrates are often
+regulated or shutdown: called carbon catabolite repression (CCR)
+\cite{Gorke2008}. CCR also regulates the expression of virulence factors in many
+pathogenic bacteria. A classical example is the glucose-lactose diauxie in
+\textit{E.\ coli}. A significant number of genes can be subject to CCR.  
+CCR in bacteria involves regulatory networks that activate or silence genes in
+response to carbon source and availability.
+\textit{S.\ mutans} possesses redundant systems for CCR.
+We could measure directly the expression levels of \textit{fruA} in \textit{S.\
+mutans}. 
+We assess the contribution of CcpA to CCR of predicted operons.
+Clearly, deletion of \textit{ccpA} resulted in substantial relief of the CCR of
+\textit{fruA}
+expression exerted by both glucose and fructose.
+
+
+\subsection{Goal: Refinement of \cite{Abranches2008}}
+
+Comparisons of microarray and RNA-seq are not good way to go.
+
+Find CCR-sensitive transcripts.
+
+\subsection{Methods and Materials}
+
+\subsubsection{Bacterial strains and growth conditions}
+\textit{S.\ mutans} UA159 is a human cariogenic isolate. The whole genome is
+availabe at NCBI \cite{Ajdic2002}. Strain TW1 was derived from UA159 by
+replacing a part of \textit{ccpA} gene \cite{Wen2002}. 
+
+\textit{S.\ mutans} strains were inoculated into TV medium supplemented with
+0.5\% galactose or glucose and grown to early exponential phase (OD600, 0.2).
+Then fructose was added to the medium at concentrations (0,0.05,3,5,10 mM) for
+3.5h to induce \textit{fruA} expression.
+
+\subsubsection{RNA isolation}
+RNA was isolated from S. mutans (1) by using 50 ml cultures that were grown
+under the desired conditions and harvested by centrifugation at $4^{\circ}$C. Pelleted
+cells were resuspended in 400 ul of diethyl pyrocarbonate-treated water, 800 ul
+of RNAprotect reagent (Qiagen, Inc., Chatsworth, CA) was added, and the samples
+were incubated at room temperature for 5 min with vortexing for 10 s at 1-min
+intervals. Cells were then pelleted, resuspended in 250 ul Tris-EDTA (50:10)
+buffer, and transferred to 1.5 ml screw-cap tubes containing sterile glass beads
+(average diameter, 0.1 mm; Biospec, Bartlesville, OK), 10 ul of 1\% sodium
+dodecyl sulfate, and 300 ul of acid phenol-chloroform (5:1). After
+centrifugation for 15 min at maximum speed at $4^{\circ}$C, RNA was further purified
+using an RNeasy mini kit (Qiagen, Inc., Chatsworth, CA), including on-column
+DNase digestion with RNase-free DNase (Qiagen), as recommended by the supplier.
+
+\subsubsection{RNA sequencing}
+Sequencing libraries for the Illumina GA platform were constructed by shearing
+the enriched cDNA by nebulisation (35psi, 6 min) followed by end-repair with
+Klenow polymerase, T4 DNA polymerase and T4 polynucleotide kinase (to blunt-end
+the DNA fragments). A single 3' adenosine moiety was added to the cDNA using
+Klenow exo- and dATP. The Illumina adapters (containing primer sites for
+sequencing and flowcell surface annealing) were ligated onto the repaired ends
+on the cDNA and gel-electrophoresis was used to separate library DNA fragments
+from unligated adapters by selecting cDNA fragments between 200-250 bps in size.
+Fragmentation followed by gel-electrophoresis were used to separate library DNA
+fragments and size fragments were recovered following gel extraction at room
+temperature to ensure representation of AT rich sequences. Ligated cDNA
+fragments were recovered following gel extraction at room temperature to ensure
+representation of AT rich sequences. Libraries were amplified by 18 cycles of
+PCR with Phusion polymerase. Sequencing libraries were denatured with sodium
+hydroxide and diluted to 3.5 pM in hybridisation buffer for loading onto a
+single lane of an Illumina GA flowcell. Cluster formation, primer hybridisation
+and single-end, 36 cycle sequencing were performed using proprietary reagents
+according to manufacturers' recommended protocol (https://icom.illumina.com/).
+The efficacy of each stage of library construction was ascertained in a quality
+control step that involved measuring the adapter-cDNA on a Agilent DNA 1000
+chip. A final dilution of 2 nM of the library was loaded onto the sequencing
+machine.
+
+SOLiD sequencing was performed at Agencourt Bioscience (Beverly, MA) and
+SeqWright (Houston, TX). Library preparations, fragment library protocols, and
+all SOLiD-run parameters followed standard Applied Biosystems protocols.
+Illumina/Solexa sequencing followed standard Illumina/Solexa methods and
+protocols. Both systems were used because in this study our aim was simply to
+collect as much sequence coverage as possible, and in pursuing this goal, we
+utilized all available sequencing systems. We note, however, that the relative
+performances (overall coverage, data output, etc.) noted in Table 1 for the
+Illumina and Applied Biosystems sequencing platforms cannot be compared
+directly. This study was not intended or designed to be a direct comparison of
+the two systems, and interpreting the differences shown in Table 1 is difficult
+given the many differences in cDNA/library preparation and the rapid evolution
+of each system over the past year.
+
+
+\subsubsection{Statistical analysis for differential expressions}
+We used an R package, DESeq, \cite{Anders2010} to determine differentially
+expressed genes based on negative binomial model originally developed by \cite{Robinson2007}.
+Steps of analyzing RNA-seq data for determining differentially expressed genes
+are described in \cite{Oshlack2010}. We used a short read aligner called
+\program{BWA} \cite{Li2009a} to map the sequenced short reads on a reference genome,
+\textit{Streptococcus mutans} UA159 (NCBI accession NC\_004350). Because the
+aligner allowed a few gaps for efficient alignment of millions of sequences of
+size being 100 base pairs long, short reads that consist of RNAs and sequencing
+adapter sequences would be not mapped. We used \program{cutadapt} \cite{Martin2011} to
+remove parts of adapter sequences from short reads before mapping on the
+reference genome. Mapped short read alignments were converted into readable
+formats \cite{Li2009b}. We counted short reads aligned to annotated genes in the
+reference genome, forming a table of read counts of the genes. Statistical
+software R \cite{R2011} with \Rpackage{DEseq} \cite{Anders2010}
+was subsequently employed to infer differentially expressed in different
+biological conditions.  We also generated tracks for our recently released
+Streptococcus Genome Browser (http://strep-genome.bscb.cornell.edu) that
+summarize gene expression levels based the short read alignments. This allowed
+us to visualize parts of the reference genome for comparing different RNA
+samples. Further analyses such as functional category enrichment test
+\cite{Young2010} were also employed.
+
+\subsubsection{small RNAs}
+
+RNAz is used to find small RNA candidates. Sequence alignments were a
+critical step for finding small RNAs in the approach. Phylogenies of streptococcus species could
+be considered to choose species related with Streptococcus mutans.
+Alternatively, I find sequences similar to intergenic regions, and refine the
+alignments using a multiple sequence alignment tool such as MUSCLE
+\cite{Edgar2004a}. Steps for
+achieving this goal include: 1. Exract intergenic regions including up- and
+down-stream, 2. BLAST the intergenic regions against non-redundant DB to find
+similar sequences \cite{Altschul1990}, 3. Refine each alignment using MUSCLE \cite{Edgar2004a}, 4. Apply RNAz to the
+alignments for scoring regions for small RNAs
+\cite{Washietl2005,Gruber2010}, and 5. Find transcripts with high
+score of small RNAs. The transcripts must be defined in advance.
+
+RNAplex
+\cite{Tafer2008}
+
+A review paper about small RNA predictions and targets
+\cite{Tafer2008a}
+
+RNAplfold
+\cite{Bernhart2006}
+
+\subsubsection{Transcripts}
+
+``-c 10 -b 25 -force\_gp''
+
+\subsubsection{Gene category associations and virulence genes}
+
+We assigned genes to Gene Ontology (GO) categories by comparing the {\em
+  Streptococcus} genes to bacterial proteins from the Uniref90 database
+using BLASTP, and then assigning the same GO classification as the target
+gene of the uniProt GOA database if the match had an $E$-value of
+$<1.0\times10^{-5}.$  
+A gene family was assigned a given
+classification if any of its genes was assigned that classification.  To
+test for associations with replacing gene transfers we used the
+recombination intensity estimated for each gene, and for additive gene
+transfers we used the number of additive transfers inferred for each
+family.  To test for significance, we performed a Mann-Whitney $U$ test of
+the values (recombination intensities or numbers of transfers) associated
+with a given category vs.\ the values for the all other genes/families.  We
+used the \cite{Benjamini1995} method to correct for multiple comparisons.
+
+\subsection{Results}
+
+CcpA affects CCR of \textit{fruA}. 
+\textit{fruA} fructan hydrolase
+When Wen2002 deleted CRE sequencs in the \textit{fruA} promoter region, CCR was
+almost completely alleviated. 
+What are CCR-sensitive genes? 
+What are the mechanism of CcpA on CCR of the \textit{fruA} operon? 
+Expression levels of \textit{fruA} in \textit{S.\ mutans} strains that were
+grown to early exponential phase (OD600, 0.2) in TV medium supplemented with
+0.5\% glucose or galactose. \fixme{What does this mean?} 
+Deletion of \textit{ccpA} resulted in substantial relief of the CCR of
+\textit{fruA} expression exerted by both glucose and fructose. 
+CcpA could directly interact with the \textit{fruA} promoter region. 
+
+The role of CcpA in gene expression during growth on glucose. 
+\textit{S.\ mutans} UA159 and TW1 grown under catabolite-repressing conditions
+(glucose), and catabolite-derepressing conditions (galactose). Under
+glucose-only condition I found xx number of differentially expressed genes. What
+are the functional categories of those differentially expressed genes? What are
+the genes that are most profoundly up- or down-regulated (Smu.1421 to Smu.1424,
+PDH enzyme complex), ... and more? ... This regulatory control was
+short-circuited in the strain growing on glucose and lacking CcpA. I showed that
+some of KEGG pathways were affected by TW1 grown under glucose. We found
+down-regulated genes, which would have something to do with pathogenicity. 
+Upto here, I compared UA159 and TW1 under glucose.
+
+1. UA159 (A) vs. TW1 (B) : fold change is B/A.
+When glucose was the sole carbohydrate for growth, 170 genes were differentially
+expressed at least twofold as a result of loss of CcpA (Fig. 2; see Table S1 in
+the supplemental material). Of the gene products, 22 were predicted to partici-
+pate in energy metabolism, 9 were PTS components, and 43 were hypothetical
+proteins (Fig. 2). Among the most pro- foundly up-regulated genes in the ccpA
+mutant strain were the genes that encoded the components of the PDH enzyme com-
+plex (Smu.1421 to Smu.1424), pyruvate-formate lyase, enzymes in the
+tricarboxylic acid (TCA) cycle, selected sugar-specific PTS permeases, and
+components of the glycogen biosynthetic machinery (see Table S1 in the
+supplemental material). 
+Con- sistent with the profile data, TW1 cells grown in glucose had 78% higher
+PDH activity than the wild-type strain (data not shown). Given the impact on
+expression of PDH, TCA en- zymes, and selected glycolytic enzymes, CcpA clearly
+legislates gene expression to discriminate between carbohydrate-replete and
+carbohydrate-limiting conditions. In particular, when there is excess
+carbohydrate, S. mutans moves carbohydrates primar- ily through lactate
+dehydrogenase, sacrificing an ATP and gen- erating NAD􏰜. When carbohydrate is
+limiting, S. mutans pro- duces mainly formic and acetic acids, shunts
+carbohydrate through pyruvate formate lyase, and uses its partial TCA cycle to
+regenerate reducing equivalents to maintain an appropriate NAD/NADH balance.
+This regulatory control was clearly short-circuited in the strain growing on
+glucose and lacking CcpA.
+Among the more interesting genes that were down-regu- lated, significant
+decreases in expression were noted for the genes encoding components of the
+proton-translocating F-ATPase, phosphoglycerate kinase (Pgk), and
+fructosyltrans- ferase (ftf), which catalyzes the conversion of sucrose to high-
+molecular-weight polymers of fructose, as well as gtfD, which encodes the
+glucosyltransferase D enzyme that produces pre- dominantly 􏰐-1,6-linked polymers
+of glucose from sucrose. Since acid tolerance (ATPase), acid production from
+carbohy- drate (Pgk), and glucan and fructan production (Gtf and Ftf), as well
+as the ability to transport carbohydrates and produce intracellular storage
+compounds (glycogen), as noted above (PTS and Glg), are central to the
+pathogenic potential of S. mutans, CcpA represents a major control point for
+expression of critical virulence attributes in cells presented with glucose.
+
+
+Growth in derepressing conditions induces major changes in the UA159
+transcriptome. Here, I compared glucose and galactose conditions for growing
+UA159. Energy metabolism was enriched with differentially expressed genes. There
+were more up-regulated genes in galactose condition compared with glucose
+condition. Some genes are described in detail. 
+
+2. I compared glucose (A) and galactose (B) for growing UA159
+It is noteworthy that only three genes in the energy metabolism category were
+down-regulated, whereas 23 genes in this category were markedly up-regulated. In
+addition, the expression of 28 genes encoding hypothetical proteins was affected,
+and 19 of them were up-regulated. The genes encod- ing proteins belonging to the
+pathways for lactose and galac- tose utilization (2) were the most strongly
+induced genes in cells growing on galactose. The galKTE genes, encoding the
+enzymes for galac- tose utilization via the Leloir pathway (2), were
+up-regulated between 10- and 36-fold, but the genes of the lactose (lac) operon,
+encoding the lactose PTS permease and the tagatose- 6-phosphate pathway, were
+up-regulated 70- to 300-fold. Since the products of the galKTE operon contribute
+to the genera- tion of UDP-galactose, which is required for cell wall biogen-
+esis, the lower level of induction of galKTE than of the lac operon may reflect
+a need for higher constitutive levels of expression of the Leloir pathway in the
+absence of galactose. Components of the multiple-sugar metabolism operon (msm)
+were also induced in cells growing on galactose. The Msm pathway is induced by
+raffinose and melibiose, both of which are ?-galactosides (5). The enhanced
+expression of gene products involved in en- ergy metabolism, including pyruvate
+formate lyase and com- ponents of the TCA cycle, in cells growing on galactose
+is consistent with the idea that the cells perceive carbohydrate limitation. 
+
+Now, I compared glucose (A) and galactose (B) for growing TW1. 
+
+Now, I compared UA159 and TW1 under galactose. 
+
+What genes are differentially expressed? 
+
+Name the transcripts.
+I found xx transcripts. Among them xx \% were mono-cistronic operons. xx \% were
+poly-cistronic operons. xx transcripts could not defined because RNA-seq short
+reads were not precise. Transripts were assigned with functional categories, and
+differentially expressed transcripts were found. Transcripts and functional
+categories: how can I assess that transcripts consist of genes with similar
+functional cateogires. 
+
+Name the small RNAs.
+RNAz predicted a few small RNAs. Some of them were differentially expressed.
+Some functional categories were enriched with target genes of the predicted
+genes. 
+
+\subsection{Discussion}
+We used RNA-seq data to delineate transcript boundaries. Although this map of
+transcripts does not precisely tell us where transcripts start and end, it
+informs us of which open reading frames can be transcribed together. Potentially
+polycistronic operons are defined. We focused on interpretations of operon in
+light of CcpA regulations. 
+
+
+\subsection{Abbreviations}
+
+\begin{enumerate}
+\item CCR Carbon catabolite repression
+\item CcpA ?
+\item IPS intracellular polysaccharide
+\item CRE catabolite responsive elements
+\end{enumerate}
+
+\renewcommand*{\refname}{Literature Cited}
+\bibliographystyle{../../latex/bst/mbe}
+\bibliography{siepel-mutans}
+
+\end{document}
