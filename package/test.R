@@ -1,24 +1,3 @@
-sm835result <- function () {
-  library(smutans)
-  data( "sm835Genes" )
-  data( "smutans.feature.genes" )
-  data( "smutans.go.genes" )
-  data( "smutans.cat.desc" )
-  npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
-  npAndP <- smutans.de2( npAndP, type="ua159", 
-                         condA="835np", condB="835p" )
-  npAndUA159 <- newSmutans( sm835Genes, title="835NP vs. UA159" )
-  npAndUA159 <- smutans.de2( npAndUA159, type="ua159", 
-                             condA="835np", condB="ua159nocsp" )
-  pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
-  pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
-                            condA="835p", condB="ua159nocsp" )
-  smutans.de2List( npAndP, "npAndP.csv" )
-  smutans.de2List( npAndUA159, "npAndUA159.csv" )
-  smutans.de2List( pAndUA159, "pAndUA159.csv" )
-  smutans.de2Clust( npAndP )
-  # smutans.de2Clust( npAndP, margins=c(7,7) ) this is for v0.1.3
-}
 # smutans.de2Clust( npAndUA159 )
 # smutans.de2Clust( pAndUA159 )
 # smutans.de2TypeHeatmap( npAndP )
@@ -30,8 +9,9 @@ sm835result <- function () {
 #                   cat.desc=smutans.cat.desc )
 
 
+library(GenomicRanges)
 #library(DESeq)
-#source("smutans/R/core.R")
+source("smutans/R/core.R")
 #smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #smutans.prepareData34 ()
@@ -39,7 +19,8 @@ sm835result <- function () {
 #smutans.prepareDataUA159CSP( ) 
 #smutans.prepareDataSMU86CSP( )
 #smutans.prepareDataUA159TW1()
-#q("no")
+smutans.prepareTranscript( )
+q("no")
 library(DESeq)
 library(goseq)
 load("smutans/data/smutansGenes.RData")
@@ -187,4 +168,24 @@ smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSample
 # smutans.de2TypeHeatmap( ua159only )
 # smutans.de2TypeLfc( ua159only, condA="glucose", condB="galactose" )
 #smutans.de2Clust( allSample )
-
+sm835result <- function () {
+  library(smutans)
+  data( "sm835Genes" )
+  data( "smutans.feature.genes" )
+  data( "smutans.go.genes" )
+  data( "smutans.cat.desc" )
+  npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
+  npAndP <- smutans.de2( npAndP, type="ua159", 
+                         condA="835np", condB="835p" )
+  npAndUA159 <- newSmutans( sm835Genes, title="835NP vs. UA159" )
+  npAndUA159 <- smutans.de2( npAndUA159, type="ua159", 
+                             condA="835np", condB="ua159nocsp" )
+  pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
+  pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
+                            condA="835p", condB="ua159nocsp" )
+  smutans.de2List( npAndP, "npAndP.csv" )
+  smutans.de2List( npAndUA159, "npAndUA159.csv" )
+  smutans.de2List( pAndUA159, "pAndUA159.csv" )
+  smutans.de2Clust( npAndP )
+  # smutans.de2Clust( npAndP, margins=c(7,7) ) this is for v0.1.3
+}

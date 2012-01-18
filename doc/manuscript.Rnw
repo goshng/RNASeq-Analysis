@@ -17,6 +17,7 @@
 \textheight 9in
 \usepackage[labelfont=bf,labelsep=period,justification=raggedright]{caption}
 
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=6,height=6}
 \newcommand{\Rpackage}[1]{R package \textit{#1}}
 \newcommand{\program}[1]{{\texttt{#1}}}
 \newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
@@ -81,7 +82,7 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 
 \section{Abstract}
 A bacterial transcriptome from the primary etiological agent of human dental
-caries, \textit{Stretptococcus mutans}, is described using RNA deep sequencing
+caries, \textit{Stretptococcus mutans}, is described using deep RNA sequencing
 data.  We define transcripts boundaries of open reading frames based on sequence
 alignments of short reads on the reference genome of UA159 from the deep
 sequencing.  Based on homologous sequences and RNA secondary structures we also
@@ -118,7 +119,7 @@ CcpA was shown to regulate metabolism and virulence gene expression in
 \textit{S.\ mutans} by \citet{Abranches2008}. They used microarray experiments
 to measure expression levels of genes. Microarray experiments tend to be
 qualitative. The advent of high throughput sequencing technology motivated us to
-revisit the experiment to refine the result.  RNA deep sequencing data also
+revisit the experiment to refine the result.  The deep RNA sequencing data also
 allowed us to define the bacterial transcriptome of \textit{S.\ mutans}. So, we
 could compare putative operon expression levels as well as gene expression
 levels between the wild-type (UA159) and its mutant-type (TW1) whose
@@ -172,7 +173,7 @@ determine differentially expressed regions in UA159 genome.
 
 We need to quantify some uncertainty of transcript predictions.
 
-\section{Methods and Materials}
+\section{Materials and Methods}
 
 \subsection{Bacterial strains and growth conditions}
 \fixme{Burne group should be able to describe this part. The following is just
@@ -307,7 +308,125 @@ intensities or numbers of transfers) associated with a given category vs.\ the
 values for the all other genes/families.  We used the \cite{Benjamini1995}
 method to correct for multiple comparisons.
 
+
 \section{Results}
+
+Findings include:
+\begin{enumerate}
+\item New genes, open reading frames that are not annotated in NCBI's genome database.
+\end{enumerate}
+
+We sequenced a whole prokaryotic transcriptome of \textit{S\. mutans}, and
+mapped short reads to the genomic sequence of the reference genome UA159
+\citep{Ajdic2002}. 
+\citet{Martin2010} applied a hidden Markov model to use short reads mapped to a
+genomic sequence in order to parase \textit{B.\ anthracis} genome into a
+sequence of transcripts. Most of annotated genes belong to the predicted
+transcripts. We found discrepancies of annotated genes and their transcriptions:
+1. A gene contains two transcripts, 
+2. Non-coding regions contain transcripts.
+\fixme{We could find more discrepancies. Try to find them}. 
+Expression levels of adjacent genes within a transcript should be more
+correlated to each other than those of adjacent genes belonging to separate transcripts
+\citep{Martin2010}. 
+
+We identified a set of transcripts, albeit not a full, including small RNAs, and novel
+transcripts. 
+We hope that our study could serve as a foundation for a comprehensive study of
+the \textit{S.\ mutans} transcriptome.
+Our current knowledge of the transcriptome is limited to annotated or predicted genes.
+
+Whole transcriptome sequencing using high throughput sequencing (HTS)
+technologies, or deep RNA sequencing (RNA-seq) allowed to reveal the
+transcriptome topography of \textit{S.\ mutans}. 
+
+\subsection{From Reviews}
+We reconstructed the full-length transcripts by transcriptome assembly using
+xxx.
+
+We tried in vain to use short-read assemblers such as Velvet \citep{Zerbino2008} that had been developed to
+assembly transcriptome.
+Trinity
+
+gene-dense transcriptomes
+
+We ensured a high-quality transcriptome assembly. 
+
+In the data generation phase (FIG. 1a), total RNAs or mRNAs are fragmented and
+converted into a library of cDNAs containing sequencing adaptors.  
+In the data analysis phase (FIG. 1b), these short reads are pre-processed to
+remove sequencing errors and other artefacts. The reads are subsequently
+assembled to reconstruct the original RNAs and to assess their abun- dance
+(‘expression counting’).
+
+To increase the number of assem- bled transcripts, especially the less abundant
+ones, ribosomal RNA (rRNA) and abundant transcripts are removed during the
+first steps of library construction.
+In order to retain RNAs without a poly(A) tail in the assem- bled transcriptome,
+rRNA contamination can instead be removed by hybridization-based depletion
+methods. \fixme{What depletion method did we use?} 
+Last, the use of strand-specific RNA-seq protocols aids in the assembly and
+quantification of overlapping transcripts that are derived from opposite strands
+of the genome. This consideration is especially important for gene-dense
+genomes, such as those of bacteria, archaea and lower eukaryotes.
+
+Sequencing. The major factors to consider before sequencing a sample are: the
+choice of sequencing plat- form, the sequencing read length and whether to use a
+paired-end protocol.
+
+Removing artefacts from RNA- seq data sets before assembly improves the read
+quality, which, in turn, improves the accuracy and computa- tional efficiency of
+the assembly. This step is straight- forward and can be executed using several
+tools.  In general, three types of artefacts should be removed from raw RNA-seq
+data: sequencing adaptors, which origi- nate from failed or short DNA
+insertions during library preparation; low-complexity reads; and
+near-identical reads that are derived from PCR amplification. 
+Sequencing errors in NGS reads can be removed or corrected by analysing the
+quality score and/or the k-mer frequency.
+
+Reference-based transcriptome assembly is easier to perform for the simple
+transcriptomes of bac- terial, archaeal and lower eukaryotic organisms, as these
+organisms have few introns and little alternative splicing. Transcription
+boundaries can be inferred from regions of contiguous read coverage in the
+genome even with- out graph construction and traversal37,51,52. Alternative
+transcription start and stop sites can also be inferred based on the 5′ cap or
+poly(A) signals (if cap- or end- specific experimental protocols are used)51,53.
+However, complications arise owing to the gene-dense nature of
+these genomes. Many genes overlap, resulting in adja- cent genes being assembled
+into one transcript, even though they are not from a polycistronic RNA. Strand-
+specific RNA-seq has successfully been used to separate adjacent overlapping
+genes from opposite strands in the genome51,52. Overlapping genes that are
+transcribed from the same strand and that also have comparable expres- sion
+levels cannot easily be separated without using cap- or end-specific RNA-seq.
+
+In summary, reference-based assembly is generally preferable for cases in which
+a high-quality reference genome already exists.
+
+Meanwhile, experimental RNA-seq and sequencing protocols are continually
+improving and should greatly reduce the informatics challenges.  RNA-seq reads
+from third-generation sequencers, such as PacBio70, are longer (up to several
+kilobases). PacBio sequencers are capable of sequencing a single transcript to
+its full length in a single read. If this technology reaches a throughput that
+is comparable to the second-generation technologies, then the need for
+transcriptome assembly will probably be eliminated. Hopefully, the future of
+transcriptome assembly will be ``no assembly required''.
+
+What is the sequencing depth?
+
+\fixme{I might have to try different filters of short reads to see how those
+affect the transcript prediction.}
+
+\subsection{My Results}
+
+The input RNA-seq data is a list of site-wise non-negative integers that
+represents a number of reads mapped to a particular genomic position
+\citet{Martin2010}; a RNA-seq ``coverage'' data. We designated a gene as an
+expressed if the gene belongs to a transcript with at least C2 level.
+
+A gene 
+
+We use the term `coverage' to designate 
+We verified the genes using RNA-seq data. 
 
 CcpA affects CCR of \textit{fruA}. 
 \textit{fruA} fructan hydrolase
@@ -427,5 +546,20 @@ light of CcpA regulations.
 \renewcommand*{\refname}{Literature Cited}
 \bibliographystyle{../../latex/bst/mbe}
 \bibliography{siepel-mutans}
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{manuscript-figClust}
+\caption{Heatmap showing the Euclidean distances between the samples
+  as calculated from the variance-stabilizing transformation of the
+  count data.}
+\label{figClust}
+\end{figure}
+<<figClust,fig=TRUE,echo=FALSE>>=
+x <- rnorm(100)
+hist(x)
+@
 
 \end{document}

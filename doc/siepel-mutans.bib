@@ -665,6 +665,53 @@
   url = {http://dx.doi.org/10.1111/j.1574-6968.2011.02293.x}
 }
 
+@ARTICLE{Butler2008,
+  author = {Jonathan Butler and Iain MacCallum and Michael Kleber and Ilya A
+	Shlyakhter and Matthew K Belmonte and Eric S Lander and Chad Nusbaum
+	and David B Jaffe},
+  title = {ALLPATHS: de novo assembly of whole-genome shotgun microreads.},
+  journal = {Genome Res},
+  year = {2008},
+  volume = {18},
+  pages = {810--820},
+  number = {5},
+  month = {May},
+  __markedentry = {[goshng]},
+  abstract = {New DNA sequencing technologies deliver data at dramatically lower
+	costs but demand new analytical methods to take full advantage of
+	the very short reads that they produce. We provide an initial, theoretical
+	solution to the challenge of de novo assembly from whole-genome shotgun
+	"microreads." For 11 genomes of sizes up to 39 Mb, we generated high-quality
+	assemblies from 80x coverage by paired 30-base simulated reads modeled
+	after real Illumina-Solexa reads. The bacterial genomes of Campylobacter
+	jejuni and Escherichia coli assemble optimally, yielding single perfect
+	contigs, and larger genomes yield assemblies that are highly connected
+	and accurate. Assemblies are presented in a graph form that retains
+	intrinsic ambiguities such as those arising from polymorphism, thereby
+	providing information that has been absent from previous genome assemblies.
+	For both C. jejuni and E. coli, this assembly graph is a single edge
+	encompassing the entire genome. Larger genomes produce more complicated
+	graphs, but the vast majority of the bases in their assemblies are
+	present in long edges that are nearly always perfect. We describe
+	a general method for genome assembly that can be applied to all types
+	of DNA sequence data, not only short read data, but also conventional
+	sequence reads.},
+  doi = {10.1101/gr.7337908},
+  institution = {Broad Institute of MIT and Harvard, Cambridge, Massachusetts 02141,
+	USA.},
+  keywords = {Algorithms; Campylobacter jejuni, genetics; Computational Biology,
+	methods; Computer Simulation; Escherichia coli, genetics; Genome,
+	Bacterial, genetics; Reproducibility of Results; Sequence Analysis,
+	DNA, methods/standards},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {goshng},
+  pii = {gr.7337908},
+  pmid = {18340039},
+  timestamp = {2012.01.18},
+  url = {http://dx.doi.org/10.1101/gr.7337908}
+}
+
 @ARTICLE{Chen2011,
   author = {Zhoutao Chen and Xiaoping Duan},
   title = {Ribosomal RNA depletion for massively parallel bacterial RNA-sequencing
@@ -1345,6 +1392,42 @@
   url = {http://dx.doi.org/10.1093/bioinformatics/btq526}
 }
 
+@ARTICLE{Martin2011a,
+  author = {Jeffrey A Martin and Zhong Wang},
+  title = {Next-generation transcriptome assembly.},
+  journal = {Nat Rev Genet},
+  year = {2011},
+  volume = {12},
+  pages = {671--682},
+  number = {10},
+  month = {Oct},
+  abstract = {Transcriptomics studies often rely on partial reference transcriptomes
+	that fail to capture the full catalogue of transcripts and their
+	variations. Recent advances in sequencing technologies and assembly
+	algorithms have facilitated the reconstruction of the entire transcriptome
+	by deep RNA sequencing (RNA-seq), even without a reference genome.
+	However, transcriptome assembly from billions of RNA-seq reads, which
+	are often very short, poses a significant informatics challenge.
+	This Review summarizes the recent developments in transcriptome assembly
+	approaches - reference-based, de novo and combined strategies - along
+	with some perspectives on transcriptome assembly in the near future.},
+  doi = {10.1038/nrg3068},
+  institution = {Lawrence Berkeley National Laboratory, DOE Joint Genome Institute,
+	2800 Mitchell Drive, MS100 Walnut Creek, California 94598, USA. jamartin@lbl.gov},
+  keywords = {Animals; Base Sequence; Cloning, Molecular; Gene Expression Profiling,
+	methods/trends; Gene Library; Humans; Models, Biological; Molecular
+	Sequence Annotation, methods/trends; Molecular Sequence Data; Sequence
+	Analysis, DNA, methods/trends; Sequence Analysis, RNA, methods/trends},
+  language = {eng},
+  medline-pst = {epublish},
+  owner = {goshng},
+  pii = {nrg3068},
+  pmid = {21897427},
+  review = {review},
+  timestamp = {2012.01.18},
+  url = {http://dx.doi.org/10.1038/nrg3068}
+}
+
 @ARTICLE{Martin2010,
   author = {Jeffrey Martin and Wenhan Zhu and Karla D Passalacqua and Nicholas
 	Bergman and Mark Borodovsky},
@@ -1948,6 +2031,52 @@
   url = {http://dx.doi.org/10.1111/j.1751-7915.2010.00166.x}
 }
 
+@ARTICLE{Simpson2010,
+  author = {Jared T Simpson and Richard Durbin},
+  title = {Efficient construction of an assembly string graph using the FM-index.},
+  journal = {Bioinformatics},
+  year = {2010},
+  volume = {26},
+  pages = {i367--i373},
+  number = {12},
+  month = {Jun},
+  __markedentry = {[goshng]},
+  abstract = {MOTIVATION: Sequence assembly is a difficult problem whose importance
+	has grown again recently as the cost of sequencing has dramatically
+	dropped. Most new sequence assembly software has started by building
+	a de Bruijn graph, avoiding the overlap-based methods used previously
+	because of the computational cost and complexity of these with very
+	large numbers of short reads. Here, we show how to use suffix array-based
+	methods that have formed the basis of recent very fast sequence mapping
+	algorithms to find overlaps and generate assembly string graphs asymptotically
+	faster than previously described algorithms. RESULTS: Standard overlap
+	assembly methods have time complexity O(N(2)), where N is the sum
+	of the lengths of the reads. We use the Ferragina-Manzini index (FM-index)
+	derived from the Burrows-Wheeler transform to find overlaps of length
+	at least tau among a set of reads. As well as an approach that finds
+	all overlaps then implements transitive reduction to produce a string
+	graph, we show how to output directly only the irreducible overlaps,
+	significantly shrinking memory requirements and reducing compute
+	time to O(N), independent of depth. Overlap-based assembly methods
+	naturally handle mixed length read sets, including capillary reads
+	or long reads promised by the third generation sequencing technologies.
+	The algorithms we present here pave the way for overlap-based assembly
+	approaches to be developed that scale to whole vertebrate genome
+	de novo assembly.},
+  doi = {10.1093/bioinformatics/btq217},
+  institution = {Wellcome Trust Sanger Institute, Wellcome Trust Genome Campus, Cambridge,
+	CB10 1SA, UK. js18@sanger.ac.uk},
+  keywords = {Algorithms; Genomics, methods; Sequence Analysis, DNA, methods; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {goshng},
+  pii = {btq217},
+  pmid = {20529929},
+  review = {De Bruijn BWT Ferragina–Manzini index (FM-index)},
+  timestamp = {2012.01.18},
+  url = {http://dx.doi.org/10.1093/bioinformatics/btq217}
+}
+
 @ARTICLE{Sorek2010,
   author = {Rotem Sorek and Pascale Cossart},
   title = {Prokaryotic transcriptomics: a new view on regulation, physiology
@@ -2246,7 +2375,6 @@
   pages = {475--490},
   number = {4},
   month = {Dec},
-  __markedentry = {[goshng]},
   abstract = {Carbon catabolite repression (CCR) by transcriptional regulators follows
 	different mechanisms in gram-positive and gram-negative bacteria.
 	In gram-positive bacteria, CcpA-dependent CCR is mediated by phosphorylation
@@ -2675,6 +2803,46 @@
   review = {TW1},
   timestamp = {2012.01.16},
   url = {http://dx.doi.org/10.1128/JB.01624-09}
+}
+
+@ARTICLE{Zerbino2008,
+  author = {Daniel R Zerbino and Ewan Birney},
+  title = {Velvet: algorithms for de novo short read assembly using de Bruijn
+	graphs.},
+  journal = {Genome Res},
+  year = {2008},
+  volume = {18},
+  pages = {821--829},
+  number = {5},
+  month = {May},
+  __markedentry = {[goshng]},
+  abstract = {We have developed a new set of algorithms, collectively called "Velvet,"
+	to manipulate de Bruijn graphs for genomic sequence assembly. A de
+	Bruijn graph is a compact representation based on short words (k-mers)
+	that is ideal for high coverage, very short read (25-50 bp) data
+	sets. Applying Velvet to very short reads and paired-ends information
+	only, one can produce contigs of significant length, up to 50-kb
+	N50 length in simulations of prokaryotic data and 3-kb N50 on simulated
+	mammalian BACs. When applied to real Solexa data sets without read
+	pairs, Velvet generated contigs of approximately 8 kb in a prokaryote
+	and 2 kb in a mammalian BAC, in close agreement with our simulated
+	results without read-pair information. Velvet represents a new approach
+	to assembly that can leverage very short reads in combination with
+	read pairs to produce useful assemblies.},
+  doi = {10.1101/gr.074492.107},
+  institution = {EMBL-European Bioinformatics Institute, Wellcome Trust Genome Campus,
+	Hinxton, Cambridge CB10 1SD, United Kingdom.},
+  keywords = {Algorithms; Animals; Chromosomes, Artificial, Bacterial; Computational
+	Biology, methods; Computer Simulation; Genome, Bacterial; Genome,
+	Human; Genomics; Humans; Mammals, genetics; Sequence Analysis, DNA,
+	methods/standards; Streptococcus, genetics},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {goshng},
+  pii = {gr.074492.107},
+  pmid = {18349386},
+  timestamp = {2012.01.18},
+  url = {http://dx.doi.org/10.1101/gr.074492.107}
 }
 
 @comment{jabref-meta: selector_publisher:}

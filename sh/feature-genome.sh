@@ -42,6 +42,11 @@ function feature-genome {
         -geneonly \
         -in $REFGENOMEPTT \
         -out $DATADIR/$FUNCNAME.out-geneonly"
+      COMMAND1a="perl pl/$FUNCNAME.pl ptt2 \
+        -withproduct \
+        -geneonly \
+        -in $REFGENOMEPTT \
+        -out $DATADIR/$FUNCNAME.out-geneonly.txt"
       COMMAND2="perl pl/$FUNCNAME.pl ptt \
         -in $REFGENOMEPTT \
         -intergenicregion \
@@ -57,11 +62,13 @@ function feature-genome {
 
       if [ "$BATCH" == "YES" ]; then
         echo $COMMAND1 >> $BATCHFILE
+        echo $COMMAND1a >> $BATCHFILE
         #echo $COMMAND2 >> $BATCHFILE
         echo $COMMAND3 >> $BATCHFILE
         echo $COMMAND4 >> $BATCHFILE
       else
         echo $COMMAND1 | bash
+        echo $COMMAND1a | bash
         #echo $COMMAND2 | bash
         echo $COMMAND3 | bash
         echo $COMMAND4 | bash

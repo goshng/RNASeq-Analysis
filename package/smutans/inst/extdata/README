@@ -1,0 +1,19 @@
+count.txt
+---------
+Count data sets of 34 RNA-seq samples.
+count.txt.index contains the labels for each sample.
+The original find can be found at output/cornell/1/bwa/count.txt.
+
+count2.txt
+----------
+Count data sets of 34 RNA-seq samples based on predicted transcripts and small
+RNAs as well as annotated genes. Use the same count.txt.index file. The original
+find can be found at output/cornell/2/bwa/count.txt.
+
+
+Gene ontology analysis
+----------------------
+feature-genome.out-geneonly
+smutans.gene2go
+smutans.go2ngene
+target.rnaplex.acc.out

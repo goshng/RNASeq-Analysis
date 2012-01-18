@@ -49,6 +49,7 @@ GetOptions( \%params,
             'intergenicregiononly',
             'startcodon',
             'geneonly',
+            'withproduct',
             'windowsize=i',
             'genomelength=i',
             'out=s',
@@ -197,7 +198,16 @@ elsif ($cmd eq "ptt2")
       {
         $end = $genomelength;
       }
-      print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
+
+      if (exists $params{withproduct})
+      {
+        print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\t";
+        print $outfile "$g->{Product}\n";
+      }
+      else
+      {
+        print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
+      }
     }
   }
   elsif (exists $params{geneonly})
@@ -208,7 +218,16 @@ elsif ($cmd eq "ptt2")
       $g->{Location} =~ /(\d+)\.\.(\d+)/;
       my $start = $1 - 1; # PTT is 1-base, BED is 0-base.
       my $end = $2;
-      print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
+
+      if (exists $params{withproduct})
+      {
+        print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\t";
+        print $outfile "$g->{Product}\n";
+      }
+      else
+      {
+        print $outfile "$chromosome\t$start\t$end\t$g->{Synonym}\t0\t$g->{Strand}\n";
+      }
     }
   }
 }

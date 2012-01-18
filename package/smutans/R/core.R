@@ -171,50 +171,6 @@ smutans.prepareDataOMZ175 <- function ()
   save(smomzGenes, file=file.path("smutans", "data", "smomzGenes.RData"))
 }
 
-smutans.prepareGoseq <- function ()
-{
-  f <- "smutans/inst/extdata/feature-genome.out-geneonly"
-  smutans.feature.genes = read.table(file=f,head=F)
-  save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.gene2go"
-  smutans.go.genes <- read.table(file=f,head=F)
-  save(smutans.go.genes, file=file.path("smutans", "data", "smutans.go.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.go2ngene"
-  smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
-  save(smutans.cat.desc, file=file.path("smutans", "data", "smutans.cat.desc.RData"))
-}
-
-smutans.makeData <- function( ngenes=500 ) 
-{
-  q0 <- rexp( ngenes, rate=1/250 )
-  is_DE <- runif( ngenes ) < .3
-  lfc <- rnorm( ngenes, sd=2 )
-  q0A <- ifelse( is_DE, q0 * 2^(  lfc/2 ), q0 )
-  q0B <- ifelse( is_DE, q0 * 2^( -lfc/2 ), q0 )
-  true_sf <- c( 1., 1.3, .7, .9, 1.6 )   
-  conds <- c( "A", "A", "B", "B", "B" )
-  m <- t( sapply( 1:ngenes, function(i) 
-     sapply( 1:5, function( j )
-        rnbinom( 1, mu = true_sf[j] * ifelse( conds[j]=="A", q0A[i], q0B[i] ), 
-           size = 1/.2 ) ) ) )
-  colnames(m) <- c( "A1", "A2", "B1", "B2", "B3" )
-  rownames(m) <- paste( "gene", 1:ngenes, 
-    ifelse( is_DE, "T", "F" ), sep="_" )
-  newCountDataSet( m, conds )
-}
-smutans.prepareGoseq <- function ()
-{
-  f <- "smutans/inst/extdata/feature-genome.out-geneonly"
-  smutans.feature.genes = read.table(file=f,head=F)
-  save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.gene2go"
-  smutans.go.genes <- read.table(file=f,head=F)
-  save(smutans.go.genes, file=file.path("smutans", "data", "smutans.go.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.go2ngene"
-  smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
-  save(smutans.cat.desc, file=file.path("smutans", "data", "smutans.cat.desc.RData"))
-}
-
 smutans.makeData <- function( ngenes=500 ) 
 {
   q0 <- rexp( ngenes, rate=1/250 )
@@ -313,59 +269,9 @@ smutans.prepareGoseq <- function ()
   f <- "smutans/inst/extdata/smutans.go2ngene"
   smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
   save(smutans.cat.desc, file=file.path("smutans", "data", "smutans.cat.desc.RData"))
-}
-
-smutans.makeData <- function( ngenes=500 ) 
-{
-  q0 <- rexp( ngenes, rate=1/250 )
-  is_DE <- runif( ngenes ) < .3
-  lfc <- rnorm( ngenes, sd=2 )
-  q0A <- ifelse( is_DE, q0 * 2^(  lfc/2 ), q0 )
-  q0B <- ifelse( is_DE, q0 * 2^( -lfc/2 ), q0 )
-  true_sf <- c( 1., 1.3, .7, .9, 1.6 )   
-  conds <- c( "A", "A", "B", "B", "B" )
-  m <- t( sapply( 1:ngenes, function(i) 
-     sapply( 1:5, function( j )
-        rnbinom( 1, mu = true_sf[j] * ifelse( conds[j]=="A", q0A[i], q0B[i] ), 
-           size = 1/.2 ) ) ) )
-  colnames(m) <- c( "A1", "A2", "B1", "B2", "B3" )
-  rownames(m) <- paste( "gene", 1:ngenes, 
-    ifelse( is_DE, "T", "F" ), sep="_" )
-  newCountDataSet( m, conds )
-}
-smutans.prepareGoseq <- function ()
-{
-  f <- "smutans/inst/extdata/feature-genome.out-geneonly"
-  smutans.feature.genes = read.table(file=f,head=F)
-  save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.gene2go"
-  smutans.go.genes <- read.table(file=f,head=F)
-  save(smutans.go.genes, file=file.path("smutans", "data", "smutans.go.genes.RData"))
-  f <- "smutans/inst/extdata/smutans.go2ngene"
-  smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
-  save(smutans.cat.desc, file=file.path("smutans", "data", "smutans.cat.desc.RData"))
   f <- "smutans/inst/extdata/target.rnaplex.acc.out"
   smutans.genes.criteria = read.table(file=f,head=T,sep="\t",quote="")
   save(smutans.genes.criteria, file=file.path("smutans", "data", "smutans.genes.criteria.RData"))
-}
-
-smutans.makeData <- function( ngenes=500 ) 
-{
-  q0 <- rexp( ngenes, rate=1/250 )
-  is_DE <- runif( ngenes ) < .3
-  lfc <- rnorm( ngenes, sd=2 )
-  q0A <- ifelse( is_DE, q0 * 2^(  lfc/2 ), q0 )
-  q0B <- ifelse( is_DE, q0 * 2^( -lfc/2 ), q0 )
-  true_sf <- c( 1., 1.3, .7, .9, 1.6 )   
-  conds <- c( "A", "A", "B", "B", "B" )
-  m <- t( sapply( 1:ngenes, function(i) 
-     sapply( 1:5, function( j )
-        rnbinom( 1, mu = true_sf[j] * ifelse( conds[j]=="A", q0A[i], q0B[i] ), 
-           size = 1/.2 ) ) ) )
-  colnames(m) <- c( "A1", "A2", "B1", "B2", "B3" )
-  rownames(m) <- paste( "gene", 1:ngenes, 
-    ifelse( is_DE, "T", "F" ), sep="_" )
-  newCountDataSet( m, conds )
 }
 
 smutans.run.mw <- function(x, gocats, gocats.col="go", descrips=NULL, noisy=FALSE) {
@@ -450,4 +356,44 @@ smutans.mannwhitney <- function( qval=0.05,genes.criteria,go.genes,cat.desc ) {
     }
   }
 }
+
+smutans.prepareTranscript <- function ()
+{
+  # Predicted transcripts
+  parseRNAseqOutFile <- "smutans/inst/extdata/FASTQ001.parsernaseq1"
+  x <- read.table(parseRNAseqOutFile, head=FALSE)
+  number.tx <- length(rownames(x))
+  smutansData.tx <- GRanges( seqnames = Rle("chr1", number.tx),
+                              ranges =
+                                IRanges(start=x$V4,
+                                        end=x$V5,
+                                        names=sprintf("tx%04d",seq(number.tx))),
+                              strand = Rle(strand("*"),number.tx),
+                              score=x$V6,
+                              state=substring(x$V9,6)
+                            )
+  # ParseRNAseq input pileup or coverage file
+  parseRNAseqInFile <- "smutans/inst/extdata/FASTQ001.parsernaseq.pileup"
+  x <- read.table(parseRNAseqInFile, head=FALSE)
+  pileup.v <- Rle(x$V2)
+  seqlengths(smutansData.tx) <- length(pileup.v)
+
+  f <- "smutans/inst/extdata/feature-genome.out-geneonly"
+  smutans.feature.genes = read.table(file=f,head=F)
+
+  number.tx <- length(rownames(smutans.feature.genes))
+  smutansData.txGenes <- GRanges( seqnames = Rle("chr1", number.tx),
+                                   ranges =
+                                     IRanges(start=smutans.feature.genes$V2 + 1,
+                                             end=smutans.feature.genes$V3,
+                                             names=smutans.feature.genes$V4),
+                                   strand = Rle(strand(smutans.feature.genes$V6))
+                                 )
+  seqlengths(smutansData.txGenes) <- length(pileup.v)
+
+  save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
+  save(smutansData.tx, file=file.path("smutans", "data", "smutansData.tx.RData"))
+  save(smutansData.txGenes, file=file.path("smutans", "data", "smutansData.txGenes.RData"))
+}
+
 

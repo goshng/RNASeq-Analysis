@@ -110,6 +110,7 @@ smutans.prepareGoseq( )
 smutans.prepareDataOMZ175( ) 
 smutans.prepareDataUA159CSP( ) 
 smutans.prepareDataSMU86CSP( )
+smutans.prepareTranscript( )
 q("no")
 @
 <<options,results=hide,echo=FALSE>>=
@@ -705,7 +706,14 @@ probabilities. Given a range of possible transcription boundaries we can find
 estimates of positions and geometirc parmeter $p$ that maximize the likelihood
 for both ends of a transcript.
 
-\Rpackage{GenomicRanges} might be useful in 
+\Rpackage{GenomicRanges} is useful in summarizing predicted transcripts.
+feature-genome.out-geneonly is stored in \Robject{smutans.feature.genes}.  
+File FASTQ001.parsernaseq1 is ParseRNAseq output file for transcript
+predictions. File FASTQ001.parsernaseq.pileup is ParseRNAseq input file for
+site-wise expression levels. 
+
+\Rfunction{smutans.prepareTranscript} creates two objects:
+\Robject{smutans.tx} and \Robject{smutans.txPileup}.
 <<tx,eval=FALSE>>=
 source("http://www.bioconductor.org/biocLite.R")
 biocLite("GenomicRanges")

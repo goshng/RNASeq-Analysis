@@ -3,11 +3,10 @@ Test of GenomicRanges R package
 Sang Chul Choi <goshng@yahoo.co.kr>
 
 I have two input files: a pileup file, and a transcripts-map file. Using the two
-files I wish perform the following:
+files I wish to perform the following:
 
 .Things To Do
-. Load a ParseRNAseq output file or its BED file into a GenomicRanges or IRanges
-object
+. Load a ParseRNAseq output file or its BED file into a GenomicRanges or IRanges object
 . Load the pileup file as Rle or a vector object
 . Find the number of transcripts
 . Plot or summarize transcript lengths distribution
@@ -17,3 +16,8 @@ object
 . Find transcripts without annotated genes as putative non-coding elements
 . Find transcripts with genes with conflicted strands
 
+.Input Files that I need
+. FASTQ001.parsernaseq.pileup - ParseRNAseq input file for site-wise expression levels 
+. FASTQ001.parsernaseq1 - ParseRNAseq output file for transcript predictions
+. feature-genome.out-geneonly - Genes
+. feature-genome.out-parsernaseq1 - ParseRNAseq input file but not used here
