@@ -275,6 +275,9 @@ setMethod("smutans.de2List",
       # options(width = 1000) 
       return(resSig[order(resSig$pval),])
       # return( object@res )
+    } else if (file == "tex") {
+      # Write the result in tex format.
+      print ("AAA")
     } else {
       write.csv(object@res, file=file)
     }

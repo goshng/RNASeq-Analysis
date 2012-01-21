@@ -363,6 +363,8 @@ smutans.prepareTranscript <- function ()
   parseRNAseqOutFile <- "smutans/inst/extdata/FASTQ001.parsernaseq1"
   x <- read.table(parseRNAseqOutFile, head=FALSE)
   number.tx <- length(rownames(x))
+  tx.state <- sub("_[[:digit:]]*", "", substring(x$V9,6))
+  tx.state <- sub("C", "", tx.state)
   smutansData.tx <- GRanges( seqnames = Rle("chr1", number.tx),
                               ranges =
                                 IRanges(start=x$V4,
@@ -370,7 +372,7 @@ smutans.prepareTranscript <- function ()
                                         names=sprintf("tx%04d",seq(number.tx))),
                               strand = Rle(strand("*"),number.tx),
                               score=x$V6,
-                              state=substring(x$V9,6)
+                              state=as.integer(tx.state)
                             )
   # ParseRNAseq input pileup or coverage file
   parseRNAseqInFile <- "smutans/inst/extdata/FASTQ001.parsernaseq.pileup"
@@ -391,9 +393,11 @@ smutans.prepareTranscript <- function ()
                                  )
   seqlengths(smutansData.txGenes) <- length(pileup.v)
 
+  smutansData.txPileup <- pileup.v
   save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
   save(smutansData.tx, file=file.path("smutans", "data", "smutansData.tx.RData"))
   save(smutansData.txGenes, file=file.path("smutans", "data", "smutansData.txGenes.RData"))
+  save(smutansData.txPileup, file=file.path("smutans", "data", "smutansData.txPileup.RData"))
 }
 
 

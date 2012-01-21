@@ -1,0 +1,244 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color} 
+\usepackage{setspace} 
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{xr}
+\usepackage{../../latex/sty/genres}
+\usepackage{url}
+\usepackage{longtable}
+
+\externaldocument{manuscript}
+
+% Text layout
+\oddsidemargin 0in
+\evensidemargin 0in
+\topmargin -.5in
+\textwidth 6.5in
+\textheight 9in
+\usepackage[labelfont=bf,labelsep=period,justification=raggedright]{caption}
+
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=6,height=6}
+\newcommand{\Rpackage}[1]{R package \textit{#1}}
+\newcommand{\program}[1]{{\texttt{#1}}}
+\newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
+\newcommand{\comment}[1]{}
+
+\makeatother
+\pagestyle{myheadings}
+\markright{Transcriptome of Streptococcus mutans}
+
+% 
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+
+\makeatother
+
+\renewcommand{\thefootnote}{\textit{\alph{footnote}}}
+
+% Leave date blank
+\date{}
+
+\pagestyle{myheadings}
+%% ** EDIT HERE **
+\markright{Transcriptome of Streptococcus mutans}
+
+\begin{document}
+
+\setcounter{secnumdepth}{-1} 
+
+\noindent \begin{LARGE}{\bf Defining Transcriptome using RNA Sequencing
+ \\[0.7ex] 
+of {\em Streptococcus mutans}}\end{LARGE}\\[2ex]
+{\bf 
+Sang Chul Choi, Charles D.\ Danko, Melissa J.\ Hubisz, \\
+Paulina Dmitrievna Pavinski Bitar, \\
+Robert A.\ Burne, Michael J.\ Stanhope, and Adam Siepel}%\\[0.5ex]
+
+\tableofcontents
+
+\listoftables
+
+\listoffigures
+
+\doublespacing
+
+\clearpage
+
+<<echo=FALSE,results=hide>>=
+# not run when smutans R package is installed
+# Use this when smutans R package is being tested.
+library(DESeq)
+library(GenomicRanges)
+library(plotrix)
+library(xtable)
+source("smutans/R/class_and_slots.R")
+source("smutans/R/core.R")
+source("smutans/R/methods.R")
+load("smutans/data/smutansData.tx.RData")
+load("smutans/data/smutansData.txGenes.RData")
+load("smutans/data/smutansData.txPileup.RData")
+load("smutans/data/smutans.feature.genes.RData")
+load("smutans/data/smutans.genes.criteria.RData")
+load("smutans/data/smutans.go.genes.RData")
+load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutansGenes.RData")
+@
+
+\section{Supplementary Text}
+A
+\subsection{Summary statistics for recombinant trees}
+\citep{Gorke2008}
+
+\enlargethispage{\baselineskip}
+
+\renewcommand*{\refname}{Literature Cited}
+\bibliographystyle{../../latex/bst/mbe}
+\bibliography{siepel-mutans}
+
+\clearpage{}\setcounter{figure}{0}
+\setcounter{table}{0}
+
+\makeatletter 
+\renewcommand{\thefigure}{S\@arabic\c@figure} 
+\renewcommand{\thetable}{S\@arabic\c@table} 
+\renewcommand{\figurename}{Supplementary Figure}
+\renewcommand{\tablename}{Supplementary Table}
+\makeatother
+
+%\section{Supplementary Tables}
+
+<<echo=FALSE,results=hide>>=
+geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
+geneDescription <- geneDescription[,c(4,7)]
+colnames(geneDescription) <- c("Gene ID","Gene Description")
+@
+
+<<echo=FALSE,results=tex>>=
+#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+#                            condA="ua159", condB="tw1" )
+#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
+load("glucoseOnly.RData")
+x <- smutans.de2List( glucoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=0,
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabGlucoseOnly',
+                 caption='List of genes for the comparison UA159 and TW1 under glocuse-grown cells',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+@
+\clearpage{}
+
+<<echo=FALSE,results=tex>>=
+#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+#                              condA="ua159", condB="tw1" )
+#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+load("galactoseOnly.RData")
+x <- smutans.de2List( galactoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=0,
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabGalactoseOnly',
+                 caption='List of genes for the comparison UA159 and TW1 under galactose-grown cells',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+@
+\clearpage{}
+
+<<echo=FALSE,results=tex>>=
+#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#save(ua159only, file=file.path("ua159only.RData"))
+load("ua159only.RData")
+x <- smutans.de2List( ua159only, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=0,
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabUA159Only',
+                 caption='List of genes for the comparison of UA159 wild-type grown with glucose and galactose ',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+@
+\clearpage{}
+
+<<echo=FALSE,results=tex>>=
+#tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
+#tw1only <- smutans.de2( tw1only, type="tw1", 
+#                          condA="glucose", condB="galactose" )
+#save(tw1only, file=file.path("tw1only.RData"))
+load("tw1only.RData")
+x <- smutans.de2List( tw1only, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=0,
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabTW1Only',
+                 caption='List of genes for the comparison of TW1 mutant-type grown with glucose and galactose ',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+@
+\clearpage{}
+
+%\section{Supplementary Figures}
+
+%=============================================================================
+%\begin{figure}[!ht]
+%\includegraphics[scale=0.42]{figures/clonalorigin}
+%\caption[Illustration of recombinant tree]{
+%{\bf Illustration of a recombinant tree in the ClonalOrigin model.}
+%(A) A recombinant tree for our five-sample clonal frame with four
+%recombinant edges (dashed lines with arrows running from donors to
+%recipients).  (B) Genomic 
+%regions associated with recombinant edges.  Recombination 
+%intensities (number of edge types present) and gene tree labels are shown at
+%bottom. (C)~Induced local gene trees.
+%Bold lines indicate branches of the clonal frame, while dashed lines indicate
+%recombinant edges. See section \textbf{Summary statistics of recombinant trees} in
+%\textbf{Supplementary Text} for additional details.}
+%\label{fig:clonalorigin}
+%\end{figure}
+%\clearpage{}%
+%=============================================================================
+
+
+\end{document}
