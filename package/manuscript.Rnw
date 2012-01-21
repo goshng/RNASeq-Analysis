@@ -597,11 +597,32 @@ RNA-seq data sets. They can also be queried and intersected with other tracks
 using the UCSC Table Browser.
 
 <<echo=FALSE,result=hide>>=
-glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
-glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
-                            condA="ua159", condB="tw1" )
+#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+#                            condA="ua159", condB="tw1" )
+#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
+load("glucoseOnly.RData")
 smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
+tableGlucoseOnly <- smutans.de2List( glucoseOnly, qval=1e-3 )
+
+# Gene descriptions
+geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
+geneDescription <- geneDescription[,c(4,7)]
+colnames(geneDescription) <- c("Gene ID","Gene Description")
+# Functional classes
+functionalDescription <- read.csv("feature-genome.out-geneonly-oralgen-functional.txt",head=FALSE)
+functionalDescription <- functionalDescription[,c(2,12)]
+colnames(functionalDescription) <- c("Gene ID","Functional Class")
+# Find potential differentially expressed genes, and add gene descriptions, and
+# functional classes
+x <- smutans.de2List( glucoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGlucoseOnly <- x
 @
+
 % Differential expression study
 We sequenced 
 \Sexpr{length(colnames(counts(smutansGenes)))}
@@ -621,6 +642,9 @@ detect differentially expressed genes.
 
 We list differentially expressed genes in the comparison of UA159 wild-type and
 TW1 mutant-type in Table \ref{tabGlucoseOnly}.  
+Of \Sexpr{nrow(counts(smutansGenes))} genes, 
+\Sexpr{nrow(tableGlucoseOnly)} genes were found to be differentially expressed
+at FDR of 0.1\%. 
 
 Table \ref{tabGalactoseOnly}.  
 Table \ref{tabUA159Only}.  

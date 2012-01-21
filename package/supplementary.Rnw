@@ -77,6 +77,7 @@ library(DESeq)
 library(GenomicRanges)
 library(plotrix)
 library(xtable)
+library(RColorBrewer)
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
@@ -117,6 +118,10 @@ A
 geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
 geneDescription <- geneDescription[,c(4,7)]
 colnames(geneDescription) <- c("Gene ID","Gene Description")
+
+functionalDescription <- read.csv("feature-genome.out-geneonly-oralgen-functional.txt",head=FALSE)
+functionalDescription <- functionalDescription[,c(2,12)]
+colnames(functionalDescription) <- c("Gene ID","Functional Class")
 @
 
 <<echo=FALSE,results=tex>>=
@@ -131,7 +136,7 @@ colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
 x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
 x.big <- xtable( x[order(x[,"p-value"]),],
                  display=c("s","s","d","d","f","e","s"),
-                 digits=0,
+                 digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabGlucoseOnly',
                  caption='List of genes for the comparison UA159 and TW1 under glocuse-grown cells',
@@ -141,9 +146,48 @@ print( x.big,
        caption.placement="top",
        include.rownames=FALSE,
        floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
 @
 \clearpage{}
 
+We confirmed that the most upregulated genes in the TW1 mutant-type encoded the
+components of the PDH enzyme complex (SMU.1421, SMU.1422, SMU.1423, and
+SMU.1424).  
+\Sexpr{length(grep("Energy metabolism",x[,"Functional Class"]))}
+\Sexpr{length(grep("PTS",x[,"Functional Class"]))}
+\Sexpr{length(grep("hypothetical",x[,"Gene Description"]))}
+
+<<figPieGlucoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+#par(mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- x[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieGlucoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in glucose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Biosynthesis of cofactors, prosthetic groups, and carriers; Thiamine'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieGlucoseOnly}
+\end{figure}
+
+\clearpage{}
 <<echo=FALSE,results=tex>>=
 #galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
 #galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
@@ -156,7 +200,7 @@ colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
 x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
 x.big <- xtable( x[order(x[,"p-value"]),],
                  display=c("s","s","d","d","f","e","s"),
-                 digits=0,
+                 digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabGalactoseOnly',
                  caption='List of genes for the comparison UA159 and TW1 under galactose-grown cells',
@@ -166,34 +210,102 @@ print( x.big,
        caption.placement="top",
        include.rownames=FALSE,
        floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
 @
 \clearpage{}
 
+<<figPieGalactoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+#par(mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- x[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieGalactoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Glutamate family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieGalactoseOnly}
+\end{figure}
+
+
+\clearpage{}
 <<echo=FALSE,results=tex>>=
 #ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
 #ua159only <- smutans.de2( ua159only, type="ua159", 
 #                          condA="glucose", condB="galactose" )
 #save(ua159only, file=file.path("ua159only.RData"))
 load("ua159only.RData")
-x <- smutans.de2List( ua159only, qval=1e-3 )
+x <- smutans.de2List( ua159only, qval=1e-10 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
 x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
 x.big <- xtable( x[order(x[,"p-value"]),],
                  display=c("s","s","d","d","f","e","s"),
-                 digits=0,
+                 digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabUA159Only',
-                 caption='List of genes for the comparison of UA159 wild-type grown with glucose and galactose ',
+                 caption='List of genes for the comparison of UA159 wild-type grown with glucose and galactose. Note that we used 1e-10 as the p-value cutoff.',
                )
 print( x.big,
        tabular.environment='longtable',
        caption.placement="top",
        include.rownames=FALSE,
        floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
 @
 \clearpage{}
 
+<<figPieUA159Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- x[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+#legend(-1.1,1.1,names(z[1:27]),bty='n',cex=0.7,fill=c1)
+#legend(0,0.4,names(z[-c(1:27)]),bty='n',cex=0.7,fill=c1)
+
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieUA159Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type grown in glucose and galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Glutamate family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieUA159Only}
+\end{figure}
+
+\clearpage{}
 <<echo=FALSE,results=tex>>=
 #tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
 #tw1only <- smutans.de2( tw1only, type="tw1", 
@@ -206,7 +318,7 @@ colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
 x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
 x.big <- xtable( x[order(x[,"p-value"]),],
                  display=c("s","s","d","d","f","e","s"),
-                 digits=0,
+                 digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabTW1Only',
                  caption='List of genes for the comparison of TW1 mutant-type grown with glucose and galactose ',
@@ -216,8 +328,38 @@ print( x.big,
        caption.placement="top",
        include.rownames=FALSE,
        floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
 @
 \clearpage{}
+
+<<figPieTW1Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- x[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieTW1Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing TW1 mutant-type grown in glucose and galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Histidine family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieTW1Only}
+\end{figure}
 
 %\section{Supplementary Figures}
 
