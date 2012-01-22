@@ -7,8 +7,8 @@ OUTEXTS=aux bbl blg log pdf dvi lof lot toc
 
 .SUFFIXES: .tex .pdf .Rnw
 
-#DOCS = supplementary manuscript 
-DOCS = supplementary
+DOCS = supplementary manuscript 
+#DOCS = supplementary
 
 all: ${DOCS:%=%.pdf}
 

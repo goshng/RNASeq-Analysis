@@ -191,6 +191,10 @@ glucose and grown to early exponential phase (OD600, 0.2).  Then fructose was
 added to the medium at concentrations (0,0.05,3,5,10 mM) for 3.5h to induce
 \textit{fruA} expression.
 
+Expression levels of \textit{fruA} in \textit{S.\ mutans} strains that were
+grown to early exponential phase (OD600, 0.2) in TV medium supplemented with
+0.5\% glucose or galactose. 
+
 \subsection{RNA isolation}
 \fixme{Burne group should be able to describe this part. The following is just
 from somewhere for the purpose of writing template. Please, rewrite it.}
@@ -316,13 +320,14 @@ genes/families.  We used the \cite{Benjamini1995} method to correct for multiple
 comparisons.
 \fixme{A short description about \citep{Young2010}.}
 
-\section{Results}
 \comment{
 Findings include:
 \begin{enumerate}
 \item New genes, open reading frames that are not annotated in NCBI's genome database.
 \end{enumerate}
 }
+
+\section{Results}
 We sequenced a whole prokaryotic transcriptome of \textit{S.\ mutans}, and
 mapped short reads to the genomic sequence of the reference genome UA159
 \citep{Ajdic2002}. 
@@ -336,28 +341,27 @@ transcripts. We found discrepancies of annotated genes and their transcriptions:
 Expression levels of adjacent genes within a transcript should be more
 correlated to each other than those of adjacent genes belonging to separate transcripts
 \citep{Martin2010}. 
-
 We identified a set of transcripts, albeit not a full, including small RNAs, and novel
 transcripts. 
 We hope that our study could serve as a foundation for a comprehensive study of
 the \textit{S.\ mutans} transcriptome.
 Our current knowledge of the transcriptome is limited to annotated or predicted genes.
-
 Whole transcriptome sequencing using high throughput sequencing (HTS)
 technologies, or deep RNA sequencing (RNA-seq) allowed to reveal the
-transcriptome topography of \textit{S.\ mutans}. 
+transcriptome topography of \textit{S.\ mutans}. We did not aim at precisely
+pin-pointing transcript start or end sites.
+
+We admit that strand-specific RNA-seq would be important in gene-dense
+transcriptomes of species like bacteria or archaea.
 
 \subsection{From Reviews}
-We reconstructed the full-length transcripts by transcriptome assembly using
-xxx.
 
-We tried in vain to use short-read assemblers such as Velvet \citep{Zerbino2008} that had been developed to
-assembly transcriptome.
-Trinity
-
-gene-dense transcriptomes
-
+We could not use short-read assemblers such as Velvet \citep{Zerbino2008} 
+and Trinity that had been developed to assembly transcriptome. Because genes in
+bacteria are so dense, RNA-seq data without strands did not allow us to apply
+any state-of-the-art software of transcriptome assembly.
 We ensured a high-quality transcriptome assembly. 
+
 
 In the data generation phase (FIG. 1a), total RNAs or mRNAs are fragmented and
 converted into a library of cDNAs containing sequencing adaptors.  
@@ -570,6 +574,14 @@ correlated than those between adjacent transcripts
 (Figure \ref{figExpressionTwoGene}).
 % Question: What are the promoter scores? 
 
+Name the transcripts.
+I found xx transcripts. Among them xx \% were mono-cistronic operons. xx \% were
+poly-cistronic operons. xx transcripts could not defined because RNA-seq short
+reads were not precise. Transripts were assigned with functional categories, and
+differentially expressed transcripts were found. Transcripts and functional
+categories: how can I assess that transcripts consist of genes with similar
+functional cateogires. 
+
 % Small RNAs predicted
 Although we aimed at sequencing messenger RNAs, we expected to find regulatory
 small RNAs in the RNA-seq data because we attempted to deplete structrual
@@ -586,6 +598,13 @@ we predicted target genes of the putative small RNAs.  Table \ref{tab:goseq}
 shows functional categories enriched with target genes for predicted small RNAs.
 We found that a few of the putative small RNAs were structured with stable stems
 (SHOW FIGURES). 
+
+Name the small RNAs.
+RNAz predicted a few small RNAs. Some of them were differentially expressed.
+Some functional categories were enriched with target genes of the predicted
+genes. 
+
+
 
 % UCSC genome browser resources
 We created new tracks for our recently released {\em Streptococcus} Genome
@@ -645,125 +664,114 @@ TW1 mutant-type in Table \ref{tabGlucoseOnly}.
 Of \Sexpr{nrow(counts(smutansGenes))} genes, 
 \Sexpr{nrow(tableGlucoseOnly)} genes were found to be differentially expressed
 at FDR of 0.1\%. 
+We confirmed that the most upregulated genes in the TW1 mutant-type encoded the
+components of the PDH enzyme complex (SMU.1421, SMU.1422, SMU.1423, and
+SMU.1424).  
+Figure \ref{figPieGlucoseOnly} shows the proportions of functional categories 
+of the differentially expressed genes. Notably, we found
+\Sexpr{length(grep("Energy metabolism",tableGlucoseOnly[,"Functional Class"]))}
+genes that were involved in energy metabolism. Sugars and fermentation
+subclasses were profound in energy metabolism. We also found 
+\Sexpr{length(grep("PTS",tableGlucoseOnly[,"Functional Class"]))}
+genes in PTS class of signal transduction. Another subclass, 
+``carbohydrates, organic alcohols, and acids,'' in
+``transport and binding proteins'' was following next in the number of
+differentially expressed genes. We also found  
+\Sexpr{length(grep("hypothetical",tableGlucoseOnly[,"Gene Description"]))}
+genes annotated as hypothetical, which might constitute the unknown functional
+class. These results were consistent with those of \citet{Abranches2008}.
+Profoundly upregulated genes in response to the lack of CcpA were
+putative Clp proteinase (SMU.1425), 
+branched-chain alpha-keto acid dehydrogenase subunit E2 (SMU.1421), and
+putative transcriptional regulator (SMU.1599).
+Down-regulated genes include cytoplasmic alpha-amylase (SMU.1590), 
+beta-D-fructosyltransferase (SMU.2028), and
+putative glycerol uptake facilitator protein (SMU.396).
+Fructosyltransferase converts sucrose to fructose.
 
-Table \ref{tabGalactoseOnly}.  
-Table \ref{tabUA159Only}.  
-Table \ref{tabTW1Only}.  
+<<echo=FALSE,result=hide>>=
+#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+#                              condA="ua159", condB="tw1" )
+#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+load("galactoseOnly.RData")
+x <- smutans.de2List( galactoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGalactoseOnly <- x
+@
+We found that differentially expressed genes in galactose-grown cells were
+smaller than those in glucose-grown cells, which was different from the result
+of \cite{Abranches2008}. 
+Energy metabolism was the most
+profoundly differentially expressed (fig.\ \ref{figPieGalactoseOnly}).
+Subclasses pyruvate family in amino acid biosynthesis, 
+and degradation of proteins, peptides, and glycopeptides in protein fate
+were following the next. Almost quarter of the genes were unknown.
+Down-regulated genes included cytoplasmic alpha-amylase (SMU.1590), and
+beta-D-fructosyltransferase (SMU.2028)
+(table \ref{tabGalactoseOnly}).
 
-\fixme{Let's compare the microarray result and that from RNA-seq.}
-\fixme{Use KEGG for functional category study.}
-\fixme{Display results in UCSC genome browser.}
-\fixme{Let's find strand-specific RNA-seq.}
-\fixme{Add gene descriptions and functional category in the result of DE study.}
+<<echo=FALSE,result=hide>>=
+#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#save(ua159only, file=file.path("ua159only.RData"))
+load("ua159only.RData")
+x <- smutans.de2List( ua159only, qval=1e-10 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableUA159Only <- x
+@
+Figure \ref{figPieUA159Only} shows proportons of functional categories that
+included differentially expressed genes between glucose-grown and
+galactose-grown UA159 wild-type cells. Qualitatively, energy metabolism and PTS
+classes were profound. This was silmilar to the comparison between UA159
+wild-type and TW1 mutant-type grown in glucose. More than quarter of the
+differentially expressed genes were unknown, unassigned, or hypothetical.
+Consecutive genes (SMU.1488 to SMU.1496) were upregulated in 
+catabolite-derepressing conditions or in galactose-grown cells
+(\fixme{Are these the genes of the lactose (lac) operon?})
+(table \ref{tabUA159Only}).  Another set of genes (SMU.886 to SMU.889) were also
+upregulated (\fixme{Are these called galKTE?}).  
+Genes from SMU.1535 to SMU.1538 were upregulated. 
+Of the \Sexpr{nrow(tableUA159Only)} differentially expressed genes at
+$1 \times 10^{-10}$ cutoff of multiple testing adjusted p-value, 
+\Sexpr{length(grep("hypothetical",tableUA159Only[,"Gene Description"]))} were
+hypothetical, and most of them were down-regulated. 
+A few of the down-regulated genes were annotated.
 
-We verified the genes using RNA-seq data. 
+We also found sugar metabolism and PTS signal transduction to be profound in
+differential expression in the comparison of glucose-grown and galactose-grown
+TW1 mutant-type cells figure \ref{figPieTW1Only}. Many of the genes were also
+hypothetical. We found similar genes differentially expressed in TW1 mutant-type
+cells to those in UA159 wild-type (table \ref{tabTW1Only}).  
 
-CcpA affects CCR of \textit{fruA}. 
-\textit{fruA} fructan hydrolase
-When Wen2002 deleted CRE sequencs in the \textit{fruA} promoter region, CCR was
-almost completely alleviated. 
-What are CCR-sensitive genes? 
-What are the mechanism of CcpA on CCR of the \textit{fruA} operon? 
-Expression levels of \textit{fruA} in \textit{S.\ mutans} strains that were
-grown to early exponential phase (OD600, 0.2) in TV medium supplemented with
-0.5\% glucose or galactose. \fixme{What does this mean?} 
+\fixme{We may need dot plots where x-axis represents fold changes, and y-axis
+functional classes. Dots may be colored by p-values. This would show most of
+information in one plot. We could label some of dots to emphasixe. Done?}
+\fixme{Use KEGG for functional category study. Done?}
+\fixme{Display results in UCSC genome browser. Done?}
+\fixme{Use two factor analysis. Done?}
+
+%
+
+
 Deletion of \textit{ccpA} resulted in substantial relief of the CCR of
 \textit{fruA} expression exerted by both glucose and fructose. 
-CcpA could directly interact with the \textit{fruA} promoter region. 
+When \citet{Wen2002} deleted CRE sequencs in the \textit{fruA} promoter region, CCR was
+almost completely alleviated.  They also showed that 
+CcpA directly interacted with the \textit{fruA} promoter region. 
 
 The role of CcpA in gene expression during growth on glucose. 
+
 \textit{S.\ mutans} UA159 and TW1 grown under catabolite-repressing conditions
 (glucose), and catabolite-derepressing conditions (galactose). Under
-glucose-only condition I found xx number of differentially expressed genes. What
-are the functional categories of those differentially expressed genes? What are
-the genes that are most profoundly up- or down-regulated (Smu.1421 to Smu.1424,
-PDH enzyme complex), ... and more? ... This regulatory control was
-short-circuited in the strain growing on glucose and lacking CcpA. I showed that
-some of KEGG pathways were affected by TW1 grown under glucose. We found
-down-regulated genes, which would have something to do with pathogenicity. 
-Upto here, I compared UA159 and TW1 under glucose.
-
-1. UA159 (A) vs. TW1 (B) : fold change is B/A.
-When glucose was the sole carbohydrate for growth, 170 genes were differentially
-expressed at least twofold as a result of loss of CcpA (Fig. 2; see Table S1 in
-the supplemental material). Of the gene products, 22 were predicted to partici
-pate in energy metabolism, 9 were PTS components, and 43 were hypothetical
-proteins (Fig. 2). Among the most profoundly up-regulated genes in the ccpA
-mutant strain were the genes that encoded the components of the PDH enzyme com-
-plex (Smu.1421 to Smu.1424), pyruvate-formate lyase, enzymes in the
-tricarboxylic acid (TCA) cycle, selected sugar-specific PTS permeases, and
-components of the glycogen biosynthetic machinery (see Table S1 in the
-supplemental material). 
-Consistent with the profile data, TW1 cells grown in glucose had 78\% higher
-PDH activity than the wild-type strain (data not shown). Given the impact on
-expression of PDH, TCA enzymes, and selected glycolytic enzymes, CcpA clearly
-legislates gene expression to discriminate between carbohydrate-replete and
-carbohydrate-limiting conditions. In particular, when there is excess
-carbohydrate, S. mutans moves carbohydrates primar- ily through lactate
-dehydrogenase, sacrificing an ATP and generating NAD When carbohydrate is
-limiting, S. mutans pro- duces mainly formic and acetic acids, shunts
-carbohydrate through pyruvate formate lyase, and uses its partial TCA cycle to
-regenerate reducing equivalents to maintain an appropriate NAD/NADH balance.
-This regulatory control was clearly short-circuited in the strain growing on
-glucose and lacking CcpA.
-Among the more interesting genes that were down-regu- lated, significant
-decreases in expression were noted for the genes encoding components of the
-proton-translocating F-ATPase, phosphoglycerate kinase (Pgk), and
-fructosyltrans- ferase (ftf), which catalyzes the conversion of sucrose to high-
-molecular-weight polymers of fructose, as well as gtfD, which encodes the
-glucosyltransferase D enzyme that produces predominantly -1,6-linked polymers
-of glucose from sucrose. Since acid tolerance (ATPase), acid production from
-carbohy- drate (Pgk), and glucan and fructan production (Gtf and Ftf), as well
-as the ability to transport carbohydrates and produce intracellular storage
-compounds (glycogen), as noted above (PTS and Glg), are central to the
-pathogenic potential of S. mutans, CcpA represents a major control point for
-expression of critical virulence attributes in cells presented with glucose.
-
-Growth in derepressing conditions induces major changes in the UA159
-transcriptome. Here, I compared glucose and galactose conditions for growing
-UA159. Energy metabolism was enriched with differentially expressed genes. There
-were more up-regulated genes in galactose condition compared with glucose
-condition. Some genes are described in detail. 
-
-2. I compared glucose (A) and galactose (B) for growing UA159
-It is noteworthy that only three genes in the energy metabolism category were
-down-regulated, whereas 23 genes in this category were markedly up-regulated. In
-addition, the expression of 28 genes encoding hypothetical proteins was affected,
-and 19 of them were up-regulated. The genes encod- ing proteins belonging to the
-pathways for lactose and galac- tose utilization (2) were the most strongly
-induced genes in cells growing on galactose. The galKTE genes, encoding the
-enzymes for galac- tose utilization via the Leloir pathway (2), were
-up-regulated between 10- and 36-fold, but the genes of the lactose (lac) operon,
-encoding the lactose PTS permease and the tagatose- 6-phosphate pathway, were
-up-regulated 70- to 300-fold. Since the products of the galKTE operon contribute
-to the genera- tion of UDP-galactose, which is required for cell wall biogen-
-esis, the lower level of induction of galKTE than of the lac operon may reflect
-a need for higher constitutive levels of expression of the Leloir pathway in the
-absence of galactose. Components of the multiple-sugar metabolism operon (msm)
-were also induced in cells growing on galactose. The Msm pathway is induced by
-raffinose and melibiose, both of which are ?-galactosides (5). The enhanced
-expression of gene products involved in en- ergy metabolism, including pyruvate
-formate lyase and com- ponents of the TCA cycle, in cells growing on galactose
-is consistent with the idea that the cells perceive carbohydrate limitation. 
-
-Now, I compared glucose (A) and galactose (B) for growing TW1. 
-
-Now, I compared UA159 and TW1 under galactose. 
-
-What genes are differentially expressed? 
-
-Name the transcripts.
-I found xx transcripts. Among them xx \% were mono-cistronic operons. xx \% were
-poly-cistronic operons. xx transcripts could not defined because RNA-seq short
-reads were not precise. Transripts were assigned with functional categories, and
-differentially expressed transcripts were found. Transcripts and functional
-categories: how can I assess that transcripts consist of genes with similar
-functional cateogires. 
-
-Name the small RNAs.
-RNAz predicted a few small RNAs. Some of them were differentially expressed.
-Some functional categories were enriched with target genes of the predicted
-genes. 
+glucose-only condition we found xx number of differentially expressed genes. 
 
 \section{Discussion}
 We used RNA-seq data to delineate transcript boundaries. Although this map of

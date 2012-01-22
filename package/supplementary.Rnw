@@ -150,13 +150,6 @@ x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
 @
 \clearpage{}
 
-We confirmed that the most upregulated genes in the TW1 mutant-type encoded the
-components of the PDH enzyme complex (SMU.1421, SMU.1422, SMU.1423, and
-SMU.1424).  
-\Sexpr{length(grep("Energy metabolism",x[,"Functional Class"]))}
-\Sexpr{length(grep("PTS",x[,"Functional Class"]))}
-\Sexpr{length(grep("hypothetical",x[,"Gene Description"]))}
-
 <<figPieGlucoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
 par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
 #par(mfrow=c(2,1))
