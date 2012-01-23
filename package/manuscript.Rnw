@@ -38,11 +38,13 @@ of {\em Streptococcus mutans} }
 \author{Sang Chul Choi$^{1}$, Charles D.\ Danko$^{1}$, 
 Melissa J.\ Hubisz$^{1}$, \\
 Paulina Dmitrievna Pavinski Bitar$^{2}$, \\
+\fixme{Add more coauthors and change the order of authors if needed}, \\
 Robert A.\ Burne$^{3}$
 Michael J.\ Stanhope$^{2}$, and Adam Siepel$^{1}$}
 
 \date{ }
 \maketitle
+
 
 \begin{footnotesize}
 \begin{center}
@@ -59,6 +61,8 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 \end{footnotesize}
 
 \vspace{1in}
+
+\fixme{Add corresponding authors if needed.}
 
 \begin{tabular}{lp{4.5in}}
 {\bf Submission type:}& Research Article
@@ -427,7 +431,7 @@ What is the sequencing depth?
 \fixme{I might have to try different filters of short reads to see how those
 affect the transcript prediction.}
 
-<<manuscript,echo=FALSE,results=hide>>=
+<<echo=FALSE,results=hide>>=
 # not run when smutans R package is installed
 # Use this when smutans R package is being tested.
 library(DESeq)
@@ -445,7 +449,7 @@ load("smutans/data/smutans.go.genes.RData")
 load("smutans/data/smutans.cat.desc.RData")
 load("smutans/data/smutansGenes.RData")
 @
-<<manuscript,eval=FALSE,echo=FALSE,results=hide>>=
+<<eval=FALSE,echo=FALSE,results=hide>>=
 # not run without smutans R package installed
 # Remove eval=FALSE when the R package is installed
 library(smutans)
@@ -753,10 +757,69 @@ cells to those in UA159 wild-type (table \ref{tabTW1Only}).
 
 \fixme{We may need dot plots where x-axis represents fold changes, and y-axis
 functional classes. Dots may be colored by p-values. This would show most of
-information in one plot. We could label some of dots to emphasixe. Done?}
-\fixme{Use KEGG for functional category study. Done?}
+information in one plot. We could label some of dots to emphasize. Done?}
+
+% tableGlucoseOnly's functional classes can be multiple. We still need to have
+% different colors using p-values.
+% dotplot(tableGlucoseOnly[,"Functional Class"]~tableGlucoseOnly[,"fold"])
+
 \fixme{Display results in UCSC genome browser. Done?}
+
+
+\fixme{Young's GO analysis with the comparisons}
+We used a q-value of $1\times 10^{-3}$ to determine differentially expressed
+genes. Note that we had another q-value cutoff to list gene ontology terms for
+functional category enrichment tests; 0.05 was the cutoff value for this.
+We found gene ontology terms enriched with differentially expressed genes in the
+comparison of UA159 and TW1 glucose-grown cells:
+phosphotransferase system, 
+glycogen biosynthetic process, 
+sugar:hydrogen symporter activity, and
+carbohydrate metabolic process (table \ref{tab:goseqGlucoseOnly}).
+Because the number of differentially expressed genes in galactose-grown cells is
+was smaller than that of glucose-grown cells, we found only one gene ontology
+term, branched chain family amino acid biosynthetic process
+(table \ref{tab:goseqGalactoseOnly}).
+The comparisons between glucose-grown and galactose-grown UA159
+(table \ref{tab:goseqUA159Only}), and that from TW1 mutant-type
+(table \ref{tab:goseqTW1Only}) showed very similar functional categories. Ranks
+of gene ontology terms were different. 
+Lactose metabolic process was top in TW1, and
+phosphoenolpyruvate-dependent sugar phosphotransferase system was top in UA159.
+
+\fixme{Use KEGG for functional category study. Done?}
+(table \ref{tab:kegseqGlucoseOnly})
+(table \ref{tab:kegseqGalactoseOnly})
+(table \ref{tab:kegseqUA159Only})
+(table \ref{tab:kegseqTW1Only}) 
+
 \fixme{Use two factor analysis. Done?}
+Figure \ref{figClust}
+Because the effects of nutrient changes appeared to be similar whether UA159
+wild-type or TW1 mutant-type was used, we used all of the 
+\Sexpr{length(colnames(counts(smutansGenes)))} samples to compare glucose-grown
+and galactose grown cells.
+
+<<echo=FALSE,results=hide>>=
+allSample <- newSmutans( smutansGenes, 
+                         title="All Samples for Comparing Conditions" )
+allSample <- smutans.de2( allSample )
+save(allSample, file=file.path("allSample.RData"))
+#load("allSample.RData")
+tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
+                                                   allSample )
+#addmargins( tabUA159onlyAndAllSample )
+@
+Of the total \Sexpr{sum(tabUA159onlyAndAllSample)} gene,
+\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found in both analyses. The
+analysis using all of the sample found \Sexpr{tabUA159onlyAndAllSample[1,2]}
+genes. The analysis using ua159-only sample found \Sexpr{tabUA159onlyAndAllSample[2,1]}
+genes.  Figure \ref{figCompareUA159onlyAndAllSample} shows the raw p-values from
+the two-factor analysis versus those from the single-factor analysis. The
+p-values from the two-factor analysis are overall smaller than those from the
+single-factor analysis. We would expect that this was the case because of higher
+power of the two-factor analysis.
+
 
 %
 

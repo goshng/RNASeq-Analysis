@@ -272,6 +272,14 @@ smutans.prepareGoseq <- function ()
   f <- "smutans/inst/extdata/target.rnaplex.acc.out"
   smutans.genes.criteria = read.table(file=f,head=T,sep="\t",quote="")
   save(smutans.genes.criteria, file=file.path("smutans", "data", "smutans.genes.criteria.RData"))
+
+  f <- "smutans/inst/extdata/smu00001.keg.gene2cat"
+  smutans.keg.genes <- read.delim(file=f,head=F)
+  save(smutans.keg.genes, file=file.path("smutans", "data", "smutans.keg.genes.RData"))
+  f <- "smutans/inst/extdata/smu00001.keg.catdesc"
+  smutans.keg.desc <- read.delim(file=f,head=F)
+  save(smutans.keg.desc, file=file.path("smutans", "data", "smutans.keg.desc.RData"))
+  # smutans.keg.genes <- x[c(4,3)]
 }
 
 smutans.run.mw <- function(x, gocats, gocats.col="go", descrips=NULL, noisy=FALSE) {

@@ -279,6 +279,88 @@ elsif ($cmd eq "rnaz")
     print $outfile "$_+\n";
   }
 }
+elsif ($cmd eq "keg")
+{
+  my %c1;
+  my $l;
+  my $count = 0;
+  my $count2 = 0;
+  my $level1 = "";
+  my $level2 = "";
+  my $level3 = "";
+  my $level4 = "";
+  my @genes = ();
+  my %categoryDescription;
+  my %categoryCountDescription;
+  while ($l = <$infile>)
+  {
+    chomp $l;
+    unless ($l =~ /^D/)
+    {
+      if (scalar (@genes) > 0)
+      {
+        $count2++;
+        foreach my $g (@genes) 
+        {
+          $g =~ s/\_/\./g;
+          print $outfile "$level1\t$level2\t$level3\t$g\n"
+        }
+        my $rec = {};
+        $categoryCountDescription{$level3} = $rec;
+        $rec->{description} = $categoryDescription{$level3};
+        $rec->{count} = scalar (@genes);
+        #print "$count2 (1) $level1 : (2) $level2 : (3) $level3\t";
+        #print (join(", ", @genes));
+        #print "\n";
+        @genes = ();
+      }
+    }
+
+    if ($l =~ /^A\<b\>(.+)\<\/b\>/)
+    {
+      $level1 = $1;
+      # print $level1,"\n";
+    }
+    elsif ($l =~ /^B\s+\<b\>(.+)\<\/b\>/)
+    {
+      $level2 = $1;
+      # print "\t",$level2,"\n";
+    }
+    # elsif ($l =~ /^C\s+(\d+)\s+(.+)\s+\[PATH:smu\d+\]/)
+    elsif ($l =~ /^C\s+(\d+)\s+(.+)/)
+    {
+      $level3 = "KEGG:$1";
+      $count++;
+      # print "\t\t",$level3,"\n";
+      $categoryDescription{$level3} = $2;
+    }
+    elsif ($l =~ /^D\s+(\w+)/)
+    {
+      $level4 = $1;
+      # print "\t\t\t",$level4,"\n";
+      push @genes, $level4;
+    }
+#        00010 Glycolysis / Gluconeogenesis [PATH:smu00010]
+
+#      $rec = {};
+#      $c1{$1} = $rec;
+#      for $field ( split ) {
+#        ($key, $value) = split /=/, $field;
+#        $rec->{$key} = $value;
+#      }
+
+  }
+
+  # print "Count: $count\n";
+
+  # Print $categoryDescription{$1} = $2;
+  foreach my $cat (keys %categoryCountDescription)
+  {
+    print $outfile "$cat\t$categoryCountDescription{$cat}{count}";
+    print $outfile "\t$categoryCountDescription{$cat}{description}\n";
+  }
+}
+
 
 if (exists $params{in})
 {
@@ -337,6 +419,8 @@ perl feature-genome.pl ptt -in file.ptt -startcodon
 
 perl feature-genome.pl ptt2 -startcodon -windowsize 100 -in file.ptt 
 
+perl pl/feature-genome.pl keg -in data/smu00001.keg
+
 =head1 DESCRIPTION
 
 feature-genome.pl parses a genome annotation file such as a gff file. A BED output
@@ -362,6 +446,16 @@ position.
   ptt. With option -startcodon regions centered around the start codon of genes
   are extracted. Use option -windowsize to change the size of regions. Default
   of -windowsize is 200: The length of a block is 401.
+
+  keg - use a keg file to create a gene2cat file. Use a sample file, data/smu00001.keg 
+  The contains three levels of functional categories. The third level contains
+  genes. Note that gene names specification may be different from that of
+  GenBank. The output file cotains two two parts: the first part one is of
+  four-column, and the second part is two-column. The first, second, and third
+  columns of the first part are the three levels of KEGG pathways. The fourth
+  column contains gene names. The second part of the file contains descriptions
+  of the third level, or the third column of the first part. These two parts
+  could be used in functional category association.
 
 =over 8
 

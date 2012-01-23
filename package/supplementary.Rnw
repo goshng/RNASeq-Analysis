@@ -74,6 +74,7 @@ Robert A.\ Burne, Michael J.\ Stanhope, and Adam Siepel}%\\[0.5ex]
 # not run when smutans R package is installed
 # Use this when smutans R package is being tested.
 library(DESeq)
+library(goseq)
 library(GenomicRanges)
 library(plotrix)
 library(xtable)
@@ -88,7 +89,24 @@ load("smutans/data/smutans.feature.genes.RData")
 load("smutans/data/smutans.genes.criteria.RData")
 load("smutans/data/smutans.go.genes.RData")
 load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutans.keg.genes.RData")
+load("smutans/data/smutans.keg.desc.RData")
 load("smutans/data/smutansGenes.RData")
+@
+<<eval=FALSE,echo=FALSE,results=hide>>=
+# not run without smutans R package installed
+# Remove eval=FALSE when the R package is installed
+library(smutans)
+load(smutansData.tx)
+load(smutansData.txGenes)
+load(smutansData.txPileup)
+load(smutans.feature.genes)
+data(smutans.genes.criteria)
+data(smutans.go.genes)
+data(smutans.cat.desc)
+data(smutans.keg.genes)
+data(smutans.keg.desc)
+data(smutansGenes)
 @
 
 \section{Supplementary Text}
@@ -139,7 +157,7 @@ x.big <- xtable( x[order(x[,"p-value"]),],
                  digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabGlucoseOnly',
-                 caption='List of genes for the comparison UA159 and TW1 under glocuse-grown cells',
+                 caption='List of genes for the comparison UA159 and TW1 under glucose-grown cells',
                )
 print( x.big,
        tabular.environment='longtable',
@@ -354,26 +372,275 @@ chart is in per cent.
 \label{figPieTW1Only}
 \end{figure}
 
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes in the comparison UA159 and TW1 grown in glucose.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( glucoseOnly, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseqGlucoseOnly}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes in the comparison UA159 and TW1 grown in galactose.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( galactoseOnly, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseqGalactoseOnly}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes in the comparison of glucose-grown and galactose-grown UA159 wild-type
+cells.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( ua159only, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseqUA159Only}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes in the comparison of glucose-grown and galactose-grown TW1 mutant-type
+cells.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( tw1only, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseqTW1Only}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf KEGG enrichments for differentially expressed
+genes in the comparison UA159 and TW1 grown in glucose.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( glucoseOnly, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:kegseqGlucoseOnly}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf KEGG enrichments for differentially expressed
+genes in the comparison UA159 and TW1 grown in galactose.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( galactoseOnly, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:kegseqGalactoseOnly}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf KEGG enrichments for differentially expressed
+genes in the comparison of glucose-grown and galactose-grown UA159 wild-type
+cells.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( ua159only, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:kegseqUA159Only}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf KEGG enrichments for differentially expressed
+genes in the comparison of glucose-grown and galactose-grown TW1 mutant-type
+cells.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( tw1only, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:kegseqTW1Only}
+\end{table}
+%-----------------------------------------------------------------------------
+
+% END OF TABLE
+
 %\section{Supplementary Figures}
 
-%=============================================================================
-%\begin{figure}[!ht]
-%\includegraphics[scale=0.42]{figures/clonalorigin}
-%\caption[Illustration of recombinant tree]{
-%{\bf Illustration of a recombinant tree in the ClonalOrigin model.}
-%(A) A recombinant tree for our five-sample clonal frame with four
-%recombinant edges (dashed lines with arrows running from donors to
-%recipients).  (B) Genomic 
-%regions associated with recombinant edges.  Recombination 
-%intensities (number of edge types present) and gene tree labels are shown at
-%bottom. (C)~Induced local gene trees.
-%Bold lines indicate branches of the clonal frame, while dashed lines indicate
-%recombinant edges. See section \textbf{Summary statistics of recombinant trees} in
-%\textbf{Supplementary Text} for additional details.}
-%\label{fig:clonalorigin}
-%\end{figure}
-%\clearpage{}%
-%=============================================================================
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figClust}
+\caption{Heatmap showing the Euclidean distances between the samples
+  as calculated from the variance-stabilizing transformation of the
+  count data.}
+\label{figClust}
+\end{figure}
+<<figClust,echo=FALSE,result=hide,fig=TRUE>>=
+allSample <- newSmutans( smutansGenes )
+smutans.de2Clust( allSample )
+@
+
 
 
 \end{document}

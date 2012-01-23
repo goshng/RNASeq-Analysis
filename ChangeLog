@@ -46,6 +46,46 @@ Histories
 This history can be useful later.
 
 
+Mon Jan 23 13:23:37 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Retrieve all genes of the specified organism which belong to the given ko_id.
+----
+get_genes_by_ko('ko:K00001', 'eco')
+get_genes_by_ko('ko:K00001', 'smu')
+----
+
+An R function, list.pathways, seems to have a bug.
+----
+list.pathways("smu")
+----
+This functions should return 85 ko.class. It returned 44.
+
+I need to parse a KEGG file, smu00001.keg. I could have done this using
+KEGGSOAP. It seems like that I also need category structures. 
+
+----
+list.pathways -> pathway ro ko.class.
+get.genes.by.ko.class("5-digit number", "smu", 1, limit)
+----
+Adopting the two lines I could find genes belonging to ko.class or pathway. 
+
+.To find the smu00001.keg file.
+. Search the Internet for KEGG or visit http://www.genome.jp/kegg/
+. Go to KEGG ORTHOLOGY Ortholog groups [KO system] or 
+. Go to http://www.genome.jp/kegg-bin/get_htext?ko00001.keg
+. Click ``Organism menu'' and search KEGG Organisms for smu
+. Now, you should be at KEGG Orthology (KO) - Streptococcus mutans UA159
+. Click ``Download htext'' to download smu00001.keg file.
+
+I add ``keg'' command to feature-genome.pl to parse smu00001.keg file to create
+a gene2cat file. 
+----
+perl pl/feature-genome.pl keg -in data/smu00001.keg 
+----
+
+
+
 Sat Jan 21 15:15:24 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .Margin in R
