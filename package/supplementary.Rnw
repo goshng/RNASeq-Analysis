@@ -76,6 +76,7 @@ Robert A.\ Burne, Michael J.\ Stanhope, and Adam Siepel}%\\[0.5ex]
 library(DESeq)
 library(goseq)
 library(GenomicRanges)
+library(IRanges)
 library(plotrix)
 library(xtable)
 library(RColorBrewer)
@@ -84,6 +85,9 @@ source("smutans/R/core.R")
 source("smutans/R/methods.R")
 load("smutans/data/smutansData.tx.RData")
 load("smutans/data/smutansData.txGenes.RData")
+load("smutans/data/smutansData.txGrCombined.RData")
+load("smutans/data/smutansData.txAnnotation.RData")
+load("smutans/data/smutansData.txRNAz.RData")
 load("smutans/data/smutansData.txPileup.RData")
 load("smutans/data/smutans.feature.genes.RData")
 load("smutans/data/smutans.genes.criteria.RData")
@@ -99,6 +103,9 @@ load("smutans/data/smutansGenes.RData")
 library(smutans)
 load(smutansData.tx)
 load(smutansData.txGenes)
+load(smutansData.txCombined)
+load(smutansData.txAnnotation)
+load(smutansData.txRNAz)
 load(smutansData.txPileup)
 load(smutans.feature.genes)
 data(smutans.genes.criteria)
@@ -110,9 +117,9 @@ data(smutansGenes)
 @
 
 \section{Supplementary Text}
-A
-\subsection{Summary statistics for recombinant trees}
-\citep{Gorke2008}
+Add texts if needed.
+\subsection{Subsection name}
+Add texts if needed and citations such as \citep{Gorke2008}.
 
 \enlargethispage{\baselineskip}
 
@@ -130,9 +137,60 @@ A
 \renewcommand{\tablename}{Supplementary Table}
 \makeatother
 
-%\section{Supplementary Tables}
+\clearpage{}
+\section{Supplementary Tables}
+
+%\clearpage{}
+<<echo=FALSE,results=tex>>=
+ir1 <- gaps(ranges(smutansData.txAnnotation))
+ir2 <- ranges(smutansData.txRNAz)
+mtchUnannotatedRNA <- findOverlaps(ir2,ir1,type="within")
+txRNAz.unannotated <- ir2[matchMatrix(mtchUnannotatedRNA)[,1]]
+t1 <- data.frame(names=names(txRNAz.unannotated),start=start(txRNAz.unannotated),end=end(txRNAz.unannotated))
+x.big <- xtable( t1,
+                 display=c("s","s","d","d"),
+                 align=c('l','l','r','r'),
+                 label='tabUnannotatedRNA',
+                 caption='{\\bf List of unannotated RNAs predicted using RNAz.}'
+               )
+print( x.big,
+       caption.placement="top",
+       include.rownames=FALSE)
+@
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology enrichments for target genes of putative small RNAs.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{lcccl}
+\hline 
+small RNA & $q^a$ & count & GO & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.mannwhitney( qval=0.05,
+                     genes.criteria=smutans.genes.criteria,
+                     go.genes=smutans.go.genes,
+                     cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseq}
+\end{table}
+%-----------------------------------------------------------------------------
 
 <<echo=FALSE,results=hide>>=
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
 geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
 geneDescription <- geneDescription[,c(4,7)]
 colnames(geneDescription) <- c("Gene ID","Gene Description")
@@ -142,6 +200,7 @@ functionalDescription <- functionalDescription[,c(2,12)]
 colnames(functionalDescription) <- c("Gene ID","Functional Class")
 @
 
+\clearpage{}
 <<echo=FALSE,results=tex>>=
 #glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
 #glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
@@ -157,7 +216,7 @@ x.big <- xtable( x[order(x[,"p-value"]),],
                  digits=c(0,0,0,0,1,0,0),
                  align=c('l','l','r','r','r','r','p{3.5in}'),
                  label='tabGlucoseOnly',
-                 caption='List of genes for the comparison UA159 and TW1 under glucose-grown cells',
+                 caption='{\\bf List of genes for the comparison UA159 and TW1 under glucose-grown cells.}',
                )
 print( x.big,
        tabular.environment='longtable',
@@ -165,212 +224,8 @@ print( x.big,
        include.rownames=FALSE,
        floating=FALSE) 
 x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGlucoseOnly <- x
 @
-\clearpage{}
-
-<<figPieGlucoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
-par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
-#par(mfrow=c(2,1))
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-y <- x[,"Functional Class"]
-z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
-z <- table(as.factor(sort(unlist(z))))
-
-slices <- as.vector(z)
-lbls <- names(z)
-pct <- round(slices/sum(slices)*100)
-c1 <- brewer.pal(n=9,name="Set1")
-pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
-plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
-legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
-@
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{supplementary-figPieGlucoseOnly}
-\caption{{\bf Distribution of functional classes of differntially expressed genes
-in comparing UA159 wild-type and TW1 mutant-type grown in glucose.}
-Labels for functional categories are colored with nine different colors. The
-first label with red color, 
-``Biosynthesis of cofactors, prosthetic groups, and carriers; Thiamine'', starts
-at the top, and next labels read to the clockwise. The numbers circling the pie
-chart is in per cent.
-}
-\label{figPieGlucoseOnly}
-\end{figure}
-
-\clearpage{}
-<<echo=FALSE,results=tex>>=
-#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
-#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
-#                              condA="ua159", condB="tw1" )
-#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
-load("galactoseOnly.RData")
-x <- smutans.de2List( galactoseOnly, qval=1e-3 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x.big <- xtable( x[order(x[,"p-value"]),],
-                 display=c("s","s","d","d","f","e","s"),
-                 digits=c(0,0,0,0,1,0,0),
-                 align=c('l','l','r','r','r','r','p{3.5in}'),
-                 label='tabGalactoseOnly',
-                 caption='List of genes for the comparison UA159 and TW1 under galactose-grown cells',
-               )
-print( x.big,
-       tabular.environment='longtable',
-       caption.placement="top",
-       include.rownames=FALSE,
-       floating=FALSE) 
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-@
-\clearpage{}
-
-<<figPieGalactoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
-par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
-#par(mfrow=c(2,1))
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-y <- x[,"Functional Class"]
-z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
-z <- table(as.factor(sort(unlist(z))))
-
-slices <- as.vector(z)
-lbls <- names(z)
-pct <- round(slices/sum(slices)*100)
-c1 <- brewer.pal(n=9,name="Set1")
-pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
-plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
-legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
-@
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{supplementary-figPieGalactoseOnly}
-\caption{{\bf Distribution of functional classes of differntially expressed genes
-in comparing UA159 wild-type and TW1 mutant-type grown in galactose.}
-Labels for functional categories are colored with nine different colors. The
-first label with red color, 
-``Amino acid biosynthesis; Glutamate family'', starts
-at the top, and next labels read to the clockwise. The numbers circling the pie
-chart is in per cent.
-}
-\label{figPieGalactoseOnly}
-\end{figure}
-
-
-\clearpage{}
-<<echo=FALSE,results=tex>>=
-#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
-#ua159only <- smutans.de2( ua159only, type="ua159", 
-#                          condA="glucose", condB="galactose" )
-#save(ua159only, file=file.path("ua159only.RData"))
-load("ua159only.RData")
-x <- smutans.de2List( ua159only, qval=1e-10 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x.big <- xtable( x[order(x[,"p-value"]),],
-                 display=c("s","s","d","d","f","e","s"),
-                 digits=c(0,0,0,0,1,0,0),
-                 align=c('l','l','r','r','r','r','p{3.5in}'),
-                 label='tabUA159Only',
-                 caption='List of genes for the comparison of UA159 wild-type grown with glucose and galactose. Note that we used 1e-10 as the p-value cutoff.',
-               )
-print( x.big,
-       tabular.environment='longtable',
-       caption.placement="top",
-       include.rownames=FALSE,
-       floating=FALSE) 
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-@
-\clearpage{}
-
-<<figPieUA159Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
-par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-y <- x[,"Functional Class"]
-z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
-z <- table(as.factor(sort(unlist(z))))
-
-slices <- as.vector(z)
-lbls <- names(z)
-pct <- round(slices/sum(slices)*100)
-c1 <- brewer.pal(n=9,name="Set1")
-pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
-plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
-
-legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
-#legend(-1.1,1.1,names(z[1:27]),bty='n',cex=0.7,fill=c1)
-#legend(0,0.4,names(z[-c(1:27)]),bty='n',cex=0.7,fill=c1)
-
-@
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{supplementary-figPieUA159Only}
-\caption{{\bf Distribution of functional classes of differntially expressed genes
-in comparing UA159 wild-type grown in glucose and galactose.}
-Labels for functional categories are colored with nine different colors. The
-first label with red color, 
-``Amino acid biosynthesis; Glutamate family'', starts
-at the top, and next labels read to the clockwise. The numbers circling the pie
-chart is in per cent.
-}
-\label{figPieUA159Only}
-\end{figure}
-
-\clearpage{}
-<<echo=FALSE,results=tex>>=
-#tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
-#tw1only <- smutans.de2( tw1only, type="tw1", 
-#                          condA="glucose", condB="galactose" )
-#save(tw1only, file=file.path("tw1only.RData"))
-load("tw1only.RData")
-x <- smutans.de2List( tw1only, qval=1e-3 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x.big <- xtable( x[order(x[,"p-value"]),],
-                 display=c("s","s","d","d","f","e","s"),
-                 digits=c(0,0,0,0,1,0,0),
-                 align=c('l','l','r','r','r','r','p{3.5in}'),
-                 label='tabTW1Only',
-                 caption='List of genes for the comparison of TW1 mutant-type grown with glucose and galactose ',
-               )
-print( x.big,
-       tabular.environment='longtable',
-       caption.placement="top",
-       include.rownames=FALSE,
-       floating=FALSE) 
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-@
-\clearpage{}
-
-<<figPieTW1Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
-par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-y <- x[,"Functional Class"]
-z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
-z <- table(as.factor(sort(unlist(z))))
-
-slices <- as.vector(z)
-lbls <- names(z)
-pct <- round(slices/sum(slices)*100)
-c1 <- brewer.pal(n=9,name="Set1")
-pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
-plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
-legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
-@
-\begin{figure}
-\centering
-\includegraphics[width=0.9\textwidth]{supplementary-figPieTW1Only}
-\caption{{\bf Distribution of functional classes of differntially expressed genes
-in comparing TW1 mutant-type grown in glucose and galactose.}
-Labels for functional categories are colored with nine different colors. The
-first label with red color, 
-``Amino acid biosynthesis; Histidine family'', starts
-at the top, and next labels read to the clockwise. The numbers circling the pie
-chart is in per cent.
-}
-\label{figPieTW1Only}
-\end{figure}
 
 \clearpage{}
 %-----------------------------------------------------------------------------
@@ -395,9 +250,12 @@ smutans.de2Goseq ( glucoseOnly, qval=1e-3,
 \end{tabular}
 \par\end{centering}
 \begin{flushleft}
-$^a$False discovery rate estimated by the
-Benjamini-Hochberg method.  All categories having at least ten genes and
-$q\leq 0.05$ are displayed.\\ 
+$^a$ We used a multiple-testing adjusted $p$-value of $1\times 10^{-3}$ to
+determine differentially expressed genes.  For each category having at least ten
+genes a variation of Fisher's exact test was performed, and another
+multiple-testing adjusted $p$-value, or $q$-value was obtained. The listed
+categories were chosen at the cutoff value of 0.05.
+\\ 
 \end{flushleft}
 \label{tab:goseqGlucoseOnly}
 \end{table}
@@ -406,7 +264,96 @@ $q\leq 0.05$ are displayed.\\
 \clearpage{}
 %-----------------------------------------------------------------------------
 \begin{table}[!h]
-\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+\caption{{\bf KEGG enrichments for differentially expressed
+genes in the comparison UA159 and TW1 grown in glucose.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( glucoseOnly, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:kegseqGlucoseOnly}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+<<echo=FALSE,results=tex>>=
+#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+#                              condA="ua159", condB="tw1" )
+#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+load("galactoseOnly.RData")
+x <- smutans.de2List( galactoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=c(0,0,0,0,1,0,0),
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabGalactoseOnly',
+                 caption='{\\bf List of genes for the comparison UA159 and TW1 under galactose-grown cells}',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGalactoseOnly <- x
+@
+
+%\clearpage{}
+%%-----------------------------------------------------------------------------
+%\begin{table}[!h]
+%\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+%genes in the comparison UA159 and TW1 grown in galactose.}}
+%\vspace{1ex}
+%\noindent \begin{centering}
+%\begin{tabular}{cl}
+%\hline 
+%$q^a$ & Description \\
+%\hline 
+%%-----------------------------------------------------------------------------
+%<<echo=FALSE,results=tex>>=
+%smutans.de2Goseq ( galactoseOnly, qval=1e-3, 
+%                   feature.gene=smutans.feature.genes,
+%                   go.genes=smutans.go.genes,
+%                   cat.desc=smutans.cat.desc )
+%@
+%%-----------------------------------------------------------------------------
+%\hline 
+%\end{tabular}
+%\par\end{centering}
+%\begin{flushleft}
+%$^a$False discovery rate estimated by the
+%Benjamini-Hochberg method.  All categories having at least ten genes and
+%$q\leq 0.05$ are displayed.\\ 
+%\end{flushleft}
+%\label{tab:goseqGalactoseOnly}
+%\end{table}
+%%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf KEGG enrichments for differentially expressed
 genes in the comparison UA159 and TW1 grown in galactose.}}
 \vspace{1ex}
 \noindent \begin{centering}
@@ -418,8 +365,8 @@ $q^a$ & Description \\
 <<echo=FALSE,results=tex>>=
 smutans.de2Goseq ( galactoseOnly, qval=1e-3, 
                    feature.gene=smutans.feature.genes,
-                   go.genes=smutans.go.genes,
-                   cat.desc=smutans.cat.desc )
+                   go.genes=smutans.keg.genes[c(4,3)],
+                   cat.desc=smutans.keg.desc)
 @
 %-----------------------------------------------------------------------------
 \hline 
@@ -430,9 +377,36 @@ $^a$False discovery rate estimated by the
 Benjamini-Hochberg method.  All categories having at least ten genes and
 $q\leq 0.05$ are displayed.\\ 
 \end{flushleft}
-\label{tab:goseqGalactoseOnly}
+\label{tab:kegseqGalactoseOnly}
 \end{table}
 %-----------------------------------------------------------------------------
+
+\clearpage{}
+<<echo=FALSE,results=tex>>=
+#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#save(ua159only, file=file.path("ua159only.RData"))
+load("ua159only.RData")
+x <- smutans.de2List( ua159only, qval=1e-10 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=c(0,0,0,0,1,0,0),
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabUA159Only',
+                 caption='{\\bf List of genes for the comparison of UA159 wild-type grown with glucose and galactose.} Note that we used 1e-10 as the p-value cutoff.',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableUA159Only <- x
+@
 
 \clearpage{}
 %-----------------------------------------------------------------------------
@@ -469,100 +443,6 @@ $q\leq 0.05$ are displayed.\\
 \clearpage{}
 %-----------------------------------------------------------------------------
 \begin{table}[!h]
-\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
-genes in the comparison of glucose-grown and galactose-grown TW1 mutant-type
-cells.}}
-\vspace{1ex}
-\noindent \begin{centering}
-\begin{tabular}{cl}
-\hline 
-$q^a$ & Description \\
-\hline 
-%-----------------------------------------------------------------------------
-<<echo=FALSE,results=tex>>=
-smutans.de2Goseq ( tw1only, qval=1e-3, 
-                   feature.gene=smutans.feature.genes,
-                   go.genes=smutans.go.genes,
-                   cat.desc=smutans.cat.desc )
-@
-%-----------------------------------------------------------------------------
-\hline 
-\end{tabular}
-\par\end{centering}
-\begin{flushleft}
-$^a$False discovery rate estimated by the
-Benjamini-Hochberg method.  All categories having at least ten genes and
-$q\leq 0.05$ are displayed.\\ 
-\end{flushleft}
-\label{tab:goseqTW1Only}
-\end{table}
-%-----------------------------------------------------------------------------
-
-\clearpage{}
-%-----------------------------------------------------------------------------
-\begin{table}[!h]
-\caption{{\bf KEGG enrichments for differentially expressed
-genes in the comparison UA159 and TW1 grown in glucose.}}
-\vspace{1ex}
-\noindent \begin{centering}
-\begin{tabular}{cl}
-\hline 
-$q^a$ & Description \\
-\hline 
-%-----------------------------------------------------------------------------
-<<echo=FALSE,results=tex>>=
-smutans.de2Goseq ( glucoseOnly, qval=1e-3, 
-                   feature.gene=smutans.feature.genes,
-                   go.genes=smutans.keg.genes[c(4,3)],
-                   cat.desc=smutans.keg.desc)
-@
-%-----------------------------------------------------------------------------
-\hline 
-\end{tabular}
-\par\end{centering}
-\begin{flushleft}
-$^a$False discovery rate estimated by the
-Benjamini-Hochberg method.  All categories having at least ten genes and
-$q\leq 0.05$ are displayed.\\ 
-\end{flushleft}
-\label{tab:kegseqGlucoseOnly}
-\end{table}
-%-----------------------------------------------------------------------------
-
-\clearpage{}
-%-----------------------------------------------------------------------------
-\begin{table}[!h]
-\caption{{\bf KEGG enrichments for differentially expressed
-genes in the comparison UA159 and TW1 grown in galactose.}}
-\vspace{1ex}
-\noindent \begin{centering}
-\begin{tabular}{cl}
-\hline 
-$q^a$ & Description \\
-\hline 
-%-----------------------------------------------------------------------------
-<<echo=FALSE,results=tex>>=
-smutans.de2Goseq ( galactoseOnly, qval=1e-3, 
-                   feature.gene=smutans.feature.genes,
-                   go.genes=smutans.keg.genes[c(4,3)],
-                   cat.desc=smutans.keg.desc)
-@
-%-----------------------------------------------------------------------------
-\hline 
-\end{tabular}
-\par\end{centering}
-\begin{flushleft}
-$^a$False discovery rate estimated by the
-Benjamini-Hochberg method.  All categories having at least ten genes and
-$q\leq 0.05$ are displayed.\\ 
-\end{flushleft}
-\label{tab:kegseqGalactoseOnly}
-\end{table}
-%-----------------------------------------------------------------------------
-
-\clearpage{}
-%-----------------------------------------------------------------------------
-\begin{table}[!h]
 \caption{{\bf KEGG enrichments for differentially expressed
 genes in the comparison of glucose-grown and galactose-grown UA159 wild-type
 cells.}}
@@ -592,6 +472,64 @@ $q\leq 0.05$ are displayed.\\
 \end{table}
 %-----------------------------------------------------------------------------
 
+\clearpage{}
+<<echo=FALSE,results=tex>>=
+#tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
+#tw1only <- smutans.de2( tw1only, type="tw1", 
+#                          condA="glucose", condB="galactose" )
+#save(tw1only, file=file.path("tw1only.RData"))
+load("tw1only.RData")
+x <- smutans.de2List( tw1only, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x.big <- xtable( x[order(x[,"p-value"]),],
+                 display=c("s","s","d","d","f","e","s"),
+                 digits=c(0,0,0,0,1,0,0),
+                 align=c('l','l','r','r','r','r','p{3.5in}'),
+                 label='tabTW1Only',
+                 caption='{\\bf List of genes for the comparison of TW1 mutant-type grown with glucose and galactose.}',
+               )
+print( x.big,
+       tabular.environment='longtable',
+       caption.placement="top",
+       include.rownames=FALSE,
+       floating=FALSE) 
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableTW1Only <- x
+@
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
+genes in the comparison of glucose-grown and galactose-grown TW1 mutant-type
+cells.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+$q^a$ & Description \\
+\hline 
+%-----------------------------------------------------------------------------
+<<echo=FALSE,results=tex>>=
+smutans.de2Goseq ( tw1only, qval=1e-3, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+@
+%-----------------------------------------------------------------------------
+\hline 
+\end{tabular}
+\par\end{centering}
+\begin{flushleft}
+$^a$False discovery rate estimated by the
+Benjamini-Hochberg method.  All categories having at least ten genes and
+$q\leq 0.05$ are displayed.\\ 
+\end{flushleft}
+\label{tab:goseqTW1Only}
+\end{table}
+%-----------------------------------------------------------------------------
 \clearpage{}
 %-----------------------------------------------------------------------------
 \begin{table}[!h]
@@ -625,22 +563,518 @@ $q\leq 0.05$ are displayed.\\
 %-----------------------------------------------------------------------------
 
 % END OF TABLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\section{Supplementary Figures}
+\clearpage{}
+\section{Supplementary Figures}
 
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{supplementary-figClust}
-\caption{Heatmap showing the Euclidean distances between the samples
-  as calculated from the variance-stabilizing transformation of the
-  count data.}
-\label{figClust}
-\end{figure}
 <<figClust,echo=FALSE,result=hide,fig=TRUE>>=
 allSample <- newSmutans( smutansGenes )
 smutans.de2Clust( allSample )
 @
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figClust}
+\caption{{\bf Cluster of 13 RNA-seq samples.} 
+Heatmap shows the Euclidean distances between the samples
+as calculated from the variance-stabilizing transformation of the
+count data.}
+\label{figClust}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Transcript analyses R scripts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<figGrCombinedExpression,fig=TRUE,echo=FALSE>>=
+l <- list(elementMetadata(smutansData.txGrCombined)$pileup)
+bin <- c(as.integer(seq.int(0, 1000, length.out=15)), 50000)
+multhist(l,breaks=bin)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figGrCombinedExpression}
+\caption{{\bf Average pileup values for segments.}
+The last bin sums from 1000 bp to 5000 bp.
+}
+\label{figGrCombinedExpression}
+\end{figure}
+
+<<echo=FALSE,result=hide>>=
+# library(GenomicRanges)
+# library(IRanges)
+
+notExpressedTx <- smutansData.txGrCombined[elementMetadata(smutansData.txGrCombined)$zero > 0.1 & elementMetadata(smutansData.txGrCombined)$pileup < 5]
+grTx <- smutansData.txGrCombined[!(elementMetadata(smutansData.txGrCombined)$zero > 0.1 & elementMetadata(smutansData.txGrCombined)$pileup < 5)]
+
+matchGenesTx <- findOverlaps(smutansData.txGenes,grTx)
+matchAnnotationTx <- findOverlaps(smutansData.txAnnotation,grTx)
+
+grNoAnnotation <- gaps(ranges(smutansData.txAnnotation))
+grNoncoding <- gaps(ranges(smutansData.txGenes))
+grRNAz <- ranges(smutansData.txRNAz)
+
+matchUnannotatedRNA <- findOverlaps(grRNAz,grNoAnnotation,type="within")
+txRNAz.unannotated <- grRNAz[matchMatrix(matchUnannotatedRNA)[,1]]
+
+# A bug in GenomicRanges: the last segment is the while genome. I removed it
+# from the noncoding ranges.
+# matchNoncoding <- findOverlaps(grNoncoding,grTx)
+
+# Expressed transcripts without annotated genes
+grTxWGenes <- grTx[unique(matchMatrix(matchGenesTx)[,2])]
+grTxWOGenes <- grTx[-unique(matchMatrix(matchGenesTx)[,2])]
+grTxWOAnnotation <- grTx[-unique(matchMatrix(matchAnnotationTx)[,2])]
+
+# Find transcripts with genes with conflicted strands
+grGenesPlus <- smutansData.txGenes[strand(smutansData.txGenes)=='+']
+grGenesMnus <- smutansData.txGenes[strand(smutansData.txGenes)=='-']
+#mtchPlus <- findOverlaps(grGenesPlus,grTxWGenes)
+#mtchMnus <- findOverlaps(grGenesMnus,grTxWGenes)
+#txWithConflictedGenes <- intersect(matchMatrix(mtchPlus)[,2],matchMatrix(mtchMnus)[,2])
+
+# Tx with genes strands
+grTx2 <- grTxWGenes[!strand(grTxWGenes)=='*'] 
+
+# Find the number of genes in segments.
+matchGenesTx2 <- findOverlaps(smutansData.txGenes,grTx2,type="within")
+number.genes.tx <- runLength(Rle(matchMatrix(matchGenesTx2)[,"subject"]))
+
+# Length distribution of UTR regions
+# grTx2 <- grTxWGenes[-txWithConflictedGenes] 
+# Lengths of 5' and 3' UTRs
+mtchPlus <- findOverlaps(grGenesPlus,grTx2,type="within")
+mtchMnus <- findOverlaps(grGenesMnus,grTx2,type="within")
+length5UTR <- c()
+length3UTR <- c()
+for (i in unique(matchMatrix(mtchPlus)[,"subject"])) {
+  x <- matchMatrix(mtchPlus)[matchMatrix(mtchPlus)[,"subject"]==i,"query"]
+  y <- min(start(grGenesPlus[x])) - start(grTx2[i])
+  z <- end(grTx2[i]) - max(end(grGenesPlus[x])) 
+  length5UTR <- c(length5UTR,y)
+  length3UTR <- c(length3UTR,z)
+}
+for (i in unique(matchMatrix(mtchMnus)[,"subject"])) {
+  x <- matchMatrix(mtchMnus)[matchMatrix(mtchMnus)[,"subject"]==i,"query"]
+  y <- min(start(grGenesMnus[x])) - start(grTx2[i])
+  z <- end(grTx2[i]) - max(end(grGenesMnus[x])) 
+  length5UTR <- c(length5UTR,z)
+  length3UTR <- c(length3UTR,y)
+}
+
+# Correlation of expression levels of adjacent genes.
+pileup.x <- lapply(ranges(smutansData.txGenes), function(x) seqselect(smutansData.txPileup, x))
+pileup.y <- mapply(function(x,y) sum(x)/y, x=pileup.x, y=width(smutansData.txGenes))
+elementMetadata(smutansData.txGenes)["score"] <- pileup.y
+mtch3 <- findOverlaps(smutansData.txGenes,grTx2)
+x <- rle(matchMatrix(mtch3)[,"subject"])
+comp.exp.two.genes <- c()
+for (i in x$values[x$lengths > 1]) {
+  y <- combn(matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==i],2)
+  for (j in 1:dim(y)[2]) {
+    comp.exp.two.genes <- cbind(comp.exp.two.genes,as.matrix(elementMetadata(smutansData.txGenes)["score"][y[,j],]))
+  }
+}
+# Correlation of expression levels of adjacent genes between transcripts.
+comp.exp.two.genes.between.transcript <- c()
+for (i in 1:length(x$values)) {
+  if (i == length(x$values)) {
+    break
+  }
+  y1 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i]]
+  i2 <- i + 1
+  y2 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i2]]
+  l <- as.matrix(do.call(expand.grid, list(y1,y2)))
+  for (j in 1:dim(l)[1]) {
+    comp.exp.two.genes.between.transcript <- cbind(comp.exp.two.genes.between.transcript,as.matrix(elementMetadata(smutansData.txGenes)["score"][l[j,],]))
+  }
+}
+@
+
+<<figLength,fig=TRUE,echo=FALSE>>=
+l <- list(expressed=width(smutansData.txGenes[matchMatrix(matchGenesTx)[,1]]), 
+          notexpressed=width(smutansData.txGenes[-matchMatrix(matchGenesTx)[,1]]))
+bin <- c(as.integer(seq.int(0, 3000, length.out=15)), 8500)
+multhist(l,breaks=bin)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figLength}
+\caption{{\bf Length distribution for expressed and not-expressed genes.}
+Darker gray
+bars represent frequency of expressed genes, and lighter gray ones that of
+not-expressed genes. The last bin sums from 3000 bp to 8500 bp.
+}
+\label{figLength}
+\end{figure}
+
+<<figTranscriptLength,fig=TRUE,echo=FALSE>>=
+l <- list(coding=width(grTxWGenes), 
+          noncoding=width(grTxWOGenes))
+bin <- c(as.integer(seq.int(0, 10000, length.out=15)), 30000)
+multhist(l,breaks=bin)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figTranscriptLength}
+\caption{{\bf Length distribution for expressed segments with annotated genes
+and unannotated genes.}
+Darker gray bars represent frequency of expressed segments with annotated
+genes, and lighter gray ones that of without annotated genes that can be
+potential non-coding regions. The last bin sums from 10000 bp to 30000 bp.
+}
+\label{figTranscriptLength}
+\end{figure}
+
+<<figUTRLength,fig=TRUE,echo=FALSE>>=
+l <- list(five=length5UTR, three=length3UTR)
+bin <- c(as.integer(seq.int(0, 300, length.out=19)), 6500)
+multhist(l,breaks=bin)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{supplementary-figUTRLength}
+\caption{{\bf Length distribution for 5' and 3' UTR.}
+Darker gray bars represent frequency of 5' UTR lengths, and lighter gray 3' UTR
+lengths. The last bin sums from 300 bp to 6500 bp.
+\fixme{Check the too long UTRs because they do not make sense.}
+}
+\label{figUTRLength}
+\end{figure}
+
+<<figExpressionTwoGene,fig=TRUE,echo=FALSE>>=
+plot( log10(comp.exp.two.genes[1,]), log10(comp.exp.two.genes[2,]),
+      xlab="Expression of first Gene in log10",
+      ylab="Expression of second Gene in log10",
+      pch=19,cex=0.5)
+abline(b=1,lty=2)
+@
+<<figExpressionTwoGeneBetweenTranscript,fig=TRUE,echo=FALSE>>=
+plot( log10(comp.exp.two.genes.between.transcript[1,]),
+      log10(comp.exp.two.genes.between.transcript[2,]),
+      xlab="Expression of first Gene in log10",
+      ylab="Expression of second Gene in log10",
+      pch=19,cex=0.5)
+abline(b=1,lty=2)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{supplementary-figExpressionTwoGene}
+\includegraphics[width=.6\textwidth]{supplementary-figExpressionTwoGeneBetweenTranscript}
+\caption{{\bf Scatter plot of expression levels of pairs of adjacent genes
+located in the same transcripts.}
+(Top) Two genes in the same tranascripts are plotted using their expression levels in
+log10 scale.
+(Bottom) Two genes in different tranascripts are plotted using their expression levels in
+log10 scale.
+}
+\label{figExpressionTwoGene}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus101}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus7}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus68}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus8}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus10}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus69}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus1}
+\caption{{\bf MFE structures drawing encoding positional entropy for
+differentially expressed regions.}
+Predicted non-coding RNAs are shown from top-left to bottom-right: locus101,
+locus7, locus68, locus8, locus10, locus69, and locus1.
+}
+\label{figRNALocus1}
+\end{figure}
 
 
+\begin{figure}
+\centering
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus99}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus103}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus105}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus106}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus107}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus108}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus110}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus2}
+\caption{{\bf MFE structures drawing encoding positional entropy with expressed
+regions.}
+Predicted non-coding RNAs are shown from top-left to bottom-right: 
+locus99, locus103, locus105, locus106, locus107, locus108, locus110, and locus2.
+}
+\label{figRNALocus2}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus5}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus6}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus7}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus8}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus52}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus68}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus69}
+\includegraphics[width=0.3\textwidth]{figures/supplementary-figRNALocus85}
+\caption{{\bf MFE structures drawing encoding positional entropy with expressed
+regions.}
+Predicted non-coding RNAs are shown from top-left to bottom-right: 
+locus5, locus6, locus7, locus8, locus52, locus68, locus69, and locus85.
+}
+\label{figRNALocus3}
+\end{figure}
+
+
+\clearpage{}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/ucsc}
+\caption{{\bf UCSC genome browser tracks of RNA-seq data.}
+Tracks are shown from the top: known genes, pileup value tracks for UA159 grown
+in glucose, those for TW1 in glucose, and the five segments predicted based on
+RNA-seq data and known genes. Known genes with forward strand are colored red,
+and those of reverse strand blue. The most top of the five predicted segments
+are also colored in the same way. 
+}
+\label{figUCSC}
+\end{figure}
+
+\clearpage{}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/ucsc2}
+\caption{{\bf UCSC genome browser tracks of RNA-seq data for \textit{galKTE} genes.}
+Four genes from SMU.886 to SMU.889 were also upregulated in respose to
+galactose. RNA-seq1 is UA159 with glucose, RNA-seq2 TW1 with glucose,
+RNA-seq21 UA159 with galactose, and RNA-seq3 TW1 with galactose.
+}
+\label{figUCSC2}
+\end{figure}
+
+
+\clearpage{}
+<<figPieGlucoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+y <- tableGlucoseOnly[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieGlucoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in glucose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Biosynthesis of cofactors, prosthetic groups, and carriers; Thiamine'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieGlucoseOnly}
+\end{figure}
+
+<<figDotplotGlucoseOnly,fig=TRUE,echo=FALSE,width=12,height=6>>=
+#par(mar=c(4.1, 3.1, 0.1, 0.1))
+par(mai=c(0, 0, 0, 0))
+y <- tableGlucoseOnly[,"Functional Class"]
+# z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+# z <- table(as.factor(sort(unlist(z))))
+z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, trim)})
+xm <- tableGlucoseOnly[rep(seq(length(z)),sapply(z,length)),]
+xm[,"Functional Class"] <- unlist(z)
+# Use xm to plot a dotplot.
+dotplot(xm[,"Functional Class"]~xm[,"fold"],
+        main="",xlab="Log2 fold change",col="black",pch=88)
+@
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figDotplotGlucoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in glucose.}
+}
+\label{figDotplotGlucoseOnly}
+\end{sidewaysfigure}
+
+<<figFoldPValueGlucoseOnly,fig=TRUE,echo=FALSE>>=
+par(mar=c(4.1, 4.1, 0.2, 0.2))
+plot(abs(xm[,"fold"])~log10(xm[,"p-value"]),
+     xlab="log10 p-value",ylab="Absolute log2 fold change",
+     pch=19,cex=0.7)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figFoldPValueGlucoseOnly}
+\caption{{\bf Scatter plot of fold versus p-vaule in log scale.}
+}
+\label{figFoldPValueGlucoseOnly}
+\end{figure}
+
+\clearpage{}
+<<figPieGalactoseOnly,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+y <- tableGalactoseOnly[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieGalactoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Glutamate family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieGalactoseOnly}
+\end{figure}
+
+<<figDotplotGalactoseOnly,fig=TRUE,echo=FALSE,width=12,height=6>>=
+par(mai=c(0, 0, 0, 0))
+y <- tableGalactoseOnly[,"Functional Class"]
+# z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+# z <- table(as.factor(sort(unlist(z))))
+z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, trim)})
+xm <- tableGalactoseOnly[rep(seq(length(z)),sapply(z,length)),]
+xm[,"Functional Class"] <- unlist(z)
+# Use xm to plot a dotplot.
+dotplot(xm[,"Functional Class"]~xm[,"fold"],
+        main="",xlab="Log2 fold change",col="black",pch=88)
+@
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figDotplotGalactoseOnly}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type and TW1 mutant-type grown in galactose.}
+}
+\label{figDotplotGalactoseOnly}
+\end{sidewaysfigure}
+
+\clearpage{}
+<<figPieUA159Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- tableUA159Only[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+#legend(-1.1,1.1,names(z[1:27]),bty='n',cex=0.7,fill=c1)
+#legend(0,0.4,names(z[-c(1:27)]),bty='n',cex=0.7,fill=c1)
+
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieUA159Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type grown in glucose and galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Glutamate family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieUA159Only}
+\end{figure}
+
+<<figDotplotUA159Only,fig=TRUE,echo=FALSE,width=12,height=6>>=
+#par(mar=c(4.1, 3.1, 0.1, 0.1))
+par(mai=c(0, 0, 0, 0))
+y <- tableUA159Only[,"Functional Class"]
+# z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+# z <- table(as.factor(sort(unlist(z))))
+z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, trim)})
+xm <- tableUA159Only[rep(seq(length(z)),sapply(z,length)),]
+xm[,"Functional Class"] <- unlist(z)
+# Use xm to plot a dotplot.
+dotplot(xm[,"Functional Class"]~xm[,"fold"],
+        main="",xlab="Log2 fold change",col="black",pch=88)
+@
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figDotplotUA159Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing UA159 wild-type grown in glucose and galactose.}
+}
+\label{figDotplotUA159Only}
+\end{sidewaysfigure}
+
+\clearpage{}
+<<figPieTW1Only,fig=TRUE,echo=FALSE,width=6,height=8>>=
+par(mai=c(0,0,0,0),fig=c(0,1,0,1),mfrow=c(2,1))
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- tableTW1Only[,"Functional Class"]
+z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+z <- table(as.factor(sort(unlist(z))))
+
+slices <- as.vector(z)
+lbls <- names(z)
+pct <- round(slices/sum(slices)*100)
+c1 <- brewer.pal(n=9,name="Set1")
+pie(z,labels=pct,main="",col=c1,clockwise=TRUE)
+plot(0,0,axes=FALSE,frame.plot=FALSE,xlab="",ylab="",cex=0)
+legend(-0.8,1,names(z),bty='n',cex=0.7,fill=c1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figPieTW1Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing TW1 mutant-type grown in glucose and galactose.}
+Labels for functional categories are colored with nine different colors. The
+first label with red color, 
+``Amino acid biosynthesis; Histidine family'', starts
+at the top, and next labels read to the clockwise. The numbers circling the pie
+chart is in per cent.
+}
+\label{figPieTW1Only}
+\end{figure}
+
+<<figDotplotTW1Only,fig=TRUE,echo=FALSE,width=12,height=6>>=
+#par(mar=c(4.1, 3.1, 0.1, 0.1))
+par(mai=c(0, 0, 0, 0))
+y <- tableTW1Only[,"Functional Class"]
+# z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+# z <- table(as.factor(sort(unlist(z))))
+z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, trim)})
+xm <- tableTW1Only[rep(seq(length(z)),sapply(z,length)),]
+xm[,"Functional Class"] <- unlist(z)
+# Use xm to plot a dotplot.
+dotplot(xm[,"Functional Class"]~xm[,"fold"],
+        main="",xlab="Log2 fold change",col="black",pch=88)
+@
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=0.9\textwidth]{supplementary-figDotplotTW1Only}
+\caption{{\bf Distribution of functional classes of differntially expressed genes
+in comparing TW1 wild-type grown in glucose and galactose.}
+}
+\label{figDotplotTW1Only}
+\end{sidewaysfigure}
 
 \end{document}

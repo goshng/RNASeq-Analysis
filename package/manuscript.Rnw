@@ -7,6 +7,7 @@
 \usepackage{rotating}
 \usepackage{natbib}
 \usepackage{xr}
+\usepackage{url}
 \usepackage{../../latex/sty/genres}
 \externaldocument{supplementary}
 
@@ -38,9 +39,10 @@ of {\em Streptococcus mutans} }
 \author{Sang Chul Choi$^{1}$, Charles D.\ Danko$^{1}$, 
 Melissa J.\ Hubisz$^{1}$, \\
 Paulina Dmitrievna Pavinski Bitar$^{2}$, \\
-\fixme{Add more coauthors and change the order of authors if needed}, \\
+\fixme{Add more coauthors, or change the order of authors if needed} \\
 Robert A.\ Burne$^{3}$
 Michael J.\ Stanhope$^{2}$, and Adam Siepel$^{1}$}
+
 
 \date{ }
 \maketitle
@@ -62,7 +64,7 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 
 \vspace{1in}
 
-\fixme{Add corresponding authors if needed.}
+\fixme{Add more corresponding authors.}
 
 \begin{tabular}{lp{4.5in}}
 {\bf Submission type:}& Research Article
@@ -87,39 +89,707 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 
 \doublespacing
 
-\section{Abstract}
-A bacterial transcriptome from the primary etiological agent of human dental
-caries, \textit{Stretptococcus mutans}, is described using deep RNA sequencing
-data.  We define transcripts boundaries of open reading frames based on sequence
-alignments of short reads on the reference genome of UA159 from the deep
-sequencing.  Based on homologous sequences and RNA secondary structures we also
-report putative small RNAs, several of which are confirmed experimentally using
-both RNA sequencing data, northern blot, and qRT-PCR.  CcpA is known to play a
-direct role in carbon catabolite repression (CCR).  We use the developed
-transcript map, open read frame, and small RNAs to determine differentially
-expressed regions between the wild-type (UA159) and CcpA-deletion (TW1) strains
-in order to refine the previously established importance of CcpA regulation as
-central metabolism and virulence gene expression.  We find that more genes are
-differentially expressed in the comparison between wild-type and CcpA-deletion
-strains that are grown in galactose than in glucose.  We also find that more
-genes differentially expressed in wild-type than in CcpA-deletion strain when
-comparing glucose- and galactose-grown cells.  These two findings are different
-from those from microarry experiment of \cite{Abranches2008}.  We also predicted
-target genes of the small RNAs that were enriched in the following functional
-categories: xxx.  We confirmed that CcpA modulates the pathogenic potential of
-\textit{S.\ mutans} through global control of gene expression.
+\fixme{Refinements: More filtering steps in the short read alignments might be necessary. Done?}
 
-\comment{
-\section{Abbreviations}
-\begin{enumerate}
-\item CCR Carbon catabolite repression
-\item CcpA ?
-\item IPS intracellular polysaccharide
-\item CRE catabolite responsive elements
-\end{enumerate}
+\section*{Abstract}
+A bacterial transcriptome of the primary etiological agent of human dental
+caries, \textit{Streptococcus mutans}, is described using deep RNA sequencing.
+RNA transcripts inferred from the RNA-seq data revealed novel messenger RNAs,
+and small RNAs. Differential expression studies on the role of CcpA in 
+carbon catabolite repression (CCR) suggested that some of the novel mRNAs and
+small RNAs found in our study could be involved in the regulation of CcpA. Our
+study provides more precise landscape of transcriptome changes in response to
+different carbon sources.
+
+\section*{Introduction}
+% S. mutans, CCR and CcpA
+About one fifth of children of ages ranging from 2 to 19 were reported to have
+untreated cavities in the United States \citep{health2010}. Oral bacteria digest
+foods containing carbohydrates left on the teeth to convert them to acids, which
+dissolve the surface of the teeth and create cavities.  The primary etiological
+agent of human dental caries, \textit{Streptococcus mutans}, is one of hundreds
+bacterial species that constitute the oral microbial community
+\citep{Jenkinson2005}.  Bacteria can selectively use substrates from different
+carbon sources via a regulation called carbon catabolite repression (CCR)
+\citep{Gorke2008}.  \textit{S.\ mutans} also possesses biological systems for
+CCR.  CCR were known to regulates the expression of virulence factors in many
+pathogenic bacteria, thereby subjecting a number of genes to CCR.  CcpA was
+shown to regulate metabolism and virulence gene expression in 
+\textit{S.\ mutans} through CCR in transcriptom study using 
+the microarray technique based on DNA hybridization \citep{Abranches2008}. 
+
+% RNA-seq, and microarray, bacterial transcriptomes
+It has been a decade since the first genome of the oral bacteria was finished
+\citep{Ajdic2002}.  Studies of the transcriptome in the bacteria were performed
+based on DNA hybridization
+\citep[e.g.,][]{Klein2010,Lemme2011,Redanz2011,Wen2011} whereas those in other
+bacterial species took advantage of high-throughput sequencing technologies:
+e.g.,
+\textit{Mycoplasma pneumoniae} \citep{Guell2009},
+\textit{Methanosarcina mazei} \citep{Jaeger2009},
+\textit{Bacillus subtilis}  \citep{Irnov2010},
+\textit{Helicobacter pylori} \citep{Sharma2010}, and
+\textit{Sulfolobus solfataricus} \citep{Wurtzel2010}, to name a few.
+The advent of the high-throughput RNA deep sequencing technologies allowed
+annotation-free detection of transcripts, sensitive and dynamic ranges of
+measurements in RNA expression levels, and studies of non-coding RNAs. 
+
+% Aims
+We used the standard RNA deep sequencing technique to sequence RNAs in
+\textit{S.\ mutans}, focusing on messenger RNAs expression levels in response to
+different nutrients with UA159 wild-type and \textit{ccpA}-deleted TW1
+mutant-type.  We attempted to define transcripts of mRNAs using the RNA-seq
+data, and to find several small non-coding RNAs. Using the map of transcripts
+and expression levels of the transcripts from different biological conditions
+allowed us to determine which transcripts and non-coding small RNAs were
+differentially expressed. This provided more refined views of dynamic changes in
+the transcriptome landscape of the etiological agent of human dental caries,
+\textit{S.\ mutans}, than previously reported by \citet{Abranches2008}.
+
+\section*{Materials and Methods}
+
+\subsection*{Bacterial strains and growth conditions}
+\fixme{Burne group describes bacterial strains and growth conditions and other
+necessary works. Please, add texts and SCC will copy-edit them.}
+
+\subsection*{RNA isolation}
+\fixme{Burne group describes RNA isolations and other works. Please, add texts
+and SCC will copy-edit them.}
+
+\subsection*{RNA sequencing}
+\fixme{SCC wrote the paragraph based on email correspondences between PDPB and CDD.
+Stanhope group describes RNA sequencing. Please add texts and SCC will copy-edit
+them.}
+Deep sequencing of the RNA samples were performed at the Cornell University Life
+Sciences Core Laboratories Center (Ithaca, NY).  RNA extraction was performed
+using a modified Qiagen RNAease protocol (Qiagen, Inc., Chatsworth, CA): cells
+were pelleted, resuspended in RNA protect reagent, frozen, and then resuspended
+in TE, mechanically disrupted in a bead beater in the presence of glass beads
+and acidic phenol. We used the Qiagen kit to obtain total RNAs.  The RNA sample
+was passed through the Ambion MicrobExpress kit twice, which removed ribosomal
+RNAs only using magnetic beads.  This procedure left small RNAs and transfer
+RNAs intact.  Then, we followed the TruSeq Illumina kit to prepare the cDNA
+libraries.  
+
+\subsection*{Short reads alignments}
+About 20 millions of short reads were sequenced for each sample.  We used a
+short read aligner, \program{BWA} \citep{Li2009a}, to map the sequenced short
+reads on the reference genome, \textit{S.\ mutans} UA159 (NCBI accession
+NC\_004350). Because the aligner allowed a few gaps for efficient alignments of
+millions of sequences of size being 100 base pairs long, short reads that
+consisted of RNAs with sequencing adapter sequences would not be mapped.  We
+used \program{cutadapt} \citep{Martin2011} to remove parts of adapter sequences
+from short reads before mapping on the reference genome.  Mapped short read
+alignments were converted into readable formats using \program{samtools}
+\citep{Li2009b}. 
+
+\subsection*{Transcript predictions}
+RNA transcripts were inferred by applying a hidden Markov model to site-wise
+expression levels \citep{Martin2010}.  We used the pileup command of
+\program{BWA} to convert the short reads alignments to pilup values, which were
+taken as the site-wise expression levels along the genome.  Site-wise expression
+levels are a list of site-wise non-negative integers that represents numbers of
+short reads mapped to a particular genomic position.  We used the following
+options for the transcript inference program, \program{ParseRNAseq}: ``-c 10 -b
+25 -force\_gp'' to bin expression levels into 25 parts, and to allow 10 emission
+states for relative expression intensity. We also used the genes as the
+predicted parts of transcripts.    Because we enriched mRNAs in the cDNA
+preparation, we intented to group annotated genes to segments, which could be
+transcripts. We did not aim at finding precise transcription start or end sites.
+Because we did not have strand-specific RNA-seq of the samples due to limited
+resources, we could not tell in which directions transcripts were oriented
+solely based on RNA-seq data. Instead, we used strands of annotated genes to
+determine strands of predicted transcripts.
+
+\subsection*{Prediction of small RNAs and targets}
+Although our RNA-seq data did not enriched non-coding small RNAs in the cDNA
+preparation, we retained small RNAs in the sample by attempting to deplete only
+ribosomal RNAs from the sample. Because non-coding small RNAs and coding
+mRNAs were mixed in the sample, it was difficult to discriminate small
+non-coding RNAs from mRNAs unless non-coding RNAs expressions were masked by
+neighboring background RNA expressions. 
+Therefore, we sought a way of predicting small RNAs
+using \program{RNAz} \citep{Gruber2010}, which  used homologous sequences and
+RNA secondary structures to predict putative non-coding RNAs. Because sequence
+alignments were a critical step for finding small RNAs in the approach, we
+collated sequences similar to intergenic regions, and refined the alignments using
+a multiple sequence alignment tool. Exracting
+intergenic regions including up- and down-stream, we searched a database of
+bacterial genomes using BLAST \citep{Altschul1990} for similar intergenic
+sequences, subsequently, refining the sequence alignments using MUSCLE
+\citep{Edgar2004a}.  Then, we applied \program{RNAz} to the alignments for
+scoring regions for small RNAs \citep{Washietl2005,Gruber2010}.  Targets of
+transcripts with high scores for small RNAs were also predicted using
+\program{RNAplex} \citep{Tafer2008}, and \program{RNAplfold}
+\citep{Bernhart2006}.  Target genes were scored for each small RNA candidate,
+which was used to perform functional category enrichment tests of targets for
+each small RNA candidate.
+
+\subsection*{Experimental validation of small RNAs}
+\fixme{Burne group might have done or be able to do some experimental
+validations of putative non-coding RNAs shown at table \ref{tabUnannotatedRNA}
+\citep[e.g.,][]{Altuvia2007}.}
+
+\subsection*{Statistical analysis for differential expressions}
+We used \Rpackage{DESeq} \citep{Anders2010} to determine differentially
+expressed genes based on negative binomial model originally developed by
+\citet{Robinson2007}.  Steps of analyzing RNA-seq data for determining
+differentially expressed genes were described in \cite{Oshlack2010}.  We counted
+short reads aligned to annotated genes in the reference genome, forming a table
+of read counts of the genes. Statistical software R \citep{R2011} with
+\Rpackage{DEseq} was subsequently employed to infer differentially expressed
+genes in the different biological conditions.  
+
+\subsection*{Gene category associations}
+We compiled three sets of gene categories for testing functional associations.
+Firstly, we assigned genes to Gene Ontology (GO) categories by comparing the
+\textit{S.\ mutans} genes to bacterial proteins from the Uniref90 database using
+\program{BLASTP}, and then assigning the same GO classification as the target
+gene of the uniProt GOA database if the match had an $E$-value of
+$<1.0\times10^{-5}.$  A gene family was assigned a given classification if any
+of its genes was assigned that classification.  Secondly, we collated functional
+classes of genes in the Oral Pathogen Sequence Databases available at
+\url{http://oralgen.lanl.gov}. Thirdly, we used a set of metabolite pathways for
+\textit{S.\ mutans} available at Kyoto Encyclopedia of Genes and Genomes (KEGG)
+\citep{Kanehisa2012}.  Using the sets of gene categories for \textit{S.\ mutans}
+we performed a Mann-Whitney $U$ test of the values of target genes of small RNAs
+associated with a given category versus those for the other categories. We
+used a variation of Fisher's exact test accounting for gene lengths to test
+enrichments of differentially expressed genes \citep{Young2010}.  Both of the
+tests were corrected for multiple testing hypotheses \citep{Benjamini1995}.
+
+\subsection*{UCSC genome browser tracks and data availability}
+We created tracks for our recently released Streptococcus Genome Browser
+(\url{http://strep-genome.bscb.cornell.edu}) that summarized the results of our
+\textit{S.\ mutans} transcriptome analysis with known genes, gene expression
+levels based on the short read alignments, predicted putative transcript
+segments, and predictd small non-coding RNAs.  They should be accessed by clade
+\textit{Streptococcus}, and genome \textit{S. mutans UA159}.  These tracks can
+be used to inspect loci of interest and to compare the results of different
+RNA-seq data sets.  They can also be queried and intersected with other tracks
+using the UCSC Table Browser.
+
+\section*{Results}
+
+<<echo=FALSE,results=hide>>=
+# not run when smutans R package is installed
+# Use this when smutans R package is being tested.
+library(DESeq)
+library(GenomicRanges)
+library(plotrix)
+source("smutans/R/class_and_slots.R")
+source("smutans/R/core.R")
+source("smutans/R/methods.R")
+load("smutans/data/smutansData.tx.RData")
+load("smutans/data/smutansData.txGenes.RData")
+load("smutans/data/smutansData.txGrCombined.RData")
+load("smutans/data/smutansData.txPileup.RData")
+load("smutans/data/smutans.feature.genes.RData")
+load("smutans/data/smutans.genes.criteria.RData")
+load("smutans/data/smutans.go.genes.RData")
+load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutansGenes.RData")
+load("smutans/data/smutansGenes2.RData")
+
+# Copied from supplementary.Rnw. Compare the following with ones above to remove
+# redundant lines.
+load("smutans/data/smutansData.tx.RData")
+load("smutans/data/smutansData.txGenes.RData")
+load("smutans/data/smutansData.txGrCombined.RData")
+load("smutans/data/smutansData.txAnnotation.RData")
+load("smutans/data/smutansData.txRNAz.RData")
+load("smutans/data/smutansData.txPileup.RData")
+load("smutans/data/smutans.feature.genes.RData")
+load("smutans/data/smutans.genes.criteria.RData")
+load("smutans/data/smutans.go.genes.RData")
+load("smutans/data/smutans.cat.desc.RData")
+load("smutans/data/smutans.keg.genes.RData")
+load("smutans/data/smutans.keg.desc.RData")
+load("smutans/data/smutansGenes.RData")
+@
+<<eval=FALSE,echo=FALSE,results=hide>>=
+# not run without smutans R package installed
+# Remove eval=FALSE when the R package is installed
+library(smutans)
+load(smutansData.tx)
+load(smutansData.txGenes)
+load(smutansData.txGrCombined)
+load(smutansData.txPileup)
+load(smutans.feature.genes)
+data(smutans.genes.criteria)
+data(smutans.go.genes)
+data(smutans.cat.desc)
+data(smutansGenes)
+data(smutansGenes2)
+@
+
+<<echo=FALSE,result=hide>>=
+notExpressedTx <- smutansData.txGrCombined[elementMetadata(smutansData.txGrCombined)$zero > 0.1 & elementMetadata(smutansData.txGrCombined)$pileup < 5]
+grTx <- smutansData.txGrCombined[!(elementMetadata(smutansData.txGrCombined)$zero > 0.1 & elementMetadata(smutansData.txGrCombined)$pileup < 5)]
+# We query genes and annotations (genes and RNAs) againt tx's.
+matchGenesTx <- findOverlaps(smutansData.txGenes,grTx)
+matchAnnotationTx <- findOverlaps(smutansData.txAnnotation,grTx)
+# I use gaps with IRanges because gaps with GenomicRanges does not work as expected.
+grNoAnnotation <- gaps(ranges(smutansData.txAnnotation))
+grNoncoding <- gaps(ranges(smutansData.txGenes))
+grRNAz <- ranges(smutansData.txRNAz)
+# 
+matchUnannotatedRNA <- findOverlaps(grRNAz,grNoAnnotation,type="within")
+txRNAz.unannotated <- grRNAz[matchMatrix(matchUnannotatedRNA)[,1]]
+
+# A bug in GenomicRanges: the last segment is the while genome. I removed it
+# from the noncoding ranges.
+# matchNoncoding <- findOverlaps(grNoncoding,grTx)
+
+# Expressed transcripts without annotated genes
+grTxWGenes <- grTx[unique(matchMatrix(matchGenesTx)[,2])]
+grTxWOGenes <- grTx[-unique(matchMatrix(matchGenesTx)[,2])]
+grTxWOAnnotation <- grTx[-unique(matchMatrix(matchAnnotationTx)[,2])]
+
+# Find transcripts with genes with conflicted strands
+grGenesPlus <- smutansData.txGenes[strand(smutansData.txGenes)=='+']
+grGenesMnus <- smutansData.txGenes[strand(smutansData.txGenes)=='-']
+#mtchPlus <- findOverlaps(grGenesPlus,grTxWGenes)
+#mtchMnus <- findOverlaps(grGenesMnus,grTxWGenes)
+#txWithConflictedGenes <- intersect(matchMatrix(mtchPlus)[,2],matchMatrix(mtchMnus)[,2])
+
+# Tx with genes strands
+grTx2 <- grTxWGenes[!strand(grTxWGenes)=='*'] 
+
+# Find the number of genes in segments.
+matchGenesTx2 <- findOverlaps(smutansData.txGenes,grTx2,type="within")
+number.genes.tx <- runLength(Rle(matchMatrix(matchGenesTx2)[,"subject"]))
+
+# Length distribution of UTR regions
+# grTx2 <- grTxWGenes[-txWithConflictedGenes] 
+# Lengths of 5' and 3' UTRs
+mtchPlus <- findOverlaps(grGenesPlus,grTx2,type="within")
+mtchMnus <- findOverlaps(grGenesMnus,grTx2,type="within")
+length5UTR <- c()
+length3UTR <- c()
+for (i in unique(matchMatrix(mtchPlus)[,"subject"])) {
+  x <- matchMatrix(mtchPlus)[matchMatrix(mtchPlus)[,"subject"]==i,"query"]
+  y <- min(start(grGenesPlus[x])) - start(grTx2[i])
+  z <- end(grTx2[i]) - max(end(grGenesPlus[x])) 
+  length5UTR <- c(length5UTR,y)
+  length3UTR <- c(length3UTR,z)
+}
+for (i in unique(matchMatrix(mtchMnus)[,"subject"])) {
+  x <- matchMatrix(mtchMnus)[matchMatrix(mtchMnus)[,"subject"]==i,"query"]
+  y <- min(start(grGenesMnus[x])) - start(grTx2[i])
+  z <- end(grTx2[i]) - max(end(grGenesMnus[x])) 
+  length5UTR <- c(length5UTR,z)
+  length3UTR <- c(length3UTR,y)
 }
 
-\section{Introduction}
+# Correlation of expression levels of adjacent genes.
+pileup.x <- lapply(ranges(smutansData.txGenes), function(x) seqselect(smutansData.txPileup, x))
+pileup.y <- mapply(function(x,y) sum(x)/y, x=pileup.x, y=width(smutansData.txGenes))
+elementMetadata(smutansData.txGenes)["score"] <- pileup.y
+mtch3 <- findOverlaps(smutansData.txGenes,grTx2)
+x <- rle(matchMatrix(mtch3)[,"subject"])
+comp.exp.two.genes <- c()
+for (i in x$values[x$lengths > 1]) {
+  y <- combn(matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==i],2)
+  for (j in 1:dim(y)[2]) {
+    comp.exp.two.genes <- cbind(comp.exp.two.genes,as.matrix(elementMetadata(smutansData.txGenes)["score"][y[,j],]))
+  }
+}
+# Correlation of expression levels of adjacent genes between transcripts.
+comp.exp.two.genes.between.transcript <- c()
+for (i in 1:length(x$values)) {
+  if (i == length(x$values)) {
+    break
+  }
+  y1 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i]]
+  i2 <- i + 1
+  y2 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i2]]
+  l <- as.matrix(do.call(expand.grid, list(y1,y2)))
+  for (j in 1:dim(l)[1]) {
+    comp.exp.two.genes.between.transcript <- cbind(comp.exp.two.genes.between.transcript,as.matrix(elementMetadata(smutansData.txGenes)["score"][l[j,],]))
+  }
+}
+@
+
+\subsection*{Experimental results from Burne group}
+\fixme{Add some if needed.}
+
+\subsection*{Results from Stanhop group when RNA sequencing preparation}
+\fixme{Add some if needed.}
+
+\subsection*{Statistics of short reads}
+
+\subsection*{Cluster of RNA samples}
+First using the table of read counts of annotated genes we formed a cluster of
+the 13 RNA-seq samples (fig.\ \ref{figClust}). The effect of nutrients appeared
+to be stronger than that of the deletion of \textit{ccpA} genes from the UA159
+genome. 
+
+\subsection*{Predicted transcripts}
+
+We obtained a set of segments of RNA-seq expressions for each of the 13 RNA-seq
+samples.  All of the segments for each set of RNA-seq expression segments were
+scored by the average proportions of segments shared by the segments in the rest
+of sets.  We placed more highly ranked segments first on the reference genome
+based on the scores, and purged more lowly ranked segments from the
+transcriptome map. In doing so, the
+final set of segments was formed by placing non-overlapping highly ranked
+segments.  Average site-wise expression levels of the segments 
+are shown at figure \ref{figGrCombinedExpression}. 
+We designated segments as expressed that had site-wise pileup values
+greater than 5 and proportion of sites of zero site-wise pileup values less than
+10\%.  A gene was also designated as an expressed if the gene belonged to an
+expressed segment.  Some of the predicted segments were not expressed or very
+lowly expressed (\Sexpr{length(notExpressedTx)} 
+out of 
+\Sexpr{length(smutansData.txGrCombined)}).
+Of the total \Sexpr{length(smutansData.txGenes)} of genes,
+\Sexpr{length(matchMatrix(matchGenesTx)[,1])}
+(\Sexpr{as.integer(length(matchMatrix(matchGenesTx)[,1])/length(smutansData.txGenes)*100)}\%) 
+were designated as expressed. 
+Genes that were not designated as expressed could be due to false gene
+annotations or possibility of true negative expression under the experimental
+conditions. 
+Figure \ref{figLength} shows the length distribution of expressed and
+not-expressed genes. 
+Of the \Sexpr{length(grTx)} expressed segments, 
+\Sexpr{length(grTxWOAnnotation)} contained no annotated genes or RNAs.
+Many of the segments might cover gaps between real operons.
+\fixme{Examine these unannotated regions in the UCSC genome tracks.}
+
+Figure \ref{figTranscriptLength} shows the length distribution of expressed
+segments with annotated coding genes and unannotated regions.  Unannotated
+regions could include potential non-coding regions and novel coding genes.
+Segments of unannotated regions appeared to be shorter than those with
+coding genes. Most of the unannotated regions with length being near 360 bp
+could be non-coding regions, and the rest of the unannotated regions with length
+being near 1000 bp could be new coding genes. Some of the unannotated genes
+could be pseudogene regions.  We used strandnesses of known genes to find
+strands of segments although we could not tell strands of the predicted
+transcripts solely based on our RNA-seq data because of our strand-nonspecific
+RNA-seq technique.  Of
+the \Sexpr{length(grTx)} expressed transcripts, 
+\Sexpr{sum(strand(grTx)=='*')}
+included annotated genes of both strands
+(\Sexpr{as.integer(sum(strand(grTx)=='*')/length(grTx)*100)}\%).
+We filtered out the transcripts with genes with conflicted both strands leaving
+\Sexpr{length(grTx2)} expressed transcripts. 
+Figure \ref{figUTRLength} shows length distributions of 5' and 3' UTR of the
+expressed transcripts without genes with conflicted strands.  Many transcripts
+appeared to start and end near the boundaries of annotated genes.  Gene
+expression levels for adjacent genes within expressed transcripts were more
+correlated than those between adjacent transcripts 
+(fig.\ \ref{figExpressionTwoGene}).
+Among the \Sexpr{length(unique(matchMatrix(matchGenesTx2)[,"subject"]))} segments
+with genes of all of the same strands, 
+\Sexpr{sum(number.genes.tx==1)} segments contained a single gene while 
+\Sexpr{sum(number.genes.tx > 1)} contained more than one gene.
+
+\subsection*{Predictions of small RNAs}
+
+We predicted
+\Sexpr{length(colnames(smutans.genes.criteria))-1} putative non-coding RNAs, most of
+which were already annotated.  
+Of the \Sexpr{length(colnames(smutans.genes.criteria))-1} predicted non-coding RNAs
+\Sexpr{length(txRNAz.unannotated)} were in  
+unannotated non-coding regions (table \ref{tabUnannotatedRNA}).  Using
+\program{RNAplex} \citep{Tafer2008} and \program{RNAplfold} \citep{Bernhart2006}
+we predicted target genes of the putative non-coding RNAs.  Table \ref{tab:goseq}
+shows functional categories enriched with target genes for predicted small RNAs.
+We found that a few of the putative small RNAs were structured with stable stems
+(figs.\ \ref{figRNALocus1}, \ref{figRNALocus2}, and \ref{figRNALocus3}).  
+\fixme{We might be able to 
+further experimentally verify potentially important small RNAs.}
+
+\subsection*{Differential expression of RNA transcripts}
+
+<<echo=FALSE,result=hide>>=
+#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+#                            condA="ua159", condB="tw1" )
+#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
+load("glucoseOnly.RData")
+smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
+tableGlucoseOnly <- smutans.de2List( glucoseOnly, qval=1e-3 )
+
+# Gene descriptions
+geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
+geneDescription <- geneDescription[,c(4,7)]
+colnames(geneDescription) <- c("Gene ID","Gene Description")
+# Functional classes
+functionalDescription <- read.csv("feature-genome.out-geneonly-oralgen-functional.txt",head=FALSE)
+functionalDescription <- functionalDescription[,c(2,12)]
+colnames(functionalDescription) <- c("Gene ID","Functional Class")
+# Find potential differentially expressed genes, and add gene descriptions, and
+# functional classes
+x <- smutans.de2List( glucoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGlucoseOnly <- x
+@
+
+Two independent factors of the biological processes included the effect of CcpA
+and the treatment of mono-saccharides (glucose versus galactose), resulting in
+four pair-wise comparisons. We compared two conditions of one factor with the
+other factor being fixed at one condition. For example, we compared UA159
+wild-type and TW1 mutant-type strains under the condition of glucose-grown cells
+to determine differentially expressed transcripts or genes potentially due to
+presence and absence of deactivation of \textit{ccpA} genes.  We performed a
+similar comparison with galactose-grown cells. We replicated four
+biological experiments for the condition combination of UA159 wild-type grown
+in galactose, and three replicates for the other three conditions. 
+
+\subsection*{Comparison between wild-type and mutant-type in glucose-grown cells}
+
+Table \ref{tabGlucoseOnly} lists differentially expressed genes in the
+comparison of UA159 wild-type and TW1 mutant-type grown with glucose.
+Of \Sexpr{nrow(counts(smutansGenes))} genes, 
+\Sexpr{nrow(tableGlucoseOnly)} genes were found to be differentially expressed
+at FDR of 0.1\%.  We confirmed that the most up-regulated genes in the TW1
+mutant-type encoded the components of the PDH enzyme complex (SMU.1421,
+SMU.1422, SMU.1423, and SMU.1424) as shown previously.  
+These genes appeared to be transcribed in
+a single operon (fig.\ \ref{figUCSC}). 
+Figure \ref{figPieGlucoseOnly} shows the
+proportions of \program{oralgen} databases functional classes by the number of
+differentially expressed genes.  Notably, we found
+\Sexpr{length(grep("Energy metabolism",tableGlucoseOnly[,"Functional Class"]))}
+genes that were involved in energy metabolism where sugars and fermentation
+subclasses were profound. We found 
+\Sexpr{length(grep("PTS",tableGlucoseOnly[,"Functional Class"]))}
+genes in PTS class of signal transduction. Another subclass, 
+``carbohydrates, organic alcohols, and acids,'' in
+``transport and binding proteins'' was following next in the number of
+differentially expressed genes. We also found  
+\Sexpr{length(grep("hypothetical",tableGlucoseOnly[,"Gene Description"]))}
+genes annotated as hypothetical, which might constitute the unknown functional
+class. These results appeared to be consistent with those of \citet{Abranches2008}.
+
+We further tested functional category enrichments using gene ontology terms and KEGG
+pathways. Table \ref{tab:goseqGlucoseOnly} shows that differentially expressed
+genes were associated with the following gene ontology terms:
+phosphotransferase system, 
+glycogen biosynthetic process, and
+sugar:hydrogen symporter activity.
+Among the KEGG pathways, starch and sucrose metabolism and phosphotransferase
+system (PTS) appeared to be highly associated with the differentially expressed
+genes (table \ref{tab:kegseqGlucoseOnly}).
+Figure \ref{figDotplotGlucoseOnly} shows that differentially expressed genes
+tended to increase in expression levels in response to the deletion of
+\textit{ccpA} genes.  Profoundly upregulated genes were putative Clp proteinase
+(SMU.1425), branched-chain alpha-keto acid dehydrogenase subunit E2 (SMU.1421),
+and putative transcriptional regulator (SMU.1599).  Much less proportion of the
+differentially expressed genes were found to be decreased in expression levels
+in response to the lack of CcpA (fig.\ \ref{figDotplotGlucoseOnly}).
+Down-regulated genes include cytoplasmic alpha-amylase (SMU.1590),
+beta-D-fructosyltransferase (SMU.2028), and putative glycerol uptake facilitator
+protein (SMU.396).  Fructosyltransferase converts sucrose to fructose.
+
+Figure \ref{figFoldPValueGlucoseOnly} shows fold changes and $p$-vallues are
+negatively correlated. \fixme{Why did I want to note this observation?}
+
+\subsection*{Comparison between wild-type and mutant-type in galctose-grown cells}
+
+<<echo=FALSE,result=hide>>=
+#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+#                              condA="ua159", condB="tw1" )
+#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+load("galactoseOnly.RData")
+x <- smutans.de2List( galactoseOnly, qval=1e-3 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableGalactoseOnly <- x
+@
+We found that differentially expressed genes in galactose-grown cells were
+smaller than those in glucose-grown cells, which was different from the result
+of \cite{Abranches2008}. 
+Energy metabolism was the most
+profoundly differentially expressed (fig.\ \ref{figPieGalactoseOnly}).
+Subclasses pyruvate family in amino acid biosynthesis, 
+and degradation of proteins, peptides, and glycopeptides in protein fate
+were following the next. Almost a quarter of the genes were unknown.
+Down-regulated genes included cytoplasmic alpha-amylase (SMU.1590), and
+beta-D-fructosyltransferase (SMU.2028)
+(table \ref{tabGalactoseOnly}). We could not find gene ontology terms that were
+significantly associated with differentially expressed genes. It might be
+because many genes were unknown in their functions 
+(fig.\ \ref{figDotplotGalactoseOnly}).
+However, a few KEGG pathways including valine, leucine and isoleucine
+biosynthesis were found to be significant (table \ref{tab:kegseqGalactoseOnly}).
+
+\subsection*{Comparison between glucose- and galactose-grown wild-type cells}
+
+<<echo=FALSE,result=hide>>=
+#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+#ua159only <- smutans.de2( ua159only, type="ua159", 
+#                          condA="glucose", condB="galactose" )
+#save(ua159only, file=file.path("ua159only.RData"))
+load("ua159only.RData")
+x <- smutans.de2List( ua159only, qval=1e-10 )
+x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
+x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+tableUA159Only <- x
+@
+Among the four pairwise comparisons this showed the largest number of
+differentially expressed genes (table \ref{tabUA159Only}). We used a smaller
+cutoff value for listing them. 
+Figure \ref{figPieUA159Only} shows proportons of functional categories that
+included differentially expressed genes between glucose-grown and
+galactose-grown UA159 wild-type cells. Qualitatively, energy metabolism and PTS
+classes were profound. 
+``Energy metabolism; Fermentation'' had highly differentially expressed genes
+(fig.\ \ref{figDotplotUA159Only})
+This was silmilar to the comparison between UA159
+wild-type and TW1 mutant-type grown in glucose. 
+More than a quarter of the
+differentially expressed genes were unknown, unassigned, or hypothetical.
+Consecutive genes (SMU.1488c to SMU.1496) were upregulated in 
+catabolite-derepressing conditions or in galactose-grown cells
+(\fixme{Are these the genes of the lactose (lac) operon?})
+(table \ref{tabUA159Only}).  Another set of genes (SMU.886 to SMU.889) were also
+upregulated (\fixme{Are these called galKTE?}). Whereas the
+four genes appeared to be transcribed together under galactose condition,
+two segments seemed to be transcribed by dividing the four genes into two pairs
+of genes (fig.\ \ref{figUCSC2}).  Genes from SMU.1535 to SMU.1539, which
+appeared to be transcribed together, were upregulated.
+Of the \Sexpr{nrow(tableUA159Only)} differentially expressed genes at
+$1 \times 10^{-10}$ cutoff of multiple testing adjusted p-value, 
+\Sexpr{length(grep("hypothetical",tableUA159Only[,"Gene Description"]))} were
+hypothetical, and most of them were down-regulated
+(fig.\ \ref{figDotplotUA159Only}).
+We also tested functional category enrichments using gene ontology terms 
+(table \ref{tab:goseqUA159Only}) and KEGG pathways 
+(table \ref{tab:kegseqUA159Only})
+where carbohydrate metabolic process and Galactose metabolism were top listed,
+respectively.
+
+\subsection*{Comparison between glucose- and galactose-grown mutant-type cells}
+
+We found sugar metabolism and PTS signal transduction to be profound in
+differential expression in the comparison of glucose-grown and galactose-grown
+TW1 mutant-type cells (fig.\ \ref{figPieTW1Only}). Many of the genes were also
+hypothetical. We found similar genes differentially expressed in TW1 mutant-type
+cells to those in UA159 wild-type 
+(table \ref{tabTW1Only} and fig.\ \ref{figDotplotTW1Only}).
+The comparisons between glucose-grown and galactose-grown UA159, 
+and that from TW1 mutant-type showed very similar functional categories
+although ranks of gene ontology terms were different
+(tables \ref{tab:goseqUA159Only} and \ref{tab:goseqTW1Only}).
+Lactose metabolic process was top listed in TW1, and
+carbohydrate metabolic process was top listed in UA159.
+KEGG pathways in TW1 were also similar to those in UA159 
+(table \ref{tab:kegseqTW1Only}) .
+
+\subsection*{Comparison between glucose- and galactose-grown cells using all samples}
+As previously figure \ref{figClust} shows the nutrient effect was stronger, and
+the effects of nutrient changes appeared to be similar whether UA159
+wild-type or TW1 mutant-type was used, we used all of the 
+\Sexpr{length(colnames(counts(smutansGenes)))} samples to compare glucose-grown
+and galactose grown cells.
+<<echo=FALSE,results=hide>>=
+allSample <- newSmutans( smutansGenes, 
+                         title="All Samples for Comparing Conditions" )
+allSample <- smutans.de2( allSample )
+save(allSample, file=file.path("allSample.RData"))
+#load("allSample.RData")
+tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
+                                                   allSample )
+#addmargins( tabUA159onlyAndAllSample )
+@
+Of the total \Sexpr{sum(tabUA159onlyAndAllSample)} gene,
+\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found to be differentially
+expressed in both the analysis of using only UA159-grown cells and the analysis
+of using all of the 13 samples. The
+analysis using all of the sample found \Sexpr{tabUA159onlyAndAllSample[1,2]}
+genes. The analysis using the partial samples found only
+\Sexpr{tabUA159onlyAndAllSample[2,1]} genes.  We would expect that it was 
+because of higher power of the two-factor analysis with more data.
+
+\subsection*{Differentially expressed small RNAs and transcripts}
+
+<<echo=FALSE,results=hide>>=
+ua159only <- newSmutans( smutansGenes2, title="UA159 Only" )
+ua159only <- smutans.de2( ua159only, type="ua159", 
+                          condA="glucose", condB="galactose" )
+allSample <- newSmutans( smutansGenes2, 
+                         title="All Samples for Comparing Conditions" )
+allSample <- smutans.de2( allSample )
+tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
+                                                   allSample )
+# smutans.de2List( allSample )[grep("locus",rownames(smutans.de2List(allSample))),]
+@
+We found a few predicted small RNAs that appeared to be differentially
+expressed: locus69, locus101, locus7, and locus1. 
+Two non-coding regions of locus69 and locus101 seemed to be too weak.
+However, locus1 and locus7 seemed to have some noticeable differences between
+glucose and galactose conditions.
+We also found a few predicted small RNAs that appeared to be differentially
+expressed in the comparison of the two types UA159 and TW1: locus68,
+locus8, and locus10.  The locus68 was overlapped with T-box region.
+The two regions of locus8 and locus10 showed very weak and subtle differences
+between UA159 and TW1. 
+<<echo=FALSE,results=hide>>=
+allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
+allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+# smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
+@
+Figures \ref{figRNALocus1}, \ref{figRNALocus2}, and \ref{figRNALocus3} shows MFE
+structures with encoding positional entropy of differentially expressed putative
+structural non-coding RNAs.
+
+\section*{Discussion}
+
+Our current knowledge of the transcriptome is limited to annotated or predicted
+genes.  Whole transcriptome sequencing using high throughput sequencing
+technologies, or deep RNA sequencing (RNA-seq) allowed to reveal the
+transcriptome topography of \textit{S.\ mutans}.  Instead of aiming at
+pin-pointing transcript start or end sites we focused on differential expression
+of genes in response to nutirent availability and deletion of \textit{ccpA} from
+UA159.  Although we did not use strand-specific RNA-seq that could be important
+in gene-dense transcriptomes of species like bacteria or archaea, our
+application of a hidden Markov model for predicting transcripts to RNA-seq data
+in conjunction with known gene annotations allowed to infer segments of
+putatively co-transcribed regions. In doing so, we attempted to ensure a
+high-quality transcriptome assembly.  Although this map of transcripts did not
+precisely tell us where transcripts start and end, it informed us of which open
+reading frames were transcribed together.  We also found discrepancies of
+annotated genes and their transcriptions: a gene contains two transcripts, and
+non-coding regions contain transcripts.  We hope that our study could serve as a
+foundation for a comprehensive study of the \textit{S.\ mutans} transcriptome.
+
+\section*{Acknowledgments}
+\fixme{Add more peoples or fundings if needed.}
+This study was funded by the National Institute of Allergy and Infectious
+Disease, US National Institutes of Health, under grant number AI073368-01A2
+(to M.J.S.\ and A.S).  Additional support was provided by National Science
+Foundation CAREER Award DBI-0644111 and a David and Lucile Packard
+Fellowship for Science and Engineering (to A.S.).  
+We thank Christopher Browngardt for assistance with labelling functional classes
+of \textit{S.\ mutans} genes.
+
+\renewcommand*{\refname}{Literature Cited}
+\bibliographystyle{../../latex/bst/mbe}
+\bibliography{siepel-mutans}
+\clearpage{}
+
+\section*{Tables}
+
+\clearpage{}
+
+\section*{Figures}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REMOVED TEXT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Regulation of carbon catabolite repression (CCR) in \textit{Streptococcus
 mutans} can involve a phosphoenolpyruvate:sugar phosphotransferase system (PTS),
 histidin protein (HPr) and a transcriptional regulator, CcpA \citep{Gorke2008}.
@@ -148,223 +818,11 @@ samples could help to define operons. Eventually, operon maps will be determined
 experimentally. Computational tools could be helpful before those ages come to
 us. \fixme{This idea did not work. We should only use the prediction method.}
 
-Small RNAs and their targets can be predicted \citep{Tafer2008a}.
-Although our RNA-seq data did not sample specifically non-coding small RNAs, we
-retained small RNAs in the sample by attempting to deplete only ribosomal RNAs
-from the sample. Because non-coding small RNAs and coding messenger RNAs were
-mixed in the sample, we sought a way of predicting small RNAs using
-\program{RNAz} developed by \citet{Gruber2010}.  \program{RNAz} used homologous
-sequences and RNA secondary structures to predict putative non-coding RNAs. We
-confirmed the several predicted small non-coding RNAs experimentally
-\citep{Altuvia2007} including the RNA-seq data set. Because small RNAs could
-be associated with CCR regulation of genes (CITE), we determined differentially expressed small
-RNAs between RNA samples. We found a few small RNAs to be differentially
-expressed.
-
-Bacteria can selectively use substrates from different carbon sources. In the
-presence of a preferred carbon source, catabolic system of secondary substrates
-are often regulated or shutdown: called carbon catabolite repression
-\citep{Gorke2008}. CCR also regulates the expression of virulence factors in many
-pathogenic bacteria. A classical example is the glucose-lactose diauxie in
-\textit{E.\ coli}. A significant number of genes can be subject to CCR.  CCR in
-bacteria involves regulatory networks that activate or silence genes in response
-to carbon source and availability.  \textit{S.\ mutans} possesses redundant
-systems for CCR.  We could measure directly the expression levels of
-\textit{fruA} in \textit{S.\ mutans}.  We assess the contribution of CcpA to CCR
-of predicted operons.  Clearly, deletion of \textit{ccpA} resulted in
-substantial relief of the CCR of \textit{fruA} expression exerted by both
-glucose and fructose.
 
 We aims at refining the results of \cite{Abranches2008} in more quantative ways.
 Find CCR-sensitive transcripts. We describe predictions made for transcripts and
 small RNAs based on RNA-seq data. Combining the predictions and known genes we
 determine differentially expressed regions in UA159 genome. 
-
-\fixme{We need to quantify some uncertainty of transcript predictions.}
-
-\section{Materials and Methods}
-
-\subsection{Bacterial strains and growth conditions}
-\fixme{Burne group should be able to describe this part. The following is just
-from somewhere for the purpose of writing template. Please, rewrite it.}
-\textit{S.\ mutans} UA159 is a human cariogenic isolate. The whole genome is
-availabe at NCBI \citep{Ajdic2002}. Strain TW1 was derived from UA159 by
-replacing a part of \textit{ccpA} gene \citep{Wen2002}.  \textit{S.\ mutans}
-strains were inoculated into TV medium supplemented with 0.5\% galactose or
-glucose and grown to early exponential phase (OD600, 0.2).  Then fructose was
-added to the medium at concentrations (0,0.05,3,5,10 mM) for 3.5h to induce
-\textit{fruA} expression.
-
-Expression levels of \textit{fruA} in \textit{S.\ mutans} strains that were
-grown to early exponential phase (OD600, 0.2) in TV medium supplemented with
-0.5\% glucose or galactose. 
-
-\subsection{RNA isolation}
-\fixme{Burne group should be able to describe this part. The following is just
-from somewhere for the purpose of writing template. Please, rewrite it.}
-RNA was isolated from S. mutans (1) by using 50 ml cultures that were grown
-under the desired conditions and harvested by centrifugation at $4^{\circ}$C. Pelleted
-cells were resuspended in 400 ul of diethyl pyrocarbonate-treated water, 800 ul
-of RNAprotect reagent (Qiagen, Inc., Chatsworth, CA) was added, and the samples
-were incubated at room temperature for 5 min with vortexing for 10 s at 1-min
-intervals. Cells were then pelleted, resuspended in 250 ul Tris-EDTA (50:10)
-buffer, and transferred to 1.5 ml screw-cap tubes containing sterile glass beads
-(average diameter, 0.1 mm; Biospec, Bartlesville, OK), 10 ul of 1\% sodium
-dodecyl sulfate, and 300 ul of acid phenol-chloroform (5:1). After
-centrifugation for 15 min at maximum speed at $4^{\circ}$C, RNA was further purified
-using an RNeasy mini kit (Qiagen, Inc., Chatsworth, CA), including on-column
-DNase digestion with RNase-free DNase (Qiagen), as recommended by the supplier.
-
-\subsection{RNA sequencing}
-\fixme{SC wrote the second paragraph based on email correspondences between PDPB and CDD.
-Please rewrite it if necessary. Stanhope group should be able to describe this
-part. The following first paragraph is from a paper. Do not use them or rephrase
-them in any way. They are for informational purposes.}
-Sequencing libraries for the Illumina GA platform were constructed by shearing
-the enriched cDNA by nebulisation (35psi, 6 min) followed by end-repair with
-Klenow polymerase, T4 DNA polymerase and T4 polynucleotide kinase (to blunt-end
-the DNA fragments). A single 3' adenosine moiety was added to the cDNA using
-Klenow exo- and dATP. The Illumina adapters (containing primer sites for
-sequencing and flowcell surface annealing) were ligated onto the repaired ends
-on the cDNA and gel-electrophoresis was used to separate library DNA fragments
-from unligated adapters by selecting cDNA fragments between 200-250 bps in size.
-Fragmentation followed by gel-electrophoresis were used to separate library DNA
-fragments and size fragments were recovered following gel extraction at room
-temperature to ensure representation of AT rich sequences. Ligated cDNA
-fragments were recovered following gel extraction at room temperature to ensure
-representation of AT rich sequences. Libraries were amplified by 18 cycles of
-PCR with Phusion polymerase. Sequencing libraries were denatured with sodium
-hydroxide and diluted to 3.5 pM in hybridisation buffer for loading onto a
-single lane of an Illumina GA flowcell. Cluster formation, primer hybridisation
-and single-end, 36 cycle sequencing were performed using proprietary reagents
-according to manufacturers' recommended protocol (https://icom.illumina.com/).
-The efficacy of each stage of library construction was ascertained in a quality
-control step that involved measuring the adapter-cDNA on a Agilent DNA 1000
-chip. A final dilution of 2 nM of the library was loaded onto the sequencing
-machine.
-
-Deep sequencing of the RNA samples were performed at the Cornell University Life
-Sciences Core Laboratories Center (Ithaca, NY).  RNA extraction was performed
-using a modified Qiagen RNAease protocol (Qiagen, Inc., Chatsworth, CA): cells
-were pelleted, resuspended in RNA protect reagent, frozen, then resuspended in
-TE, mechanically disrupted in a bead beater in the presence of glass beads and
-acidic phenol. After these steps, we used the Qiagen kit to obtain total RNAs.
-The RNA sample was then passed through the Ambion MicrobExpress kit twice, which
-removed ribosomal RNAs only using magnetic beads.  This procedure left small
-RNAs and transfer RNAs intact.  We followed the TruSeq Illumina kit to prepare
-the cDNA libraries.  We did not intend to enrich short reads in either small
-RNAs or transcript boundaries.
-
-\subsection{Statistical analysis for differential expressions}
-We used an R package, DESeq, \citep{Anders2010} to determine differentially
-expressed genes based on negative binomial model originally developed by
-\citep{Robinson2007}.  Steps of analyzing RNA-seq data for determining
-differentially expressed genes are described in \cite{Oshlack2010}. We used a
-short read aligner called \program{BWA} \citep{Li2009a} to map the sequenced
-short reads on a reference genome, \textit{Streptococcus mutans} UA159 (NCBI
-accession NC\_004350). Because the aligner allowed a few gaps for efficient
-alignment of millions of sequences of size being 100 base pairs long, short
-reads that consist of RNAs and sequencing adapter sequences would be not mapped.
-We used \program{cutadapt} \citep{Martin2011} to remove parts of adapter
-sequences from short reads before mapping on the reference genome. Mapped short
-read alignments were converted into readable formats using \program{samtools}
-\citep{Li2009b}. We counted short reads aligned to annotated genes in the
-reference genome, forming a table of read counts of the genes. Statistical
-software R \citep{R2011} with \Rpackage{DEseq} \citep{Anders2010} was
-subsequently employed to infer differentially expressed in different biological
-conditions.  We also generated tracks for our recently released Streptococcus
-Genome Browser (http://strep-genome.bscb.cornell.edu) that summarize gene
-expression levels based the short read alignments. This allowed us to visualize
-parts of the reference genome for comparing different RNA samples. Further
-analyses such as functional category enrichment test \cite{Young2010} were also
-employed.
-
-\subsection{Transcript predictions}
-\citet{Martin2010} developed a hidden Markov model to predict transcripts by
-using site-wise expression levels. We used the following options for the
-program: ``-c 10 -b 25 -force\_gp'' to bin expression levels into 25 parts to
-allow 10 emission states. We also used the genes as the predicted parts of
-transcripts.  Because we did not have strand-specific RNA-seq of the 13 samples
-due to limited resources, we could not tell in which directions transcripts
-based on RNA-seq data were oriented.
-
-\subsection{small RNAs}
-We used \program{RNAz} to predict small RNA candidates. Sequence alignments were
-a critical step for finding small RNAs in the approach. Phylogenies of
-streptococcus species could be considered to choose species related with
-Streptococcus mutans.  Alternatively, we found sequences similar to intergenic
-regions, and refined the alignments using a multiple sequence alignment tool
-such as MUSCLE \citep{Edgar2004a}. First, we exracted intergenic regions
-including up- and down-stream. We searched non-redundant database of bacterial
-genomes using BLAST \citep{Altschul1990} for similar intergenic sequences,
-subsequently, refining the sequence alignments using MUSCLE \citep{Edgar2004a}.
-Then, we applied \program{RNAz} to the alignments for scoring regions for small
-RNAs \citep{Washietl2005,Gruber2010}.  Targets of transcripts with high scores
-for small RNAs were also predicted using \program{RNAplex} \citep{Tafer2008},
-and \program{RNAplfold} \citep{Bernhart2006}.  Target genes were scored for each
-small RNA candidate, which was used to perform functional category enrichment
-tests of targets for each small RNA candidate. We could find functional
-categories that a few small RNAs might be associated with.
-
-\subsection{Gene category associations and virulence genes}
-We used two approaches for finding functional categories
-\citep{Young2010,Suzuki2011}. We briefly descirbe the prodecure of
-\citet{Suzuki2011}.  We assigned genes to Gene Ontology (GO) categories by
-comparing the \textit{S.\ mutans} genes to bacterial proteins from the Uniref90
-database using \program{BLASTP}, and then assigning the same GO classification
-as the target gene of the uniProt GOA database if the match had an $E$-value of
-$<1.0\times10^{-5}.$  A gene family was assigned a given classification if any
-of its genes was assigned that classification.  To test for associations with
-replacing gene transfers we used the recombination intensity estimated for each
-gene, and for additive gene transfers we used the number of additive transfers
-inferred for each family.  To test for significance, we performed a Mann-Whitney
-$U$ test of the values (recombination intensities or numbers of transfers)
-associated with a given category vs.\ the values for the all other
-genes/families.  We used the \cite{Benjamini1995} method to correct for multiple
-comparisons.
-\fixme{A short description about \citep{Young2010}.}
-
-\comment{
-Findings include:
-\begin{enumerate}
-\item New genes, open reading frames that are not annotated in NCBI's genome database.
-\end{enumerate}
-}
-
-\section{Results}
-We sequenced a whole prokaryotic transcriptome of \textit{S.\ mutans}, and
-mapped short reads to the genomic sequence of the reference genome UA159
-\citep{Ajdic2002}. 
-\citet{Martin2010} applied a hidden Markov model to use short reads mapped to a
-genomic sequence in order to parase \textit{B.\ anthracis} genome into a
-sequence of transcripts. Most of annotated genes belong to the predicted
-transcripts. We found discrepancies of annotated genes and their transcriptions:
-1. A gene contains two transcripts, 
-2. Non-coding regions contain transcripts.
-\fixme{We could find more discrepancies. Try to find them}. 
-Expression levels of adjacent genes within a transcript should be more
-correlated to each other than those of adjacent genes belonging to separate transcripts
-\citep{Martin2010}. 
-We identified a set of transcripts, albeit not a full, including small RNAs, and novel
-transcripts. 
-We hope that our study could serve as a foundation for a comprehensive study of
-the \textit{S.\ mutans} transcriptome.
-Our current knowledge of the transcriptome is limited to annotated or predicted genes.
-Whole transcriptome sequencing using high throughput sequencing (HTS)
-technologies, or deep RNA sequencing (RNA-seq) allowed to reveal the
-transcriptome topography of \textit{S.\ mutans}. We did not aim at precisely
-pin-pointing transcript start or end sites.
-
-We admit that strand-specific RNA-seq would be important in gene-dense
-transcriptomes of species like bacteria or archaea.
-
-\subsection{From Reviews}
-
-We could not use short-read assemblers such as Velvet \citep{Zerbino2008} 
-and Trinity that had been developed to assembly transcriptome. Because genes in
-bacteria are so dense, RNA-seq data without strands did not allow us to apply
-any state-of-the-art software of transcriptome assembly.
-We ensured a high-quality transcriptome assembly. 
 
 
 In the data generation phase (FIG. 1a), total RNAs or mRNAs are fragmented and
@@ -431,399 +889,6 @@ What is the sequencing depth?
 \fixme{I might have to try different filters of short reads to see how those
 affect the transcript prediction.}
 
-<<echo=FALSE,results=hide>>=
-# not run when smutans R package is installed
-# Use this when smutans R package is being tested.
-library(DESeq)
-library(GenomicRanges)
-library(plotrix)
-source("smutans/R/class_and_slots.R")
-source("smutans/R/core.R")
-source("smutans/R/methods.R")
-load("smutans/data/smutansData.tx.RData")
-load("smutans/data/smutansData.txGenes.RData")
-load("smutans/data/smutansData.txPileup.RData")
-load("smutans/data/smutans.feature.genes.RData")
-load("smutans/data/smutans.genes.criteria.RData")
-load("smutans/data/smutans.go.genes.RData")
-load("smutans/data/smutans.cat.desc.RData")
-load("smutans/data/smutansGenes.RData")
-@
-<<eval=FALSE,echo=FALSE,results=hide>>=
-# not run without smutans R package installed
-# Remove eval=FALSE when the R package is installed
-library(smutans)
-load(smutansData.tx)
-load(smutansData.txGenes)
-load(smutansData.txPileup)
-load(smutans.feature.genes)
-data(smutans.genes.criteria)
-data(smutans.go.genes)
-data(smutans.cat.desc)
-data(smutansGenes)
-@
-<<echo=FALSE,result=hide>>=
-grTx <- smutansData.tx[elementMetadata(smutansData.tx)$state > 1]
-mtch2 <- findOverlaps(smutansData.txGenes,grTx)
-grNoncoding <- gaps(smutansData.txGenes)
-# A bug in GenomicRanges: the last segment is the while genome. I removed it
-# from the noncoding ranges.
-grNoncoding <- grNoncoding[-length(grNoncoding)] 
-mtchNoncoding <- findOverlaps(grNoncoding,grTx)
-# Expressed transcripts without annotated genes
-grTxWGenes <- grTx[unique(matchMatrix(mtch2)[,2])]
-grTxWOGenes <- grTx[-unique(matchMatrix(mtch2)[,2])]
-# Find transcripts with genes with conflicted strands
-grGenesPlus <- smutansData.txGenes[strand(smutansData.txGenes)=='+']
-grGenesMnus <- smutansData.txGenes[strand(smutansData.txGenes)=='-']
-mtchPlus <- findOverlaps(grGenesPlus,grTxWGenes)
-mtchMnus <- findOverlaps(grGenesMnus,grTxWGenes)
-txWithConflictedGenes <- intersect(matchMatrix(mtchPlus)[,2],matchMatrix(mtchMnus)[,2])
-grTx2 <- grTxWGenes[-txWithConflictedGenes] 
-# Lengths of 5' and 3' UTRs
-mtchPlus <- findOverlaps(grGenesPlus,grTx2)
-mtchMnus <- findOverlaps(grGenesMnus,grTx2)
-length5UTR <- c()
-length3UTR <- c()
-for (i in unique(matchMatrix(mtchPlus)[,"subject"])) {
-  x <- matchMatrix(mtchPlus)[matchMatrix(mtchPlus)[,"subject"]==i,"query"]
-  y <- min(start(grGenesPlus[x])) - start(grTx2[i])
-  z <- end(grTx2[i]) - max(end(grGenesPlus[x])) 
-  length5UTR <- c(length5UTR,y)
-  length3UTR <- c(length3UTR,z)
-}
-for (i in unique(matchMatrix(mtchMnus)[,"subject"])) {
-  x <- matchMatrix(mtchMnus)[matchMatrix(mtchMnus)[,"subject"]==i,"query"]
-  y <- min(start(grGenesMnus[x])) - start(grTx2[i])
-  z <- end(grTx2[i]) - max(end(grGenesMnus[x])) 
-  length5UTR <- c(length5UTR,z)
-  length3UTR <- c(length3UTR,y)
-}
-# Correlation of expression levels of adjacent genes.
-pileup.x <- lapply(ranges(smutansData.txGenes), function(x) seqselect(smutansData.txPileup, x))
-pileup.y <- mapply(function(x,y) sum(x)/y, x=pileup.x, y=width(smutansData.txGenes))
-elementMetadata(smutansData.txGenes)["score"] <- pileup.y
-mtch3 <- findOverlaps(smutansData.txGenes,grTx2)
-x <- rle(matchMatrix(mtch3)[,"subject"])
-comp.exp.two.genes <- c()
-for (i in x$values[x$lengths > 1]) {
-  y <- combn(matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==i],2)
-  for (j in 1:dim(y)[2]) {
-    comp.exp.two.genes <- cbind(comp.exp.two.genes,as.matrix(elementMetadata(smutansData.txGenes)["score"][y[,j],]))
-  }
-}
-# Correlation of expression levels of adjacent genes between transcripts.
-comp.exp.two.genes.between.transcript <- c()
-for (i in 1:length(x$values)) {
-  if (i == length(x$values)) {
-    break
-  }
-  y1 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i]]
-  i2 <- i + 1
-  y2 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i2]]
-  l <- as.matrix(do.call(expand.grid, list(y1,y2)))
-  for (j in 1:dim(l)[1]) {
-    comp.exp.two.genes.between.transcript <- cbind(comp.exp.two.genes.between.transcript,as.matrix(elementMetadata(smutansData.txGenes)["score"][l[j,],]))
-  }
-}
-# plot(log10(comp.exp.two.genes.between.transcript[1,]), log10(comp.exp.two.genes.between.transcript[2,]))
-# cor(log10(comp.exp.two.genes.between.transcript[1,]), log10(comp.exp.two.genes.between.transcript[2,]))
-@
-
-\subsection{My Results}
-% Statistics of transcripts, and genes.
-The input RNA-seq data is a list of site-wise non-negative integers that
-represents a number of short reads mapped to a particular genomic position
-\citet{Martin2010}, which is called a RNA-seq ``coverage'' data. We designated a
-gene as an expressed if the gene belongs to a transcript with at least C2
-level.
-The number of predicted expressed transcripts was
-\Sexpr{sum(elementMetadata(smutansData.tx)$state > 1)}
-(\Sexpr{as.integer(sum(elementMetadata(smutansData.tx)$state > 1)/length(smutansData.tx)*100)}\%)
-out of 
-\Sexpr{length(smutansData.tx)} 
-fragments.
-Of the total \Sexpr{length(smutansData.txGenes)} of genes,
-\Sexpr{length(matchMatrix(mtch2)[,1])}
-(\Sexpr{as.integer(length(matchMatrix(mtch2)[,1])/length(smutansData.txGenes)*100)}\%) 
-were designated as expressed. 
-Genes that were not designated as expressed could be due to false gene
-annotations or possibility of true negative expression under the experimental
-conditions. 
-Figure \ref{figLength} shows the length distribution of expressed and
-not-expressed genes. 
-Of the \Sexpr{length(grTx)} expressed transcripts, 
-\Sexpr{length(grTxWOGenes)} contained no annotated genes.
-Figure \ref{figTranscriptLength} shows the length distribution of expressed
-transcripts with annotated coding genes and unannotated regions.
-Unannotated regions can include potential non-coding regions and new
-coding genes.  Transciprts with unannotated regions appeared to be shorter than those
-with coding genes. Most of the unannotated regions with length being near 360 bp
-could be non-coding regions, and the rest of the unannotated regions with length
-being near 1000 bp could be new coding genes. Some of the unannotated genes
-could be pseudogene regions.
-Because we used a RNA-seq technique without considering strand-specific, we
-could not tell the strandness of the predicted transcripts. Of
-the \Sexpr{length(grTx)} expressed transcripts, 
-\Sexpr{length(txWithConflictedGenes)}
-included annotated genes of both strands
-(\Sexpr{as.integer(length(txWithConflictedGenes)/length(grTx)*100)}\%).
-We filter out the transcripts with genes with conflicted both strands leaving
-\Sexpr{length(grTx2)} expressed transcripts. 
-Figure \ref{figUTRLength} shows length distributions of 5' and 3' UTR of the
-expressed transcripts without genes with conflicted strands.
-Many transcripts appeared to start and end near the boundaries of annotated genes.
-Gene expression levels for adjacent genes within expressed transcripts were more
-correlated than those between adjacent transcripts 
-(Figure \ref{figExpressionTwoGene}).
-% Question: What are the promoter scores? 
-
-Name the transcripts.
-I found xx transcripts. Among them xx \% were mono-cistronic operons. xx \% were
-poly-cistronic operons. xx transcripts could not defined because RNA-seq short
-reads were not precise. Transripts were assigned with functional categories, and
-differentially expressed transcripts were found. Transcripts and functional
-categories: how can I assess that transcripts consist of genes with similar
-functional cateogires. 
-
-% Small RNAs predicted
-Although we aimed at sequencing messenger RNAs, we expected to find regulatory
-small RNAs in the RNA-seq data because we attempted to deplete structrual
-ribosomal RNAs. \program{RNAz} is a software package for detection of structural
-noncoding RNAs using comparative genomic data \citep{Gruber2010}. The method has
-been applied to different genomic data (CITE). We applied the method to predict
-potential non-coding small RNAs in \textit{S.\ mutans} as a supplement to
-evidence for small RNAs provided by the RNA-seq data. With increased evidence of
-putative small RNAs we could proceed to further experimentally verify
-potentially important small RNAs.  We first predicted
-\Sexpr{length(colnames(smutans.genes.criteria))-1} putative small RNAs. Using
-\program{RNAplex} \citep{Tafer2008} and \program{RNAplfold} \citep{Bernhart2006}
-we predicted target genes of the putative small RNAs.  Table \ref{tab:goseq}
-shows functional categories enriched with target genes for predicted small RNAs.
-We found that a few of the putative small RNAs were structured with stable stems
-(SHOW FIGURES). 
-
-Name the small RNAs.
-RNAz predicted a few small RNAs. Some of them were differentially expressed.
-Some functional categories were enriched with target genes of the predicted
-genes. 
-
-
-
-% UCSC genome browser resources
-We created new tracks for our recently released {\em Streptococcus} Genome
-Browser (http://strep-genome.bscb.cornell.edu) that summarized the results of
-this \textit{S.\ mutans} transcriptome analysis alongside known genes, predicted
-small RNAs, predicted target genes and predicted transcripts. These tracks can
-be used to inspect loci of interest and to compare the results of different
-RNA-seq data sets. They can also be queried and intersected with other tracks
-using the UCSC Table Browser.
-
-<<echo=FALSE,result=hide>>=
-#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
-#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
-#                            condA="ua159", condB="tw1" )
-#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
-load("glucoseOnly.RData")
-smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
-tableGlucoseOnly <- smutans.de2List( glucoseOnly, qval=1e-3 )
-
-# Gene descriptions
-geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
-geneDescription <- geneDescription[,c(4,7)]
-colnames(geneDescription) <- c("Gene ID","Gene Description")
-# Functional classes
-functionalDescription <- read.csv("feature-genome.out-geneonly-oralgen-functional.txt",head=FALSE)
-functionalDescription <- functionalDescription[,c(2,12)]
-colnames(functionalDescription) <- c("Gene ID","Functional Class")
-# Find potential differentially expressed genes, and add gene descriptions, and
-# functional classes
-x <- smutans.de2List( glucoseOnly, qval=1e-3 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-tableGlucoseOnly <- x
-@
-
-% Differential expression study
-We sequenced 
-\Sexpr{length(colnames(counts(smutansGenes)))}
-RNA samples for studying differential gene expression to better understand
-biological processes. Two independent factors of the biological processes
-includes the effect of CcpA and the treatment of monosaccharides (glucose versus
-galactose). The two factors results four pair-wise comparisons. We compared two
-conditions of one factor with the other factor being fixed at one condition. For
-example, we could compare UA159 wild-type and TW1 mutant-type strains under the
-condition of glucose-grown cells to find differentially expressed associatively
-with deactivation of \textit{ccpA} genes. We performed a similar comparison with
-galactose-grown cells. While we replicated four biological experiments for the
-condition combination of UA159 wilde-type grown in galactose, we had three for
-the other three conditions. Because of limited resources of RNA deep sequencing,
-we considered three replicates as a maximum number to but still adequately
-detect differentially expressed genes. 
-
-We list differentially expressed genes in the comparison of UA159 wild-type and
-TW1 mutant-type in Table \ref{tabGlucoseOnly}.  
-Of \Sexpr{nrow(counts(smutansGenes))} genes, 
-\Sexpr{nrow(tableGlucoseOnly)} genes were found to be differentially expressed
-at FDR of 0.1\%. 
-We confirmed that the most upregulated genes in the TW1 mutant-type encoded the
-components of the PDH enzyme complex (SMU.1421, SMU.1422, SMU.1423, and
-SMU.1424).  
-Figure \ref{figPieGlucoseOnly} shows the proportions of functional categories 
-of the differentially expressed genes. Notably, we found
-\Sexpr{length(grep("Energy metabolism",tableGlucoseOnly[,"Functional Class"]))}
-genes that were involved in energy metabolism. Sugars and fermentation
-subclasses were profound in energy metabolism. We also found 
-\Sexpr{length(grep("PTS",tableGlucoseOnly[,"Functional Class"]))}
-genes in PTS class of signal transduction. Another subclass, 
-``carbohydrates, organic alcohols, and acids,'' in
-``transport and binding proteins'' was following next in the number of
-differentially expressed genes. We also found  
-\Sexpr{length(grep("hypothetical",tableGlucoseOnly[,"Gene Description"]))}
-genes annotated as hypothetical, which might constitute the unknown functional
-class. These results were consistent with those of \citet{Abranches2008}.
-Profoundly upregulated genes in response to the lack of CcpA were
-putative Clp proteinase (SMU.1425), 
-branched-chain alpha-keto acid dehydrogenase subunit E2 (SMU.1421), and
-putative transcriptional regulator (SMU.1599).
-Down-regulated genes include cytoplasmic alpha-amylase (SMU.1590), 
-beta-D-fructosyltransferase (SMU.2028), and
-putative glycerol uptake facilitator protein (SMU.396).
-Fructosyltransferase converts sucrose to fructose.
-
-<<echo=FALSE,result=hide>>=
-#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
-#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
-#                              condA="ua159", condB="tw1" )
-#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
-load("galactoseOnly.RData")
-x <- smutans.de2List( galactoseOnly, qval=1e-3 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-tableGalactoseOnly <- x
-@
-We found that differentially expressed genes in galactose-grown cells were
-smaller than those in glucose-grown cells, which was different from the result
-of \cite{Abranches2008}. 
-Energy metabolism was the most
-profoundly differentially expressed (fig.\ \ref{figPieGalactoseOnly}).
-Subclasses pyruvate family in amino acid biosynthesis, 
-and degradation of proteins, peptides, and glycopeptides in protein fate
-were following the next. Almost quarter of the genes were unknown.
-Down-regulated genes included cytoplasmic alpha-amylase (SMU.1590), and
-beta-D-fructosyltransferase (SMU.2028)
-(table \ref{tabGalactoseOnly}).
-
-<<echo=FALSE,result=hide>>=
-#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
-#ua159only <- smutans.de2( ua159only, type="ua159", 
-#                          condA="glucose", condB="galactose" )
-#save(ua159only, file=file.path("ua159only.RData"))
-load("ua159only.RData")
-x <- smutans.de2List( ua159only, qval=1e-10 )
-x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
-colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
-x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
-x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
-tableUA159Only <- x
-@
-Figure \ref{figPieUA159Only} shows proportons of functional categories that
-included differentially expressed genes between glucose-grown and
-galactose-grown UA159 wild-type cells. Qualitatively, energy metabolism and PTS
-classes were profound. This was silmilar to the comparison between UA159
-wild-type and TW1 mutant-type grown in glucose. More than quarter of the
-differentially expressed genes were unknown, unassigned, or hypothetical.
-Consecutive genes (SMU.1488 to SMU.1496) were upregulated in 
-catabolite-derepressing conditions or in galactose-grown cells
-(\fixme{Are these the genes of the lactose (lac) operon?})
-(table \ref{tabUA159Only}).  Another set of genes (SMU.886 to SMU.889) were also
-upregulated (\fixme{Are these called galKTE?}).  
-Genes from SMU.1535 to SMU.1538 were upregulated. 
-Of the \Sexpr{nrow(tableUA159Only)} differentially expressed genes at
-$1 \times 10^{-10}$ cutoff of multiple testing adjusted p-value, 
-\Sexpr{length(grep("hypothetical",tableUA159Only[,"Gene Description"]))} were
-hypothetical, and most of them were down-regulated. 
-A few of the down-regulated genes were annotated.
-
-We also found sugar metabolism and PTS signal transduction to be profound in
-differential expression in the comparison of glucose-grown and galactose-grown
-TW1 mutant-type cells figure \ref{figPieTW1Only}. Many of the genes were also
-hypothetical. We found similar genes differentially expressed in TW1 mutant-type
-cells to those in UA159 wild-type (table \ref{tabTW1Only}).  
-
-\fixme{We may need dot plots where x-axis represents fold changes, and y-axis
-functional classes. Dots may be colored by p-values. This would show most of
-information in one plot. We could label some of dots to emphasize. Done?}
-
-% tableGlucoseOnly's functional classes can be multiple. We still need to have
-% different colors using p-values.
-% dotplot(tableGlucoseOnly[,"Functional Class"]~tableGlucoseOnly[,"fold"])
-
-\fixme{Display results in UCSC genome browser. Done?}
-
-
-\fixme{Young's GO analysis with the comparisons}
-We used a q-value of $1\times 10^{-3}$ to determine differentially expressed
-genes. Note that we had another q-value cutoff to list gene ontology terms for
-functional category enrichment tests; 0.05 was the cutoff value for this.
-We found gene ontology terms enriched with differentially expressed genes in the
-comparison of UA159 and TW1 glucose-grown cells:
-phosphotransferase system, 
-glycogen biosynthetic process, 
-sugar:hydrogen symporter activity, and
-carbohydrate metabolic process (table \ref{tab:goseqGlucoseOnly}).
-Because the number of differentially expressed genes in galactose-grown cells is
-was smaller than that of glucose-grown cells, we found only one gene ontology
-term, branched chain family amino acid biosynthetic process
-(table \ref{tab:goseqGalactoseOnly}).
-The comparisons between glucose-grown and galactose-grown UA159
-(table \ref{tab:goseqUA159Only}), and that from TW1 mutant-type
-(table \ref{tab:goseqTW1Only}) showed very similar functional categories. Ranks
-of gene ontology terms were different. 
-Lactose metabolic process was top in TW1, and
-phosphoenolpyruvate-dependent sugar phosphotransferase system was top in UA159.
-
-\fixme{Use KEGG for functional category study. Done?}
-(table \ref{tab:kegseqGlucoseOnly})
-(table \ref{tab:kegseqGalactoseOnly})
-(table \ref{tab:kegseqUA159Only})
-(table \ref{tab:kegseqTW1Only}) 
-
-\fixme{Use two factor analysis. Done?}
-Figure \ref{figClust}
-Because the effects of nutrient changes appeared to be similar whether UA159
-wild-type or TW1 mutant-type was used, we used all of the 
-\Sexpr{length(colnames(counts(smutansGenes)))} samples to compare glucose-grown
-and galactose grown cells.
-
-<<echo=FALSE,results=hide>>=
-allSample <- newSmutans( smutansGenes, 
-                         title="All Samples for Comparing Conditions" )
-allSample <- smutans.de2( allSample )
-save(allSample, file=file.path("allSample.RData"))
-#load("allSample.RData")
-tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
-                                                   allSample )
-#addmargins( tabUA159onlyAndAllSample )
-@
-Of the total \Sexpr{sum(tabUA159onlyAndAllSample)} gene,
-\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found in both analyses. The
-analysis using all of the sample found \Sexpr{tabUA159onlyAndAllSample[1,2]}
-genes. The analysis using ua159-only sample found \Sexpr{tabUA159onlyAndAllSample[2,1]}
-genes.  Figure \ref{figCompareUA159onlyAndAllSample} shows the raw p-values from
-the two-factor analysis versus those from the single-factor analysis. The
-p-values from the two-factor analysis are overall smaller than those from the
-single-factor analysis. We would expect that this was the case because of higher
-power of the two-factor analysis.
-
-
-%
-
-
 Deletion of \textit{ccpA} resulted in substantial relief of the CCR of
 \textit{fruA} expression exerted by both glucose and fructose. 
 When \citet{Wen2002} deleted CRE sequencs in the \textit{fruA} promoter region, CCR was
@@ -836,140 +901,5 @@ The role of CcpA in gene expression during growth on glucose.
 (glucose), and catabolite-derepressing conditions (galactose). Under
 glucose-only condition we found xx number of differentially expressed genes. 
 
-\section{Discussion}
-We used RNA-seq data to delineate transcript boundaries. Although this map of
-transcripts does not precisely tell us where transcripts start and end, it
-informs us of which open reading frames can be transcribed together. Potentially
-polycistronic operons are defined. We focused on interpretations of operon in
-light of CcpA regulations. 
 
-\section{Acknowledgments}
-This study was funded by the National Institute of Allergy and Infectious
-Disease, US National Institutes of Health, under grant number AI073368-01A2
-(to M.J.S.\ and A.S).  Additional support was provided by National Science
-Foundation CAREER Award DBI-0644111 and a David and Lucile Packard
-Fellowship for Science and Engineering (to A.S.).  
-We thank Christopher Browngardt for assistance with labelling functional classes
-of \textit{S.\ mutans} genes.
 
-\renewcommand*{\refname}{Literature Cited}
-\bibliographystyle{../../latex/bst/mbe}
-\bibliography{siepel-mutans}
-\clearpage{}
-
-\section{Tables}
-
-%-----------------------------------------------------------------------------
-\begin{table}[!h]
-\caption{{\bf Gene Ontology enrichments for target genes of putative small RNAs.}}
-\vspace{1ex}
-\noindent \begin{centering}
-\begin{tabular}{lcccl}
-\hline 
-small RNA & $q^a$ & count & GO & Description \\
-\hline 
-%-----------------------------------------------------------------------------
-<<echo=FALSE,results=tex>>=
-smutans.mannwhitney( qval=0.05,
-                     genes.criteria=smutans.genes.criteria,
-                     go.genes=smutans.go.genes,
-                     cat.desc=smutans.cat.desc )
-@
-%-----------------------------------------------------------------------------
-\hline 
-\end{tabular}
-\par\end{centering}
-\begin{flushleft}
-$^a$False discovery rate estimated by the
-Benjamini-Hochberg method.  All categories having at least ten genes and
-$q\leq 0.05$ are displayed.\\ 
-\end{flushleft}
-\label{tab:goseq}
-\end{table}
-%-----------------------------------------------------------------------------
-
-\clearpage{}
-
-\section{Figures}
-
-<<figLength,fig=TRUE,echo=FALSE>>=
-l <- list(expressed=width(smutansData.txGenes[matchMatrix(mtch2)[,1]]), 
-          notexpressed=width(smutansData.txGenes[-matchMatrix(mtch2)[,1]]))
-bin <- c(as.integer(seq.int(0, 3000, length.out=15)), 8500)
-multhist(l,breaks=bin)
-@
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{manuscript-figLength}
-\caption{{\bf Length distribution for expressed and not-expressed genes.}
-Darker gray
-bars represent frequency of expressed genes, and lighter gray ones that of
-not-expressed genes. The last bin sums from 3000 bp to 8500 bp.
-}
-\label{figLength}
-\end{figure}
-
-<<figTranscriptLength,fig=TRUE,echo=FALSE>>=
-l <- list(coding=width(grTxWGenes), 
-          noncoding=width(grTxWOGenes))
-bin <- c(as.integer(seq.int(0, 10000, length.out=15)), 30000)
-multhist(l,breaks=bin)
-@
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{manuscript-figTranscriptLength}
-\caption{{\bf Length distribution for expressed transcripts with annotated genes
-and unannotated genes.}
-Darker gray bars represent frequency of expressed transcripts with annotated
-genes, and lighter gray ones that of without annotated genes that can be
-potential non-coding regions. The last bin sums from 10000 bp to 30000 bp.
-}
-\label{figTranscriptLength}
-\end{figure}
-
-<<figUTRLength,fig=TRUE,echo=FALSE>>=
-l <- list(five=length5UTR, three=length3UTR)
-bin <- c(as.integer(seq.int(0, 300, length.out=19)), 6500)
-multhist(l,breaks=bin)
-@
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{manuscript-figUTRLength}
-\caption{{\bf Length distribution for 5' and 3' UTR.}
-Darker gray bars represent frequency of 5' UTR lengths, and lighter gray 3' UTR
-lengths. The last bin sums from 300 bp to 6500 bp.
-\fixme{Check the too long UTRs because they do not make sense.}
-}
-\label{figUTRLength}
-\end{figure}
-
-<<figExpressionTwoGene,fig=TRUE,echo=FALSE>>=
-plot( log10(comp.exp.two.genes[1,]), log10(comp.exp.two.genes[2,]),
-      xlab="Expression of first Gene in log10",
-      ylab="Expression of second Gene in log10",
-      pch=19,cex=0.5)
-abline(b=1,lty=2)
-@
-<<figExpressionTwoGeneBetweenTranscript,fig=TRUE,echo=FALSE>>=
-plot( log10(comp.exp.two.genes.between.transcript[1,]),
-      log10(comp.exp.two.genes.between.transcript[2,]),
-      xlab="Expression of first Gene in log10",
-      ylab="Expression of second Gene in log10",
-      pch=19,cex=0.5)
-abline(b=1,lty=2)
-@
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{manuscript-figExpressionTwoGene}
-\includegraphics[width=.6\textwidth]{manuscript-figExpressionTwoGeneBetweenTranscript}
-\caption{{\bf Scatter plot of expression levels of pairs of adjacent genes
-located in the same transcripts.}
-(Top) Two genes in the same tranascripts are plotted using their expression levels in
-log10 scale.
-(Bottom) Two genes in different tranascripts are plotted using their expression levels in
-log10 scale.
-}
-\label{figExpressionTwoGene}
-\end{figure}
-
-\end{document}

@@ -14,6 +14,7 @@ all: ${DOCS:%=%.pdf}
 
 .Rnw.tex: 
 	R CMD Sweave $*.Rnw
+	cp $*.tex $*.tex-temp
 
 .tex.pdf: 
 	R CMD pdflatex $*
@@ -21,7 +22,7 @@ all: ${DOCS:%=%.pdf}
 	cp $*.tex a.tex
 	R CMD pdflatex $*
 	R CMD pdflatex $*
-	open $*.pdf
+	#open $*.pdf
 
 clean:
 	rm -f $(foreach d,${DOCS},${OUTEXTS:%=$d.%})

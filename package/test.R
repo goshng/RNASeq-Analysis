@@ -12,15 +12,16 @@
 library(GenomicRanges)
 #library(DESeq)
 source("smutans/R/core.R")
-smutans.prepareGoseq( )
+#smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #smutans.prepareData34 ()
 #smutans.prepareDataOMZ175( ) 
 #smutans.prepareDataUA159CSP( ) 
 #smutans.prepareDataSMU86CSP( )
 #smutans.prepareDataUA159TW1()
-#smutans.prepareTranscript( )
-q("no")
+smutans.prepareTranscript( )
+#q("no")
+
 library(DESeq)
 library(goseq)
 load("smutans/data/smutansGenes.RData")
@@ -31,9 +32,46 @@ load("smutans/data/smutans.cat.desc.RData")
 load("smutans/data/smutans.genes.criteria.RData")
 load("smutans/data/smutans.go.genes.RData")
 load("smutans/data/smutansData.txPileup.RData")
+load("smutans/data/smutansData.txGenes.RData")
+load("smutans/data/smutansData.txRNAz.RData")
+load("smutans/data/smutansData.txAll.RData")
+load("smutans/data/smutansData.txAnnotation.RData")
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
+
+
+
+###################################################################################
+# ???
+###################################################################################
+#geneDescription <- read.delim("feature-genome.out-geneonly.txt",head=FALSE,sep="\t")
+#geneDescription <- geneDescription[,c(4,7)]
+#colnames(geneDescription) <- c("Gene ID","Gene Description")
+#functionalDescription <- read.csv("feature-genome.out-geneonly-oralgen-functional.txt",head=FALSE)
+#functionalDescription <- functionalDescription[,c(2,12)]
+#colnames(functionalDescription) <- c("Gene ID","Functional Class")
+#
+#load("glucoseOnly.RData")
+#x <- smutans.de2List( glucoseOnly, qval=1e-3 )
+#x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
+#colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
+#x <- merge(x, geneDescription, by.x = "Gene ID", by.y = "Gene ID")
+#x <- merge(x, functionalDescription, by.x = "Gene ID", by.y = "Gene ID")
+#trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+#y <- x[,"Functional Class"]
+#
+#z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, trim)})
+#xm <- x[rep(seq(length(z)),sapply(z,length)),]
+#xm[,"Functional Class"] <- unlist(z)
+#
+#z <- lapply(y, function(x) strsplit(as.character(x),"\\|\\|"))
+#z <- lapply(y, function(x) trim(strsplit(as.character(x),"\\|\\|")))
+#
+#z <- lapply(y, function(x) trim(unlist(strsplit(as.character(x),"\\|\\|"))))
+#z <- table(as.factor(sort(unlist(z))))
+###################################################################################
+
 # allSample2 <- newSmutans( smutansGenes2 )
 # smutans.de2Clust( allSample2 )
 #ua159only <- newSmutans( smutansGenes2, title="UA159 Only" )
@@ -45,11 +83,11 @@ source("smutans/R/methods.R")
 #tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
 #                                                   allSample )
 #addmargins( tabUA159onlyAndAllSample )
-allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
-allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
-print(
-smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
-)
+#allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
+#allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+#print(
+#smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
+#)
 #smutans.plotDispersionEstimates(ua159only)
 #smutans.plotDiffExp(ua159only)
 #smutans.de2List( ua159only )

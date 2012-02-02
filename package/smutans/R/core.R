@@ -367,26 +367,38 @@ smutans.mannwhitney <- function( qval=0.05,genes.criteria,go.genes,cat.desc ) {
 
 smutans.prepareTranscript <- function ()
 {
-  # Predicted transcripts
-  parseRNAseqOutFile <- "smutans/inst/extdata/FASTQ001.parsernaseq1"
-  x <- read.table(parseRNAseqOutFile, head=FALSE)
-  number.tx <- length(rownames(x))
-  tx.state <- sub("_[[:digit:]]*", "", substring(x$V9,6))
-  tx.state <- sub("C", "", tx.state)
-  smutansData.tx <- GRanges( seqnames = Rle("chr1", number.tx),
-                              ranges =
-                                IRanges(start=x$V4,
-                                        end=x$V5,
-                                        names=sprintf("tx%04d",seq(number.tx))),
-                              strand = Rle(strand("*"),number.tx),
-                              score=x$V6,
-                              state=as.integer(tx.state)
-                            )
   # ParseRNAseq input pileup or coverage file
   parseRNAseqInFile <- "smutans/inst/extdata/FASTQ001.parsernaseq.pileup"
   x <- read.table(parseRNAseqInFile, head=FALSE)
   pileup.v <- Rle(x$V2)
-  seqlengths(smutansData.tx) <- length(pileup.v)
+
+  # Predicted transcripts
+  smutansData.txAll <- NULL
+  for (i in c(1,2,3,19,20,21,22,23,24,25,26,27,28)) {
+    parseRNAseqOutFile <- paste("smutans/inst/extdata/FASTQ", 
+                                sprintf("%03d",i),
+                                ".parsernaseq1",sep="")
+    x <- read.table(parseRNAseqOutFile, head=FALSE)
+    number.tx <- length(rownames(x))
+    tx.state <- sub("_[[:digit:]]*", "", substring(x$V9,6))
+    tx.state <- sub("C", "", tx.state)
+    smutansData.tx <- GRanges( seqnames = Rle("chr1", number.tx),
+                                ranges =
+                                  IRanges(start=x$V4,
+                                          end=x$V5,
+                                          names=sprintf("tx%04d",seq(number.tx))),
+                                strand = Rle(strand("*"),number.tx),
+                                score=x$V6,
+                                state=as.integer(tx.state)
+                              )
+    seqlengths(smutansData.tx) <- length(pileup.v)
+    if (i == 1) {
+      smutansData.txAll <- list(smutansData.tx)
+    } else {
+      smutansData.txAll[[length(smutansData.txAll)+1]] <- smutansData.tx
+    }
+  }
+  smutansData.tx <- smutansData.txAll[[1]]
 
   f <- "smutans/inst/extdata/feature-genome.out-geneonly"
   smutans.feature.genes = read.table(file=f,head=F)
@@ -402,9 +414,39 @@ smutans.prepareTranscript <- function ()
   seqlengths(smutansData.txGenes) <- length(pileup.v)
 
   smutansData.txPileup <- pileup.v
+
+  # UA159 annotated entities
+  f <- "smutans/inst/extdata/ua159-annotation.txt"
+  smutans.feature.annotation = read.table(file=f,head=F)
+  number.tx <- length(rownames(smutans.feature.annotation))
+  smutansData.txAnnotation <- GRanges( seqnames = Rle("chr1", number.tx),
+                                       ranges =
+                                         IRanges(start=smutans.feature.annotation$V2 + 1,
+                                                 end=smutans.feature.annotation$V3,
+                                                 names=smutans.feature.annotation$V4),
+                                       strand = Rle(strand(smutans.feature.annotation$V5))
+                                     )
+  seqlengths(smutansData.txAnnotation) <- length(pileup.v)
+
+  # UA159 RNAz entities
+  f <- "smutans/inst/extdata/ua159-rnaz.txt"
+  t1 = read.table(file=f,head=F)
+  number.tx <- length(rownames(t1))
+  smutansData.txRNAz <- GRanges( seqnames = Rle("chr1", number.tx),
+                                 ranges =
+                                   IRanges(start=t1$V2 + 1,
+                                           end=t1$V3,
+                                           names=t1$V4),
+                                 strand = Rle(strand(t1$V5))
+                               )
+  seqlengths(smutansData.txRNAz) <- length(pileup.v)
+
   save(smutans.feature.genes, file=file.path("smutans", "data", "smutans.feature.genes.RData"))
+  save(smutansData.txAll, file=file.path("smutans", "data", "smutansData.txAll.RData"))
   save(smutansData.tx, file=file.path("smutans", "data", "smutansData.tx.RData"))
   save(smutansData.txGenes, file=file.path("smutans", "data", "smutansData.txGenes.RData"))
+  save(smutansData.txAnnotation, file=file.path("smutans", "data", "smutansData.txAnnotation.RData"))
+  save(smutansData.txRNAz, file=file.path("smutans", "data", "smutansData.txRNAz.RData"))
   save(smutansData.txPileup, file=file.path("smutans", "data", "smutansData.txPileup.RData"))
 }
 

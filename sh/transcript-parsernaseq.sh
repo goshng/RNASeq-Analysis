@@ -41,7 +41,9 @@ function transcript-parsernaseq {
       REFGENOMEFASTA=$(grep REFGENOMEFASTA $SPECIESFILE | cut -d":" -f2)
       # for g in $(eval echo {1..$NUMFASTQFILE}); do
       # for g in $(eval echo {1..1}); do
-      for g in 1 19 20 35 36; do
+# TW1-Glu/Gal Comparison   : 2,24,25     vs. 3,26,27
+# UA159-Glu/Gal Comparison : 1,19,20     vs. 21,22,23,28
+      for g in 1 2 3 19 20 21 22 23 24 25 26 27 28; do
         FASTQNUM=FASTQ$(printf "%03d" $g)
 
         COMMAND1="perl pl/$FUNCNAME.pl pileup \
@@ -121,13 +123,13 @@ function transcript-parsernaseq {
 
           # scp $BATCHFILE swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1
         else
-          #echo $COMMAND1 | bash
+          echo $COMMAND1 | bash
           #echo $COMMAND1
           #echo $COMMAND2
           #echo $COMMAND3
           #echo $COMMAND3a
           #echo $COMMAND4
-          echo $COMMAND5 | bash
+          #echo $COMMAND5 | bash
           #echo $COMMAND5a | bash
           #echo $COMMAND6
           #echo $COMMAND7

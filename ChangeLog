@@ -46,6 +46,115 @@ Histories
 This history can be useful later.
 
 
+Wed Feb  1 10:03:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any notes from the rough transcript map:
+Two transcripts of a single gene
+chr1:951,288-985,817
+SMU_1005 has two clear transcripts.
+SMU_1004 also has two transcripts.
+
+.A script to load a BED file to UCSC genome browser
+----
+hgLoadBed SmuUA159 rnaseqCombinedTx grCombined.bed
+----
+
+print.bed.file(gr=grUA159Glu,file="grUA159Glu.bed")
+print.bed.file(gr=grUA159Gal,file="grUA159Gal.bed")
+print.bed.file(gr=grTW1Glu,file="grTW1Glu.bed")
+print.bed.file(gr=grTW1Gal,file="grTW1Gal.bed")
+print.bed.file(gr=grCombined,file="grCombined.bed")
+
+http://choi.genome_mirror.bscb.cornell.edu
+
+Use the following command
+----
+make update DBS=SmuUA159
+make cornell DBS=SmuUA159
+----
+
+Mon Jan 30 13:05:14 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Where are ParseRNAseq running at CAC?
+----
+cac:run/rnaseq/parsernaseq
+----
+
+Sat Jan 28 14:25:12 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Where are the predicted small RNAs?
+----
+test/RNAz/feature-genome.out-rnaz
+----
+
+RNA secondary structure: RNAfold 
+----
+I.L. Hofacker, W. Fontana, P.F. Stadler, S. Bonhoeffer, M. Tacker, P. Schuster
+"Fast Folding and Comparison of RNA Secondary Structures", Monatshefte f.
+Chemie, 125, pp 167-188, 1994
+
+http://rna.tbi.univie.ac.at/cgi-bin/RNAfold.cgi
+chr1:340262 40 bp in locus101
+chr1:1304890-1304926 in locus7
+chr1:1721110-1721160 in locus68 (T-box)
+chr1:1313544-1313600 in locus8
+chr1:1564031-1564149 in locus10
+chr1:1787574-1787637 in locus69
+chr1:76-140 in locus1
+
+chr1:302288-302403 in locus99 
+chr1:414409-414472 in locus103 (T-box) highly expressed
+chr1:481458-481539 in locus104 highly expressed no having any interesting strucure
+chr1:627878-627919 in locus105 (P15)
+chr1:674067-674135 in locus106
+chr1:681921-681977 in locus107 (yybP-ykoY)
+chr1:747483-747567 in locus108
+chr1:911157-911258 in locus110
+chr1:1036231-1036283 in locus2 
+chr1:1202661-1202737 in locus3 (T-box * neighboring sites are very strong non-coding regions)
+chr1:1244007-1244086 in locus5
+chr1:1297150-1297227 in locus6
+chr1:1304792-1304926 in locus7 (not a good structure)
+chr1:1313525-1313674 in locus8
+chr1:1677614-1677688 in locus52 (T-box)
+chr1:1721111-1721201 in locus68 (T-box)
+chr1:1787575-1787687 locus69 weak signal
+chr1:1864317-1864461 of locus85
+----
+
+.Unannotated RNAz entities
+----
+[1]   302288  302403   116  locus99
+[2]   303745  303859   115 locus100
+[3]   340263  340343    81 locus101
+[4]   378452  378505    54 locus102
+[5]   481458  481539    82 locus104
+[6]   674067  674135    69 locus106
+[7]   747483  747567    85 locus108
+[8]   911157  911258   102 locus110
+[9]  1036231 1036283    53   locus2
+[10] 1244007 1244086    80   locus5
+[11] 1297150 1297227    78   locus6
+[12] 1304792 1304926   135   locus7
+[13] 1313525 1313674   150   locus8
+[14] 1564032 1564149   118  locus10
+[15] 1787575 1787687   113  locus69
+[16] 1864317 1864461   145  locus85
+----
+
+Tue Jan 24 11:59:00 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Figures that I need
+. HilbertVis: we need r-dev version.
+. circos plot: a circular plot
+. KEGG pathway figures.
+
+.circos
+----
+/Users/goshng/Documents/Projects/RNASeq-Analysis/build/circos-0.55
+----
+
 Mon Jan 23 13:23:37 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1393,7 +1502,7 @@ for g in $(eval echo {1..$NUMFASTQFILE}); do
 done
 ----
 
-.A script to load the sample
+.A script to load a BED file to UCSC genome browser
 ----
 hgLoadBed SmuUA159 rnaSeq01Transcript cufflinks100.bed
 ----
