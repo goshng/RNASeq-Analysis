@@ -171,6 +171,74 @@ smutans.prepareDataOMZ175 <- function ()
   save(smomzGenes, file=file.path("smutans", "data", "smomzGenes.RData"))
 }
 
+smutans.prepareDataUA159PH75 <- function ()
+{
+  # Count data preparation
+  countsFile <- "smutans/inst/extdata/count.txt"
+  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
+  subconds <- conds %in% c("UA159PH7", "UA159PH5")
+  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+  rownames(countsTable) <- countsTable$gene
+  countsTable <- countsTable[,-1]
+  countsTable <- countsTable[,subconds]
+  conds <- conds[subconds]
+  conds.type <- conds %in% c("UA159PH7", "UA159PH5")
+  factor.type <- rep("ua159",length(conds))
+  conds.condition <- conds %in% c("UA159PH7")
+  factor.condition <- rep("UA159PH7",length(conds))
+  conds.condition <- conds %in% c("UA159PH5")
+  factor.condition[conds.condition] <- "UA159PH5"
+  samples <- data.frame(type=factor.type,condition=factor.condition)
+  rownames(samples) <- colnames(countsTable) 
+
+  design <- samples
+  smUA159pHGenes <- newCountDataSet( countsTable, design )
+  expdata = new("MIAME", 
+     name="S. mutans UA159 pH7 and pH5", 
+     lab="University of Florida, and Cornell University", 
+     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+     title="Streptococcus mutans RNA-Seq Studies", 
+     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+     abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans")
+  pubMedIds(expdata) <- "999999999"
+  experimentData(smUA159pHGenes) <- expdata
+  save(smUA159pHGenes, file=file.path("smutans", "data", "smUA159pHGenes.RData"))
+}
+
+smutans.prepareDataSMU21PH75 <- function ()
+{
+  # Count data preparation
+  countsFile <- "smutans/inst/extdata/count.txt"
+  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
+  subconds <- conds %in% c("Smu21PH7", "Smu21PH5")
+  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+  rownames(countsTable) <- countsTable$gene
+  countsTable <- countsTable[,-1]
+  countsTable <- countsTable[,subconds]
+  conds <- conds[subconds]
+  conds.type <- conds %in% c("Smu21PH7", "Smu21PH5")
+  factor.type <- rep("ua159",length(conds))
+  conds.condition <- conds %in% c("Smu21PH7")
+  factor.condition <- rep("Smu21PH7",length(conds))
+  conds.condition <- conds %in% c("Smu21PH5")
+  factor.condition[conds.condition] <- "Smu21PH5"
+  samples <- data.frame(type=factor.type,condition=factor.condition)
+  rownames(samples) <- colnames(countsTable) 
+
+  design <- samples
+  smSMU21pHGenes <- newCountDataSet( countsTable, design )
+  expdata = new("MIAME", 
+     name="S. mutans SMU21 pH7 and pH5", 
+     lab="University of Florida, and Cornell University", 
+     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+     title="Streptococcus mutans RNA-Seq Studies", 
+     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+     abstract="RNA-seq of SMU21 pH 7 and pH 5 replicates from Streptococcus mutans")
+  pubMedIds(expdata) <- "999999999"
+  experimentData(smSMU21pHGenes) <- expdata
+  save(smSMU21pHGenes, file=file.path("smutans", "data", "smSMU21pHGenes.RData"))
+}
+
 smutans.makeData <- function( ngenes=500 ) 
 {
   q0 <- rexp( ngenes, rate=1/250 )

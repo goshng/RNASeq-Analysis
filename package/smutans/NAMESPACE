@@ -1,4 +1,6 @@
 import( DESeq )
+import( GenomicRanges )
+import( plotrix )
 
 exportClasses( "Smutans" )
 

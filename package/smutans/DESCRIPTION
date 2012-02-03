@@ -1,11 +1,11 @@
 Package: smutans
-Version: 0.1.4
-Date: 2011-01-11
+Version: 0.1.6
+Date: 2011-02-03
 Title: Data package with per-gene read counts of S. mutans RNA-seq samples. 
 Author: Sang Chul Choi
 Maintainer: Sang Chul Choi <schoi@cornell.edu>
 Description: Data package with per-gene read counts of S. mutans RNA-seq samples.
 biocViews: ExperimentData, RNAseqData
 License: GPL-3
-Depends: R (>= 2.14), DESeq (>= 1.6.1), goseq (>= 1.6.0), RColorBrewer (>= 1.0.5), gplots (>= 2.10.1)
-Suggests: DEXSeq, edgeR, xtable
+Depends: R (>= 2.14), DESeq (>= 1.6.1), goseq (>= 1.6.0), IRanges (>= 1.12.5), GenomicRanges (>= 1.6.4), RColorBrewer (>= 1.0.5), gplots (>= 2.10.1), xtable (>= 1.6.0), plotrix (>= 3.3.3)
+Suggests: DEXSeq, edgeR

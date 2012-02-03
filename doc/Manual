@@ -373,6 +373,45 @@ Create a file in +species+ directory before calling this menu.
 
 batch
 ~~~~~
+This manual is not yet written well. Until that happens, I just write down what
+I am doing using *RNASeq Analysis*. Currently, I am analyzing the fourth set of
+S. mutans RNA-seq data. The species file is +species/cornell+. Each species file
+is created for each reference genome. The following variables in the species
+should be set for a reference bacterial genome:
+_REFGENOMEID_, _REFGENOMEGBK_, _REFGENOMEFASTA_, _REFGENOMEPTT_, and _REFGENOMEGFF_.
+Full file paths for zipped FASTQ files should be given with FASTQ with three
+digit numbers: e.g., _FASTQ001_. There are now 55 FASTQ files.
+I wanted to analyze only some of them, and specified indices for the FASTQ files
+using _FASTQFILES_ variable in the species file. I filtered out adapter
+sequences from short reads. Each FASTQ file needs its adapter sequence to be
+specified; the variable name is ADAPTER with three digits where the three digits
+should be the same as the FASTQ file variable: e.g., _ADAPTER001_. Adapter
+sequences can be found in the FASTQ file. Each short read comes with 6
+nucleotides, which could be used to find adapter sequences. For some of them, I
+asked people who sequenced them. After setting up reference genomes,
+FASTQ files, and ADAPTER sequences, I used scripts in *RNASeq Analysis*. One of
+the menu, *batch*, can be used for differential expression study. File
++sh/batch.sh+ should be edited before using it because the species name, and
+repetition number are hard-coded in the file. After editing the file, run the
+menu, *batch*. Then, use +copy-data.sh+ to copy data to the cluster. Then, login
+to the cluster and locate the working directory. The working directory should be
+specified by species variable _CACWORKDIR_. At the working directory, you would
+find many scripts. Ideally, a single script file, +run.sh+, can do all of the
+jobs for differential expression study work. 
+
+.To run the batch job
+----
+$ bash run.sh &
+----
+
+.Problems
+. feature-genome.out-geneonly is created by +pl/feature-genome.pl+ in
++run-de.sh+ that is one of created bash scripts by the menu *batch*. I had an
+problem of chromsome name matching in +pl/de-count.pl+.
+. File +pl/de-count.pl+ has an option singlegenome we might add this to the list
+of options of the perl script. +run-de.sh+ should be edited. 
+
+
 Many procedures are done in the cluster. I need a test procedure. 
 I want to do the DE study for now.
 

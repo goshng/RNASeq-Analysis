@@ -271,7 +271,7 @@ using the UCSC Table Browser.
 
 \section*{Results}
 
-<<echo=FALSE,results=hide>>=
+<<eval=FALSE,echo=FALSE,results=hide>>=
 # not run when smutans R package is installed
 # Use this when smutans R package is being tested.
 library(DESeq)
@@ -280,19 +280,6 @@ library(plotrix)
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
-load("smutans/data/smutansData.tx.RData")
-load("smutans/data/smutansData.txGenes.RData")
-load("smutans/data/smutansData.txGrCombined.RData")
-load("smutans/data/smutansData.txPileup.RData")
-load("smutans/data/smutans.feature.genes.RData")
-load("smutans/data/smutans.genes.criteria.RData")
-load("smutans/data/smutans.go.genes.RData")
-load("smutans/data/smutans.cat.desc.RData")
-load("smutans/data/smutansGenes.RData")
-load("smutans/data/smutansGenes2.RData")
-
-# Copied from supplementary.Rnw. Compare the following with ones above to remove
-# redundant lines.
 load("smutans/data/smutansData.tx.RData")
 load("smutans/data/smutansData.txGenes.RData")
 load("smutans/data/smutansData.txGrCombined.RData")
@@ -306,19 +293,24 @@ load("smutans/data/smutans.cat.desc.RData")
 load("smutans/data/smutans.keg.genes.RData")
 load("smutans/data/smutans.keg.desc.RData")
 load("smutans/data/smutansGenes.RData")
+load("smutans/data/smutansGenes2.RData")
 @
-<<eval=FALSE,echo=FALSE,results=hide>>=
+<<echo=FALSE,results=hide>>=
 # not run without smutans R package installed
 # Remove eval=FALSE when the R package is installed
 library(smutans)
-load(smutansData.tx)
-load(smutansData.txGenes)
-load(smutansData.txGrCombined)
-load(smutansData.txPileup)
-load(smutans.feature.genes)
+data(smutansData.tx)
+data(smutansData.txGenes)
+data(smutansData.txGrCombined)
+data(smutansData.txAnnotation)
+data(smutansData.txRNAz)
+data(smutansData.txPileup)
+data(smutans.feature.genes)
 data(smutans.genes.criteria)
 data(smutans.go.genes)
 data(smutans.cat.desc)
+data(smutans.keg.genes)
+data(smutans.keg.desc)
 data(smutansGenes)
 data(smutansGenes2)
 @
@@ -504,11 +496,12 @@ further experimentally verify potentially important small RNAs.}
 \subsection*{Differential expression of RNA transcripts}
 
 <<echo=FALSE,result=hide>>=
-#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
-#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
-#                            condA="ua159", condB="tw1" )
-#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
-load("glucoseOnly.RData")
+glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+                            condA="ua159", condB="tw1" )
+save(glucoseOnly, file=file.path("glucoseOnly.RData"))
+#load("glucoseOnly.RData")
+
 smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
 tableGlucoseOnly <- smutans.de2List( glucoseOnly, qval=1e-3 )
 
@@ -593,11 +586,11 @@ negatively correlated. \fixme{Why did I want to note this observation?}
 \subsection*{Comparison between wild-type and mutant-type in galctose-grown cells}
 
 <<echo=FALSE,result=hide>>=
-#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
-#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
-#                              condA="ua159", condB="tw1" )
-#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
-load("galactoseOnly.RData")
+galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+                              condA="ua159", condB="tw1" )
+save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+#load("galactoseOnly.RData")
 x <- smutans.de2List( galactoseOnly, qval=1e-3 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
@@ -625,11 +618,11 @@ biosynthesis were found to be significant (table \ref{tab:kegseqGalactoseOnly}).
 \subsection*{Comparison between glucose- and galactose-grown wild-type cells}
 
 <<echo=FALSE,result=hide>>=
-#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
-#ua159only <- smutans.de2( ua159only, type="ua159", 
-#                          condA="glucose", condB="galactose" )
-#save(ua159only, file=file.path("ua159only.RData"))
-load("ua159only.RData")
+ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+ua159only <- smutans.de2( ua159only, type="ua159", 
+                          condA="glucose", condB="galactose" )
+save(ua159only, file=file.path("ua159only.RData"))
+#load("ua159only.RData")
 x <- smutans.de2List( ua159only, qval=1e-10 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")

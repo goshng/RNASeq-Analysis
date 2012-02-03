@@ -88,6 +88,7 @@ function batch-output {
 
 function batch-rmessage {
   echo "bash $BASEDIR/copy-data.sh"
+  echo "work at cac:$CACWORKDIR"
 }
 
 function batch-speciesfile {
@@ -130,6 +131,7 @@ while [ 1 ]; do
       bash run-\$STATUS.sh
     fi  
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "bwa-align" ]; then
     NJOBS=\$(qstat | grep $PROJECTNAME-BWA | wc -l) 
@@ -138,14 +140,17 @@ while [ 1 ]; do
       bash run-\$STATUS.sh
     fi  
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "de-all" ]; then
     NJOBS=\$(qstat | grep $PROJECTNAME-DE | wc -l) 
     if [ \$NJOBS -eq 0 ]; then
-      STATUS=parsernaseq
+      STATUS=sum-de-all
+#      STATUS=parsernaseq
       bash \$STATUS.sh
     fi  
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "parsernaseq" ]; then
     NJOBS=\$(qstat | grep $PROJECTNAME-PARSE | wc -l) 
@@ -154,6 +159,7 @@ while [ 1 ]; do
       bash \$STATUS.sh
     fi  
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "rnaz" ]; then
     NJOBS=\$(qstat | grep $PROJECTNAME-RNAZ | wc -l) 
@@ -162,10 +168,12 @@ while [ 1 ]; do
       bash \$STATUS.sh
     fi  
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "sum-de-all" ]; then
     STATUS=exit
   fi  
+  sleep 30
 
   if [ "\$STATUS" == "exit" ]; then
     break

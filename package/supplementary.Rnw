@@ -70,7 +70,7 @@ Robert A.\ Burne, Michael J.\ Stanhope, and Adam Siepel}%\\[0.5ex]
 
 \clearpage
 
-<<echo=FALSE,results=hide>>=
+<<eval=FALSE,echo=FALSE,results=hide>>=
 # not run when smutans R package is installed
 # Use this when smutans R package is being tested.
 library(DESeq)
@@ -97,23 +97,24 @@ load("smutans/data/smutans.keg.genes.RData")
 load("smutans/data/smutans.keg.desc.RData")
 load("smutans/data/smutansGenes.RData")
 @
-<<eval=FALSE,echo=FALSE,results=hide>>=
+<<echo=FALSE,results=hide>>=
 # not run without smutans R package installed
 # Remove eval=FALSE when the R package is installed
 library(smutans)
-load(smutansData.tx)
-load(smutansData.txGenes)
-load(smutansData.txCombined)
-load(smutansData.txAnnotation)
-load(smutansData.txRNAz)
-load(smutansData.txPileup)
-load(smutans.feature.genes)
+data(smutansData.tx)
+data(smutansData.txGenes)
+data(smutansData.txGrCombined)
+data(smutansData.txAnnotation)
+data(smutansData.txRNAz)
+data(smutansData.txPileup)
+data(smutans.feature.genes)
 data(smutans.genes.criteria)
 data(smutans.go.genes)
 data(smutans.cat.desc)
 data(smutans.keg.genes)
 data(smutans.keg.desc)
 data(smutansGenes)
+data(smutansGenes2)
 @
 
 \section{Supplementary Text}
@@ -202,11 +203,11 @@ colnames(functionalDescription) <- c("Gene ID","Functional Class")
 
 \clearpage{}
 <<echo=FALSE,results=tex>>=
-#glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
-#glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
-#                            condA="ua159", condB="tw1" )
-#save(glucoseOnly, file=file.path("glucoseOnly.RData"))
-load("glucoseOnly.RData")
+glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+                            condA="ua159", condB="tw1" )
+save(glucoseOnly, file=file.path("glucoseOnly.RData"))
+#load("glucoseOnly.RData")
 x <- smutans.de2List( glucoseOnly, qval=1e-3 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
@@ -294,11 +295,11 @@ $q\leq 0.05$ are displayed.\\
 
 \clearpage{}
 <<echo=FALSE,results=tex>>=
-#galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
-#galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
-#                              condA="ua159", condB="tw1" )
-#save(galactoseOnly, file=file.path("galactoseOnly.RData"))
-load("galactoseOnly.RData")
+galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+                              condA="ua159", condB="tw1" )
+save(galactoseOnly, file=file.path("galactoseOnly.RData"))
+#load("galactoseOnly.RData")
 x <- smutans.de2List( galactoseOnly, qval=1e-3 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","UA159","TW1","fold", "p-value")
@@ -383,11 +384,11 @@ $q\leq 0.05$ are displayed.\\
 
 \clearpage{}
 <<echo=FALSE,results=tex>>=
-#ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
-#ua159only <- smutans.de2( ua159only, type="ua159", 
-#                          condA="glucose", condB="galactose" )
-#save(ua159only, file=file.path("ua159only.RData"))
-load("ua159only.RData")
+ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
+ua159only <- smutans.de2( ua159only, type="ua159", 
+                          condA="glucose", condB="galactose" )
+save(ua159only, file=file.path("ua159only.RData"))
+#load("ua159only.RData")
 x <- smutans.de2List( ua159only, qval=1e-10 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")
@@ -474,11 +475,11 @@ $q\leq 0.05$ are displayed.\\
 
 \clearpage{}
 <<echo=FALSE,results=tex>>=
-#tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
-#tw1only <- smutans.de2( tw1only, type="tw1", 
-#                          condA="glucose", condB="galactose" )
-#save(tw1only, file=file.path("tw1only.RData"))
-load("tw1only.RData")
+tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
+tw1only <- smutans.de2( tw1only, type="tw1", 
+                          condA="glucose", condB="galactose" )
+save(tw1only, file=file.path("tw1only.RData"))
+#load("tw1only.RData")
 x <- smutans.de2List( tw1only, qval=1e-3 )
 x <- x[,c("id","baseMeanA","baseMeanB","log2FoldChange","padj")]
 colnames(x) <- c("Gene ID","Glucose","Galactose","fold", "p-value")

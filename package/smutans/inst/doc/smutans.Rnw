@@ -686,8 +686,9 @@ head( counts(smsmu86cspGenes) )
 pData( smsmu86cspGenes )
 @
 
+
 <<smsmu86csp,results=hide>>=
-smu86csp <- newSmutans( smsmu86cspGenes, title="UA159 no CSP vs. CSP" )
+smu86csp <- newSmutans( smsmu86cspGenes, title="SMU86 no CSP vs. CSP" )
 smu86csp <- smutans.de2( smu86csp, type="ua159", 
                          condA="Smu86noCSP", condB="Smu86CSP" )
 smutans.de2List( smu86csp, "smu86csp.csv" )

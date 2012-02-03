@@ -10,7 +10,7 @@
 
 
 library(GenomicRanges)
-#library(DESeq)
+library(DESeq)
 source("smutans/R/core.R")
 #smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
@@ -19,7 +19,9 @@ source("smutans/R/core.R")
 #smutans.prepareDataUA159CSP( ) 
 #smutans.prepareDataSMU86CSP( )
 #smutans.prepareDataUA159TW1()
-smutans.prepareTranscript( )
+#smutans.prepareTranscript( )
+smutans.prepareDataSMU21PH75() 
+smutans.prepareDataUA159PH75()
 #q("no")
 
 library(DESeq)
@@ -39,6 +41,22 @@ load("smutans/data/smutansData.txAnnotation.RData")
 source("smutans/R/class_and_slots.R")
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
+
+load("smutans/data/smUA159pHGenes.RData")
+load("smutans/data/smSMU21pHGenes.RData")
+
+save.to.dir <- "/Users/goshng/Documents/Projects/RNASeq-Analysis/output/email/to/robert-burne/020212"
+ua159ph75 <- newSmutans( smUA159pHGenes, title="UA159 pH 7 vs. pH 5" )
+ua159ph75 <- smutans.de2( ua159ph75, type="ua159", 
+                          condA="UA159PH7", condB="UA159PH5" )
+f <- paste(save.to.dir, "ua159ph75.csv", sep="/")
+smutans.de2List( ua159ph75, f )
+
+smu21ph75 <- newSmutans( smSMU21pHGenes, title="Smu21 pH 7 vs. pH 5" )
+smu21ph75 <- smutans.de2( smu21ph75, type="ua159", 
+                          condA="Smu21PH7", condB="Smu21PH5" )
+f <- paste(save.to.dir, "smu21ph75.csv", sep="/")
+smutans.de2List( smu21ph75, f )
 
 
 
