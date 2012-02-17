@@ -72,6 +72,7 @@ source sh/transcript-summary.sh
 source sh/job-truncate-reads.sh 
 source sh/job-truncate-reads-local.sh 
 source sh/batch.sh
+source sh/batch2.sh
 
 #####################################################################
 # Read configuration file
@@ -94,6 +95,7 @@ CHOICES=( init-file-system \
           fastq-sample \
           ---BATCH---\
 	  batch \
+	  batch2 \
           ---BWA-ALIGN---\
           cp-genome \
           bwa-index-genome \
@@ -194,6 +196,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
   elif [ "$CHOICE" == "batch" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "batch2" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

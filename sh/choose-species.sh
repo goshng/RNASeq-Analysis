@@ -37,6 +37,7 @@ function choose-species {
       mkdir -p $MAQDIR
       mkdir -p $BOWTIEDIR
       mkdir -p $TRANSCRIPTDIR
+      mkdir -p $RUNANALYSIS
       break
     fi
   done

@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (C) 2011 Sang Chul Choi
+# Copyright (C) 2011,2012 Sang Chul Choi
 #
 # This file is part of RNASeq Analysis.
 # 
@@ -29,31 +29,65 @@ function fastq-summary {
       global-variable $SPECIES $REPETITION
       read-species
 
-      BATCH=YES
-      BATCHFILE=batch.sh
-
       GENOMEFASTA=$(basename $REFGENOMEFASTA)
       NUMFASTQFILE=$(grep NUMFASTQFILE $SPECIESFILE | cut -d":" -f2)
-      for g in $(eval echo {1..$NUMFASTQFILE}); do
-        FASTQNUM=FASTQ$(printf "%02d" $g)
-        GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+      FASTQFILES=$(grep ^FASTQFILES\: $SPECIESFILE | cut -d":" -f2)
 
-        echo "FASTQ: $FASTQNUM"
-        echo "FILE: $GZIPFASTAQFILE"
-        TOTALLENGTH=$(zcat $GZIPFASTAQFILE|wc -l)
-        TOTALLENGTH=$(($TOTALLENGTH / 4))
-        echo "The total number of short reads is $TOTALLENGTH"
+      echo -n "Do you wish to copy fastq files to the data directory? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        for g in $FASTQFILES; do
+          FASTQNUM=FASTQ$(printf "%03d" $g)
+          GZIPFASTAQFILE=$(grep $FASTQNUM $SPECIESFILE | cut -d":" -f2)
+          cp $GZIPFASTAQFILE $DATADIR/$FASTQNUM.fq.gz
+          echo See $DATADIR/$FASTQNUM.fq.gz
+        done
+      fi
 
-        NUMBERMAPPEDREAD=$(trim $(cat $BWADIR/$FASTQNUM.bed|wc -l))
-        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-        echo "The number of mapped reads using BWA is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
-        NUMBERMAPPEDREAD=$(trim $(cat $BOWTIEDIR/$FASTQNUM.bed|wc -l))
-        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-        echo "The number of mapped reads using Bowtie is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
-      done
+      echo -n "Do you wish to make reports for the named fastq files? (e.g., y/n) "
+      read WISH
+      if [ "$WISH" == "y" ]; then
+        QUALITYSCORELIST=""
+        for g in $FASTQFILES; do
+          QUALITYSCORENUM=QUALITYSCORE$(printf "%03d" $g)
+          QUALITYSCORE=$(grep $QUALITYSCORENUM $SPECIESFILE | cut -d":" -f2)
+          QUALITYSCORELIST="$QUALITYSCORELIST \"$QUALITYSCORE\""
+        done
+        QUALITYSCORELISTINR=$(echo $QUALITYSCORELIST | sed -e 's/[ ]/,/g')
+        echo $QUALITYSCORELISTINR
+        fastq-summary-using-qrqc
+      fi
 
       break
     fi
   done
-
 }
+
+function fastq-summary-using-qrqc {
+FASTQFILESINR=$(echo $FASTQFILES | sed -e 's/[ ]/,/g')
+cat>$RUNANALYSIS/$FUNCNAME.R<<EOF
+library(qrqc)
+fq.quality <- c($QUALITYSCORELISTINR)
+fq.number <- c($FASTQFILESINR)
+for (i in 1:length(fq.number)) {
+  fq.name <- sprintf("%s/FASTQ%03d.fq.gz", "$DATADIR", fq.number[i])
+  fq.file <- readSeqFile(fq.name,quality=fq.quality[i])
+  makeReport(fq.file, outputDir="$BWADIR")
+}
+EOF
+  echo Use R 2.15 and Bioconductor 2.10!
+  echo Rscript-2.15 $RUNANALYSIS/$FUNCNAME.R
+}
+
+#        echo "FASTQ: $FASTQNUM"
+#        echo "FILE: $GZIPFASTAQFILE"
+#        TOTALLENGTH=$(zcat $GZIPFASTAQFILE|wc -l)
+#        TOTALLENGTH=$(($TOTALLENGTH / 4))
+#        echo "The total number of short reads is $TOTALLENGTH"
+#
+#        NUMBERMAPPEDREAD=$(trim $(cat $BWADIR/$FASTQNUM.bed|wc -l))
+#        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
+#        echo "The number of mapped reads using BWA is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
+#        NUMBERMAPPEDREAD=$(trim $(cat $BOWTIEDIR/$FASTQNUM.bed|wc -l))
+#        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
+#        echo "The number of mapped reads using Bowtie is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"

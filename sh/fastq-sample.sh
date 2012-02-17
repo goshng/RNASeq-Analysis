@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (C) 2011 Sang Chul Choi
+# Copyright (C) 2011,2012 Sang Chul Choi
 #
 # This file is part of RNASeq Analysis.
 # 
@@ -29,7 +29,7 @@ function fastq-sample {
       global-variable $SPECIES $REPETITION
       read-species
 
-      mkdir $GZIPFASTAQDIR/$SPECIES
+      # mkdir $GZIPFASTAQDIR/$SPECIES
 
       echo -n "Do you wish to remove :Y: short reads? (e.g., y/n) "
       read WISH

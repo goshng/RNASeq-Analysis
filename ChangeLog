@@ -46,6 +46,146 @@ Histories
 This history can be useful later.
 
 
+
+Thu Feb 16 12:17:40 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.R devel version
+----
+/Users/goshng/Documents/Projects/peach/rdev/downloads/build/R-latest/bin
+----
+
+.Quality control
+----
+Remove reads with :Y: for 15-55.
+Apply cutadapt and then prinseq.
+----
+
+.prinseq options
+----
+perl pl/prinseq-lite.pl
+-fastq FASTQ001.fq.gz
+-phred64 (FOR THE 1ST ROUND RNA-SEQ)
+-trim_qual_right 20
+-rm_header
+----
+
+.Backup of RNA-seq data
+----
+babylon:/lab/data/S_mutans/RNA-seq
+babylon:/lab/data/S_mutans/RNA-seq.31Oct11
+babylon:/lab/data/S_mutans/RNA-seq.1Nov11
+babylon:/lab/data/S_mutans/RNA-seq.4-7Nov11 (some of them are missing)
+babylon:/lab/data/S_mutans/RNA-seq.7Feb12 (many of them are missing)
+----
+
+Wed Feb 15 11:27:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.readSeqFile has more options
+----
+QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
+                          sanger=list(offset=33, min=0, max=93),
+                          solexa=list(offset=64, min=-5, max=62),
+                          illumina=list(offset=64, min=0, max=62))
+----
+
+Tue Feb 14 13:37:56 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.qrqc R package
+----
+> fq01 <- readSeqFile("/Users/goshng/Documents/Projects/RNASeq-Analysis/output/ua159/1/data/FASTQ001.fq.gz")
+> makeReport(fq01, outputDir="/Users/goshng/Documents/Projects/RNASeq-Analysis/output/ua159/1/bwa")
+----
+
+.A latest directory
+----
+/Users/goshng/Documents/Projects/peach/rdev/downloads/build/R-latest
+----
+
+.Download R devel version using svn
+----
+http://developer.r-project.org/SVNtips.html
+----
+
+.CAC resources R
+----
+/cac/contrib/R-2.14.0/bin/R
+----
+
+.Sequence alignment 
+----
+bwa
+bowtie
+subread
+----
+
+.Website resources for short reads
+----
+http://manuals.bioinformatics.ucr.edu/home/ht-seq
+----
+
+.Stand-alone programs
+----
+Fastx-toolkit
+cutadapt
+prinseq
+FastQC
+TagCleaner (http://tagcleaner.sourceforge.net)
+----
+
+.R packages
+----
+qrqc
+biomaRt
+BSgenome
+RnaSeqTutorial
+----
+
+.Pipelines of DE studies with RNA-seq data
+----
+http://bioinformatics.ucdavis.edu/docs/ngs_may_2011/command_line_rna_seq_transcriptome.html
+----
+
+Mon Feb 13 15:31:32 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A series of steps of RNASeq raw data can be used. A quality control step
+includes removing reads with low quality scores, and deleting parts of short
+reads corresponding to adapters. A sequence alignment step can be achieved by
+using BWA, or subread. To count short reads mapped on a reference genome can be
+done using rtracklayer, Rsamtools, or GenomicRanges. Finally DESeq or edgeR is
+used to test differentially expressed genes. I am wondering which step I should
+consider to develop a new method. 
+
+
+Mon Feb  6 10:20:59 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I found Rsubread or subread that might be interesting in DE study table
+formation.
+
+.Rsubread
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("Rsubread")
+----
+
+subread seems to be available only for linux.
+
+.Swiftgen directory
+----
+swiftgen:/home/choi/Documents/Projects/rnaseq/test/run
+----
+
+.Talk by Gordon Smyth
+----
+http://www.bioconductor.org/help/course-materials/2011/BioC2011/MorningTalks/BioC2011_Gordon.pdf
+----
+
+A compilation of R at CAC needs to be checked by submitting jobs with R scripts
+that use the latest version of R packages.
+
 Wed Feb  1 10:03:03 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
