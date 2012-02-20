@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (C) 2011 Sang Chul Choi
+# Copyright (C) 2011-2012 Sang Chul Choi
 #
 # This file is part of RNASeq Analysis.
 # 
@@ -34,6 +34,7 @@ function choose-species {
       mkdir -p $NUMBERDIR
       mkdir -p $DATADIR
       mkdir -p $BWADIR
+      mkdir -p $SUBREADDIR
       mkdir -p $MAQDIR
       mkdir -p $BOWTIEDIR
       mkdir -p $TRANSCRIPTDIR

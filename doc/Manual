@@ -147,6 +147,13 @@ $ bash output/ua159/copy-data.sh
 FASTQQCWALLTIME:1
 ----
 
+We use one node per alignment of short reads.
+
+.Wall time for the alignment and CPU's
+----
+BWAALIGNWALLTIME:24
+BWAALIGNNCPU:8
+----
 
 fastq-sample
 ~~~~~~~~~~~~

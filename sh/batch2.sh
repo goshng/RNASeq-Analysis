@@ -17,7 +17,7 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-SPECIES=cornell
+SPECIES=ua159
 REPETITION=1
 REPLICATE=1
 function batch2 {
@@ -35,8 +35,10 @@ function batch2 {
 #  ucsc-data
   batch2-run
   batch2-run-fastq-qc
-#  batch-run-bwa-align
-#  batch-run-de
+  batch2-run-bwa-align
+  batch2-run-de
+  batch2-run-qcalignde
+
 #  batch-run-parsernaseq
 #
 #  batch-run-rnaz
@@ -60,6 +62,7 @@ function batch2-rmessage {
 function batch2-copy-scripts {
   ssh -x $CAC_USERHOST mkdir -p $CACWORKDIR
   scp -q $BASEDIR/*.sh $CAC_USERHOST:$CACWORKDIR
+  scp -q $BASEDIR/*.R $CAC_USERHOST:$CACWORKDIR
   scp -q $BASEDIR/job* $CAC_USERHOST:$CACWORKDIR
   scp -qr pl $CAC_USERHOST:$CACWORKDIR
 }
@@ -73,6 +76,7 @@ function batch2-variable {
   NUMBERDIR=$BASEDIR/$REPETITION
   DATADIR=$NUMBERDIR/data
   BWADIR=$NUMBERDIR/bwa
+  SUBREADDIR=$NUMBERDIR/subread
   RUNANALYSIS=$NUMBERDIR/run-analysis
 
   # Remote output directories.
@@ -82,6 +86,7 @@ function batch2-variable {
   RANALYSISDIR=$RNUMBERDIR/run-analysis
   RDATADIR=$RNUMBERDIR/data
   RBWADIR=$RNUMBERDIR/bwa
+  RSUBREADDIR=$RNUMBERDIR/subread
 
   # Compute node output directories.
   CBASEDIR=output/$SPECIES
@@ -89,6 +94,7 @@ function batch2-variable {
   CANALYSISDIR=$CNUMBERDIR/run-analysis
   CDATADIR=$CNUMBERDIR/data
   CBWADIR=$CNUMBERDIR/bwa
+  CSUBREADDIR=$CNUMBERDIR/subread
 }
 
 function batch2-output {
@@ -96,11 +102,13 @@ function batch2-output {
   mkdir -p $BASERUNANALYSIS
   mkdir -p $DATADIR
   mkdir -p $BWADIR
+  mkdir -p $SUBREADDIR
   mkdir -p $RUNANALYSIS
 }
 
 
 function batch2-speciesfile {
+  REFGENOMENAME=$(grep ^REFGENOMENAME\: $SPECIESFILE | cut -d":" -f2)
   REFGENOMEID=$(grep ^REFGENOMEID\: $SPECIESFILE | cut -d":" -f2)
   REFGENOMELENGTH=$(grep ^REFGENOMELENGTH\: $SPECIESFILE | cut -d":" -f2)
   REFGENOMEFASTA=$(grep ^REFGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
@@ -110,6 +118,7 @@ function batch2-speciesfile {
   RNAZWALLTIME=$(grep ^RNAZWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   DENNODE=$(grep ^DENNODE\: $SPECIESFILE | cut -d":" -f2)
   DEWALLTIME=$(grep ^DEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQNNODE=$(grep ^PARSERNASEQNNODE\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQWALLTIME=$(grep ^PARSERNASEQWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   BWAALIGNNNODE=$(grep ^BWAALIGNNNODE\: $SPECIESFILE | cut -d":" -f2)
@@ -129,9 +138,12 @@ function batch2-copy-data {
 cat>$BASEDIR/copy-data.sh<<EOF
 #!/bin/bash
 ssh -x $CAC_USERHOST mkdir -p $RBWADIR
+ssh -x $CAC_USERHOST mkdir -p $RSUBREADDIR
 ssh -x $CAC_USERHOST mkdir -p $RDATADIR
 
-#scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
+scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
+scp $REFGENOMEGFF $CAC_USERHOST:$RDATADIR
+
 #REFGENOMEGBK=$REFGENOMEGBK
 #if [ \$REFGENOMEGBK != "NA" ]; then
 #  scp $REFGENOMEGFF $CAC_USERHOST:$RDATADIR
@@ -254,12 +266,16 @@ function copy-data {
   # Create output directories at the compute node.
   mkdir -p $CBWADIR
   mkdir -p $CDATADIR
-  cp $RBWADIR/FASTQ*.cutadapt.fq.gz $CBWADIR
+
+  # Do not copy short reads because a compute node might not be able to store
+  # all of the short reads. I have to copy each file for each job.
+  # cp $RBWADIR/FASTQ*.cutadapt.fq.gz $CBWADIR
 }
 
 function retrieve-data {
-  # cp $CBWADIR/*cutadapt.fq.gz $RBWADIR
+  # cp $CBWADIR/*.cutadapt.fq.gz $RBWADIR
   cp $CBWADIR/*.prinseq.fq.gz $RBWADIR
+  echo Copy each file in the job.
 }
 
 function process-data {
@@ -338,6 +354,533 @@ fi
 EOF
 }
 
+function batch2-run-bwa-align {
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  GENOMEGFF=$(basename $REFGENOMEGFF)
+cat>$BASEDIR/run-bwa-align.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-bwa-align.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-bwa-align.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${BWAALIGNWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-BWA
+#PBS -q ${QUEUENAME}
+#PBS -m e
+# #PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$PBS_O_WORKDIR/job-bwa-align .
+  cp ~/bin/samtools .
+  cp ~/bin/bwa .
+  cp ~/bin/subread-buildindex .
+  cp ~/bin/subread-align .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+  mkdir -p $CSUBREADDIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+  cp $RDATADIR/$GENOMEGFF $CDATADIR
+
+  ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
+    $CDATADIR/$GENOMEFASTA
+  ./subread-buildindex -o \\
+    $CSUBREADDIR/$GENOMEFASTA-subread \\
+    $CDATADIR/$GENOMEFASTA
+}
+
+function retrieve-data {
+  # cp $CBWADIR/*.bam $RBWADIR
+  # cp $CBWADIR/*.pileup $RBWADIR
+  # cp $CBWADIR/*.wig $RBWADIR
+  # cp $CBWADIR/*-sum.pos $RBWADIR
+  # cp $CBWADIR/*-sum.rrna $RBWADIR
+  # cp $CBWADIR/*.sorted.bam $RBWADIR
+  # cp $CSUBREADDIR/*.sorted.bam $RSUBREADDIR
+  echo No Copy!
+}
+
+function process-data {
+  cd \$TMPDIR
+  CORESPERNODE=1
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  bash job-bwa-align \$(printf "%03d" \${FASTQFILES[\$g]})
+}
+
+copy-data
+process-data; wait
+retrieve-data
+cd
+rm -rf \$TMPDIR
+EOF
+
+grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-bwa-align
+cat>>$BASEDIR/job-bwa-align<<EOF
+QUALITYSCORESEQUENCE=QUALITYSCORE\$1
+GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.prinseq.fq.gz
+FASTAQFILE=\${GZIPFASTAQFILE%.gz}
+cp $RBWADIR/FASTQ\$1.prinseq.fq.gz $CBWADIR
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  ./bwa aln -I -t $BWAALIGNNCPU \\
+    $CBWADIR/$GENOMEFASTA-bwa \\
+    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
+else
+  ./bwa aln -t $BWAALIGNNCPU \\
+    $CBWADIR/$GENOMEFASTA-bwa \\
+    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
+fi
+./bwa samse -n 1 \\
+  -f $CBWADIR/FASTQ\$1.sam \\
+  $CBWADIR/$GENOMEFASTA-bwa \\
+  $CBWADIR/FASTQ\$1.sai \\
+  \$GZIPFASTAQFILE
+./samtools view -bS -o $CBWADIR/FASTQ\$1.bam \\
+  $CBWADIR/FASTQ\$1.sam
+./samtools sort $CBWADIR/FASTQ\$1.bam \\
+  $CBWADIR/FASTQ\$1.sorted
+cp $CBWADIR/FASTQ\$1.sorted.bam $RBWADIR
+
+# This should be done differently.
+# I need to use sorted BAM files to form count table data.
+#./samtools mpileup -q 20 -d $READDEPTH \\
+#  -f $CDATADIR/$GENOMEFASTA \\
+#  $CBWADIR/FASTQ\$1.sorted.bam \\
+#  > $CBWADIR/FASTQ\$1.pileup
+#perl pl/samtools-pileup.pl \\
+#  wiggle \\
+#  -refgenome $CDATADIR/$GENOMEFASTA \\
+#  -in $CBWADIR/FASTQ\$1.pileup \\
+#  -out $CBWADIR/FASTQ\$1.wig
+#./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
+#  | perl pl/bwa-summary.pl pos > $CBWADIR/FASTQ\$1-sum.pos
+#./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
+#  | perl pl/bwa-summary.pl rrna \\
+#  -gff $CDATADIR/$GENOMEGFF > $CBWADIR/FASTQ\$1-sum.rrna
+
+gunzip \$GZIPFASTAQFILE
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  ./subread-align \\
+    --threads $BWAALIGNNCPU \\
+    --phred 6 \\
+    --unique \\
+    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
+    -r \$FASTAQFILE \\
+    -o $CSUBREADDIR/FASTQ\$1.sam
+else
+  ./subread-align \\
+    --threads $BWAALIGNNCPU \\
+    --phred 3 \\
+    --unique \\
+    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
+    -r \$FASTAQFILE \\
+    -o $CSUBREADDIR/FASTQ\$1.sam
+fi
+./samtools view -bS -o $CSUBREADDIR/FASTQ\$1.bam \\
+  $CSUBREADDIR/FASTQ\$1.sam
+./samtools sort $CSUBREADDIR/FASTQ\$1.bam \\
+  $CSUBREADDIR/FASTQ\$1.sorted
+cp $CSUBREADDIR/FASTQ\$1.sorted.bam $RSUBREADDIR
+EOF
+
+}
+
+function batch2-run-de {
+  STATUS=de
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  GENOMEGFF=$(basename $REFGENOMEGFF)
+
+cat>$BASEDIR/run-$STATUS.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$STATUS.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$STATUS.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${DEWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-DE
+#PBS -q ${QUEUENAME}
+#PBS -m e
+# #PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+ID=FASTQIDENTIFIER
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$PBS_O_WORKDIR/job-de* .
+  cp \$PBS_O_WORKDIR/job-de*.R .
+  cp \$HOME/bin/samtools .
+  cp \$HOME/bin/bwa .
+  cp \$HOME/bin/subread-buildindex .
+  cp \$HOME/bin/subread-align .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+  mkdir -p $CSUBREADDIR
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+  cp $RDATADIR/$GENOMEGFF $CDATADIR
+}
+
+function retrieve-data {
+  # cp -r $CBWADIR/splitdir\$ID $RBWADIR
+  echo No Copy!
+}
+
+function process-data {
+  cd \$TMPDIR
+  CORESPERNODE=1
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+
+  cp $RSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam $CSUBREADDIR
+  BAMFILE=$CSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam 
+  BAMFILESIZE=\$(du $BAMFILE|cut -f1)
+  ./samtools view \$BAMFILE | split -d -l 5000000 
+  for i in \`ls x*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
+  for i in \`ls x*.bam\`; do
+    bash job-de \$i
+  done
+  bash job-de2 \$(printf "%03d" \${FASTQFILES[\$g]})
+}
+
+copy-data
+process-data; wait
+retrieve-data
+cd
+rm -rf \$TMPDIR
+EOF
+
+cat>$BASEDIR/job-de.R<<EOF
+library(easyRNASeq)
+library(rtracklayer)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-de.R 1\n")
+  quit("yes")
+}
+gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
+gene.range2 <- gene.range3[gene.range3\$type=="gene",]
+bam.file <- paste(args[1])
+cl.file <- paste(args[1], "cl", sep=".")
+indexFile <- indexBam(bam.file)
+aln <- readAligned(bam.file,type="BAM")
+cfilt <- chromosomeFilter('$REFGENOMENAME')
+aln2 <- aln[cfilt(aln)]
+alnIR <- IRanges(start=position(aln2),width=width(aln2))
+geneIR <- gene.range2\$ranges
+cl <- countOverlaps(geneIR,alnIR)
+save(cl,file=cl.file)
+EOF
+
+cat>$BASEDIR/job-de2.R<<EOF
+library(easyRNASeq)
+library(rtracklayer)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-de.R 1\n")
+  quit("yes")
+}
+gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
+gene.range2 <- gene.range3[gene.range3\$type=="gene",]
+cl.sum <- rep(0,times=length(gene.range2$ranges))
+cl.files <- list.files(pattern="x[[:digit:]]+.bam.cl")
+for (i in cl.files) {
+  load(i)
+  cl.sum <- cl.sum + cl
+}
+cl <- cl.sum
+cl.file <- sprintf("$RSUBREADDIR/FASTQ%03d.cl", as.numeric(args[1])) 
+save(cl,file=cl.file)
+EOF
+
+cat>$BASEDIR/job-$STATUS<<EOF
+RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+\$RSCRIPT job-de.R \$1
+EOF
+
+cat>$BASEDIR/job-${STATUS}2<<EOF
+RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+\$RSCRIPT job-de2.R \$1
+EOF
+
+}
+
+  
+function batch2-run-qcalignde {
+  STATUS=qcalignde 
+  
+cat>$BASEDIR/run-$STATUS<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$STATUS.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$STATUS.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${QCALIGNDEWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-QAD
+#PBS -q ${QUEUENAME}
+#PBS -m e
+#PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/bin/samtools .
+  cp \$HOME/bin/bwa .
+  cp \$HOME/bin/subread-buildindex .
+  cp \$HOME/bin/subread-align .
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-fastq-qc* .
+  cp \$PBS_O_WORKDIR/job-bwa-align .
+  cp \$PBS_O_WORKDIR/job-de* .
+  cp \$PBS_O_WORKDIR/job-de*.R .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+  mkdir -p $CSUBREADDIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+  cp $RDATADIR/$GENOMEGFF $CDATADIR
+
+  # We may move this somewhere else
+  ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
+    $CDATADIR/$GENOMEFASTA
+  ./subread-buildindex -o \\
+    $CSUBREADDIR/$GENOMEFASTA-subread \\
+    $CDATADIR/$GENOMEFASTA
+
+  # Do not copy short reads because a compute node might not be able to store
+  # all of the short reads. I have to copy each file for each job.
+  # cp $RBWADIR/FASTQ*.cutadapt.fq.gz $CBWADIR
+}
+
+function retrieve-data {
+  # cp $CBWADIR/*.cutadapt.fq.gz $RBWADIR
+  # cp $CBWADIR/*.prinseq.fq.gz $RBWADIR
+  echo No Copy!
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  bash job-fastq-qc \$(printf "%03d" \${FASTQFILES[\$g]})
+  bash job-bwa-align \$(printf "%03d" \${FASTQFILES[\$g]})
+
+  BAMFILE1=$CBWADIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam 
+  BAMFILE2=$CSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam 
+  CLFILE1=$RBWADIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).cl
+  CLFILE2=$RSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).cl
+  for k in {1..2}; do
+    BAMFILE=BAMFILE\$k
+    CLFILE=CLFILE\$k
+    ./samtools view \${!BAMFILE} | split -d -l 5000000 
+    for i in \`ls x*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
+    for i in \`ls x*.bam\`; do
+      bash job-de \$i
+    done
+    bash job-de2 \${!CLFILE}
+  done 
+}
+
+copy-data
+process-data
+retrieve-data
+cd
+rm -rf \$TMPDIR
+EOF
+
+# QC
+grep ^ADAPTER $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-fastq-qc
+grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ >> $BASEDIR/job-fastq-qc
+cat>>$BASEDIR/job-fastq-qc<<EOF
+ADAPTERSEQUENCE=ADAPTER\$1
+QUALITYSCORESEQUENCE=QUALITYSCORE\$1
+
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  ADAPTERSEQUENCE=ADAPTER\$1
+  cp $RDATADIR/FASTQ\$1.fq.gz $CBWADIR/temp.FASTQ\$1.fq.gz
+else
+  cp $RDATADIR/FASTQ\$1.fq.gz $CDATADIR
+  zcat $CDATADIR/FASTQ\$1.fq.gz \\
+    | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
+    | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
+  rm $CDATADIR/FASTQ\$1.fq.gz
+fi
+
+/opt/epd/bin/python2.7 \$PBS_O_WORKDIR/cutadapt-1.0/cutadapt --minimum-length=25 \\
+  -a \${!ADAPTERSEQUENCE} \\
+  -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
+  $CBWADIR/temp.FASTQ\$1.fq.gz
+rm $CBWADIR/temp.FASTQ\$1.fq.gz
+
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
+  perl pl/prinseq-lite.pl \\
+    -fastq stdin \\
+    -phred64 \\
+    -trim_qual_right 20 \\
+    -rm_header \\
+    -out_good stdout | \\
+  gzip > $CBWADIR/FASTQ\$1.prinseq.fq.gz
+else
+  gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
+  perl pl/prinseq-lite.pl \\
+    -fastq stdin \\
+    -trim_qual_right 20 \\
+    -rm_header \\
+    -out_good stdout | \\
+  gzip > $CBWADIR/FASTQ\$1.prinseq.fq.gz
+fi
+rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
+EOF
+
+# Align
+grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-bwa-align
+cat>>$BASEDIR/job-bwa-align<<EOF
+QUALITYSCORESEQUENCE=QUALITYSCORE\$1
+GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.prinseq.fq.gz
+FASTAQFILE=\${GZIPFASTAQFILE%.gz}
+cp $RBWADIR/FASTQ\$1.prinseq.fq.gz $CBWADIR
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  ./bwa aln -I -t $BWAALIGNNCPU \\
+    $CBWADIR/$GENOMEFASTA-bwa \\
+    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
+else
+  ./bwa aln -t $BWAALIGNNCPU \\
+    $CBWADIR/$GENOMEFASTA-bwa \\
+    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
+fi
+./bwa samse -n 1 \\
+  -f $CBWADIR/FASTQ\$1.sam \\
+  $CBWADIR/$GENOMEFASTA-bwa \\
+  $CBWADIR/FASTQ\$1.sai \\
+  \$GZIPFASTAQFILE
+./samtools view -bS -o $CBWADIR/FASTQ\$1.bam \\
+  $CBWADIR/FASTQ\$1.sam
+./samtools sort $CBWADIR/FASTQ\$1.bam \\
+  $CBWADIR/FASTQ\$1.sorted
+# cp $CBWADIR/FASTQ\$1.sorted.bam $RBWADIR
+
+gunzip \$GZIPFASTAQFILE
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  ./subread-align \\
+    --threads $BWAALIGNNCPU \\
+    --phred 6 \\
+    --unique \\
+    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
+    -r \$FASTAQFILE \\
+    -o $CSUBREADDIR/FASTQ\$1.sam
+else
+  ./subread-align \\
+    --threads $BWAALIGNNCPU \\
+    --phred 3 \\
+    --unique \\
+    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
+    -r \$FASTAQFILE \\
+    -o $CSUBREADDIR/FASTQ\$1.sam
+fi
+./samtools view -bS -o $CSUBREADDIR/FASTQ\$1.bam \\
+  $CSUBREADDIR/FASTQ\$1.sam
+./samtools sort $CSUBREADDIR/FASTQ\$1.bam \\
+  $CSUBREADDIR/FASTQ\$1.sorted
+# cp $CSUBREADDIR/FASTQ\$1.sorted.bam $RSUBREADDIR
+rm \$FASTAQFILE
+EOF
+
+# DE count
+cat>$BASEDIR/job-de.R<<EOF
+library(easyRNASeq)
+library(rtracklayer)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-de.R 1\n")
+  quit("yes")
+}
+gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
+gene.range2 <- gene.range3[gene.range3\$type=="gene",]
+bam.file <- paste(args[1])
+cl.file <- paste(args[1], "cl", sep=".")
+indexFile <- indexBam(bam.file)
+aln <- readAligned(bam.file,type="BAM")
+cfilt <- chromosomeFilter('$REFGENOMENAME')
+aln2 <- aln[cfilt(aln)]
+alnIR <- IRanges(start=position(aln2),width=width(aln2))
+geneIR <- gene.range2\$ranges
+cl <- countOverlaps(geneIR,alnIR)
+save(cl,file=cl.file)
+EOF
+
+cat>$BASEDIR/job-de2.R<<EOF
+library(easyRNASeq)
+library(rtracklayer)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-de.R 1\n")
+  quit("yes")
+}
+gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
+gene.range2 <- gene.range3[gene.range3\$type=="gene",]
+cl.sum <- rep(0,times=length(gene.range2$ranges))
+cl.files <- list.files(pattern="x[[:digit:]]+.bam.cl")
+for (i in cl.files) {
+  load(i)
+  cl.sum <- cl.sum + cl
+}
+cl <- cl.sum
+save(cl,file=args[1])
+EOF
+
+cat>$BASEDIR/job-$STATUS<<EOF
+RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+\$RSCRIPT job-de.R \$1
+EOF
+
+cat>$BASEDIR/job-${STATUS}2<<EOF
+RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+\$RSCRIPT job-de2.R \$1
+EOF
+}
+
+
 function batch2-get-data {
 cat>$BASEDIR/get-data.sh<<EOF
 #!/bin/bash
@@ -352,6 +895,7 @@ for g in $FASTQFILES; do
   # perl pl/bwa-summary.pl rrnaToTex -rrna $BWADIR/\$FASTQNUM-sum.rrna >> $BWADIR/rrna.tex
   #scp $CAC_USERHOST:$RBWADIR/\$FASTQNUM.cutadapt.fq.gz $BWADIR
   scp $CAC_USERHOST:$RBWADIR/\$FASTQNUM.prinseq.fq.gz $BWADIR
+  scp $CAC_USERHOST:$RSUBREADDIR/\$FASTQNUM.sorted.bam $SUBREADDIR
 done
 EOF
 }
@@ -409,269 +953,6 @@ EOF
 ##################################################
 
 
-
-
-
-
-
-function batch-run-bwa-align {
-  GENOMEFASTA=$(basename $REFGENOMEFASTA)
-  GENOMEGFF=$(basename $REFGENOMEGFF)
-cat>$BASEDIR/run-bwa-align.sh<<EOF
-#!/bin/bash
-sed s/PBSARRAYSIZE/$BWAALIGNNNODE/g < batch-bwa-align.sh > tbatch.sh
-nsub tbatch.sh 
-rm tbatch.sh
-EOF
-
-cat>$BASEDIR/batch-bwa-align.sh<<EOF
-#!/bin/bash
-#PBS -l walltime=${BWAALIGNWALLTIME}:00:00,nodes=1
-#PBS -A ${BATCHACCESS}
-#PBS -j oe
-#PBS -N $PROJECTNAME-BWA
-#PBS -q ${QUEUENAME}
-#PBS -m e
-# #PBS -M ${BATCHEMAIL}
-#PBS -t 1-PBSARRAYSIZE
-
-function copy-data {
-  cd \$TMPDIR
-
-  # Programs and scripts.
-  cp -r \$PBS_O_WORKDIR/pl .
-  cp \$PBS_O_WORKDIR/job-bwa-align* .
-  cp \$PBS_O_WORKDIR/samtools .
-  cp \$PBS_O_WORKDIR/bwa .
-
-  # Create output directories at the compute node.
-  mkdir -p $CDATADIR
-  mkdir -p $CBWADIR
-  cp $RDATADIR/$GENOMEFASTA $CDATADIR
-  cp $RDATADIR/$GENOMEGFF $CDATADIR
-
-  ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
-    $CDATADIR/$GENOMEFASTA
-}
-
-function retrieve-data {
-  cp $CBWADIR/*.bam $RBWADIR
-  cp $CBWADIR/*.pileup $RBWADIR
-  cp $CBWADIR/*.wig $RBWADIR
-  cp $CBWADIR/*-sum.pos $RBWADIR
-  cp $CBWADIR/*-sum.rrna $RBWADIR
-}
-
-function process-data {
-  cd \$TMPDIR
-  CORESPERNODE=1
-  FASTQFILES=( $FASTQFILES )
-  for (( i=0; i<CORESPERNODE; i++))
-  do
-    g=\$((CORESPERNODE * (PBS_ARRAYID-1) + i))
-    if [ \$g -lt \${#FASTQFILES[@]} ]; then
-      # if [ \$g -lt 5 ]; then
-        # bash job-bwa-align \$(printf "%03d" \${FASTQFILES[\$g]})&
-      # else
-        bash job-bwa-align2 \$(printf "%03d" \${FASTQFILES[\$g]})&
-      # fi
-    fi
-  done
-}
-
-copy-data
-process-data; wait
-retrieve-data
-cd
-rm -rf \$TMPDIR
-EOF
-
-cat>$BASEDIR/job-bwa-align-common<<EOF
-./bwa samse -n 1 \\
-  -f $CBWADIR/FASTQ\$1.sam \\
-  $CBWADIR/$GENOMEFASTA-bwa \\
-  $CBWADIR/FASTQ\$1.sai \\
-  \$GZIPFASTAQFILE
-./samtools view -bS -o $CBWADIR/FASTQ\$1.bam \\
-  $CBWADIR/FASTQ\$1.sam
-./samtools sort $CBWADIR/FASTQ\$1.bam \\
-  $CBWADIR/FASTQ\$1.sorted
-./samtools mpileup -q 15 -d $READDEPTH \\
-  -f $CDATADIR/$GENOMEFASTA \\
-  $CBWADIR/FASTQ\$1.sorted.bam \\
-  > $CBWADIR/FASTQ\$1.pileup
-perl pl/samtools-pileup.pl \\
-  wiggle \\
-  -refgenome $CDATADIR/$GENOMEFASTA \\
-  -in $CBWADIR/FASTQ\$1.pileup \\
-  -out $CBWADIR/FASTQ\$1.wig
-./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
-  | perl pl/bwa-summary.pl pos > $CBWADIR/FASTQ\$1-sum.pos
-./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
-  | perl pl/bwa-summary.pl rrna \\
-  -gff $CDATADIR/$GENOMEGFF > $CBWADIR/FASTQ\$1-sum.rrna
-EOF
-
-# For the first round of RNASeq
-cat>$BASEDIR/job-bwa-align<<EOF
-GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.cutadapt.fq.gz
-cp $RBWADIR/FASTQ\$1.cutadapt.fq.gz $CBWADIR
-./bwa aln -I -t $BWAALIGNNCPU \\
-  $CBWADIR/$GENOMEFASTA-bwa \\
-  \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
-EOF
-
-cat>$BASEDIR/job-bwa-align2<<EOF
-GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.cutadapt.fq.gz
-cp $RBWADIR/FASTQ\$1.cutadapt.fq.gz $CBWADIR
-./bwa aln -t $BWAALIGNNCPU \\
-  $CBWADIR/$GENOMEFASTA-bwa \\
-  \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
-EOF
-  cat $BASEDIR/job-bwa-align-common >> $BASEDIR/job-bwa-align
-  cat $BASEDIR/job-bwa-align-common >> $BASEDIR/job-bwa-align2
-}
-
-function batch-run-de {
-  STATUS=de
-  GENOMEFASTA=$(basename $REFGENOMEFASTA)
-  GENOMEPTT=$(basename $REFGENOMEPTT)
-
-  # Find the genome name in the FASTA file.
-  STR=$(head -n 1 $REFGENOMEFASTA)
-  STR_ARRAY=(`echo $STR | tr " " "\n"`)
-  STR_ARRAY=${STR_ARRAY[0]}
-  STR_ARRAY=(`echo $STR | tr ">" "\n"`)
-  GENOMENAME=${STR_ARRAY[0]}
-
-  scp -q cac/sim/batch_task_gui.sh $CAC_USERHOST:$CACWORKDIR/batchjob.sh
-
-cat>$BASEDIR/sum-$STATUS.sh<<EOF
-#!/bin/bash
-ID=\$(printf "%03d" \$1)
-cut -f 4 $RBWADIR/feature-genome.out-geneonly > x.gene\$ID
-paste $RBWADIR/splitdir\$ID/y* | awk '{for(i=t=0;i<NF;) t+=$++i; \$0=t}1' > x.value\$ID
-paste x.gene\$ID x.value\$ID > $RBWADIR/FASTQ\$ID.de
-rm x.gene\$ID x.value\$ID
-EOF
-
-cat>$BASEDIR/run-$STATUS.sh<<EOF
-#!/bin/bash
-ID=\$(printf "%03d" \$1)
-rm -rf splitdir\$ID
-mkdir splitdir\$ID
-cd splitdir\$ID
-split -a 5 -l 100000 -d $RBWADIR/FASTQ\$ID-sum.pos
-NUMBERFILE=\$(echo \`ls|wc -l\`)
-LASTFILE=\$((NUMBERFILE - 1))
-cd ..
-JOBIDFILE=de.jobidfile\$ID
-rm -f \$JOBIDFILE
-h=0
-SPLITID=\$(printf "%05d" \$h)
-echo "perl pl/de-count.pl join \\
-  -first \\
-  -shortread $CBWADIR/splitdir\$ID/x\$SPLITID \\
-  -genepos $CBWADIR/feature-genome.out-geneonly \\
-  -o $CBWADIR/splitdir\$ID/y\$SPLITID" >> \$JOBIDFILE
-for h in \$(eval echo {1..\$LASTFILE}); do
-  SPLITID=\$(printf "%05d" \$h)
-  echo "perl pl/de-count.pl join \\
-    -shortread $CBWADIR/splitdir\$ID/x\$SPLITID \\
-    -genepos $CBWADIR/feature-genome.out-geneonly \\
-    -o $CBWADIR/splitdir\$ID/y\$SPLITID" >> \$JOBIDFILE
-done
-REFGENOMEGBK=$REFGENOMEGBK
-if [ \$REFGENOMEGBK != "NA" ]; then
-  perl pl/feature-genome.pl ptt2 \\
-    -geneonly \\
-    -chromosome $GENOMENAME \\
-    -in $RDATADIR/$GENOMEPTT \\
-    -out $RBWADIR/feature-genome.out-geneonly
-fi
-# echo -n "How many computing nodes do you wish to use? (e.g., 3) "
-# read HOW_MANY_NODE
-sed s/PBSARRAYSIZE/$DENNODE/g < batch-$STATUS.sh > tbatch.sh
-sed s/FASTQIDENTIFIER/\$ID/g < tbatch.sh > tbatch2.sh
-nsub tbatch2.sh
-rm tbatch*.sh
-EOF
-
-cat>$BASEDIR/batch-$STATUS.sh<<EOF
-#!/bin/bash
-#PBS -l walltime=${DEWALLTIME}:00:00,nodes=1
-#PBS -A ${BATCHACCESS}
-#PBS -j oe
-#PBS -N $PROJECTNAME-DE
-#PBS -q ${QUEUENAME}
-#PBS -m e
-# #PBS -M ${BATCHEMAIL}
-#PBS -t 1-PBSARRAYSIZE
-
-ID=FASTQIDENTIFIER
-function copy-data {
-  cd \$TMPDIR
-
-  # Programs and scripts.
-  cp -r \$PBS_O_WORKDIR/pl .
-  cp \$PBS_O_WORKDIR/batchjob.sh .
-
-  # Create output directories at the compute node.
-  mkdir -p $CDATADIR
-  mkdir -p $CBWADIR
-  cp $RBWADIR/feature-genome.out-geneonly $CBWADIR
-  cp -r \$PBS_O_WORKDIR/splitdir\$ID $CBWADIR
-}
-
-function retrieve-data {
-  cp -r $CBWADIR/splitdir\$ID $RBWADIR
-}
-
-function process-data {
-  cd \$TMPDIR
-  CORESPERNODE=8
-  for (( i=0; i<CORESPERNODE; i++))
-  do
-    bash batchjob.sh \\
-      \$i \\
-      \$PBS_O_WORKDIR/de.jobidfile\$ID \\
-      \$PBS_O_WORKDIR/de.lockfile\$ID \\
-      \$PBS_O_WORKDIR/status/\$PBS_ARRAYID \\
-      PBSARRAYSIZE&
-  done
-}
-
-copy-data
-process-data; wait
-retrieve-data
-cd
-rm -rf \$TMPDIR
-EOF
-
-cat>$BASEDIR/sum-de-all.sh<<EOF
-for i in $FASTQFILES; do
-  bash sum-de.sh \$i    
-  ID=\$(printf "%03d" \$i)
-  rm -rf splitdir\$ID
-  rm -rf $RBWADIR/splitdir\$ID 
-done 
-EOF
-
-cat>$BASEDIR/run-de-all.sh<<EOF
-for i in $FASTQFILES; do
-  bash run-de.sh \$i    
-done 
-EOF
-
-cat>$BASEDIR/job-$STATUS<<EOF
-cp $RBWADIR/FASTQ\$1-sum.pos $CBWADIR
-perl pl/de-count.pl join \\
-  -shortread $CBWADIR/FASTQ\$1-sum.pos \\
-  -genepos $CBWADIR/feature-genome.out-geneonly \\
-  -o $CBWADIR/FASTQ\$1.de
-EOF
-
-}
 
 function batch-run-parsernaseq {
   GENOMEFASTA=$(basename $REFGENOMEFASTA)

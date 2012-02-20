@@ -46,6 +46,15 @@ Histories
 This history can be useful later.
 
 
+Mon Feb 20 00:24:07 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Simulated reads
+----
+job-check.R
+R/x.cl
+R/x.fq.gz
+----
 
 Thu Feb 16 12:17:40 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,6 +62,7 @@ Thu Feb 16 12:17:40 EST 2012
 .R devel version
 ----
 /Users/goshng/Documents/Projects/peach/rdev/downloads/build/R-latest/bin
+~/bin/R-2.15
 ----
 
 .Quality control
@@ -112,6 +122,52 @@ http://developer.r-project.org/SVNtips.html
 .CAC resources R
 ----
 /cac/contrib/R-2.14.0/bin/R
+/home/fs01/sc2265/Downloads/r-devel/b
+
+> aln <- readAligned("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",type="BAM")
+> qaSummary <- qa("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",type="BAM")
+> report(qaSummary, dest="/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.report")
+> library(rtracklayer)
+> gene.range3 <- import.gff3("/v4scratch/sc2265/rnaseq/output/ua159/1/data/NC_004350.gff")
+> chrSizes <- 2032925
+> gene.range2 <- gene.range3[gene.range3$type=="gene",]
+
+  easyRNASeq("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",
+             organism="Streptococcus mutans",
+             chr.sizes=c(2032925),
+             readLength=100,
+             annotationMethod="env",
+             annotationObject=gene.range2,
+             format="bam", gapped = FALSE,
+             outputFormat="DESeq",
+             filenames=character(0), 
+             nbCore=8,
+             type="BAM",
+             chr.sel=c(),
+             count="features",
+             summarization="features",
+             normalize=FALSE,
+             plot=FALSE,
+             conditions=c("1"), validity.check=TRUE)
+cfilt <- chromosomeFilter('gi|24378532|ref|NC_004350.1|')
+aln2 <- aln[cfilt(aln)]
+
+width
+position
+strand
+gene.range2
+gene.range2$ranges
+alnIR <- IRanges(start=position(aln2), width=width(aln2))
+geneIR <- gene.range2$ranges
+ol <- findOverlaps(alnIR,geneIR)
+head(as.matrix(ol))
+
+# This is it!
+cl <- countOverlaps(geneIR,alnIR)
+olTable <- table(Rle(as.matrix(ol)[,1]))
+
+# 
+samtools view -Sb -T reference.fasta out.sam > out.bam
 ----
 
 .Sequence alignment 
