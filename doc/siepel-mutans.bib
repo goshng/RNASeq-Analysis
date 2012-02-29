@@ -891,7 +891,6 @@
   pages = {274--275},
   number = {2},
   month = {Jan},
-  __markedentry = {[goshng]},
   abstract = {SUMMARY: The amount of genomic sequence data being generated and made
 	available through public databases continues to increase at an ever-expanding
 	rate. Downloading, copying, sharing and manipulating these large
@@ -1214,6 +1213,53 @@
   review = {review},
   timestamp = {2012.01.25},
   url = {http://dx.doi.org/10.1016/j.mib.2011.07.023}
+}
+
+@ARTICLE{Fritz2011,
+  author = {Markus Hsi-Yang Fritz and Rasko Leinonen and Guy Cochrane and Ewan
+	Birney},
+  title = {Efficient storage of high throughput DNA sequencing data using reference-based
+	compression.},
+  journal = {Genome Res},
+  year = {2011},
+  volume = {21},
+  pages = {734--740},
+  number = {5},
+  month = {May},
+  abstract = {Data storage costs have become an appreciable proportion of total
+	cost in the creation and analysis of DNA sequence data. Of particular
+	concern is that the rate of increase in DNA sequencing is significantly
+	outstripping the rate of increase in disk storage capacity. In this
+	paper we present a new reference-based compression method that efficiently
+	compresses DNA sequences for storage. Our approach works for resequencing
+	experiments that target well-studied genomes. We align new sequences
+	to a reference genome and then encode the differences between the
+	new sequence and the reference genome for storage. Our compression
+	method is most efficient when we allow controlled loss of data in
+	the saving of quality information and unaligned sequences. With this
+	new compression method we observe exponential efficiency gains as
+	read lengths increase, and the magnitude of this efficiency gain
+	can be controlled by changing the amount of quality information stored.
+	Our compression method is tunable: The storage of quality scores
+	and unaligned sequences may be adjusted for different experiments
+	to conserve information or to minimize storage costs, and provides
+	one opportunity to address the threat that increasing DNA sequence
+	volumes will overcome our ability to store the sequences.},
+  doi = {10.1101/gr.114819.110},
+  institution = {European Molecular Biology Laboratory's European Bioinformatics Institute
+	(EMBL-EBI), Wellcome Trust Genome Campus, Hinxton, Cambridgeshire
+	CB10 1SD, United Kingdom.},
+  keywords = {Algorithms; Data Compression, methods; Genomics, methods; High-Throughput
+	Nucleotide Sequencing; Reference Standards; Sequence Analysis, DNA,
+	methods; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {goshng},
+  pii = {gr.114819.110},
+  pmid = {21245279},
+  review = {sga cram fastq},
+  timestamp = {2012.02.22},
+  url = {http://dx.doi.org/10.1101/gr.114819.110}
 }
 
 @ARTICLE{Fu2009,
@@ -3019,6 +3065,45 @@
   url = {http://dx.doi.org/10.1111/j.1751-7915.2010.00166.x}
 }
 
+@ARTICLE{Simpson2012,
+  author = {Jared T Simpson and Richard Durbin},
+  title = {Efficient de novo assembly of large genomes using compressed data
+	structures.},
+  journal = {Genome Res},
+  year = {2012},
+  month = {Jan},
+  __markedentry = {[goshng]},
+  abstract = {De novo genome sequence assembly is important both to generate new
+	sequence assemblies for previously uncharacterized genomes and to
+	identify the genome sequence of individuals in a reference-unbiased
+	way. We present memory efficient data structures and algorithms for
+	assembly using the FM-index derived from the compressed Burrows-Wheeler
+	transform, and a new assembler based on these called SGA (String
+	Graph Assembler). We describe algorithms to error-correct, assemble,
+	and scaffold large sets of sequence data. SGA uses the overlap-based
+	string graph model of assembly, unlike most de novo assemblers that
+	rely on de Bruijn graphs, and is simply parallelizable. We demonstrate
+	the error correction and assembly performance of SGA on 1.2 billion
+	sequence reads from a human genome, which we are able to assemble
+	using 54 GB of memory. The resulting contigs are highly accurate
+	and contiguous, while covering 95\% of the reference genome (excluding
+	contigs <200 bp in length). Because of the low memory requirements
+	and parallelization without requiring inter-process communication,
+	SGA provides the first practical assembler to our knowledge for a
+	mammalian-sized genome on a low-end computing cluster.},
+  doi = {10.1101/gr.126953.111},
+  institution = {Wellcome Trust Sanger Institute, Wellcome Trust Genome Campus, Hinxton,
+	Cambridge CB10 1SA, United Kingdom.},
+  language = {eng},
+  medline-pst = {aheadofprint},
+  owner = {goshng},
+  pii = {gr.126953.111},
+  pmid = {22156294},
+  review = {sga cram fastq},
+  timestamp = {2012.02.22},
+  url = {http://dx.doi.org/10.1101/gr.126953.111}
+}
+
 @ARTICLE{Simpson2010,
   author = {Jared T Simpson and Richard Durbin},
   title = {Efficient construction of an assembly string graph using the FM-index.},
@@ -3059,7 +3144,9 @@
   owner = {goshng},
   pii = {btq217},
   pmid = {20529929},
-  review = {De Bruijn BWT Ferragina–Manzini index (FM-index)},
+  review = {De Bruijn BWT Ferragina–Manzini index (FM-index)
+	
+	sga cram},
   timestamp = {2012.01.18},
   url = {http://dx.doi.org/10.1093/bioinformatics/btq217}
 }

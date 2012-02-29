@@ -46,6 +46,107 @@ Histories
 This history can be useful later.
 
 
+
+Wed Feb 29 09:50:15 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+smu21, smu86, and omz175 (or omz) are done.
+
+How to find SMU86 (SMU109,SMU21) genes of low similarities with UA159
+1. Extract DNA sequences from SMU86 contigs using GFF or GenBank files (This can
+be done using some of RNASeq simulations steps).
+2. BLAST the sequences against UA159 (We did some BLAST before). BLAST smu21
+genes against ua159 genes, and vice versa.
+3. Score sequence similarites for the sequences (Use some cutoffs to find gene
+sets between SMU86 and UA159).
+
+.I could use the following script
+----
+http://bioinf.uni-greifswald.de/bioinf/bioinfprakt11/ex3/orthoparahomlist.pl
+----
+
+.Command to find similar genes
+----
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU109_allcontigs.gbf -out output/data/SMU109.gff.fa
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU21_allcontigs.gbf -out output/data/SMU21.gff.fa
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU86_allcontigs.gbf -out output/data/SMU86.gff.fa
+perl pl/bioperl-get-protein.pl -in NC_004350.gbk -out output/data/UA159.gff.fa
+formatdb -i SMU109.gff.fa
+formatdb -i UA159.gff.fa
+perl orthoparahomlist.pl --protA=SMU109.gff.fa --protB=UA159.gff.fa \
+  -E 1e-10 --ortho=ortho.lst --para=para.lst --hom=hom.lst
+----
+
+.Find genes in SMU109 not in UA159
+----
+formatdb -i SMU109.gff.fa
+formatdb -i UA159.gff.fa
+formatdb -i SMU21.gff.fa
+formatdb -i SMU86.gff.fa
+
+for i in SMU109 SMU21 SMU86; do
+  perl orthoparahomlist.pl --protA=$i.gff.fa --protB=UA159.gff.fa \
+    --delBlastOutput -E 1e-10 \
+    --ortho=ortho.lst --para=para.lst --hom=hom.lst
+  cut -f1 ortho.lst | sort > $i.ortho.lst
+  grep ">" $i.gff.fa | cut -c2- | sort > $i.lst
+  diff -d $i.lst $i.ortho.lst | grep "<" | cut -c3- > $i.diff.lst
+  rm ortho.lst para.lst hom.lst
+done
+echo Check the *.diff.lst files
+----
+
+Tue Feb 28 11:49:37 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Melissa had a useful script for generating a gff file for S. mutans.
+
+.Melissa's script
+----
+swiftgen:/usr/projects/strep/mutans/gbkToGFF_SMU109-OMZ175.sh
+----
+
+I use it to run the script at CAC.
+
+.Files needed for creating gff files
+----
+sh/gbkToGff.sh
+pl/splitgbk.pl
+output/data/raw_data.tar.gz
+cac:run/rnaseq/gff/021412
+/home/fs01/sc2265/run/rnaseq/gff/021412/raw_data
+----
+
+If you want to use the script, copy the first three files to a CAC directory.
+Unzip raw_data.tar.gz and edit gbkToGff.sh to change SHELL variable, called
+genome. The script requires a BioPerl script that can be found at
++/opt/nextgen/bin/bp_genbank2gff.pl+. I also needed a file of contig sizes that
+can be run in compgen because faSize was not available at CAC.
+
+----
+faSize -detailed raw_data/SMU109_6252010.fasta > SMU109-OMZ175.size
+----
+
+Let's do contigs mapping.
+
+Mon Feb 27 13:38:24 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Zip raw short reads.
+
+
+
+Tue Feb 21 14:50:07 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Install python modules
+----
+cac$ python2.6 virtual-python.py --prefix=$HOME/usr
+cac$ export PYTHONPATH=$HOME/usr/lib/python2.6/site-packages
+cac$ python2.6 setup.py build
+cac$ python2.6 setup.py install --prefix=$HOME/usr
+----
+
 Mon Feb 20 00:24:07 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -69,6 +170,9 @@ Thu Feb 16 12:17:40 EST 2012
 ----
 Remove reads with :Y: for 15-55.
 Apply cutadapt and then prinseq.
+Filter out low quality alignments, and select uniquely mapped reads:
+samtools view -q 
+> stem(quality(alignQuality(aln2))) 
 ----
 
 .prinseq options
@@ -82,11 +186,13 @@ perl pl/prinseq-lite.pl
 
 .Backup of RNA-seq data
 ----
-babylon:/lab/data/S_mutans/RNA-seq
-babylon:/lab/data/S_mutans/RNA-seq.31Oct11
-babylon:/lab/data/S_mutans/RNA-seq.1Nov11
+babylon:/lab/data/S_mutans/RNA-seq (1st)
+babylon:/lab/data/S_mutans/RNA-seq.31Oct11 (2nd)
+babylon:/lab/data/S_mutans/RNA-seq.1Nov11 (2nd)
 babylon:/lab/data/S_mutans/RNA-seq.4-7Nov11 (some of them are missing)
-babylon:/lab/data/S_mutans/RNA-seq.7Feb12 (many of them are missing)
+babylon:/lab/data/S_mutans/RNA-seq.8FEb12/RNA-seq.8FEb12 (4th)
+edit check.sh.1 and run it.
+babylon:/home/sc2265/work bash check.sh.1
 ----
 
 Wed Feb 15 11:27:03 EST 2012

@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
-# Author: Sang Chul Choi
-# Date  : Tue May 17 22:47:18 EDT 2011
 
 function choose-species {
   PS3="Choose the species for $FUNCNAME: "
@@ -42,5 +40,4 @@ function choose-species {
       break
     fi
   done
-
 }
