@@ -2,4 +2,10 @@ RNA-Seq Protocols and Analyses
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 
+See the manual of *RNA-seq analysis* at doc/Manual. Use asciidoc to convert it
+to files in HTML format. Open +doc/Manual.html+ using a web browser to look at
+the manual.
 
+----
+$ asciidoc -a toc doc/Manual
+----

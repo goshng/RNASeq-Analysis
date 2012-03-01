@@ -171,6 +171,7 @@ variables would cause problems.
 . quality score scheme
 . cram data directory in _CRAMDIR_
 . fastq file indices in _FASTQFILES_
+. fastq file labels in _FASTQLABEL_
 . cluster working directory in _CACWORKDIR_
 . reference genome ID in _REFGENOMEID_
 . reference genome fasta file in _REFGENOMEFASTA_
@@ -238,6 +239,36 @@ file.
 .To summary counts in a count.txt
 ----
 cac$ bash job-de-sum
+----
+
+Get count.txt files from the cluster.
+
+.Get results from the cluster
+----
+$ bash output/ua159/get-data.sh
+----
+
+You will have two kinds of files for determining differentially expressed genes:
++count.txt+ and +count.txt.index+. You can use smutans R package to achieve
+this. 
+
+.Three files for differential expression study
+----
+output/ua159/1/bwa/count.txt
+output/ua159/1/subread/count.txt
+output/ua159/1/run-analysis/count.txt.index
+----
+
+Look at files in +package/smutans+ for seeing how to determine differentially
+expressed genes. Espeically, see the tutorial of the package in 
++package/smutans/inst/doc/smutans.pdf+.
+
+.R package smutans
+----
+package/smutans
+package/smutans/R
+package/smutans/inst/extdata
+package/smutans/inst/doc/smutans.Rnw
 ----
 
 I wished to answer to the question of fidning genes that are in smu21 but not in
@@ -810,11 +841,14 @@ FASTQ002:/path/to/file2.fq.gz
 ----
 
 You may wish to process all of fastq files, or some of them. Specify which fastq
-files you wish to use using _FASTQFILES_ variable.
+files you wish to use using _FASTQFILES_ variable. Use _FASTQLABEL_ to group
+different fastq files. Labels are used for the purpose of differential
+expression study. They are saved in a file called +count.txt.index+.
 
 .File indices for fastQ files
 ----
 FASTQFILES:1 2
+FASTQLABEL:UA159 TW1
 ----
 
 Quality scores can be phred33 or phred64. Use a value of illumina for phred64,

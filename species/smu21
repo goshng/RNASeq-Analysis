@@ -125,6 +125,7 @@ CRAMDIR:output/data/cram
 
 # fastq file indices
 FASTQFILES:50 51 52 53 54 55
+FASTQLABEL:Smu21PH7 Smu21PH7 Smu21PH7 Smu21PH5 Smu21PH5 Smu21PH5
 # FASTQFILES:56 57
 
 # CAC working directory

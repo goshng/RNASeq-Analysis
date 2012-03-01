@@ -25,19 +25,20 @@
 \author{Sang Chul Choi\\[1em]Cornell University,\\ Ithaca, NY\\[1em]
 \texttt{schoi@cornell.edu}}
 
-\title{\textsf{\textbf{Analyzing \textit{Streptococcus mutans} RNA-seq data\\using R packages}}}
+\title{\textsf{\textbf{Analyzing \textit{Streptococcus mutans} RNA-seq data}}}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-We analyze RNA samples from \textit{Streptococcus mutans}.  We use
+We analyze RNA samples from \textit{Streptococcus mutans} using
 RNA-seq to define genes whose expression changes between samples
 \cite{Oshlack2010}. Short reads are first mapped to a reference genome using
-approaches such as \program{BWA} \cite{Li2009a}.  Reads fitting into one of the annotated
+approaches such as \program{BWA} \cite{Li2009a} or \program{subread}.
+Reads fitting into one of the annotated
 intervals are counted.  These counts are passed to a statistical package which
-treats differences in read counts for statistical significance. For this
+detects differences in read counts for statistical significance. For this
 purpose, we made use of \Rpackage{DEseq} \cite{Anders2010} or \Rpackage{edgeR}
 \cite{Robinson2010}. This prodecure returns a list of differentially expressed
 genes, which can be passed to downstream analysis, such as functional category
@@ -58,10 +59,12 @@ are described in \cite{Oshlack2010}. We used a short read aligner called
 \textit{Streptococcus mutans} UA159 (NCBI accession NC\_004350). Because the
 aligner allowed a few gaps for efficient alignment of millions of sequences of
 size being 100 base pairs long, short reads that consist of RNAs and sequencing
-adapter sequences would be not mapped. We used \program{cutadapt} \cite{Martin2011} to
+adapter sequences would not be mapped. We used \program{cutadapt} \cite{Martin2011} to
 remove parts of adapter sequences from short reads before mapping on the
 reference genome. Mapped short read alignments were converted into readable
-formats \cite{Li2009b}. We counted short reads aligned to annotated genes in the
+formats \cite{Li2009b}. We trimmed sequence by quality score from the 3' end
+with threshold score of 20 \cite{Schmieder2011}.
+We counted short reads aligned to annotated genes in the
 reference genome, forming a table of read counts of the genes. Statistical
 software R \cite{R2011} with \Rpackage{DEseq} \cite{Anders2010}
 was subsequently employed to infer differentially expressed in different
@@ -70,10 +73,13 @@ Streptococcus Genome Browser (http://strep-genome.bscb.cornell.edu) that
 summarize gene expression levels based the short read alignments. This allowed
 us to visualize parts of the reference genome for comparing different RNA
 samples. Further analyses such as functional category enrichment test
-\cite{Young2010} were also employed.
+\cite{Young2010} were also employed.  To obtain count tables of short reads we
+used scripts available at 
+\textit{\http://github.com/goshng/RNASeq-Analysis}. In the following we will use
+the output of short reads
 
 The \Rpackage{smutans} expects count data in the form of \Rclass{CountDataSet},
-which is a type provided by \Rpackage{DESeq}.  Using \program{BWA} \cite{Li2009a} and
+which is a type supported by \Rpackage{DESeq}.  Using \program{BWA} \cite{Li2009a} and
 \program{samtools} \cite{Li2009b} we aligned short reads from RNA sequencing. Using gene
 annotations in the UA159 genome we counted short reads that overlapped the
 genes.  The count values are raw counts of sequencing reads. The

@@ -38,12 +38,13 @@ function batch2 {
     batch2-run-cram
     batch2-run-fastq-qc
     batch2-run-bwa-align
-    batch2-run-de
 
     # This would replace fastq-qc, bwa-align, and de.
     # Because this creates similar job scripts to those created by fastq-qc,
     # bwa-align, or de, place qcalignde after them.
     batch2-run-qcalignde
+
+    create-index
 
     # batch2-run-blast
 
@@ -117,6 +118,7 @@ function batch2-output {
 
 
 function batch2-speciesfile {
+  FASTQLABEL=$(grep ^FASTQLABEL\: $SPECIESFILE | cut -d":" -f2)
   TESTFASTQ=$(grep ^TESTFASTQ\: $SPECIESFILE | cut -d":" -f2)
   TESTFASTQNUM=FASTQ$(printf "%03d" $TESTFASTQ)
   CRAMDIR=$(grep ^CRAMDIR\: $SPECIESFILE | cut -d":" -f2)
@@ -572,139 +574,8 @@ EOF
 
 }
 
-function batch2-run-de {
-  STATUS=de
-  GENOMEFASTA=$(basename $REFGENOMEFASTA)
-  GENOMEGFF=$(basename $REFGENOMEGFF)
-
-cat>$BASEDIR/run-$STATUS.sh<<EOF
-#!/bin/bash
-FASTQFILES=( $FASTQFILES )
-sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$STATUS.sh > tbatch.sh
-nsub tbatch.sh 
-rm tbatch.sh
-EOF
-
-cat>$BASEDIR/batch-$STATUS.sh<<EOF
-#!/bin/bash
-#PBS -l walltime=${DEWALLTIME}:00:00,nodes=1
-#PBS -A ${BATCHACCESS}
-#PBS -j oe
-#PBS -N $PROJECTNAME-DE
-#PBS -q ${QUEUENAME}
-#PBS -m e
-# #PBS -M ${BATCHEMAIL}
-#PBS -t 1-PBSARRAYSIZE
-
-ID=FASTQIDENTIFIER
-function copy-data {
-  cd \$TMPDIR
-
-  # Programs and scripts.
-  cp -r \$PBS_O_WORKDIR/pl .
-  cp \$PBS_O_WORKDIR/job-de* .
-  cp \$PBS_O_WORKDIR/job-de*.R .
-  cp \$HOME/bin/samtools .
-  cp \$HOME/bin/bwa .
-  cp \$HOME/bin/subread-buildindex .
-  cp \$HOME/bin/subread-align .
-
-  # Create output directories at the compute node.
-  mkdir -p $CDATADIR
-  mkdir -p $CBWADIR
-  mkdir -p $CSUBREADDIR
-  cp $RDATADIR/$GENOMEFASTA $CDATADIR
-  cp $RDATADIR/$GENOMEGFF $CDATADIR
-}
-
-function retrieve-data {
-  # cp -r $CBWADIR/splitdir\$ID $RBWADIR
-  echo No Copy!
-}
-
-function process-data {
-  cd \$TMPDIR
-  CORESPERNODE=1
-  FASTQFILES=( $FASTQFILES )
-  g=\$((PBS_ARRAYID-1))
-
-  cp $RSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam $CSUBREADDIR
-  BAMFILE=$CSUBREADDIR/FASTQ\$(printf "%03d" \${FASTQFILES[\$g]}).sorted.bam 
-  BAMFILESIZE=\$(du $BAMFILE|cut -f1)
-  ./samtools view \$BAMFILE | split -d -l 5000000 
-  for i in \`ls x*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
-  for i in \`ls x*.bam\`; do
-    bash job-de \$i
-  done
-  bash job-de2 \$(printf "%03d" \${FASTQFILES[\$g]})
-}
-
-copy-data
-process-data; wait
-retrieve-data
-cd
-rm -rf \$TMPDIR
-EOF
-
-cat>$BASEDIR/job-de.R<<EOF
-library(easyRNASeq)
-library(rtracklayer)
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 1)
-{
-  cat ("Rscript job-de.R 1\n")
-  quit("yes")
-}
-gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
-bam.file <- paste(args[1])
-cl.file <- paste(args[1], "cl", sep=".")
-indexFile <- indexBam(bam.file)
-aln <- readAligned(bam.file,type="BAM")
-cfilt <- chromosomeFilter('$REFGENOMENAME')
-aln2 <- aln[cfilt(aln)]
-alnIR <- IRanges(start=position(aln2),width=width(aln2))
-geneIR <- gene.range2\$ranges
-cl <- countOverlaps(geneIR,alnIR)
-save(cl,file=cl.file)
-EOF
-
-cat>$BASEDIR/job-de2.R<<EOF
-library(easyRNASeq)
-library(rtracklayer)
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 1)
-{
-  cat ("Rscript job-de.R 1\n")
-  quit("yes")
-}
-gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
-cl.sum <- rep(0,times=length(gene.range2\$ranges))
-cl.files <- list.files(pattern="x[[:digit:]]+.bam.cl")
-for (i in cl.files) {
-  load(i)
-  cl.sum <- cl.sum + cl
-}
-cl <- cl.sum
-cl.file <- sprintf("$RSUBREADDIR/FASTQ%03d.cl", as.numeric(args[1])) 
-save(cl,file=cl.file)
-EOF
-
-cat>$BASEDIR/job-$STATUS<<EOF
-RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
-\$RSCRIPT job-de.R \$1
-EOF
-
-cat>$BASEDIR/job-${STATUS}2<<EOF
-RSCRIPT=/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
-\$RSCRIPT job-de2.R \$1
-EOF
-
+function create-index {
+  echo $FASTQLABEL > $RUNANALYSIS/count.txt.index
 }
 
 function batch2-run-qcalignde {

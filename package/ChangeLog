@@ -1,0 +1,34 @@
+Log of package smutans
+======================
+Sang Chul Choi <goshng@yahoo.co.kr>
+
+History
+-------
+
+Thu Mar  1 13:39:11 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I have collated reads counts from ua159, omz, smu21, and smu86 using bioconductor R
+packages. I copy count.txt and count.txt.index files that are input to R
+package smutans. 
+
+.Copy of count.txt
+----
+cp ../output/ua159/1/bwa/count.txt smutans/inst/extdata/count-ua159-bwa.txt
+cp ../output/ua159/1/subread/count.txt smutans/inst/extdata/count-ua159-subread.txt
+cp ../output/ua159/1/run-analysis/count.txt.index smutans/inst/extdata/count-ua159.txt.index
+
+cp ../output/omz/1/bwa/count.txt smutans/inst/extdata/count-omz-bwa.txt
+cp ../output/omz/1/subread/count.txt smutans/inst/extdata/count-omz-subread.txt
+cp ../output/omz/1/run-analysis/count.txt.index smutans/inst/extdata/count-omz.txt.index
+
+cp ../output/smu21/1/bwa/count.txt smutans/inst/extdata/count-smu21-bwa.txt
+cp ../output/smu21/1/subread/count.txt smutans/inst/extdata/count-smu21-subread.txt
+cp ../output/smu21/1/run-analysis/count.txt.index smutans/inst/extdata/count-smu21.txt.index
+
+cp ../output/smu86/1/bwa/count.txt smutans/inst/extdata/count-smu86-bwa.txt
+cp ../output/smu86/1/subread/count.txt smutans/inst/extdata/count-smu86-subread.txt
+cp ../output/smu86/1/run-analysis/count.txt.index smutans/inst/extdata/count-smu86.txt.index
+----
+
+
