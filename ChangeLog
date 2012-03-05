@@ -94,6 +94,7 @@ for i in SMU109 SMU21 SMU86; do
   rm ortho.lst para.lst hom.lst
 done
 echo Check the *.diff.lst files
+Check kimjaeok:tmp/blast/
 ----
 
 Tue Feb 28 11:49:37 EST 2012

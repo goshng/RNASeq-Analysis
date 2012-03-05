@@ -101,6 +101,16 @@ load("smutans/data/smutansGenes.RData")
 # not run without smutans R package installed
 # Remove eval=FALSE when the R package is installed
 library(smutans)
+inDir = system.file("extdata", package="smutans", mustWork=TRUE)
+smutansGenes <- 
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+               indexFile =file.path(inDir, "count-ua159.txt.index"),
+               condition = c("UA159GLU", "UA159GAL", "TW1GLU", "TW1GAL"),
+               firstFactor = c("UA159GLU", "UA159GAL"),
+               firstFactorLabel = c("ua159", "tw1"),
+               secondFactor = c("UA159GLU", "TW1GLU"),
+               secondFactorLabel = c("glucose","galactose"),
+               name="S. mutans UA159, TW1, Glucose, and Galactose")
 data(smutansData.tx)
 data(smutansData.txGenes)
 data(smutansData.txGrCombined)
@@ -113,7 +123,6 @@ data(smutans.go.genes)
 data(smutans.cat.desc)
 data(smutans.keg.genes)
 data(smutans.keg.desc)
-data(smutansGenes)
 data(smutansGenes2)
 @
 

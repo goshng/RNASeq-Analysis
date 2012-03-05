@@ -88,17 +88,35 @@ setMethod("smutans.de2",
       fullCountsTable <- counts( object@countDataSet )
       cdsFull <- newCountDataSet( fullCountsTable, design )
       cdsFull <- estimateSizeFactors( cdsFull )
+
       object@cds <- estimateDispersions( cdsFull, method=method )
+      # condAB <- unique(sort(pData(cdsFull)$condition))
+      bmv <- getBaseMeansAndVariances( counts(object@cds), sizeFactors(object@cds) )
       if (compareCondition == "yes") {
         fit1 <- fitNbinomGLMs( object@cds, count ~ type + condition )
         fit0 <- fitNbinomGLMs( object@cds, count ~ type  )
+        colA <- pData(object@cds)$condition == condA
+        colB <- pData(object@cds)$condition == condB
       } else {
         fit1 <- fitNbinomGLMs( object@cds, count ~ condition + type )
         fit0 <- fitNbinomGLMs( object@cds, count ~ condition )
+        colA <- pData(object@cds)$type == condA
+        colB <- pData(object@cds)$type == condB
       }
+      bmvA <- getBaseMeansAndVariances( counts(object@cds)[,colA], sizeFactors(object@cds)[colA] )
+      bmvB <- getBaseMeansAndVariances( counts(object@cds)[,colB], sizeFactors(object@cds)[colB] )
+      bmvBoverA <- bmvB$baseMean/bmvA$baseMean
+
       object@pval <- nbinomGLMTest( fit1, fit0 )
       object@padj <- p.adjust( object@pval, method="BH" )
-      object@res <- data.frame(fit1,pval=object@pval,padj=object@padj)
+      object@res <- data.frame(id=rownames(bmv),
+                               baseMean=bmv$baseMean,
+                               baseMeanA=bmvA$baseMean,
+                               baseMeanB=bmvB$baseMean,
+                               foldChange=bmvBoverA,
+                               log2FoldChange=log2(bmvBoverA),
+                               pval=object@pval,
+                               padj=object@padj, converged=fit1$converged)
     } else if (type!="" && condition=="") {
       ua159Samples <- pData(object@countDataSet)$type == type
       countsTable <- counts(object@countDataSet)[ , ua159Samples ]
@@ -265,19 +283,14 @@ setMethod("smutans.de2Clust",
 )
 
 setGeneric("smutans.de2List", 
-  function(object,file="default", qval=0.1) standardGeneric("smutans.de2List")
+  function(object,file="", qval=0.1) standardGeneric("smutans.de2List")
 )
 setMethod("smutans.de2List", 
           "Smutans", 
-  function(object, file="default", qval=0.1) {
-    if (file == "default") {
+  function(object, file="", qval=0.1) {
+    if (file == "") {
       resSig <- object@res[object@res$padj < qval,]
-      # options(width = 1000) 
       return(resSig[order(resSig$pval),])
-      # return( object@res )
-    } else if (file == "tex") {
-      # Write the result in tex format.
-      print ("AAA")
     } else {
       write.csv(object@res, file=file)
     }

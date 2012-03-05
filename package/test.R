@@ -12,6 +12,8 @@
 library(GenomicRanges)
 library(DESeq)
 source("smutans/R/core.R")
+source("smutans/R/methods.R")
+source("smutans/R/class_and_slots.R")
 #smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #smutans.prepareData34 ()
@@ -20,43 +22,137 @@ source("smutans/R/core.R")
 #smutans.prepareDataSMU86CSP( )
 #smutans.prepareDataUA159TW1()
 #smutans.prepareTranscript( )
-smutans.prepareDataSMU21PH75() 
-smutans.prepareDataUA159PH75()
+#smutans.prepareDataSMU21PH75() 
+#smutans.prepareDataUA159PH75()
+
+smutansGenes <- readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
+             indexFile ="smutans/inst/extdata/count-ua159.txt.index",
+             condition = c("UA159GLU", "UA159GAL", "TW1GLU", "TW1GAL"),
+             firstFactor = c("UA159GLU", "UA159GAL"),
+             firstFactorLabel = c("ua159", "tw1"),
+             secondFactor = c("UA159GLU", "TW1GLU"),
+             secondFactorLabel = c("glucose","galactose"),
+             name="S. mutans UA159, TW1, Glucose, and Galactose", 
+             lab="University of Florida, and Cornell University", 
+             contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+             title="Streptococcus mutans RNA-Seq Studies", 
+             url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+             abstract="RNA-seq of 13 biological replicates from Streptococcus mutans",
+             pubmedid <- "999999999")
+
+sm835Genes <- 
+  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
+               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
+                condition = c("835NP", "835P", "UA159noCSP"),
+                firstFactor = c("835NP", "835P", "UA159noCSP"),
+                firstFactorLabel = c("ua159"),
+                secondFactor = c(),
+                secondFactorLabel = c("835np","835p", "ua159nocsp"),
+                name="S. mutans 835NP, 835P, UA159 no CSP", 
+                lab="University of Florida, and Cornell University", 
+                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+                title="Streptococcus mutans RNA-Seq Studies", 
+                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+                abstract="RNA-seq of 8 biological replicates from Streptococcus mutans",
+                pubmedid <- "999999999")
+
+smpHGenes <-
+  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
+               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
+                condition = c("UA159PH7", "UA159PH5", "Smu21PH7", "Smu21PH5"),
+                firstFactor = c("UA159PH7", "UA159PH5"),
+                firstFactorLabel = c("ua159", "smu21"),
+                secondFactor = c("UA159PH7", "Smu21PH7"),
+                secondFactorLabel = c("ph7","ph5"),
+                name="S. mutans UA159 pH7 and pH5", 
+                lab="University of Florida, and Cornell University", 
+                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+                title="Streptococcus mutans RNA-Seq Studies", 
+                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+                abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans",
+                pubmedid <- "999999999")
+
+smu21pHGenes <-
+  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
+               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
+                condition = c("Smu21PH7", "Smu21PH5"),
+                firstFactor = c(),
+                firstFactorLabel = c("smu21"),
+                secondFactor = c(),
+                secondFactorLabel = c("ph7", "ph5"),
+                name="S. mutans UA159 pH7 and pH5", 
+                lab="University of Florida, and Cornell University", 
+                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+                title="Streptococcus mutans RNA-Seq Studies", 
+                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+                abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans",
+                pubmedid <- "999999999")
+
+cspGenes <-
+  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
+               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
+                condition = c("UA159noCSP", "UA159CSP", "Smu86noCSP", "Smu86CSP"),
+                firstFactor = c("UA159noCSP", "UA159CSP"),
+                firstFactorLabel = c("ua159", "smu86"),
+                secondFactor = c("UA159noCSP", "Smu86noCSP"),
+                secondFactorLabel = c("noCSP","CSP"),
+                name="S. mutans no CSP and with CSP", 
+                lab="University of Florida, and Cornell University", 
+                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
+                title="Streptococcus mutans RNA-Seq Studies", 
+                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
+                abstract="RNA-seq of UA159 no CSP and with CSP replicates from Streptococcus mutans",
+                pubmedid <- "999999999")
+#design <- pData( smutansGenes )[,c("type","condition")]
+#fullCountsTable <- counts( smutansGenes )
+#cds <- newCountDataSet( fullCountsTable, design )
+#cds <- estimateSizeFactors( cds )
+#cds <- estimateDispersions( cds )
+#bmv <- getBaseMeansAndVariances( counts(cds), sizeFactors(cds) )
+#colA <- pData(cds)$condition == "glucose"
+#colB <- pData(cds)$condition == "galactose"
+#bmvA <- getBaseMeansAndVariances( counts(cds)[,colA], sizeFactors(cds)[colA] )
+#bmvB <- getBaseMeansAndVariances( counts(cds)[,colB], sizeFactors(cds)[colB] )
+#allSample <- newSmutans( smutansGenes, 
+#                         title="All Samples for Comparing Conditions" )
+#allSample <- smutans.de2( allSample,
+#                          condA="glucose", condB="galactose" )
+
 #q("no")
 
-library(DESeq)
-library(goseq)
-load("smutans/data/smutansGenes.RData")
-load("smutans/data/smutansGenes2.RData")
-load("smutans/data/sm835Genes.RData")
-load("smutans/data/sm34Genes.RData")
-load("smutans/data/smutans.cat.desc.RData")
-load("smutans/data/smutans.genes.criteria.RData")
-load("smutans/data/smutans.go.genes.RData")
-load("smutans/data/smutansData.txPileup.RData")
-load("smutans/data/smutansData.txGenes.RData")
-load("smutans/data/smutansData.txRNAz.RData")
-load("smutans/data/smutansData.txAll.RData")
-load("smutans/data/smutansData.txAnnotation.RData")
-source("smutans/R/class_and_slots.R")
-source("smutans/R/core.R")
-source("smutans/R/methods.R")
-
-load("smutans/data/smUA159pHGenes.RData")
-load("smutans/data/smSMU21pHGenes.RData")
-
-save.to.dir <- "/Users/goshng/Documents/Projects/RNASeq-Analysis/output/email/to/robert-burne/020212"
-ua159ph75 <- newSmutans( smUA159pHGenes, title="UA159 pH 7 vs. pH 5" )
-ua159ph75 <- smutans.de2( ua159ph75, type="ua159", 
-                          condA="UA159PH7", condB="UA159PH5" )
-f <- paste(save.to.dir, "ua159ph75.csv", sep="/")
-smutans.de2List( ua159ph75, f )
-
-smu21ph75 <- newSmutans( smSMU21pHGenes, title="Smu21 pH 7 vs. pH 5" )
-smu21ph75 <- smutans.de2( smu21ph75, type="ua159", 
-                          condA="Smu21PH7", condB="Smu21PH5" )
-f <- paste(save.to.dir, "smu21ph75.csv", sep="/")
-smutans.de2List( smu21ph75, f )
+#library(DESeq)
+#library(goseq)
+#load("smutans/data/smutansGenes.RData")
+#load("smutans/data/smutansGenes2.RData")
+#load("smutans/data/sm835Genes.RData")
+#load("smutans/data/sm34Genes.RData")
+#load("smutans/data/smutans.cat.desc.RData")
+#load("smutans/data/smutans.genes.criteria.RData")
+#load("smutans/data/smutans.go.genes.RData")
+#load("smutans/data/smutansData.txPileup.RData")
+#load("smutans/data/smutansData.txGenes.RData")
+#load("smutans/data/smutansData.txRNAz.RData")
+#load("smutans/data/smutansData.txAll.RData")
+#load("smutans/data/smutansData.txAnnotation.RData")
+#source("smutans/R/class_and_slots.R")
+#source("smutans/R/core.R")
+#source("smutans/R/methods.R")
+#
+#load("smutans/data/smUA159pHGenes.RData")
+#load("smutans/data/smSMU21pHGenes.RData")
+#
+#save.to.dir <- "/Users/goshng/Documents/Projects/RNASeq-Analysis/output/email/to/robert-burne/020212"
+#ua159ph75 <- newSmutans( smUA159pHGenes, title="UA159 pH 7 vs. pH 5" )
+#ua159ph75 <- smutans.de2( ua159ph75, type="ua159", 
+#                          condA="UA159PH7", condB="UA159PH5" )
+#f <- paste(save.to.dir, "ua159ph75.csv", sep="/")
+#smutans.de2List( ua159ph75, f )
+#
+#smu21ph75 <- newSmutans( smSMU21pHGenes, title="Smu21 pH 7 vs. pH 5" )
+#smu21ph75 <- smutans.de2( smu21ph75, type="ua159", 
+#                          condA="Smu21PH7", condB="Smu21PH5" )
+#f <- paste(save.to.dir, "smu21ph75.csv", sep="/")
+#smutans.de2List( smu21ph75, f )
 
 
 

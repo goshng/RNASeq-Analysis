@@ -3,15 +3,15 @@
 \alias{smutans.de2}
 
 \title{
-  Test for differences between the base means for two conditions using
+  Test differences between the base means for two conditions using
   a two-factor data set
 }
 \description{
   This function tests for differences between the base means of two
   conditions using two-factor data sets. One factor is named type, and another
   condition. The function behaves differently depending arguments. We could
-  compare two conditions given one-type. We could also compare two types given
-  one-condition. We could compare two conditions considering both types. As you
+  compare two conditions given one-type. We can also compare two types given
+  one-condition. We can compare two conditions considering both types. As you
   expect, we can compare two types consdering both conditions.
 }
 \usage{
@@ -22,8 +22,8 @@ smutans.de2(object,compareCondition="yes",
 \arguments{
   \item{object}{
     a Smutans with an experimental design of two factors: one is type, and
-    another is condition. See function \code{smutans.prepareDataUA159TW1} for
-    example.
+    another is condition. See function \code{newSmutans} for
+    example and \code{readSmutans}.
 }
   \item{compareCondition}{
     a string for requesting comparison of conditions in a two-factor analysis.
@@ -41,13 +41,13 @@ smutans.de2(object,compareCondition="yes",
     given because a single-factor analysis will be done
 }
   \item{condA}{
-    a string for one condition
+    [required] a string for one condition
 }
   \item{condB}{
-    a string for another condition
+    [required] a string for another condition
 }
   \item{method}{
-    a string for another condition
+    a string for another condition. See R package DESeq. 
 }
 }
 \details{
@@ -69,7 +69,7 @@ An Smutans object.
    Sang Chul Choi, schoi@cornell.edu
 }
 \examples{
-%data( "smutansGenes" )
-%x <- newSmutans(smutansGenes)
-%x <- smutans.de2(x, type="ua159", condA="glucose", condB="galactose")
+data( "smutansGenes" )
+x <- newSmutans(smutansGenes)
+x <- smutans.de2(x, type="ua159", condA="glucose", condB="galactose")
 }

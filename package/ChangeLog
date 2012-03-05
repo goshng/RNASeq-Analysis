@@ -5,6 +5,33 @@ Sang Chul Choi <goshng@yahoo.co.kr>
 History
 -------
 
+Fri Mar  2 12:08:41 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To check errors in TeX portion of the Rnw file.
+----
+R --help
+R CMD Sweave smutans/inst/doc/smutans.Rnw
+pdflatex smutans
+----
+
+.To check smutans R package
+----
+R CMD check smutans_0.1.7.tar.gz
+
+R CMD build --no-vignettes smutans
+R CMD check smutans_0.1.7.tar.gz
+----
+
+Some of annotations are from oralgen web sites.
+% http://www.oralgen.lanl.gov/oralgen/downloads/smut.csv
+% http://www.oralgen.lanl.gov/cgi-bin/gene_id_search.cgi?dbname=smut&gene_id=SMu0001
+% \fixme{Where are flat files for genes of S. mutans UA159?}
+
+% Resources
+% Google charts - Venn Diagram
+% http://code.google.com/apis/chart/index.html
+
 Thu Mar  1 13:39:11 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

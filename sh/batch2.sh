@@ -456,11 +456,18 @@ function copy-data {
 
   # Programs and scripts.
   cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$SAMTOOLS samtools
+  cp \$HOME/$BWA bwa
+  cp \$HOME/$SUBREADBUILDINDEX subread-buildindex
+  cp \$HOME/$SUBREADALIGN subread-align
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-cram .
+  cp \$PBS_O_WORKDIR/job-cram2fastq .
+  cp \$PBS_O_WORKDIR/job-fastq-qc .
   cp \$PBS_O_WORKDIR/job-bwa-align .
-  cp ~/bin/samtools .
-  cp ~/bin/bwa .
-  cp ~/bin/subread-buildindex .
-  cp ~/bin/subread-align .
+  cp \$PBS_O_WORKDIR/job-de* .
+  cp \$PBS_O_WORKDIR/job-de*.R .
 
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
@@ -470,22 +477,9 @@ function copy-data {
   # Copy common data
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
   cp $RDATADIR/$GENOMEGFF $CDATADIR
-
-  ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
-    $CDATADIR/$GENOMEFASTA
-  ./subread-buildindex -o \\
-    $CSUBREADDIR/$GENOMEFASTA-subread \\
-    $CDATADIR/$GENOMEFASTA
 }
 
 function retrieve-data {
-  # cp $CBWADIR/*.bam $RBWADIR
-  # cp $CBWADIR/*.pileup $RBWADIR
-  # cp $CBWADIR/*.wig $RBWADIR
-  # cp $CBWADIR/*-sum.pos $RBWADIR
-  # cp $CBWADIR/*-sum.rrna $RBWADIR
-  # cp $CBWADIR/*.sorted.bam $RBWADIR
-  # cp $CSUBREADDIR/*.sorted.bam $RSUBREADDIR
   echo No Copy!
 }
 
@@ -494,84 +488,27 @@ function process-data {
   CORESPERNODE=1
   FASTQFILES=( $FASTQFILES )
   g=\$((PBS_ARRAYID-1))
-  bash job-bwa-align \$(printf "%03d" \${FASTQFILES[\$g]})
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+
+  bash job-cram2fastq \$NUM \\
+    $RDATADIR/FASTQ\$NUM.cram \\
+    $CDATADIR/FASTQ\$NUM.recovered.fq
+  gzip $CDATADIR/FASTQ\$NUM.recovered.fq
+
+  bash job-bwa-align \$NUM \\
+    $CDATADIR/FASTQ\$NUM.recovered.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.sorted \\
+    $CSUBREADDIR/FASTQ\$NUM.sorted
+
+  cp $CBWADIR/FASTQ\$NUM.sorted.bam $RBWADIR
+  cp $CSUBREADDIR/FASTQ\$NUM.sorted.bam $RSUBREADDIR
 }
 
 copy-data
-process-data; wait
-retrieve-data
+process-data
 cd
 rm -rf \$TMPDIR
 EOF
-
-grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-bwa-align
-cat>>$BASEDIR/job-bwa-align<<EOF
-QUALITYSCORESEQUENCE=QUALITYSCORE\$1
-GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.prinseq.fq.gz
-FASTAQFILE=\${GZIPFASTAQFILE%.gz}
-cp $RBWADIR/FASTQ\$1.prinseq.fq.gz $CBWADIR
-if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  ./bwa aln -I -t $BWAALIGNNCPU \\
-    $CBWADIR/$GENOMEFASTA-bwa \\
-    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
-else
-  ./bwa aln -t $BWAALIGNNCPU \\
-    $CBWADIR/$GENOMEFASTA-bwa \\
-    \$GZIPFASTAQFILE > $CBWADIR/FASTQ\$1.sai
-fi
-./bwa samse -n 1 \\
-  -f $CBWADIR/FASTQ\$1.sam \\
-  $CBWADIR/$GENOMEFASTA-bwa \\
-  $CBWADIR/FASTQ\$1.sai \\
-  \$GZIPFASTAQFILE
-./samtools view -bS -o $CBWADIR/FASTQ\$1.bam \\
-  $CBWADIR/FASTQ\$1.sam
-./samtools sort $CBWADIR/FASTQ\$1.bam \\
-  $CBWADIR/FASTQ\$1.sorted
-cp $CBWADIR/FASTQ\$1.sorted.bam $RBWADIR
-
-# This should be done differently.
-# I need to use sorted BAM files to form count table data.
-#./samtools mpileup -q 20 -d $READDEPTH \\
-#  -f $CDATADIR/$GENOMEFASTA \\
-#  $CBWADIR/FASTQ\$1.sorted.bam \\
-#  > $CBWADIR/FASTQ\$1.pileup
-#perl pl/samtools-pileup.pl \\
-#  wiggle \\
-#  -refgenome $CDATADIR/$GENOMEFASTA \\
-#  -in $CBWADIR/FASTQ\$1.pileup \\
-#  -out $CBWADIR/FASTQ\$1.wig
-#./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
-#  | perl pl/bwa-summary.pl pos > $CBWADIR/FASTQ\$1-sum.pos
-#./samtools view $CBWADIR/FASTQ\$1.sorted.bam \\
-#  | perl pl/bwa-summary.pl rrna \\
-#  -gff $CDATADIR/$GENOMEGFF > $CBWADIR/FASTQ\$1-sum.rrna
-
-gunzip \$GZIPFASTAQFILE
-if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  ./subread-align \\
-    --threads $BWAALIGNNCPU \\
-    --phred 6 \\
-    --unique \\
-    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
-    -r \$FASTAQFILE \\
-    -o $CSUBREADDIR/FASTQ\$1.sam
-else
-  ./subread-align \\
-    --threads $BWAALIGNNCPU \\
-    --phred 3 \\
-    --unique \\
-    -i $CSUBREADDIR/$GENOMEFASTA-subread \\
-    -r \$FASTAQFILE \\
-    -o $CSUBREADDIR/FASTQ\$1.sam
-fi
-./samtools view -bS -o $CSUBREADDIR/FASTQ\$1.bam \\
-  $CSUBREADDIR/FASTQ\$1.sam
-./samtools sort $CSUBREADDIR/FASTQ\$1.bam \\
-  $CSUBREADDIR/FASTQ\$1.sorted
-cp $CSUBREADDIR/FASTQ\$1.sorted.bam $RSUBREADDIR
-EOF
-
 }
 
 function create-index {
@@ -630,17 +567,6 @@ function copy-data {
   # Copy common data
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
   cp $RDATADIR/$GENOMEGFF $CDATADIR
-
-  # We may move this somewhere else
-#  ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
-#    $CDATADIR/$GENOMEFASTA
-#  ./subread-buildindex -o \\
-#    $CSUBREADDIR/$GENOMEFASTA-subread \\
-#    $CDATADIR/$GENOMEFASTA
-
-  # Do not copy short reads because a compute node might not be able to store
-  # all of the short reads. I have to copy each file for each job.
-  # cp $RBWADIR/FASTQ*.cutadapt.fq.gz $CBWADIR
 }
 
 function retrieve-data {
@@ -974,7 +900,6 @@ EOF
 grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-bwa-align
 cat>>$BASEDIR/job-bwa-align<<EOF
 QUALITYSCORESEQUENCE=QUALITYSCORE\$1
-# FASTAQFILE=\${GZIPFASTAQFILE%.gz}
 
 ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
   $CDATADIR/$GENOMEFASTA &> /dev/null

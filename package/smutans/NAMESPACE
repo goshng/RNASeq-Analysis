@@ -22,6 +22,7 @@ exportMethods(
 
 export( 
   newSmutans,
+  readSmutans,
   smutans.mannwhitney,
   smutans.compareResult
 )

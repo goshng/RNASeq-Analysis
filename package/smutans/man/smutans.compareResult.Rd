@@ -11,7 +11,6 @@
 \usage{
 smutans.compareResult(x,y,qval=0.1)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
       a Smutans with an experimental design
@@ -39,9 +38,14 @@ A 2-by-2 contigency table.
    Sang Chul Choi, schoi@cornell.edu
 }
 \examples{
-%data( "smutansGenes" )
-%x <- newSmutans(smutansGenes)
-%
-%tab <- smutans.compareResult(x, y)
-%addmargins(tab)
+data( "smutansGenes" )
+glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
+glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
+                            condA="ua159", condB="tw1" )
+galactoseOnly <- newSmutans( smutansGenes, title="Galactose Only" )
+galactoseOnly <- smutans.de2( galactoseOnly, condition="galactose", 
+                              condA="ua159", condB="tw1" )
+tabGlucoseOnlyGalactoseOnly <- smutans.compareResult( glucoseOnly, 
+                                                      galactoseOnly )
+addmargins( tabGlucoseOnlyGalactoseOnly )
 }

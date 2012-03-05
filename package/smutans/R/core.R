@@ -100,145 +100,6 @@ smutans.prepareDataUA159TW1 <- function (cutoff.count=10)
   save(smutansGenes2, file=file.path("smutans", "data", "smutansGenes2.RData"))
 }
 
-smutans.prepareData835NPP <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("835NP", "835P", "UA159noCSP")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("835NP", "835P", "UA159noCSP")
-  factor.type <- rep("ua159",length(conds))
-  # All of the same factor: factor.type[!conds.type] <- "tw1"
-  conds.condition <- conds %in% c("835NP")
-  factor.condition <- rep("835np",length(conds))
-  conds.condition <- conds %in% c("835P")
-  factor.condition[conds.condition] <- "835p"
-  conds.condition <- conds %in% c("UA159noCSP")
-  factor.condition[conds.condition] <- "ua159nocsp"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  sm835Genes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans 835NP, 835P, UA159 no CSP", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of 8 biological replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(sm835Genes) <- expdata
-  save(sm835Genes, file=file.path("smutans", "data", "sm835Genes.RData"))
-}
-
-smutans.prepareDataOMZ175 <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("OMZ175", "OMZHKRR")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("OMZ175", "OMZHKRR")
-  factor.type <- rep("ua159",length(conds))
-  conds.condition <- conds %in% c("OMZ175")
-  factor.condition <- rep("OMZ175",length(conds))
-  conds.condition <- conds %in% c("OMZHKRR")
-  factor.condition[conds.condition] <- "OMZHKRR"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  smomzGenes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans OMZ175, and OMZHKRR", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of OMZ175 replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(smomzGenes) <- expdata
-  save(smomzGenes, file=file.path("smutans", "data", "smomzGenes.RData"))
-}
-
-smutans.prepareDataUA159PH75 <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("UA159PH7", "UA159PH5")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("UA159PH7", "UA159PH5")
-  factor.type <- rep("ua159",length(conds))
-  conds.condition <- conds %in% c("UA159PH7")
-  factor.condition <- rep("UA159PH7",length(conds))
-  conds.condition <- conds %in% c("UA159PH5")
-  factor.condition[conds.condition] <- "UA159PH5"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  smUA159pHGenes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans UA159 pH7 and pH5", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(smUA159pHGenes) <- expdata
-  save(smUA159pHGenes, file=file.path("smutans", "data", "smUA159pHGenes.RData"))
-}
-
-smutans.prepareDataSMU21PH75 <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("Smu21PH7", "Smu21PH5")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("Smu21PH7", "Smu21PH5")
-  factor.type <- rep("ua159",length(conds))
-  conds.condition <- conds %in% c("Smu21PH7")
-  factor.condition <- rep("Smu21PH7",length(conds))
-  conds.condition <- conds %in% c("Smu21PH5")
-  factor.condition[conds.condition] <- "Smu21PH5"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  smSMU21pHGenes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans SMU21 pH7 and pH5", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of SMU21 pH 7 and pH 5 replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(smSMU21pHGenes) <- expdata
-  save(smSMU21pHGenes, file=file.path("smutans", "data", "smSMU21pHGenes.RData"))
-}
-
 smutans.makeData <- function( ngenes=500 ) 
 {
   q0 <- rexp( ngenes, rate=1/250 )
@@ -258,73 +119,6 @@ smutans.makeData <- function( ngenes=500 )
   newCountDataSet( m, conds )
 }
 
-smutans.prepareDataUA159CSP <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("UA159noCSP", "UA159CSP")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("UA159noCSP", "UA159CSP")
-  factor.type <- rep("ua159",length(conds))
-  conds.condition <- conds %in% c("UA159noCSP")
-  factor.condition <- rep("UA159noCSP",length(conds))
-  conds.condition <- conds %in% c("UA159CSP")
-  factor.condition[conds.condition] <- "UA159CSP"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  smua159cspGenes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans UA159 no CSP and with CSP", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of UA159 no CSP and with CSP replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(smua159cspGenes) <- expdata
-  save(smua159cspGenes, file=file.path("smutans", "data", "smua159cspGenes.RData"))
-}
-
-smutans.prepareDataSMU86CSP <- function ()
-{
-  # Count data preparation
-  countsFile <- "smutans/inst/extdata/count.txt"
-  conds <- scan(file=paste(countsFile,"index",sep="."), what="character")
-  subconds <- conds %in% c("Smu86noCSP", "Smu86CSP")
-  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
-  rownames(countsTable) <- countsTable$gene
-  countsTable <- countsTable[,-1]
-  countsTable <- countsTable[,subconds]
-  conds <- conds[subconds]
-  conds.type <- conds %in% c("Smu86noCSP", "Smu86CSP")
-  factor.type <- rep("ua159",length(conds))
-  conds.condition <- conds %in% c("Smu86noCSP")
-  factor.condition <- rep("Smu86noCSP",length(conds))
-  conds.condition <- conds %in% c("Smu86CSP")
-  factor.condition[conds.condition] <- "Smu86CSP"
-  samples <- data.frame(type=factor.type,condition=factor.condition)
-  rownames(samples) <- colnames(countsTable) 
-
-  design <- samples
-  smsmu86cspGenes <- newCountDataSet( countsTable, design )
-  expdata = new("MIAME", 
-     name="S. mutans UA159 no CSP and with CSP", 
-     lab="University of Florida, and Cornell University", 
-     contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-     title="Streptococcus mutans RNA-Seq Studies", 
-     url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-     abstract="RNA-seq of UA159 no CSP and with CSP replicates from Streptococcus mutans")
-  pubMedIds(expdata) <- "999999999"
-  experimentData(smsmu86cspGenes) <- expdata
-  save(smsmu86cspGenes, file=file.path("smutans", "data", "smsmu86cspGenes.RData"))
-}
 
 smutans.prepareGoseq <- function ()
 {
@@ -516,6 +310,77 @@ smutans.prepareTranscript <- function ()
   save(smutansData.txAnnotation, file=file.path("smutans", "data", "smutansData.txAnnotation.RData"))
   save(smutansData.txRNAz, file=file.path("smutans", "data", "smutansData.txRNAz.RData"))
   save(smutansData.txPileup, file=file.path("smutans", "data", "smutansData.txPileup.RData"))
+}
+
+readSmutans <- function (countsFile, 
+                         indexFile, 
+                         condition,
+                         firstFactor,
+                         firstFactorLabel,
+                         secondFactor,
+                         secondFactorLabel,
+                         name="", lab="", contact="", title="", url="",
+                         abstract="", pubmedid="",
+                         cutoff.count=10)
+{
+  # Count data preparation
+  conds <- scan(file=indexFile,what="character",quiet=TRUE)
+  subconds <- conds %in% condition
+  if (length(condition) == 3) {
+    firstFactor <- condition
+  } else if (length(condition) == 2) {
+    firstFactor <- condition
+  }
+
+  countsTable <- read.delim (countsFile, header=TRUE, stringsAsFactors=TRUE)
+  rownames(countsTable) <- countsTable$gene
+  countsTable <- countsTable[,-1]
+  countsTable <- countsTable[,subconds]
+  countsTable <- countsTable[rowSums(countsTable) >=cutoff.count,]
+
+  conds <- conds[subconds]
+  conds.type <- conds %in% firstFactor
+  factor.type <- rep(firstFactorLabel[1],length(conds))
+
+  conds.condition <- c()
+  factor.condition <- c()
+  if (length(condition) == 4) {
+    factor.type[!conds.type] <- firstFactorLabel[2]
+    conds.condition <- conds %in% secondFactor
+    factor.condition <- rep(secondFactorLabel[1],length(conds))
+    factor.condition[!conds.condition] <- secondFactorLabel[2]
+  } else if (length(condition) == 3) {
+    conds.condition <- conds %in% firstFactor[1]
+    factor.condition <- rep(secondFactorLabel[1],length(conds))
+    conds.condition <- conds %in% firstFactor[2]
+    factor.condition[conds.condition] <- secondFactorLabel[2]
+    conds.condition <- conds %in% firstFactor[3]
+    factor.condition[conds.condition] <- secondFactorLabel[3]
+  } else if (length(condition) == 2) {
+    conds.condition <- conds %in% firstFactor[1]
+    factor.condition <- rep(secondFactorLabel[1],length(conds))
+    conds.condition <- conds %in% firstFactor[2]
+    factor.condition[conds.condition] <- secondFactorLabel[2]
+  }
+
+  samples <- data.frame(type=factor.type,condition=factor.condition)
+  rownames(samples) <- colnames(countsTable) 
+
+  design <- samples
+  smutansGenes <- newCountDataSet( countsTable, design )
+  expdata = new("MIAME", 
+     name=name,
+     lab=lab,
+     contact=contact,
+     title=title,
+     url=url,
+     abstract=abstract)
+  pubMedIds(expdata) <- pubmedid
+  experimentData(smutansGenes) <- expdata
+  smutansGenes
+
+
+
 }
 
 

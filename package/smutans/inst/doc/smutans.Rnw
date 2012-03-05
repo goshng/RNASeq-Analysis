@@ -39,8 +39,8 @@ approaches such as \program{BWA} \cite{Li2009a} or \program{subread}.
 Reads fitting into one of the annotated
 intervals are counted.  These counts are passed to a statistical package which
 detects differences in read counts for statistical significance. For this
-purpose, we made use of \Rpackage{DEseq} \cite{Anders2010} or \Rpackage{edgeR}
-\cite{Robinson2010}. This prodecure returns a list of differentially expressed
+purpose, we make use of \Rpackage{DEseq} \cite{Anders2010}.
+This prodecure returns a list of differentially expressed
 genes, which can be passed to downstream analysis, such as functional category
 enrichment test using \Rpackage{goseq} \cite{Young2010}.  The current
 \Rpackage{smutans} contains procedures that use functions provided by
@@ -53,56 +53,85 @@ the above R packages.
 \section{Data preparations} \label{sec:prep}
 %--------------------------------------------------
 
-Steps of analyzing RNA-seq data for determining differentially expressed genes
-are described in \cite{Oshlack2010}. We used a short read aligner called
-\program{BWA} \cite{Li2009a} to map the sequenced short reads on a reference genome,
-\textit{Streptococcus mutans} UA159 (NCBI accession NC\_004350). Because the
-aligner allowed a few gaps for efficient alignment of millions of sequences of
-size being 100 base pairs long, short reads that consist of RNAs and sequencing
-adapter sequences would not be mapped. We used \program{cutadapt} \cite{Martin2011} to
-remove parts of adapter sequences from short reads before mapping on the
-reference genome. Mapped short read alignments were converted into readable
-formats \cite{Li2009b}. We trimmed sequence by quality score from the 3' end
-with threshold score of 20 \cite{Schmieder2011}.
-We counted short reads aligned to annotated genes in the
-reference genome, forming a table of read counts of the genes. Statistical
-software R \cite{R2011} with \Rpackage{DEseq} \cite{Anders2010}
-was subsequently employed to infer differentially expressed in different
-biological conditions.  We also generated tracks for our recently released
-Streptococcus Genome Browser (http://strep-genome.bscb.cornell.edu) that
-summarize gene expression levels based the short read alignments. This allowed
-us to visualize parts of the reference genome for comparing different RNA
-samples. Further analyses such as functional category enrichment test
-\cite{Young2010} were also employed.  To obtain count tables of short reads we
-used scripts available at 
-\textit{\http://github.com/goshng/RNASeq-Analysis}. In the following we will use
-the output of short reads
+Analyzing RNA-seq data for determining differentially expressed genes
+are well described \cite{Oshlack2010}. We used a short read aligner called
+\program{BWA} \cite{Li2009a} to map the sequenced short reads on a reference
+genome, \textit{Streptococcus mutans} UA159 (NCBI accession NC\_004350). Because
+the aligner allowed a few gaps for efficient alignment of millions of sequences
+of size being 100 base pairs long, short reads that consist of RNAs and
+sequencing adapter sequences would not be mapped. By using \program{cutadapt}
+\cite{Martin2011} we removed parts of adapter sequences from short reads before
+mapping on the reference genome.  We also trimmed short read sequences by quality score from
+the 3' end with threshold score of 20 \cite{Schmieder2011}. Mapped short read
+alignments were converted into readable formats \cite{Li2009b}. We counted short
+reads aligned to annotated genes in the reference genome, forming a table of
+read counts of the genes. Statistical software R \cite{R2011} with
+\Rpackage{DESeq} \cite{Anders2010} was subsequently employed to infer
+differentially expressed in different biological conditions. Most of functions
+in comparing different experiments were derived from \Rpackage{DESeq}. Readers
+should refer to the package for details.  We also generated
+tracks for a Streptococcus Genome Browser
+(http://strep-genome.bscb.cornell.edu) that summarize gene expression levels
+based on the short read alignments. This allowed us to visualize parts of the
+reference genome for comparing different RNA samples. Further analyses such as
+functional category enrichment test \cite{Young2010} were also employed.  To
+obtain count tables of short reads we used scripts available at a website
+http://github.com/goshng/RNASeq-Analysis. In the following we will use
+the count table to determine differentially expressed genes.
 
 The \Rpackage{smutans} expects count data in the form of \Rclass{CountDataSet},
-which is a type supported by \Rpackage{DESeq}.  Using \program{BWA} \cite{Li2009a} and
-\program{samtools} \cite{Li2009b} we aligned short reads from RNA sequencing. Using gene
-annotations in the UA159 genome we counted short reads that overlapped the
-genes.  The count values are raw counts of sequencing reads. The
-\Rpackage{DESeq}'s statistical model, or negative binomial model, hold for raw
-reads that allows to assess the measurement precision correctly; we did not have
-rounded values of normalized counts, or counts of covered base pairs.  Several
-exeriments of \textit{S.\ mutans} RNA sampling were performed.  \fixme{Find the
-papers that are related with the experiments.} One of them was presented in the
-\Robject{smutansGenes} as a part of \Rpackage{smutans}. The
-\Robject{smutansGenes} is of \Rclass{CountDataSet}, which is the data type used
-by \Rpackage{DESeq}. We have a convenient \Rclass{Smutans}, which contains slots
-for \Rclass{CountDataSet} objects, and results from analyses thereof.  Before
-loading necessary R packages and data sets, let us describe what functions were
-used for preparing data objects such as \Robject{smutansGenes}. One should
-create an R script file at the directory that contains the source code directory
-of the \Rpackage{smutans}. Put the following scripts in the R script file and
-run the script at that directory. That should create RData files at the
-directory smutans/data. User should not run the R script because the data files
-should be found in the \Rpackage{smutans}.
+which is a type supported by \Rpackage{DESeq}.  Note that the count values
+are raw counts of sequencing reads.  The \Rpackage{DESeq}'s statistical model,
+or negative binomial model, holds for raw reads counts that allows to assess the
+measurement precision correctly; we did not have rounded values of normalized
+counts, or counts of covered base pairs to form count tables.  Several
+exeriments of \textit{S.\ mutans} 
+RNA sampling were performed to examine effects of glucose and galactose,
+835NP and 835P, OMZ175 and OMZ/HKRR, CSP, and acid tolerance.  The comparison of
+glucose and galactose is presented in the \Robject{smutansGenes} as a part of
+\Rpackage{smutans}.
 
-% http://www.oralgen.lanl.gov/oralgen/downloads/smut.csv
-% http://www.oralgen.lanl.gov/cgi-bin/gene_id_search.cgi?dbname=smut&gene_id=SMu0001
-% \fixme{Where are flat files for genes of S. mutans UA159?}
+<<options,results=hide,echo=FALSE>>=
+options(digits=3)
+@
+In the following chapter, we use \Robject{smutansGenes}, which is of type
+\Rclass{CountDataSet} of \Rpackage{DESeq}.  Load the \Rpackage{smutans}, and the
+data \Robject{smutansGenes}. 
+<<smutans,results=hide>>=
+library( "smutans" )
+@
+
+Browse the installed directory of \Rpackage{smutans} for several count
+table and index files. As we go along the chapters of this vignette, we will use
+them.
+<<readSmutans>>=
+inDir <- system.file("extdata", package="smutans", mustWork=TRUE)
+dir(inDir,pattern="count*")
+@
+
+Look at two kinds of files: count.txt and count.txt.index. We use
+\Rfunction{readSmutans} to read a count table and its index files. You can check
+if two factor levels are correctly assigned using \Rfunction{pData}. Refer to
+the help documentation of the function in R.
+<<eval=FALSE>>=
+help(readSmutans)
+@
+<<readSmutans>>=
+smutansGenes <- 
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+               indexFile =file.path(inDir, "count-ua159.txt.index"),
+               condition = c("UA159GLU", "UA159GAL", "TW1GLU", "TW1GAL"),
+               firstFactor = c("UA159GLU", "UA159GAL"),
+               firstFactorLabel = c("ua159", "tw1"),
+               secondFactor = c("UA159GLU", "TW1GLU"),
+               secondFactorLabel = c("glucose","galactose"),
+               name="S. mutans UA159, TW1, Glucose, and Galactose")
+@
+
+The following functions create R data objects. Users are not recommended to use
+them because they have been already created and saved together in the package.
+They will be replaced by functions of \Rpackage{smutans}. They are documented
+for the sake of reminders.
 <<samplePreparation,eval=FALSE>>=
 # not run
 # but create a R scirpt file with the following scripts, and
@@ -110,27 +139,12 @@ should be found in the \Rpackage{smutans}.
 library(DESeq)
 source("smutans/R/core.R")
 smutans.prepareData34( )
-smutans.prepareData835NPP( )
 smutans.prepareDataUA159TW1( ) 
 smutans.prepareGoseq( )
-smutans.prepareDataOMZ175( ) 
-smutans.prepareDataUA159CSP( ) 
-smutans.prepareDataSMU86CSP( )
 smutans.prepareTranscript( )
 q("no")
 @
-<<options,results=hide,echo=FALSE>>=
-options(digits=3)
-@
-Now, see some of the data objects by loading the \Rpackage{smutans}, and a data
-\Robject{smutansGenes}. Note that the object is of type \Rclass{CountDataSet} of
-\Rpackage{DESeq} in which users should find \Rfunction{counts} and
-\Rfunction{pData}. 
-<<smutans,results=hide>>=
-library( "smutans" )
-data( "smutansGenes" )
-@
-There are 
+Now we look at the detail of the loaded count table. There are 
 \Sexpr{length(colnames(counts(smutansGenes)))}
 RNA-seq samples in \Robject{smutansGenes}, which
 contains the counts and also metadata about the samples:
@@ -140,152 +154,97 @@ head( counts(smutansGenes) )
 <<look_into_smutansGenes>>=
 pData( smutansGenes )
 @
-The samples differ by experimental condition (``glucose'' or
-``galactose'') and by library type (``ua159'' or ``tw1''). 
-
-Samples of 835NP, 835P, and UA159 no CSP should be loaded using the following
-command.
-<<sm835,results=hide>>=
-data( "sm835Genes" )
+The samples differ by experimental condition (``glucose'' or ``galactose'') and
+by library type (``ua159'' or ``tw1'').  Use the following functions to get
+helps such as opening the vignette and manual of \Rpackage{smutans}. 
+<<eval=FALSE>>=
+help.start()
+vignette(package="smutans")
+openVignette("smutans")
 @
 
-% Resources
-% Google charts - Venn Diagram
-% http://code.google.com/apis/chart/index.html
-
-\fixme{Describe other data objects as well.
-sm34Genes.RData,
-sm835Genes.RData,
-smutans.cat.desc.RData,
-smutans.feature.genes.RData, and
-smutans.go.genes.RData.}
-
 %--------------------------------------------------
-\section{DE analysis using UA159 and TW1 samples with
-glucose and galactose} \label{sec:detw1}
+\section{DE analysis using UA159 and TW1 samples with glucose and galactose}
 %--------------------------------------------------
 
-We could compare four pairwise comparisons using the two-factor data set of
-\Robject{smutansGenes}: a pair of comparisons between ``glucose'' and
-``galactose'' given either type ``ua159'' or ``tw1'', and another pair of
-comparisons between types ``ua159'' and ``tw1'' given either condition
-``glucose'' or ``galactose.'' We focus on one of the four pairwise comparisons
-first. Later, we will perform analyses for the rest of the three comparisons.
-We look at the ``ua159'' data for now, and will look at the ``tw1'' data later.
-
-We can cluster samples using variance stabilized data. Figure \ref{figClust}
-shows the \Sexpr{length(colnames(counts(smutansGenes)))} sampled clustered. 
-The clustering should reflect our experimental design, i.e., samples are
-more similar when they have the same treatment or the same library type.
-To make this conclusion, we estimate the dispersion with
-mode ``blind'' (see \Rpackage{DESeq} vignette), as only then,
-the variance stabilizing transformation is not informed about the design and
-hence not biased towards a result supporting it. Such an analysis is useful
-for quality control.  This appears to be useful as a first in any analysis.
+We compared four pairs of experiments using the \Robject{smutansGenes}: two comparisons
+between ``glucose'' and ``galactose'' given either type ``ua159'' or ``tw1'',
+and another two comparisons between types ``ua159'' and ``tw1'' given either
+condition ``glucose'' or ``galactose.'' Before comparing these we clustered
+samples using read counts. Figure \ref{figClust} shows the cluster of the
+\Sexpr{length(colnames(counts(smutansGenes)))} samples. Refer to
+\Rpackage{DESeq} vignette as to how the clustering is conducted.  The clustering
+was useful in ascertaining that the nutrient effect was stronger than the mutant
+effect: two experimental conditions of ``glucose'' and ``galactose''
+distinguished the samples. Within each condition, two different types of
+``ua159'' and ``tw1'' separated them.
 
 \begin{figure}
 \centering
 \includegraphics[width=.9\textwidth]{smutans-figClust}
 \caption{Heatmap showing the Euclidean distances between the samples
-  as calculated from the variance-stabilizing transformation of the
-  count data.}
+as calculated from the variance-stabilizing transformation of the
+count data.}
 \label{figClust}
 \end{figure}
 <<figClust,fig=TRUE>>=
 allSample <- newSmutans( smutansGenes )
 smutans.de2Clust( allSample )
 @
-As expected, two experimental conditions of ``glucose'' and ``galactose'' divide the
-samples. Within each condition, two different types of ``ua159'' and ``tw1'' divide
-them again. The pair of ``glucose ua159'' and ``galactose tw1'' is the most
-distinguished. 
 
 %------------------------------------------------------------
 \subsection{Inference using single-factor data} 
-\label{subsec:ua159only}
 %------------------------------------------------------------
 
-We create a \Rclass{Smutans} object using the \Rclass{CountDataSet}
-\Robject{smutansGenes}. The title option would be useful in distinguishing
-different objects of \Rclass{Smutans} as we have more R objects with the type.  
-A subsequent call to
-\Rfunction{smutans.de2} uses a two-factor data set to test differential
-expression of genes.  The \Rfunction{smutans.de2} estimates effective library
-sizes, and dispersions using functions provided by \Rpackage{DESeq}. Then, it
-tests genes for differential expression.
-<<ua159onlySamples>>=
+Let us compare ``glucose'' and ``galactose'' conditions given ``ua159'' type. 
+\Robject{smutansGenes}
+contains short reads counts based on bwa alignment on UA159 genome.  The title
+argument would be useful in distinguishing different objects of \Rclass{Smutans}
+as we have more R objects of the same type. A subsequent call to
+\Rfunction{smutans.de2} uses the two-factor data set to test differential
+expression for the annotated genes by estimating
+effective library sizes, and dispersions using functions provided by
+\Rpackage{DESeq}.
+<<ua159only>>=
 ua159only <- newSmutans( smutansGenes, title="UA159 Only" )
 ua159only <- smutans.de2( ua159only, type="ua159", 
                           condA="glucose", condB="galactose" )
-@
-Because \Rpackage{DESeq} recommended to check
-the dispersion estimates and to make sure that the data quality is as
-expected, we plot the per-gene estimates against the normalized mean
-expressions per gene, and then overlay the fitted curve in red color
-(Fig.\ \ref{figFit}).
-
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{smutans-figFit}
-\caption{Empirical (black dots) and fitted (red lines) dispersion values
-plotted against mean expression strength for the data set of UA159-only sample
-to compare glucose and galactose conditions.}
-\label{figFit}
-\end{figure}
-<<figFit,fig=TRUE>>=
-smutans.plotDispersionEstimates(ua159only)
-@
-\fixme{The following paragraph is adopted from \Rpackage{DESeq} vignette.}
-As we estimated the dispersion from only two samples, we should expect the
-estimates to scatter with quite some sampling variance around their true values.
-Hence, \Rpackage{DESeq} should not use the per-gene estimates directly in the
-test, because using too low dispersion values leads to false positives.  Many of
-the values below the red line are likely to be underestimates of the true
-dispersions, and hence, it is prudent to instead rather use the fitted value.
-On the othe hand, not all of the values above the red line are overestimations,
-and hence, the conservative choice is to keep them instead of replacing them
-with their fitted values.
-Having estimated the dispersion for each gene, we look for differentially
-expressed genes. To contrast two conditions, e.g., to see whether there is
-differential expression between conditions ``glucose'' and ``galactose'',
-\Rfunction{smutans.de2} already performed the 
-\Rfunction{nbinomTest} provided by \Rpackage{DESeq}.  
-Let's list genes with resulting information from \Rpackage{DESeq}.
-<<ua159onlyDE2List>>=
 head(smutans.de2List( ua159only ))
 @
-For each gene, we get its mean expression level (at the base scale) as a joint
-estimate from both conditions, and estimated separately for each condition, the
-fold change from the first to the second condition, i.e., 
-$\frac{baseMeanB}{baseMeanA}$, the logarithm (to basis 2)
-of the fold change, and the $p$ value for the statistical significance of this
-change. The \texttt{padj} column contains the $p$ values, adjusted for multiple
-testing with the Benjamini-Hochberg procedure (see the R function
-\Rfunction{p.adjust}), which controls false discovery rate (FDR). Later, we
-print the gene list out in a CSV file using option file of
-\Rfunction{smutans.de2List}.
-%-----------------------------------------------------------------------------
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{smutans-figDE}
-\caption{Plot of normalised mean versus $log_2$ fold change
-(this plot is sometimes also called the ``MA-plot'') for the contrast ``glucose''
-versus ``galactose'' using UA159-only sample.}
-\label{figDE}
-\end{figure}
-%-----------------------------------------------------------------------------
-<<figDE,fig=TRUE>>=
-smutans.plotDiffExp(ua159only)
+Descriptions of the columns are in order.
+Each gene has its mean expression level (at the base scale) as a joint estimate
+from both conditions, and estimated separately for each condition, the fold
+change from the first to the second condition, i.e.,
+$\frac{baseMeanB}{baseMeanA}$, the logarithm (to basis 2) of the fold change,
+and the $p$ value for the statistical significance of this change. The
+\texttt{padj} column contains the $p$ values, adjusted for multiple testing with
+the Benjamini-Hochberg procedure (see the \Rfunction{p.adjust}),
+which controls false discovery rate (FDR). Later, we print the gene list in a
+CSV file using option file of \Rfunction{smutans.de2List}. Windows users should
+be able to open CSV files with a spreadsheet program such as EXCEL. Users who
+are more comfortable with the EXCEL program than R could post-process CSV files
+for sorting and finding differentially expressed genes using different q-value
+cutoff values.
+<<eval=TRUE>>=
+smutans.de2List( ua159only, "ua159only.csv" )
 @
-Figure \ref{figDE} shows a plot of the $\log_2$ fold changes against the base
-means, coloring in red those genes that are significant at 10\% of FDR. 
-Let us use ``tw1'' type to compare ``glucose'' and ``galactose'' conditions.
-We continue to analyze the data set using type ``tw1'' to compare the two
-conditions. We perform the single-factor analysis. 
+
+By fixing ``tw1'' type similarly we compared ``glucose'' and ``galactose''
+conditions.
 <<tw1onlySamples>>=
 tw1only <- newSmutans( smutansGenes, title="TW1 Only" )
 tw1only <- smutans.de2( tw1only, type="tw1", 
                         condA="glucose", condB="galactose" )
+@
+We can print the result in a csv file.
+<<eval=TRUE>>=
+# not run
+smutans.de2List( tw1only, "tw1only.csv" )
+@
+We compared ``glucose'' and ``galactose'' with either ``ua159'' or ``tw1''
+fixed. We computed numbers of differentially expressed genes that were
+determined by both or either one of them.
+<<>>=
 tabUA159onlyTW1only <- smutans.compareResult( ua159only, tw1only )
 addmargins( tabUA159onlyTW1only )
 @
@@ -293,14 +252,14 @@ The table, \Robject{tabUA159onlyTW1only}, shows numbers of genes found to be
 differentially expressed in the two analyses: ``UA159 Only'' and ``TW1 Only.''
 Of the total \Sexpr{sum(tabUA159onlyTW1only)} genes, \Sexpr{tabUA159onlyTW1only[2,2]}
 genes were found in both analyses. The analysis using TW1-only sample found
-\Sexpr{tabUA159onlyTW1only[1,2]} genes. The analysis using UA159-only sample found
-\Sexpr{tabUA159onlyTW1only[2,1]} genes. 
+\Sexpr{tabUA159onlyTW1only[1,2]} among genes UA159-only sample could not
+find. The analysis using UA159-only sample found
+\Sexpr{tabUA159onlyTW1only[2,1]} genes among ones TW1-only sample could not
+find. UA159-only sample detected more differentially expressed genes.
 
-Until now we focused on the effect of condition either using UA159-only or
-TW1-only samples. We now change the gear to see effects of sample types on
-differentially expressed genes. We create two \Rclass{Smutans} objects:
-\Robject{glucoseOnly} and \Robject{galactoseOnly}, and compare them in detecting
-differentially expressed genes:
+We now compare sample types on differentially expressed genes. Create two
+\Rclass{Smutans} objects: \Robject{glucoseOnly} and \Robject{galactoseOnly}, and
+compare them in detecting differentially expressed genes:
 <<glucoseOnlySamples>>=
 glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )
 glucoseOnly <- smutans.de2( glucoseOnly, condition="glucose", 
@@ -315,10 +274,18 @@ addmargins( tabGlucoseOnlyGalactoseOnly )
 Of the total \Sexpr{sum(tabGlucoseOnlyGalactoseOnly)} genes,
 \Sexpr{tabGlucoseOnlyGalactoseOnly[2,2]} genes were found in both analyses at FDR
 rate of 10\%. The analysis using galactose-only sample found
-\Sexpr{tabGlucoseOnlyGalactoseOnly[1,2]} genes. The analysis using glucose-only
-sample found \Sexpr{tabGlucoseOnlyGalactoseOnly[2,1]} genes. 
+\Sexpr{tabGlucoseOnlyGalactoseOnly[1,2]} of the genes that were negative in
+glucose-only sample.  The analysis using glucose-only
+sample found \Sexpr{tabGlucoseOnlyGalactoseOnly[2,1]} of the genes that were
+negative in galactose-only sample. 
 Table \ref{tab:de} summarizes the number of differentially expressed genes that
-were found using single-factor analyses at FDR of 10\%.
+were found using single-factor analyses at FDR of 10\%. We can print them in csv
+files using \Rfunction{smutans.de2List}.
+<<eval=TRUE>>=
+# not run
+smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
+smutans.de2List( galactoseOnly, "galactoseOnly.csv" )
+@
 
 %-----------------------------------------------------------------------------
 \begin{table}[!h]
@@ -333,10 +300,6 @@ UA159 Glucose & UA159 Galactose & \Sexpr{sum(ua159only@padj < .1,na.rm=T)} & ua1
 TW1 Glucose & TW1 Galactose & \Sexpr{sum(tw1only@padj < .1,na.rm=T)} & tw1only.csv \\
 UA159 Glucose & TW1 Glucose & \Sexpr{sum(glucoseOnly@padj < .1,na.rm=T)} & glucoseOnly.csv \\
 UA159 Galactose & TW1 Galactose & \Sexpr{sum(galactoseOnly@padj < .1,na.rm=T)} & galactoseOnly.csv \\
-% UA159 Glucose & UA159 Galactose & \Sexpr{sum(tabUA159onlyTW1only[2,])} & ua159only.csv \\
-% TW1 Glucose & TW1 Galactose & \Sexpr{sum(tabUA159onlyTW1only[,2])} & tw1only.csv \\
-% UA159 Glucose & TW1 Glucose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[2,])} & glucoseOnly.csv \\
-% UA159 Galactose & TW1 Galactose & \Sexpr{sum(tabGlucoseOnlyGalactoseOnly[,2])} & galactoseOnly.csv \\
 \hline 
 \end{tabular}
 \par\end{centering}
@@ -346,69 +309,39 @@ UA159 Galactose & TW1 Galactose & \Sexpr{sum(galactoseOnly@padj < .1,na.rm=T)} &
 
 %------------------------------------------------------------
 \subsection{Inference using all of the samples} 
-\label{subsec:allSample}
 %------------------------------------------------------------
 
-It is inconvenient to use four different analyses to find differentially
-expressed genes under one of two factors. Besides, it would be desirable to use all of
-the data to find differentially expressed genes because using more samples might
-be more powerful in detecting differentially expressed genes.  Let us find genes
-differentially expressed in different conditions of ``glucose'' and
-``galactose'' using both types of ``ua159'' and ``tw1.'' We will compare these
-genes and those found in the single-factor analysis that we did previously,
-i.e., \Robject{ua159only}.
-Let's start with multi-factor the analysis by creating a new \Rclass{Smutans} object, called
+Let us determine genes differentially expressed in different conditions of
+``glucose'' and ``galactose'' using both types of ``ua159'' and ``tw1'': a
+two-factor analysis. Start
+with the two-factor analysis by creating a new \Rclass{Smutans} object, called
 \Robject{allSample}. Although we already used \Robject{allSample} when
-clustering the samples, we recreate it for instructive purposes.
+clustering the samples, we recreate it for instructive purposes.  The
+\Rfunction{smutans.de2} can use a two-factor data set to perform two-factor
+analysis: we are here interested in condition effect. 
 <<allSamples,results=hide>>=
 allSample <- newSmutans( smutansGenes, 
                          title="All Samples for Comparing Conditions" )
-allSample <- smutans.de2( allSample )
-@
-The \Rfunction{smutans.de2} uses a two-factor data set to
-perform two-factor analysis. The two factors are type and condition. We are here
-interested in condition effect. We could check 
-the dispersion estimates and to make sure that the data quality is as
-expected by plotting the per-gene estimates against the normalized mean
-expressions per gene, and then overlay the fitted curve.
-<<figFitAllSample,eval=FALSE>>=
-# not run
-smutans.plotDispersionEstimates(allSample)
-@
-%-----------------------------------------------------------------------------
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{smutans-figCompareUA159onlyAndAllSample}
-\caption{Comparison of $p$ values (unadjusted) from the test using only the
-four paired-end samples and the test using all seven samples. We can see that
-the latter tend to be smaller, as expected from the higher power of the test with all samples.}
-\label{figCompareUA159onlyAndAllSample}
-\end{figure}
-%-----------------------------------------------------------------------------
-<<figCompareUA159onlyAndAllSample,fig=TRUE>>=
-pval.ua159only <- smutans.pval( ua159only )
-pval.allSample <- smutans.pval( allSample )
-bottom = function(x, theta=1e-12) pmax(x, theta)
-plot( bottom(pval.ua159only), bottom(pval.allSample), log="xy", pch=20, cex=.3 )
-abline(a=0, b=1, col="blue")
-@
-<<compareUA159onlyAndAllSample>>=
+allSample <- smutans.de2( allSample,
+                          condA="glucose", condB="galactose" )
 tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
                                                    allSample )
+@
+<<>>=
 addmargins( tabUA159onlyAndAllSample )
 @
 Of the total \Sexpr{sum(tabUA159onlyAndAllSample)} gene,
-\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found in both analyses. The
-analysis using all of the sample found \Sexpr{tabUA159onlyAndAllSample[1,2]}
-genes. The analysis using ua159-only sample found \Sexpr{tabUA159onlyAndAllSample[2,1]}
-genes.  Figure \ref{figCompareUA159onlyAndAllSample} shows the raw p-values from
-the two-factor analysis versus those from the single-factor analysis. The
-p-values from the two-factor analysis are overall smaller than those from the
-single-factor analysis. We would expect that this was the case because of higher
-power of the two-factor analysis.
+\Sexpr{tabUA159onlyAndAllSample[2,2]} genes were found in both analyses. 
+Using all of the samples detected more differentially expressed genes than did
+ua159-only sample.
+The output from \Robject{allSample} is almost the same except that there are
+convergence column.
+<<>>=
+head( smutans.de2List( allSample ) )
+@
 
 We can show that taking the library type into account was important to have
-good detection power by doing the analysis again using the standard workflow,
+good detection power by doing the analysis againt using the standard workflow,
 as outlined earlier, and without informing \Rpackage{DESeq} of the library
 types. This anlaysis is not necessary. However, it clearly shows the advantage of the
 two-factor analysis.
@@ -421,121 +354,57 @@ tabWithoutWithAllSample <- smutans.compareResult( allSampleWithoutType,
                                                   allSample )
 addmargins( tabWithoutWithAllSample )
 @
-Of the total \Sexpr{sum(tabWithoutWithAllSample)} genes,
-\Sexpr{tabWithoutWithAllSample[2,2]} genes were found in both analyses. The
-analysis using all of the sample found \Sexpr{tabWithoutWithAllSample[1,2]}
-genes. The analysis using all of the same sample but without considering type
-found only \Sexpr{tabWithoutWithAllSample[2,1]} genes. 
+Using all of the sample that considers types found more differentially expressed
+genes than did one ignoring the types.
 
-As we mentioned above, we can have two analyses using the two-factor analysis.
-Until now we compared conditions.
-We proceed to compare the two types by considering all of the samples.
-<<allSampleType,results=verbatim>>=
+We now proceed to compare the two types by considering all of the samples, and
+compare the result with the single-factor analysis.
+<<allSamplesType,results=hide>>=
 allSampleType <- newSmutans( smutansGenes, title="All samples for type" )
-allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+allSampleType <- smutans.de2( allSampleType, compareCondition="no",
+                              condA="ua159", condB="tw1" )
 tabGlucoseOnlyAllSample <- smutans.compareResult( glucoseOnly, 
                                                   allSampleType )
-addmargins( tabGlucoseOnlyAllSample )
 tabGalactoseOnlyAllSample <- smutans.compareResult( galactoseOnly, 
                                                     allSampleType )
+@                                                    
+<<>>=
+addmargins( tabGlucoseOnlyAllSample )
 addmargins( tabGalactoseOnlyAllSample )
 @
 Of the total \Sexpr{sum(tabGlucoseOnlyAllSample)} genes,
 \Sexpr{tabGlucoseOnlyAllSample[2,2]} genes were found in both analyses. The
 analysis using all of the sample found \Sexpr{tabGlucoseOnlyAllSample[1,2]}
-genes. The analysis using glucose-only sample
-found \Sexpr{tabGlucoseOnlyAllSample[2,1]} genes.  
-In the comparison using galactose-only sample,
+of the genes that glucose-only sample did not find. 
+The analysis using glucose-only sample
+found \Sexpr{tabGlucoseOnlyAllSample[2,1]} the genes that all samples did not
+find.  In the comparison using galactose-only sample,
 of the \Sexpr{sum(tabGalactoseOnlyAllSample)} genes,
 \Sexpr{tabGalactoseOnlyAllSample[2,2]} genes were found in both analyses. The
 analysis using all of the sample found \Sexpr{tabGalactoseOnlyAllSample[1,2]}
-genes. The analysis using galactose-only sample
-found \Sexpr{tabGalactoseOnlyAllSample[2,1]} genes.  
+the genes galactose-only sample did not find. 
+The analysis using galactose-only sample
+found \Sexpr{tabGalactoseOnlyAllSample[2,1]} the genes that all samples did not
+find.
 
-We print out the result of differentially expressed genes in CSV files. A
-spreadsheet program such as EXCEL should be able to open CSV files. Users who
-are more comfortable with the EXCEL program than R could post-process CSV
-files for sorting and finding differentially expressed genes using different
-q-value cutoff values.
-<<smutanSamples>>=
+One can print the sults in CSV files.
+<<eval=TRUE>>=
 smutans.de2List( allSample, "allSample.csv" )
 smutans.de2List( allSampleType, "allSampleType.csv" )
-smutans.de2List( glucoseOnly, "glucoseOnly.csv" )
-smutans.de2List( galactoseOnly, "galactoseOnly.csv" )
-smutans.de2List( ua159only, "ua159only.csv" )
-smutans.de2List( tw1only, "tw1only.csv" )
-head( smutans.de2List( allSample ) )
 @
-The output from \Robject{allSample} is different from that of
-\Robject{ua159only} or \Robject{tw1only}.
-The first column of ``allSample.csv'' is for genes.
-The next three columns show the fitted coefficients, converted to a logarithm
-base 2 scale: ``X.Intercept.'', ``typeua159'', and ``conditionglucose.''
-The log2 fold change due to the condition is shown in the 4th column. As indicated
-by the column name, it is the effect of ``glucose'', i.e., the log ratio of
-``glucose'' versus ``galactose'' or $\log(glucose/galactose)$. 
-Note that the library type also
-had noticeable influence on the expression, and hence would have increased the dispersion
-estimates (and so reduced power) if we had not fitted an effect for it.
-The column \emph{deviance}
-is the deviance of the fit. (Comparing the deviances with a $\chi^2$ likelihood ratio test is
-how \Rfunction{nbinomGLMTest} calculates the $p$ values.) The column, \emph{converged},
-indicates whether the calculation of coefficients and deviance has fully converged.
-(If it is false too often, you can try to change the GLM control parameters, as
-explained in the help page to \Rfunction{fitNbinomGLMs}.)
-The second to the last column, \emph{pval}, is the raw p-values from the test
-\Rfunction{nbinomGLMTest} provided by \Rpackage{DESeq}. The last column,
-\emph{padj}, is the multiple testing adjusted p-values.
 
 %------------------------------------------------------------
 \subsection{Functional category association analyses} 
-\label{subsec:functional}
 %------------------------------------------------------------
 
-Once we find differentially expressed genes, we could cluster them. This could
-be useful to group genes that behave similarly.  These potentially useful
-figures can be plotted from \Rpackage{DESeq}.  We could also find function
-categories that were enriched with differentially expressed genes. For
-clustering differentially expressed genes we need moderate fold changes to make
-them amenable to distance calculation.  Figure \ref{figLfc} shows moderated log
-fold changes versus the original log fold changes.
-
-<<options,results=hide,echo=FALSE>>=
-largeNumber <- 10
-@
-
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{smutans-figLfc}
-\caption{Scatterplot of direct (\Robject{lfc}) versus \emph{moderated} log-ratios (\Robject{mod\_lfc}).
-  The moderation criterion used is variance stabilisation.
-  The red points correspond to values that were infinite in \Robject{lfc}
-  and were abitrarily set to $\pm\Sexpr{largeNumber}$ for the purpose of plotting.
-  These values vary in a finite range (as shown in the plot) in \Robject{mod\_lfc}.}
-\label{figLfc}
-\end{figure}
-<<figLfc,fig=TRUE>>=
-select <- 1:40
-smutans.de2TypeLfc( ua159only, condA="glucose", condB="galactose" )
-@
-Now we plot the first \Sexpr{length(select)} genes clustered based on the
-moderated log fold changes.
-
-%-----------------------------------------------------------------------------
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{smutans-figHeatmap1}
-\caption{Heatmaps showing the expression data of the top \Sexpr{length(select)}
-  differentially expressed genes. Left, the variance stabilization
-  transformed data, right, the original count data.
-  The right plot is dominated by a small number of data points with large values.}
-\label{figHeatmap1}
-\end{figure}
-%-----------------------------------------------------------------------------
-<<figHeatmap1,fig=TRUE>>=
-smutans.de2TypeHeatmap( ua159only )
-@
-
+We find some functional categories enriched with differentially expressed genes
+using \Rpackage{goseq} \cite{Young2010} (table \ref{tab:goseq}).
+To find functional categories enriched with differentially expressed genes we
+first find a list of differentially expressed genes. A set of genes are assigned
+to functional gene categories: \Robject{smutans.go.genes}. Features of the genes in
+UA159 include gene lengths: \Robject{smutans.feature.genes}.
+Functional categories with numbers of genes assigned are in
+\Robject{smutans.cat.desc}.
 <<goseqUA159only,eval=FALSE>>=
 data( "smutans.feature.genes" )
 data( "smutans.go.genes" )
@@ -545,15 +414,6 @@ smutans.de2Goseq ( ua159only, qval=1e-2,
                    go.genes=smutans.go.genes,
                    cat.desc=smutans.cat.desc )
 @
-We find some functional categories enriched with differentially expressed genes
-(table \ref{tab:goseq})
-We find functional categories that are enriched with differentially expressed genes.
-To find functional categories enriched with differentially expressed genes we
-first find a list of differentially expressed genes. A set of genes are assigned
-to functional gene categories: \Robject{smutans.go.genes}. Features of the genes in
-UA159 include gene lengths: \Robject{smutans.feature.genes}.
-Functional categories with numbers of genes assigned are in
-\Robject{smutans.cat.desc}.
 %-----------------------------------------------------------------------------
 \begin{table}[!h]
 \caption{{\bf Gene Ontology (GO) enrichments for differentially expressed
@@ -589,10 +449,36 @@ $q\leq 0.05$ are displayed.\\
 
 %--------------------------------------------------
 \section{DE analysis using 835NP, 835P, and UA159 no CSP}
-\label{sec:de835}
 %--------------------------------------------------
 
-We first cluster the \Sexpr{length(colnames(counts(sm835Genes)))} samples.
+Sang-Joon Ahn is leading this experiment. Let us create the input data variable.
+We compare three comparisons using three conditions. We do the cluster,
+determine differentially expressed genes, and print those genes.  One of the
+three conditions, 835P, is distinguished from the others.  We found no
+functional categories enriched with differentially expressed genes in the
+pairwise comparisons of 835NP, 835P, and UA159 no CSP.  Let's make a list of
+differentially expressed genes.  
+<<readSmutans>>=
+sm835Genes <- 
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+                indexFile =file.path(inDir, "count-ua159.txt.index"),
+                condition = c("835NP", "835P", "UA159noCSP"),
+                firstFactor = c("835NP", "835P", "UA159noCSP"),
+                firstFactorLabel = c("ua159"),
+                secondFactor = c(),
+                secondFactorLabel = c("835np","835p", "ua159nocsp"),
+                name="S. mutans 835NP, 835P, UA159 no CSP")
+@
+
+<<>>=
+head( counts(sm835Genes), n=1 )
+pData( sm835Genes )
+@
+
+<<figClustNpAndP,fig=TRUE>>=
+npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
+smutans.de2Clust( npAndP )
+@
 \begin{figure}
 \centering
 \includegraphics[width=.9\textwidth]{smutans-figClustNpAndP}
@@ -600,24 +486,8 @@ We first cluster the \Sexpr{length(colnames(counts(sm835Genes)))} samples.
 plotted against mean expression strength.}
 \label{figClustNpAndP}
 \end{figure}
-<<figClustNpAndP,fig=TRUE>>=
-data( "sm835Genes" )
-npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
-smutans.de2Clust( npAndP )
-@
-
-We found no functional categories enriched with differentially expressed
-genes in the pairwise comparisons of 835NP, 835P, and UA159 no CSP.
-Let's make a list of differentially expressed genes. 
-Another kind of heatmap plots for
-grouping genes could be interesting. 
-But, basically we have a list of genes with
-some adjusted p-values for detecting differentially expressed genes.
-
-<<look_into_smutansGenes>>=
-head( counts(sm835Genes) )
-pData( sm835Genes )
-@
+We first cluster the \Sexpr{length(colnames(counts(sm835Genes)))} samples
+(fig.\ \ref{figClustNpAndP}).
 
 <<sm835Samples>>=
 npAndP <- newSmutans( sm835Genes, title="835NP vs. 835P" )
@@ -629,75 +499,568 @@ npAndUA159 <- smutans.de2( npAndUA159, type="ua159",
 pAndUA159 <- newSmutans( sm835Genes, title="835P vs. UA159" )
 pAndUA159 <- smutans.de2( pAndUA159, type="ua159", 
                           condA="835p", condB="ua159nocsp" )
+@
+
+<<eval=TRUE>>=
+# not run
 smutans.de2List( npAndP, "npAndP.csv" )
 smutans.de2List( npAndUA159, "npAndUA159.csv" )
 smutans.de2List( pAndUA159, "pAndUA159.csv" )
 @
 
-\begin{figure}
-\centering
-\includegraphics[width=.9\textwidth]{smutans-figHeatmapNpAndP}
-\caption{Empirical (black dots) and fitted (red lines) dispersion values
-plotted against mean expression strength. \textbf{figHeatmapNpAndP}}
-\label{figHeatmapNpAndP}
-\end{figure}
-<<figHeatmapNpAndP,fig=TRUE>>=
-smutans.de2TypeHeatmap( npAndP )
-@
-
 %--------------------------------------------------
 \section{DE analysis using OMZ175 and OMZ/HKRR}
-\label{sec:deomz}
 %--------------------------------------------------
 
-<<look_into_smomzGenes>>=
-data( "smomzGenes" )
-head( counts(smomzGenes) )
+We can use either UA159 or OMZ175 genome as a reference genome.  We first
+cluster the samples (fig.\ \ref{figClustomz}).  We did not find many genes in
+this comparison (see below).
+
+We also mapped short reads on OMZ175 contigs. We wished to find genes in OMZ175 but not in
+UA159 to see whether they are enriched with differentially expressed genes. We
+also wished to find genes in UA159 but not in OMZ175 to check in the same
+fashion. What are the distribution of the genes that unique to either UA159 or
+OMZ175 in differentially expressed genes? We could test the independence of
+differntially expressed genes and unique genes.
+Use 0.1 as the q-value cutoff to have two sets of differentially expressed genes
+and not ones. And also divide genes unique to SMU109 and not one. Test the
+independence of differential expression and SMU109 unique genes using Fisher's
+exact test. This was not useful because of small number of differentially
+expressed genes.
+<<readSmutans>>=
+smomzGenes <- 
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+               indexFile =file.path(inDir, "count-ua159.txt.index"),
+               condition = c("OMZ175", "OMZHKRR"),
+               firstFactorLabel = c("ua159"),
+               secondFactorLabel = c("OMZ175", "OMZHKRR"),
+               name="S. mutans OMZ175, and OMZHKRR based on UA159")
+@
+
+<<>>=
+head( counts(smomzGenes), n=1 )
 pData( smomzGenes )
 @
 
-<<smomz,results=hide>>=
+<<figClustomz,fig=TRUE>>=
 omz <- newSmutans( smomzGenes, title="OMZ175 vs. OMZ/HKRR" )
+smutans.de2Clust( omz )
+@
+
+<<smomz,results=hide>>=
 omz <- smutans.de2( omz, type="ua159", 
                     condA="OMZ175", condB="OMZHKRR" )
+@
+
+<<>>=
+smutans.de2List( omz )
+@
+
+<<eval=TRUE>>=
+# not run
 smutans.de2List( omz, "omz.csv" )
 @
 
-%--------------------------------------------------
-\section{DE analysis using UA159 CSP}
-\label{sec:deua159csp}
-%--------------------------------------------------
-
-<<look_into_smua159cspGenes>>=
-data( "smua159cspGenes" )
-head( counts(smua159cspGenes) )
-pData( smua159cspGenes )
+<<readSmutans>>=
+smomzGenesSMU109 <- 
+  readSmutans (countsFile=file.path(inDir, "count-omz-bwa.txt"),
+               indexFile =file.path(inDir, "count-omz.txt.index"),
+               condition = c("OMZ175", "OMZHKRR"),
+               firstFactorLabel = c("smu109"),
+               secondFactorLabel = c("OMZ175", "OMZHKRR"),
+               name="S. mutans OMZ175, and OMZHKRR on SMU109 contigs")
 @
 
-<<smua159csp,results=hide>>=
-ua159csp <- newSmutans( smua159cspGenes, title="UA159 no CSP vs. CSP" )
+<<>>=
+head( counts(smomzGenesSMU109), n=1 )
+pData( smomzGenesSMU109 )
+@
+
+<<figClustomzSMU109,fig=TRUE>>=
+omzSMU109 <- newSmutans( smomzGenesSMU109, title="OMZ175 vs. OMZ/HKRR" )
+smutans.de2Clust( omzSMU109 )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.4\textwidth]{smutans-figClustomz}
+\includegraphics[width=.4\textwidth]{smutans-figClustomzSMU109}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength. Left-hand side is for UA159-based
+result, and right-hand side for SMU109 or OMZ175 contigs-based.}
+\label{figClustomz}
+\end{figure}
+
+<<smomz,results=hide>>=
+omzSMU109 <- smutans.de2( omzSMU109, type="smu109", 
+                          condA="OMZ175", condB="OMZHKRR" )
+@
+
+<<>>=
+smutans.de2List( omzSMU109 )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( omzSMU109, "omzSMU109.csv" )
+@
+
+%--------------------------------------------------
+\section{DE analysis using UA159 CSP and SMU86 CSP}
+%--------------------------------------------------
+
+We follow the procedure in the previous chapter on the comparison of glucose and
+galactose. The cluster of the samples shows that the effect of types ua159 and
+smu86 is stronger than that of conditions CSP (fig.\ \ref{figClustCSP}).
+Differences due to CSP was more profound in ua159 type than was in smu86
+(table \ref{tab:decsp}). 
+
+We used 0.01 as the q-value cutoff to have two sets of differentially expressed genes
+and not ones. And also divide genes unique to SMU86 and not one. Test the
+independence of differential expression and SMU86 unique genes using Fisher's
+exact test. We found evidence that the differences were due to genes
+unique to SMU86. However, we did not find evidence that differences were due to genes
+unique to UA159. The proportion of genes unique to SMU86 was larger than that
+of common genes. This shows that genes unique to SMU86 have more profound
+effects than common genes under CSP, but genes unique to UA159 does not have
+those effects.
+
+<<options,results=hide>>=
+csp.qval.cutoff <- 10^-1
+@
+
+<<readSmutans>>=
+<<readSmutans>>=
+cspGenes <-
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+                indexFile =file.path(inDir, "count-ua159.txt.index"),
+                condition = c("UA159noCSP", "UA159CSP", "Smu86noCSP", "Smu86CSP"),
+                firstFactor = c("UA159noCSP", "UA159CSP"),
+                firstFactorLabel = c("ua159", "smu86"),
+                secondFactor = c("UA159noCSP", "Smu86noCSP"),
+                secondFactorLabel = c("nocsp","csp"),
+                name="S. mutans no CSP and with CSP")
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{smutans-figClustCSP}
+\caption{Heatmap showing the Euclidean distances between the samples
+as calculated from the variance-stabilizing transformation of the
+count data.}
+\label{figClustCSP}
+\end{figure}
+<<figClustCSP,fig=TRUE>>=
+allSampleCSP <- newSmutans( cspGenes )
+smutans.de2Clust( allSampleCSP )
+@
+
+<<>>=
+ua159csp <- newSmutans( cspGenes, title="UA159" )
 ua159csp <- smutans.de2( ua159csp, type="ua159", 
-                         condA="UA159noCSP", condB="UA159CSP" )
+                         condA="nocsp", condB="csp" )
+@
+
+<<eval=TRUE>>=
+# not run
 smutans.de2List( ua159csp, "ua159csp.csv" )
 @
 
-%--------------------------------------------------
-\section{DE analysis using SMU86 CSP}
-\label{sec:desmu86csp}
-%--------------------------------------------------
-
-<<look_into_smsmu86cspGenes>>=
-data( "smsmu86cspGenes" )
-head( counts(smsmu86cspGenes) )
-pData( smsmu86cspGenes )
+<<smu86csp>>=
+smu86csp <- newSmutans( cspGenes, title="SMU86" )
+smu86csp <- smutans.de2( smu86csp, type="smu86", 
+                             condA="nocsp", condB="csp" )
 @
 
-
-<<smsmu86csp,results=hide>>=
-smu86csp <- newSmutans( smsmu86cspGenes, title="SMU86 no CSP vs. CSP" )
-smu86csp <- smutans.de2( smu86csp, type="ua159", 
-                         condA="Smu86noCSP", condB="Smu86CSP" )
+<<eval=TRUE>>=
+# not run
 smutans.de2List( smu86csp, "smu86csp.csv" )
+@
+
+<<>>=
+tabUA159SMU86 <- smutans.compareResult( ua159csp, smu86csp,
+                                        qval=csp.qval.cutoff )
+addmargins( tabUA159SMU86 )
+@
+
+<<>>=
+nocsp <- newSmutans( cspGenes, title="NO CSP" )
+nocsp <- smutans.de2( nocsp, condition="nocsp", 
+                        condA="ua159", condB="smu86" )
+csp <- newSmutans( cspGenes, title="CSP" )
+csp <- smutans.de2( csp, condition="csp", 
+                        condA="ua159", condB="smu86" )
+tabnocspcsp <- smutans.compareResult( nocsp, csp, 
+                                      qval=csp.qval.cutoff )
+addmargins( tabnocspcsp )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( nocsp, "nocsp.csv" )
+smutans.de2List( csp, "csp.csv" )
+@
+
+<<allSamplesSmu86,results=hide>>=
+allSampleSmu86 <- newSmutans( cspGenes, 
+                              title="All Samples for Comparing CSP and no CSP" )
+allSampleSmu86 <- smutans.de2( allSampleSmu86,
+                               condA="nocsp", condB="csp" )
+tabUA159cspAndAllSampleSmu86 <- smutans.compareResult( ua159csp, 
+                                                       allSampleSmu86,
+                                                       qval=csp.qval.cutoff )
+tabSMU86cspAndAllSampleSmu86 <- smutans.compareResult( smu86csp, 
+                                                       allSampleSmu86, 
+                                                       qval=csp.qval.cutoff )
+@
+<<>>=
+addmargins( tabUA159cspAndAllSampleSmu86 )
+addmargins( tabSMU86cspAndAllSampleSmu86 )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( allSampleSmu86, "allSampleSmu86.csv" )
+@
+
+<<allSamplesCsp,results=hide>>=
+allSampleCsp <- newSmutans( cspGenes, 
+                              title="All Samples for Comparing SMU86" )
+allSampleCsp <- smutans.de2( allSampleCsp, compareCondition="no",
+                               condA="ua159", condB="smu86" )
+tabnocspAndAllSampleCsp <- smutans.compareResult( nocsp, 
+                                                  allSampleCsp,
+                                                  qval=csp.qval.cutoff )
+tabcspAndAllSampleCsp <- smutans.compareResult( csp, 
+                                                allSampleCsp,
+                                                qval=csp.qval.cutoff )
+@
+<<>>=
+addmargins( tabnocspAndAllSampleCsp )
+addmargins( tabcspAndAllSampleCsp )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( allSampleCsp, "allSampleCsp.csv" )
+@
+
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Numbers of differentially expressed genes in CSP
+analyses.} We use multiple testing adjusted p-value of $\Sexpr{csp.qval.cutoff}$.}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{ccccl}
+\hline 
+Sample A & Sample B & Number of Genes & Result File \\
+\hline 
+UA159 no CSP & UA159 CSP    & \Sexpr{sum(ua159csp@padj < csp.qval.cutoff,na.rm=T)} & ua159ph.csv \\
+SMU86 no CSP & SMU86 CSP    & \Sexpr{sum(smu86csp@padj < csp.qval.cutoff,na.rm=T)} & smu21ph.csv \\
+UA159 no CSP & SMU86 no CSP & \Sexpr{sum(nocsp@padj < csp.qval.cutoff,na.rm=T)} & ph7only.csv \\
+UA159 CSP & SMU86 CSP       & \Sexpr{sum(csp@padj < csp.qval.cutoff,na.rm=T)} & ph5only.csv \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:decsp}
+\end{table}
+%-----------------------------------------------------------------------------
+
+Use SMU86 contigs as a reference genome.
+
+<<readSmutans>>=
+smu86cspGenes <-
+  readSmutans (countsFile=file.path(inDir, "count-smu86-bwa.txt"),
+                indexFile =file.path(inDir, "count-smu86.txt.index"),
+                condition = c("Smu86noCSP", "Smu86CSP"),
+                firstFactorLabel = c("smu86"),
+                secondFactorLabel = c("nocsp","csp"),
+                name="S. mutans SMU86 nocsp and csp")
+@
+
+<<>>=
+smu86cspSMU86 <- newSmutans( smu86cspGenes, title="SMU86" )
+smu86cspSMU86 <- smutans.de2( smu86cspSMU86, type="smu86", 
+                              condA="nocsp", condB="csp" )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( smu86cspSMU86, "smu86cspSMU86.csv" )
+@
+
+<<eval=TRUE>>=
+x <- scan(file.path(inDir, "SMU86.diff.lst"), what="character")
+y <- smutans.de2List( smu86cspSMU86, qval=10^-2)$id
+z <- smu86cspSMU86@res$id
+x1 <- z[z %in% x]
+x2 <- z[!z %in% x]
+y1 <- z[z %in% y]
+y2 <- z[!z %in% y]
+sum(x1 %in% y1)
+sum(x1 %in% y2)
+sum(x2 %in% y1)
+sum(x2 %in% y2)
+unique.diff <-
+matrix(c(4, 80, 12, 1710),
+       nrow = 2,
+       dimnames =
+       list(c("Diff", "Not diff"),
+            c("Unique", "Common")))
+fisher.test(unique.diff)
+@
+
+<<>>=
+x <- scan(file.path(inDir, "UA159-SMU86.diff.lst"), what="character")
+y <- smutans.de2List( smu86csp, qval=10^-2)$id
+z <- smu86csp@res$id
+x1 <- z[z %in% x]
+x2 <- z[!z %in% x]
+y1 <- z[z %in% y]
+y2 <- z[!z %in% y]
+sum(x1 %in% y1)
+sum(x1 %in% y2)
+sum(x2 %in% y1)
+sum(x2 %in% y2)
+unique.diff <-
+matrix(c(1, 216, 12, 1731),
+       nrow = 2,
+       dimnames =
+       list(c("Diff", "Not diff"),
+            c("Unique", "Common")))
+fisher.test(unique.diff)
+@
+
+%--------------------------------------------------
+\section{DE analysis using acid tolerance}
+%--------------------------------------------------
+
+Sara is leading the experiment. 
+The clustering shows that the effect of type, ua159 vs\. smu21, is stronger
+than pH effect (fig.\ \ref{figClustpH}).
+There seem to be too many differentially expressed genes in the comparison of
+different pH (table \ref{tab:deph}). We therefore used a much smaller cutoff value of
+multiple testing adjusted $p$-value. 
+When comparing two conditions, pH 7 and pH 5, we found more differentially
+expressed genes in ua159 than we did in smu21.
+When comparing two types, ua159 and smu21, we found more differentially
+expressed genes under pH 5 than we found under pH 7.
+
+We used 0.01 as the q-value cutoff to have two sets of differentially expressed genes
+and not ones. And also divide genes unique to SMU21 and not one. Test the
+independence of differential expression and SMU21 unique genes using Fisher's
+exact test. We did not find evidence that the differences were due to genes
+unique to SMU21. However, we found evidence that differences were due to genes
+unique to UA159. The proportion of genes unique to UA159 was smaller than that
+of common genes. This shows that genes unique to SMU21 have similar effects to
+common genes under pH 5, but genes unique to UA159 does not have those effects.
+
+<<options,results=hide>>=
+ph.qval.cutoff <- 10^-10
+@
+<<readSmutans>>=
+phGenes <-
+  readSmutans (countsFile=file.path(inDir, "count-ua159-bwa.txt"),
+               indexFile =file.path(inDir, "count-ua159.txt.index"),
+               condition = c("UA159PH7", "UA159PH5", "Smu21PH7", "Smu21PH5"),
+               firstFactor = c("UA159PH7", "UA159PH5"),
+               firstFactorLabel = c("ua159", "smu21"),
+               secondFactor = c("UA159PH7", "Smu21PH7"),
+               secondFactorLabel = c("ph7","ph5"),
+               name="S. mutans UA159 pH7 and pH5")
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{smutans-figClustpH}
+\caption{Heatmap showing the Euclidean distances between the samples
+as calculated from the variance-stabilizing transformation of the
+count data.}
+\label{figClustpH}
+\end{figure}
+<<figClustpH,fig=TRUE>>=
+allSamplepH <- newSmutans( phGenes )
+smutans.de2Clust( allSamplepH )
+@
+
+<<ua159ph>>=
+ua159ph <- newSmutans( phGenes, title="UA159" )
+ua159ph <- smutans.de2( ua159ph, type="ua159", 
+                        condA="ph7", condB="ph5" )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( ua159ph, "ua159ph.csv" )
+@
+
+<<smu21ph>>=
+smu21ph <- newSmutans( phGenes, title="SMU21" )
+smu21ph <- smutans.de2( smu21ph, type="smu21", 
+                        condA="ph7", condB="ph5" )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( smu21ph, "smu21ph.csv" )
+@
+
+<<>>=
+tabUA159SMU21 <- smutans.compareResult( ua159ph, smu21ph, qval=ph.qval.cutoff )
+addmargins( tabUA159SMU21 )
+@
+
+<<ph7only>>=
+ph7only <- newSmutans( phGenes, title="pH 7" )
+ph7only <- smutans.de2( ph7only, condition="ph7", 
+                        condA="ua159", condB="smu21" )
+ph5only <- newSmutans( phGenes, title="pH 5" )
+ph5only <- smutans.de2( ph5only, condition="ph5", 
+                        condA="ua159", condB="smu21" )
+tabpH7pH5 <- smutans.compareResult( ph7only, ph5only, qval=ph.qval.cutoff )
+
+addmargins( tabpH7pH5 )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( ph7only, "ph7only.csv" )
+smutans.de2List( ph5only, "ph5only.csv" )
+@
+
+Using all of the samples.
+
+<<allSamplesSmu21,results=hide>>=
+allSampleSmu21 <- newSmutans( phGenes, 
+                              title="All Samples for Comparing pH" )
+allSampleSmu21 <- smutans.de2( allSampleSmu21,
+                               condA="ph7", condB="ph5" )
+tabUA159pHAndAllSampleSmu21 <- smutans.compareResult( ua159ph, 
+                                                      allSampleSmu21,
+                                                      qval=ph.qval.cutoff )
+tabSMU21pHAndAllSampleSmu21 <- smutans.compareResult( smu21ph, 
+                                                      allSampleSmu21,
+                                                      qval=ph.qval.cutoff )
+
+<<>>=
+addmargins( tabUA159pHAndAllSampleSmu21 )
+addmargins( tabSMU21pHAndAllSampleSmu21 )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( allSampleSmu21, "allSampleSmu21.csv" )
+@
+
+<<allSamplesph,results=hide>>=
+allSampleph <- newSmutans( phGenes, 
+                           title="All Samples for Comparing UA159 and SMU21" )
+allSampleph <- smutans.de2( allSampleph, compareCondition="no",
+                            condA="ua159", condB="smu21" )
+tabpH7AndAllSampleph <- smutans.compareResult( ph7only, 
+                                               allSampleph, 
+                                               qval=ph.qval.cutoff )
+tabpH5AndAllSampleph <- smutans.compareResult( ph5only, 
+                                               allSampleph, 
+                                               qval=ph.qval.cutoff )
+@
+
+<<>>=
+addmargins( tabpH7AndAllSampleph )
+addmargins( tabpH5AndAllSampleph )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( allSampleph, "allSampleph.csv" )
+@
+
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Numbers of differentially expressed genes in acid tolerance
+analyses.} We use multiple testing adjusted p-value of $\Sexpr{ph.qval.cutoff}$.}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{ccccl}
+\hline 
+Sample A & Sample B & Number of Genes & Result File \\
+\hline 
+UA159 pH 7 & UA159 pH 5 & \Sexpr{sum(ua159ph@padj < ph.qval.cutoff,na.rm=T)} & ua159ph.csv \\
+SMU21 pH 7 & SMU21 pH 5 & \Sexpr{sum(smu21ph@padj < ph.qval.cutoff,na.rm=T)} & smu21ph.csv \\
+UA159 pH 7 & SMU21 pH 7 & \Sexpr{sum(ph7only@padj < ph.qval.cutoff,na.rm=T)} & ph7only.csv \\
+UA159 pH 5 & SMU21 pH 5 & \Sexpr{sum(ph5only@padj < ph.qval.cutoff,na.rm=T)} & ph5only.csv \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:deph}
+\end{table}
+%-----------------------------------------------------------------------------
+
+Use SMU21 contigs as a reference genome.
+
+<<readSmutans>>=
+smu21phGenes <-
+  readSmutans (countsFile=file.path(inDir, "count-smu21-bwa.txt"),
+                indexFile =file.path(inDir, "count-smu21.txt.index"),
+                condition = c("Smu21PH7", "Smu21PH5"),
+                firstFactor = c(),
+                firstFactorLabel = c("smu21"),
+                secondFactor = c(),
+                secondFactorLabel = c("ph7", "ph5"),
+                name="S. mutans UA159 pH7 and pH5 on SMU21")
+@
+
+<<smu21phSMU21>>=
+smu21phSMU21 <- newSmutans( smu21phGenes, title="SMU21" )
+smu21phSMU21 <- smutans.de2( smu21phSMU21, type="smu21", 
+                            condA="ph7", condB="ph5" )
+@
+
+<<eval=TRUE>>=
+# not run
+smutans.de2List( smu21phSMU21, "smu21phSMU21.csv" )
+@
+
+<<eval=TRUE>>=
+x <- scan(file.path(inDir, "SMU21.diff.lst"), what="character")
+y <- smutans.de2List( smu21phSMU21, qval=10^-2)$id
+z <- smu21phSMU21@res$id
+x1 <- z[z %in% x]
+x2 <- z[!z %in% x]
+y1 <- z[z %in% y]
+y2 <- z[!z %in% y]
+sum(x1 %in% y1)
+sum(x1 %in% y2)
+sum(x2 %in% y1)
+sum(x2 %in% y2)
+unique.diff <-
+matrix(c(7, 67, 106, 1562),
+       nrow = 2,
+       dimnames =
+       list(c("Diff", "Not diff"),
+            c("Unique", "Common")))
+fisher.test(unique.diff)
+@
+
+<<>>=
+x <- scan(file.path(inDir, "UA159-SMU21.diff.lst"), what="character")
+y <- smutans.de2List( smu21ph, qval=10^-2)$id
+z <- smu21ph@res$id
+x1 <- z[z %in% x]
+x2 <- z[!z %in% x]
+y1 <- z[z %in% y]
+y2 <- z[!z %in% y]
+sum(x1 %in% y1)
+sum(x1 %in% y2)
+sum(x2 %in% y1)
+sum(x2 %in% y2)
+unique.diff <-
+matrix(c(2, 267, 107, 1575),
+       nrow = 2,
+       dimnames =
+       list(c("Diff", "Not diff"),
+            c("Unique", "Common")))
+fisher.test(unique.diff)
 @
 
 %--------------------------------------------------
@@ -784,7 +1147,8 @@ ua159only <- smutans.de2( ua159only, type="ua159",
                           condA="glucose", condB="galactose" )
 allSample <- newSmutans( smutansGenes2, 
                          title="All Samples for Comparing Conditions" )
-allSample <- smutans.de2( allSample )
+allSample <- smutans.de2( allSample, 
+                          condA="glucose", condB="galactose" )
 tabUA159onlyAndAllSample <- smutans.compareResult( ua159only, 
                                                    allSample )
 addmargins( tabUA159onlyAndAllSample )
@@ -802,11 +1166,152 @@ We also found a few predicted small RNAs that appeared to be differentially
 expressed in the comparison of the two types: ``ua159'' and ``tw1.''
 <<smutansRNA>>=
 allSampleType <- newSmutans( smutansGenes2, title="All samples for type" )
-allSampleType <- smutans.de2( allSampleType, compareCondition="no" )
+allSampleType <- smutans.de2( allSampleType, compareCondition="no",
+                              condA="ua159", condB="tw1" )
 smutans.de2List( allSampleType )[grep("locus",rownames(smutans.de2List(allSampleType))),]
 @
 
+%--------------------------------------------------
+\section{Miscellaneous R scripts}
+%--------------------------------------------------
 
+Because \Rpackage{DESeq} recommended to check
+the dispersion estimates and to make sure that the data quality is as
+expected, we plot the per-gene estimates against the normalized mean
+expressions per gene, and then overlay the fitted curve in red color
+(Fig.\ \ref{figFit}).
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figFit}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength for the data set of UA159-only sample
+to compare glucose and galactose conditions.}
+\label{figFit}
+\end{figure}
+<<figFit,fig=TRUE>>=
+smutans.plotDispersionEstimates(ua159only)
+@
+\fixme{The following paragraph is adopted from \Rpackage{DESeq} vignette.}
+As we estimated the dispersion from only two samples, we should expect the
+estimates to scatter with quite some sampling variance around their true values.
+Hence, \Rpackage{DESeq} should not use the per-gene estimates directly in the
+test, because using too low dispersion values leads to false positives.  Many of
+the values below the red line are likely to be underestimates of the true
+dispersions, and hence, it is prudent to instead rather use the fitted value.
+On the othe hand, not all of the values above the red line are overestimations,
+and hence, the conservative choice is to keep them instead of replacing them
+with their fitted values.
+Having estimated the dispersion for each gene, we look for differentially
+expressed genes. To contrast two conditions, e.g., to see whether there is
+differential expression between conditions ``glucose'' and ``galactose'',
+\Rfunction{smutans.de2} already performed the 
+\Rfunction{nbinomTest} provided by \Rpackage{DESeq}.  
+Let's list genes with resulting information from \Rpackage{DESeq}.
+
+
+%-----------------------------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figDE}
+\caption{Plot of normalised mean versus $log_2$ fold change
+(this plot is sometimes also called the ``MA-plot'') for the contrast ``glucose''
+versus ``galactose'' using UA159-only sample.}
+\label{figDE}
+\end{figure}
+%-----------------------------------------------------------------------------
+<<figDE,fig=TRUE>>=
+smutans.plotDiffExp(ua159only)
+@
+Figure \ref{figDE} shows a plot of the $\log_2$ fold changes against the base
+means, coloring in red those genes that are significant at 10\% of FDR. 
+
+
+We could check 
+the dispersion estimates and to make sure that the data quality is as
+expected by plotting the per-gene estimates against the normalized mean
+expressions per gene, and then overlay the fitted curve.
+<<figFitAllSample,eval=FALSE>>=
+# not run
+smutans.plotDispersionEstimates(allSample)
+@
+<<figCompareUA159onlyAndAllSample,fig=TRUE>>=
+pval.ua159only <- smutans.pval( ua159only )
+pval.allSample <- smutans.pval( allSample )
+bottom = function(x, theta=1e-12) pmax(x, theta)
+plot( bottom(pval.ua159only), bottom(pval.allSample), log="xy", pch=20, cex=.3 )
+abline(a=0, b=1, col="blue")
+@
+Figure \ref{figCompareUA159onlyAndAllSample} shows the raw p-values from
+the two-factor analysis versus those from the single-factor analysis. The
+p-values from the two-factor analysis are overall smaller than those from the
+single-factor analysis. We would expect that this was the case because of higher
+power of the two-factor analysis.
+%-----------------------------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figCompareUA159onlyAndAllSample}
+\caption{Comparison of $p$ values (unadjusted) from the test using only the
+four paired-end samples and the test using all seven samples. We can see that
+the latter tend to be smaller, as expected from the higher power of the test with all samples.}
+\label{figCompareUA159onlyAndAllSample}
+\end{figure}
+%-----------------------------------------------------------------------------
+
+Once we find differentially expressed genes, we could cluster them. This could
+be useful to group genes that behave similarly.  These potentially useful
+figures can be plotted from \Rpackage{DESeq}.  We could also find function
+categories that were enriched with differentially expressed genes. For
+clustering differentially expressed genes we need moderate fold changes to make
+them amenable to distance calculation.  Figure \ref{figLfc} shows moderated log
+fold changes versus the original log fold changes.
+
+<<options,results=hide,echo=FALSE>>=
+largeNumber <- 10
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figLfc}
+\caption{Scatterplot of direct (\Robject{lfc}) versus \emph{moderated} log-ratios (\Robject{mod\_lfc}).
+  The moderation criterion used is variance stabilisation.
+  The red points correspond to values that were infinite in \Robject{lfc}
+  and were abitrarily set to $\pm\Sexpr{largeNumber}$ for the purpose of plotting.
+  These values vary in a finite range (as shown in the plot) in \Robject{mod\_lfc}.}
+\label{figLfc}
+\end{figure}
+<<figLfc,fig=TRUE>>=
+select <- 1:40
+smutans.de2TypeLfc( ua159only, condA="glucose", condB="galactose" )
+@
+Now we plot the first \Sexpr{length(select)} genes clustered based on the
+moderated log fold changes.
+
+%-----------------------------------------------------------------------------
+\begin{figure}
+\centering
+\includegraphics[width=.6\textwidth]{smutans-figHeatmap1}
+\caption{Heatmaps showing the expression data of the top \Sexpr{length(select)}
+  differentially expressed genes. Left, the variance stabilization
+  transformed data, right, the original count data.
+  The right plot is dominated by a small number of data points with large values.}
+\label{figHeatmap1}
+\end{figure}
+%-----------------------------------------------------------------------------
+<<figHeatmap1,fig=TRUE>>=
+smutans.de2TypeHeatmap( ua159only )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.9\textwidth]{smutans-figHeatmapNpAndP}
+\caption{Empirical (black dots) and fitted (red lines) dispersion values
+plotted against mean expression strength. \textbf{figHeatmapNpAndP}}
+\label{figHeatmapNpAndP}
+\end{figure}
+<<figHeatmapNpAndP,fig=TRUE>>=
+smutans.de2TypeHeatmap( npAndP )
+@
 
 \section{Session Info}
 <<sessi>>=
