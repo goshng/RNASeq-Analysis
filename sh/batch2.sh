@@ -39,6 +39,8 @@ function batch2 {
     batch2-run-fastq-qc
     batch2-run-bwa-align
 
+    batch2-run-samtools-pileup
+
     # This would replace fastq-qc, bwa-align, and de.
     # Because this creates similar job scripts to those created by fastq-qc,
     # bwa-align, or de, place qcalignde after them.
@@ -131,6 +133,7 @@ function batch2-speciesfile {
   REFGENOMEGFF=$(grep ^REFGENOMEGFF\: $SPECIESFILE | cut -d":" -f2)
   RNAZNNODE=$(grep ^RNAZNNODE\: $SPECIESFILE | cut -d":" -f2)
   RNAZWALLTIME=$(grep ^RNAZWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  PILEUPWALLTIME=$(grep ^PILEUPWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   DENNODE=$(grep ^DENNODE\: $SPECIESFILE | cut -d":" -f2)
   DEWALLTIME=$(grep ^DEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   CRAMWALLTIME=$(grep ^CRAMWALLTIME\: $SPECIESFILE | cut -d":" -f2)
@@ -140,6 +143,7 @@ function batch2-speciesfile {
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQNNODE=$(grep ^PARSERNASEQNNODE\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQWALLTIME=$(grep ^PARSERNASEQWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
   BWAALIGNNNODE=$(grep ^BWAALIGNNNODE\: $SPECIESFILE | cut -d":" -f2)
   BWAALIGNWALLTIME=$(grep ^BWAALIGNWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   FASTQQCNNODE=$(grep ^FASTQQCNNODE\: $SPECIESFILE | cut -d":" -f2)
@@ -502,6 +506,75 @@ function process-data {
 
   cp $CBWADIR/FASTQ\$NUM.sorted.bam $RBWADIR
   cp $CSUBREADDIR/FASTQ\$NUM.sorted.bam $RSUBREADDIR
+}
+
+copy-data
+process-data
+cd
+rm -rf \$TMPDIR
+EOF
+}
+
+
+function batch2-run-samtools-pileup {
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  GENOMEGFF=$(basename $REFGENOMEGFF)
+  status=samtools-pileup
+cat>$BASEDIR/run-$status.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$status.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$status.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${PILEUPWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-PILEUP
+#PBS -q ${QUEUENAME}
+#PBS -m e
+# #PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$SAMTOOLS samtools
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-$status .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+  mkdir -p $CSUBREADDIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+}
+
+function process-data {
+  cd \$TMPDIR
+  CORESPERNODE=1
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+
+  cp $RBWADIR/FASTQ\$NUM.sorted.bam $CBWADIR
+  cp $RSUBREADDIR/FASTQ\$NUM.sorted.bam $CSUBREADDIR
+  bash job-$status \$NUM \\
+    $CBWADIR/FASTQ\$NUM.sorted.bam \\
+    $CBWADIR/FASTQ\$NUM.mpileup
+  cp $CBWADIR/FASTQ\$NUM.mpileup $RBWADIR
+
+#  bash job-$status \$NUM \\
+#    $CSUBREADDIR/FASTQ\$NUM.sorted.bam \\
+#    $CSUBREADDIR/FASTQ\$NUM.mpileup
 }
 
 copy-data
@@ -909,6 +982,7 @@ QUALITYSCORESEQUENCE=QUALITYSCORE\$1
   $CDATADIR/$GENOMEFASTA &> /dev/null
 
 ./bwa aln -t $BWAALIGNNCPU \\
+  $BWAOPTION \\
   $CBWADIR/$GENOMEFASTA-bwa \\
   \$2 > $CBWADIR/FASTQ\$1.sai 2> /dev/null
 
@@ -943,6 +1017,24 @@ FASTAQFILE=\${2%.gz}
 rm $CSUBREADDIR/FASTQ\$1.sam
 rm $CSUBREADDIR/FASTQ\$1.bam
 rm \$FASTAQFILE
+EOF
+
+# Pileup
+# $1: a three-digit number
+# $2: a sorted bam file
+# $3: a pileup file
+cat>$BASEDIR/job-samtools-pileup<<EOF
+
+# ./samtools mpileup -q 15 -d $READDEPTH \\
+
+./samtools faidx $CDATADIR/$GENOMEFASTA &> /dev/null
+
+./samtools mpileup \\
+  -B \\
+  -f $CDATADIR/$GENOMEFASTA \\
+  \$2 \\
+  > \$3
+
 EOF
 
 # DE count

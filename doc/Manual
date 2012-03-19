@@ -182,6 +182,7 @@ variables would cause problems.
 . split file size limit in _MAXLINEDE_
 . minimum alignment mapping quality in _MINMAPQ_
 . number CPUs in a compute node in _BWAALIGNNCPU_
+. set bwa options in _BWAOPTION_
 . Rscript path in _CACRSCRIPT_
 
 A simulation is not a sufficient way to check whether the pipeline of counting
