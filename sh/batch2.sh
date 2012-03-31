@@ -121,6 +121,7 @@ function batch2-output {
 
 function batch2-speciesfile {
   FASTQLABEL=$(grep ^FASTQLABEL\: $SPECIESFILE | cut -d":" -f2)
+  SINGLECHROMOSOME=$(grep ^SINGLECHROMOSOME\: $SPECIESFILE | cut -d":" -f2)
   TESTFASTQ=$(grep ^TESTFASTQ\: $SPECIESFILE | cut -d":" -f2)
   TESTFASTQNUM=FASTQ$(printf "%03d" $TESTFASTQ)
   CRAMDIR=$(grep ^CRAMDIR\: $SPECIESFILE | cut -d":" -f2)
@@ -174,11 +175,12 @@ scp $CRAMGENOMEFASTA $CAC_USERHOST:$RDATADIR
 #scp $BWADIR/feature-genome.out-geneonly $CAC_USERHOST:$RBWADIR
 #scp output/data/bacteria.fa $CAC_USERHOST:$RDATADIR
 
+echo Edit push-data.sh to send cram or fastq files.
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
   FASTQFILE=\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
   # scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
-  scp $CRAMDIR/\$FASTQNUM.cram $CAC_USERHOST:$RDATADIR
+  # scp $CRAMDIR/\$FASTQNUM.cram $CAC_USERHOST:$RDATADIR
 done
 
 EOF
@@ -1060,8 +1062,13 @@ aln <- aln[!is.na(position(aln))]
 
 cl.sum <- rep(0,times=length(gene.range2\$ranges))
 for (i in unique(gene.range2\$space)) {
-  cfilt <- chromosomeFilter(paste("^",as.character(i),"$",sep=""))
-  aln2 <- aln[cfilt(aln)]
+  aln2 <- aln
+  if ($SINGLECHROMOSOME) {
+    aln2 <- aln
+  } else {
+    cfilt <- chromosomeFilter(paste("^",as.character(i),"$",sep=""))
+    aln2 <- aln[cfilt(aln)]
+  }
   if (length(aln2) > 0) {
     alnIR <- IRanges(start=position(aln2),width=width(aln2))
     geneIR <- gene.range2[gene.range2\$space==as.character(i), ]\$ranges
@@ -1075,21 +1082,16 @@ save(cl,file=cl.file)
 EOF
 
 cat>$BASEDIR/job-de2.R<<EOF
-library(easyRNASeq)
-library(rtracklayer)
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 2)
 {
   cat ("Rscript job-de.R 1 BWA-\n")
   quit("yes")
 }
-gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
-cl.sum <- rep(0,times=length(gene.range2\$ranges))
 cl.pattern <- paste(args[2],"[[:digit:]]+.bam.cl",sep="")
 cl.files <- list.files(pattern=cl.pattern)
+load(cl.files[1])
+cl.sum <- rep(0,times=length(cl))
 for (i in cl.files) {
   load(i)
   cl.sum <- cl.sum + cl

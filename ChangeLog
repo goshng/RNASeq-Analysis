@@ -45,6 +45,54 @@ Histories
 ---------
 This history can be useful later.
 
+Fri Mar 30 10:03:05 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Hash table in BASH
+----
+test/sh/hash.sh
+----
+
+.Pick adapter using BASH hash
+----
+test/sh/adapter-hash.sh
+----
+
+.Tomato annotation
+----
+TAG2.3_gene_models.gff3.txt
+----
+
+How can I read a gff file?
+Use library(rtracklayer) and import.gff3.
+
+.Test in the test node of the cluster
+----
+nsub ~/interactive-dev.sh
+cd $PBS_O_WORKDIR
+$R215
+library(DEXSeq)
+library(rtracklayer)
+library("pasilla")
+inDir = system.file("extdata", package="pasilla", mustWork=TRUE)
+dir(inDir)
+sa <- data.frame(condition=factor(c(rep("treated",3),rep("untreated",3))),replicate=c(1,2,3,1,2,3),type=c("single-read","paired-end","paired-end","single-read","single-read","paired-end"))
+rownames(sa) <- c("treated1fb","treated2fb","treated3fb","untreated1fb","untreated2fb","untreated3fb")
+
+See http://www.sequenceontology.org/gff3.shtml
+
+gene.range3 <- import.gff3("ITAG2.3_gene_models.gff3.txt")
+gene.range1 <- gene.range3[gene.range3$type=="gene"|gene.range3$type=="exon",]
+gene.range1 <- gene.range3[gene.range3$type=="exon",]
+
+Note:
+One gene has a negative length:
+SL2.40ch01      ITAG_eugene     three_prime_UTR 338105  338074  .       - .  ID=three_prime_UTR:Solyc01g005490.2.1.1;Parent=mRNA:Solyc01g005490.2.1;from_BOGAS=1
+----
+
+Thu Mar 29 14:50:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Added agalactiae species file.
 
 Mon Mar  5 17:14:07 EST 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

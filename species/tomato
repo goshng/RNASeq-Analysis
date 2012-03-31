@@ -1,0 +1,51 @@
+# Species file for analysis based on smu21 data
+# =============================================
+
+# FASTQ files
+FASTQ001:/Volumes/Elements/Documents/Projects/rnaseq/data/From_Fei/JeMin_8A.gz
+FASTQ002:/Volumes/Elements/Documents/Projects/rnaseq/data/From_Fei/JeMin_E6023.gz
+
+# Quality score schemes: sanger for Phred+33, and illumina for Phred+64
+QUALITYSCORE001:sanger
+QUALITYSCORE002:sanger
+
+CRAMDIR:output/data/cram
+
+# fastq file indices
+FASTQFILES:1 2
+FASTQLABEL:tomato1 tomato2
+
+# CAC working directory
+CACWORKDIR:run/rnaseq/030312
+
+# Reference genomes
+REFGENOMEID:tomato
+REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/rnaseq/data/From_Fei/build_2.40/S_lycopersicum_chromosomes.2.40.fna
+REFGENOMEGFF:output/data/SMU21.gff
+CRAMGENOMEFASTA:/Volumes/Elements/Documents/Projects/rnaseq/data/From_Fei/build_2.40/S_lycopersicum_chromosomes.2.40.fna
+
+# Unknown adapter 
+ADAPTER001:GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTTG
+ADAPTER002:GATCGGAAGAGCACACGTCTGAACTCCAGTCACTGACCAATCTCGTATGCCGTCTTCTGCTTG
+
+# Analysis time
+CRAMWALLTIME:12
+QCALIGNDEWALLTIME:12
+MAXLINEDE:5000000
+MINMAPQ:30
+BWAALIGNNCPU:8
+CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+
+PILEUPWALLTIME:12
+BWAOPTION:-O 10 -E 3 -M 2 -o 2 -e 10 -n 5
+
+FASTQQCWALLTIME:1
+BWAALIGNWALLTIME:24
+DEWALLTIME:3
+FASTQQCNNODE:3
+BWAALIGNNNODE:17
+DENNODE:3
+PARSERNASEQNNODE:1
+PARSERNASEQWALLTIME:36
+RNAZNNODE:1
+RNAZWALLTIME:144
