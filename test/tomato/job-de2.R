@@ -15,10 +15,11 @@ if (length(args) != 2)
 cl.pattern <- paste(args[2],"[[:digit:]]+.bam.cl",sep="")
 cl.files <- list.files(pattern=cl.pattern)
 load(cl.files[1])
-cl.sum <- cl
+cl.sum <- rep(0,times=length(cl))
 for (i in cl.files) {
   load(i)
   cl.sum <- cl.sum + cl
 }
 cl <- cl.sum
 save(cl,file=args[1])
+print(paste("file:",args[1]))

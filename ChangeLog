@@ -45,6 +45,25 @@ Histories
 ---------
 This history can be useful later.
 
+
+Sat Mar 31 11:30:45 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To convert a genbank file to gff file.
+----
+bp_genbank2gff3.pl -out stdout yourGenBank.gb > yourfilename.gff
+curl ftp://ftp.ncbi.nih.gov/genomes/Saccharomyces_cerevisiae/CHR_X/NC_001142.gbk \
+  | perl genbank2gff3.pl -noCDS -in stdin -out stdout \
+  | perl gmod_bulk_load_gff3.pl -dbname mychado -organism fromdata
+----
+
+.For contigs genomes
+----
+SINGLECHROMOSOME:FALSE
+----
+
+dUTP mapping is reversed.
+
 Fri Mar 30 10:03:05 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

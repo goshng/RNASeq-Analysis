@@ -469,6 +469,15 @@ Download bwa and samtools at a directory in CAC cluster. Build and install them.
 BWA's location would be $HOME/usr/bin/bwa-0.6.1.
 Go to the working directory at your cluster, and execute +run-cram.sh+ script.
 
+To change reference genomes replace the following three species file variables.
+
+.Change reference genomes
+----
+REFGENOMEID:NC_004368
+REFGENOMEFASTA:input/Streptococcus_agalactiae_NEM316/NC_004368.fna
+REFGENOMEGFF:input/Streptococcus_agalactiae_NEM316/NC_004368.gff
+----
+
 batch
 ~~~~~
 This manual is not yet written well. Until that happens, I just write down what

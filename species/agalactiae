@@ -118,13 +118,23 @@ FASTQLABEL:sag82hm sag82hm sag82hm sag61hm sag61hm sag61hm sag61hb sag61hb sag56
 CACWORKDIR:run/rnaseq/032912
 
 # Reference genome ID
-REFGENOMEID:NC_007432
+# REFGENOMEID:NC_007432
+# REFGENOMEID:NC_004368
+REFGENOMEID:AEXT01
+
+# We have a single chromosome.
+# SINGLECHROMOSOME:TRUE
+SINGLECHROMOSOME:FALSE
 
 # Reference genome FASTA 
-REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
+# REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
+# REFGENOMEFASTA:input/Streptococcus_agalactiae_NEM316/NC_004368.fna
+REFGENOMEFASTA:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.fna
 
 # Reference genome annotation
-REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+# REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+# REFGENOMEGFF:input/Streptococcus_agalactiae_NEM316/NC_004368.gff
+REFGENOMEGFF:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
 
 # CRAM reference genome FASTA
 CRAMGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
@@ -149,7 +159,4 @@ BWAALIGNNCPU:8
 
 # We use a customized R
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
-
-# We have a single chromosome.
-SINGLECHROMOSOME:TRUE
 
