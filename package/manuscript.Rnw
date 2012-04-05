@@ -89,8 +89,6 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 
 \doublespacing
 
-\fixme{Refinements: More filtering steps in the short read alignments might be necessary. Done?}
-
 \section*{Abstract}
 A bacterial transcriptome of the primary etiological agent of human dental
 caries, \textit{Streptococcus mutans}, is described using deep RNA sequencing.
@@ -102,7 +100,7 @@ study provides more precise landscape of transcriptome changes in response to
 different carbon sources.
 
 \section*{Introduction}
-% S. mutans, CCR and CcpA
+% Biological motivations: S. mutans, CCR and CcpA
 About one fifth of children of ages ranging from 2 to 19 were reported to have
 untreated cavities in the United States \citep{health2010}. Oral bacteria digest
 foods containing carbohydrates left on the teeth to convert them to acids, which
@@ -118,7 +116,7 @@ shown to regulate metabolism and virulence gene expression in
 \textit{S.\ mutans} through CCR in transcriptom study using 
 the microarray technique based on DNA hybridization \citep{Abranches2008}. 
 
-% RNA-seq, and microarray, bacterial transcriptomes
+% Technological motivations: RNA-seq, and microarray, bacterial transcriptomes
 It has been a decade since the first genome of the oral bacteria was finished
 \citep{Ajdic2002}.  Studies of the transcriptome in the bacteria were performed
 based on DNA hybridization
@@ -134,12 +132,13 @@ The advent of the high-throughput RNA deep sequencing technologies allowed
 annotation-free detection of transcripts, sensitive and dynamic ranges of
 measurements in RNA expression levels, and studies of non-coding RNAs. 
 
-% Aims
+% Aims of the study
 We used the standard RNA deep sequencing technique to sequence RNAs in
 \textit{S.\ mutans}, focusing on messenger RNAs expression levels in response to
 different nutrients with UA159 wild-type and \textit{ccpA}-deleted TW1
-mutant-type.  We attempted to define transcripts of mRNAs using the RNA-seq
-data, and to find several small non-coding RNAs. Using the map of transcripts
+mutant-type.  We describe transcripts of the mRNAs using the RNA-seq
+data, and present several small non-coding RNAs in \textit{S.\ mutans}. 
+Using the map of transcripts
 and expression levels of the transcripts from different biological conditions
 allowed us to determine which transcripts and non-coding small RNAs were
 differentially expressed. This provided more refined views of dynamic changes in
@@ -157,9 +156,6 @@ necessary works. Please, add texts and SCC will copy-edit them.}
 and SCC will copy-edit them.}
 
 \subsection*{RNA sequencing}
-\fixme{SCC wrote the paragraph based on email correspondences between PDPB and CDD.
-Stanhope group describes RNA sequencing. Please add texts and SCC will copy-edit
-them.}
 Deep sequencing of the RNA samples were performed at the Cornell University Life
 Sciences Core Laboratories Center (Ithaca, NY).  RNA extraction was performed
 using a modified Qiagen RNAease protocol (Qiagen, Inc., Chatsworth, CA): cells

@@ -45,6 +45,25 @@ Histories
 ---------
 This history can be useful later.
 
+Thu Apr  5 11:49:07 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ua159 is more recent than cornell species.
+I need summary statistics of short reads: total number of reads, uniquely mapped
+reads, multiply mapped reads, rRNA/tRNA mapped reads.
+
+.R mac install problem
+----
+/Library/Frameworks/R.framework/Resources/bin/R
+: ${R_ARCH=/x86_64}
+R_ARCH=/x86_64
+----
+
+.A good vignette for counting using BioC R
+----
+http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/summarizeOverlaps.pdf
+----
+
 Wed Apr  4 16:38:15 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
