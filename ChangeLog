@@ -39,12 +39,61 @@ Write a short report on the RNA-Seq data. (done)
 
 Jobs to be finished
 -------------------
-NA
+Compare agal. and tomato.
 
 Histories
 ---------
 This history can be useful later.
 
+Wed Apr  4 16:38:15 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.build R-devel
+----
+wget ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
+cd r-devel
+mkdir b
+tar zxf ../R-devel.tar.gz
+cd R-devel
+tools/rsync-recommended
+cd ../b
+../R-devel/configure
+make
+source("http://bioconductor.org/biocLite.R")
+biocLite("easyRNASeq")
+biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
+biocLite("VariantAnnotation")
+----
+
+.Tutorial of RNA-seq with BioC
+----
+summarizeOverlaps
+----
+
+Tue Apr  3 09:08:02 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.S. agalactiae - 12 comparisons
+----
+output/agalactiae/1/run-analysis/count.R
+----
+
+bcftools?
+----
+http://samtools.sourceforge.net/samtools.shtml
+zipped <- bgzip(vcffile)
+indexTabix(zipped,"vcf")
+tab <- TabixFile(zipped)
+library("GenomicFeatures") for creating genomic features
+----
+
+Mon Apr  2 15:46:51 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To write a manuscript for UA159-TW1
+----
+vims tw1
+----
 
 Sat Mar 31 11:30:45 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +109,95 @@ curl ftp://ftp.ncbi.nih.gov/genomes/Saccharomyces_cerevisiae/CHR_X/NC_001142.gbk
 .For contigs genomes
 ----
 SINGLECHROMOSOME:FALSE
+----
+
+.S. agalactiae using two factors
+----
+library(smutans)
+# REFGENOMEID:NC_007432
+# REFGENOMEID:NC_004368
+# REFGENOMEID:AEXT01
+# count-hcmb-sag56-to-human.index
+
+for (i in c("NC_007432","NC_004368","AEXT01")) {
+file.1 <- paste("output/agalactiae/1/bwa/count-",i,".txt", sep="")
+file.out.1 <- paste(i,"-broth-sag56-clust.pdf", sep="")
+file.out.2 <- paste(i,"-broth-sag56.csv", sep="")
+file.out.3 <- paste(i,"-broth-sag56.ps", sep="")
+
+agGenes <- 
+  readSmutans(countsFile=file.1,
+              indexFile="output/agalactiae/1/run-analysis/count-hcmb-sag56-to-human.index",
+              condition = c("hb", "cb"),
+              firstFactorLabel = c("hb"),
+              secondFactorLabel = c("hb", "cb"),
+              name="S. agalactiae human and cow with broth fixed")
+
+ag <- newSmutans( agGenes , title="Human and Cow with broth fixed" )
+
+pdf(file.out.1)
+smutans.de2Clust( ag )
+dev.off()
+
+ag <- smutans.de2( ag, type="hb", condA="hb", condB="cb")
+smutans.de2List( ag, file=file.out.2 )
+smutans.plotDiffExp(ag,file=file.out.3,qval=0.01)
+}
+
+agGenes <- 
+  readSmutans(countsFile="output/agalactiae/1/bwa/count-NC_007432.txt", 
+    indexFile="output/agalactiae/1/run-analysis/count-hcmb.index",
+    condition = c("hm","cm","hb","cb"),
+    firstFactor = c("hm","hb"), 
+    firstFactorLabel = c("human", "cow"), 
+    secondFactor = c("hm", "cm"), 
+    secondFactorLabel = c("milk","broth"), 
+    name="S. agalctiae human, cow, milk, and broth")
+
+ag <- newSmutans( agGenes )
+pdf("NC_004368-clust.pdf")
+smutans.de2Clust( ag )
+dev.off()
+
+agAll <- newSmutans( agGenes, title="All Samples for Comparing Conditions" )
+agAll <- smutans.de2( agAll, condA="milk", condB="broth" )
+smutans.de2List( agAll, file="NC_004368.csv" )
+smutans.plotDiffExp(agAll,file="NC_004368.ps",qval=0.01)
+----
+
+
+.Tomato no-replicate comparison
+----
+library(smutans)
+tomatoGenes <- readSmutans(countsFile="output/tomato/1/bwa/count-exon.txt", 
+    indexFile="output/tomato/1/bwa/count.txt.index",
+    condition = c("wt","il"),
+    firstFactorLabel = c("wt"),
+    secondFactorLabel = c("wt","il"),
+    name="Tomato IL Chr.8")
+tomato <- newSmutans( tomatoGenes, title="WT vs. IL8" )
+object <- tomato
+ua159Samples <- pData(object@countDataSet)$type == "wt"
+countsTable <- counts(object@countDataSet)[ , ua159Samples ]
+conds <- pData(object@countDataSet)$condition[ ua159Samples ]
+cds <- newCountDataSet( countsTable, conds )
+cds <- estimateSizeFactors( cds )
+cds <- estimateDispersions( cds,method="blind",sharingMode="fit-only" )
+res <- nbinomTest( cds, "wt", "il")
+
+write.csv(res, file="tomato-exon.csv")
+
+qval <- 0.05
+resSig <- res[res$padj < qval,]
+length(resSig[order(resSig$pval),])
+
+pdf(file="tomato-exon.pdf")
+plot( res$baseMean,
+      res$log2FoldChange,
+      xlab="X", ylab="Y",
+      log="x", pch=20, cex=.7,
+      col = ifelse( res$padj < qval, "red", "black" ))
+dev.off()
 ----
 
 dUTP mapping is reversed.

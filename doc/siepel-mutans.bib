@@ -1224,6 +1224,54 @@
   url = {http://dx.doi.org/10.1016/j.mib.2011.07.023}
 }
 
+@ARTICLE{Frazee2011,
+  author = {Alyssa C Frazee and Ben Langmead and Jeffrey T Leek},
+  title = {ReCount: a multi-experiment resource of analysis-ready RNA-seq gene
+	count datasets.},
+  journal = {BMC Bioinformatics},
+  year = {2011},
+  volume = {12},
+  pages = {449},
+  __markedentry = {[goshng]},
+  abstract = {1RNA sequencing is a flexible and powerful new approach for measuring
+	gene, exon, or isoform expression. To maximize the utility of RNA
+	sequencing data, new statistical methods are needed for clustering,
+	differential expression, and other analyses. A major barrier to the
+	development of new statistical methods is the lack of RNA sequencing
+	datasets that can be easily obtained and analyzed in common statistical
+	software packages such as R. To speed up the development process,
+	we have created a resource of analysis-ready RNA-sequencing datasets.
+	2ReCount is an online resource of RNA-seq gene count tables and auxilliary
+	data. Tables were built from raw RNA sequencing data from 18 different
+	published studies comprising 475 samples and over 8 billion reads.
+	Using the Myrna package, reads were aligned, overlapped with gene
+	models and tabulated into gene-by-sample count tables that are ready
+	for statistical analysis. Count tables and phenotype data were combined
+	into Bioconductor ExpressionSet objects for ease of analysis. ReCount
+	also contains the Myrna manifest files and R source code used to
+	process the samples, allowing statistical and computational scientists
+	to consider alternative parameter values. 3By combining datasets
+	from many studies and providing data that has already been processed
+	from. fastq format into ready-to-use. RData and. txt files, ReCount
+	facilitates analysis and methods development for RNA-seq count data.
+	We anticipate that ReCount will also be useful for investigators
+	who wish to consider cross-study comparisons and alternative normalization
+	strategies for RNA-seq.},
+  doi = {10.1186/1471-2105-12-449},
+  institution = {Department of Biostatistics, The Johns Hopkins University Bloomberg
+	School of Public Health, 615 North Wolfe Street, Baltimore, MD 21205,
+	USA.},
+  keywords = {Animals; Gene Expression Profiling, methods; Humans; RNA, analysis/genetics;
+	Sequence Analysis, RNA, methods; Software},
+  language = {eng},
+  medline-pst = {epublish},
+  owner = {goshng},
+  pii = {1471-2105-12-449},
+  pmid = {22087737},
+  timestamp = {2012.03.29},
+  url = {http://dx.doi.org/10.1186/1471-2105-12-449}
+}
+
 @ARTICLE{Fritz2011,
   author = {Markus Hsi-Yang Fritz and Rasko Leinonen and Guy Cochrane and Ewan
 	Birney},
@@ -1403,7 +1451,6 @@
   volume = {3},
   pages = {e3042},
   number = {8},
-  __markedentry = {[goshng]},
   abstract = {Sequencing the expressed genetic information of an ecosystem (metatranscriptome)
 	can provide information about the response of organisms to varying
 	environmental conditions. Until recently, metatranscriptomics has
@@ -4266,6 +4313,54 @@
   pmid = {18349386},
   timestamp = {2012.01.18},
   url = {http://dx.doi.org/10.1101/gr.074492.107}
+}
+
+@ARTICLE{Zhou2011,
+  author = {Yi-Hui Zhou and Kai Xia and Fred A Wright},
+  title = {A powerful and flexible approach to the analysis of RNA sequence
+	count data.},
+  journal = {Bioinformatics},
+  year = {2011},
+  volume = {27},
+  pages = {2672--2678},
+  number = {19},
+  month = {Oct},
+  __markedentry = {[goshng]},
+  abstract = {A number of penalization and shrinkage approaches have been proposed
+	for the analysis of microarray gene expression data. Similar techniques
+	are now routinely applied to RNA sequence transcriptional count data,
+	although the value of such shrinkage has not been conclusively established.
+	If penalization is desired, the explicit modeling of mean-variance
+	relationships provides a flexible testing regimen that 'borrows'
+	information across genes, while easily incorporating design effects
+	and additional covariates.We describe BBSeq, which incorporates two
+	approaches: (i) a simple beta-binomial generalized linear model,
+	which has not been extensively tested for RNA-Seq data and (ii) an
+	extension of an expression mean-variance modeling approach to RNA-Seq
+	data, involving modeling of the overdispersion as a function of the
+	mean. Our approaches are flexible, allowing for general handling
+	of discrete experimental factors and continuous covariates. We report
+	comparisons with other alternate methods to handle RNA-Seq data.
+	Although penalized methods have advantages for very small sample
+	sizes, the beta-binomial generalized linear model, combined with
+	simple outlier detection and testing approaches, appears to have
+	favorable characteristics in power and flexibility.An R package containing
+	examples and sample datasets is available at http://www.bios.unc.edu/research/genomic_software/BBSeqyzhou@bios.unc.edu;
+	fwright@bios.unc.eduSupplementary data are available at Bioinformatics
+	online.},
+  doi = {10.1093/bioinformatics/btr449},
+  institution = {Department of Biostatistics, University of North Carolina, Chapel
+	Hill, NC 27599, USA. yzhou@bios.unc.edu},
+  keywords = {Base Sequence, genetics; Gene Expression; Gene Expression Profiling,
+	methods; Models, Genetic; Models, Statistical; Sequence Analysis,
+	RNA, methods; Software; Transcription, Genetic; Transcriptome, genetics},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {goshng},
+  pii = {btr449},
+  pmid = {21810900},
+  timestamp = {2012.03.29},
+  url = {http://dx.doi.org/10.1093/bioinformatics/btr449}
 }
 
 @comment{jabref-meta: selector_publisher:}

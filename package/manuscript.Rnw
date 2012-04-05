@@ -647,8 +647,8 @@ included differentially expressed genes between glucose-grown and
 galactose-grown UA159 wild-type cells. Qualitatively, energy metabolism and PTS
 classes were profound. 
 ``Energy metabolism; Fermentation'' had highly differentially expressed genes
-(fig.\ \ref{figDotplotUA159Only})
-This was silmilar to the comparison between UA159
+(fig.\ \ref{figDotplotUA159Only}).
+This was similar to the comparison between UA159
 wild-type and TW1 mutant-type grown in glucose. 
 More than a quarter of the
 differentially expressed genes were unknown, unassigned, or hypothetical.

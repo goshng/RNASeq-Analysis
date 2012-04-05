@@ -9,11 +9,12 @@
 #                   cat.desc=smutans.cat.desc )
 
 
-library(GenomicRanges)
-library(DESeq)
+#library(GenomicRanges)
+#library(DESeq)
 source("smutans/R/core.R")
 source("smutans/R/methods.R")
 source("smutans/R/class_and_slots.R")
+
 #smutans.prepareGoseq( )
 #smutans.prepareData835NPP ()
 #smutans.prepareData34 ()
@@ -25,84 +26,18 @@ source("smutans/R/class_and_slots.R")
 #smutans.prepareDataSMU21PH75() 
 #smutans.prepareDataUA159PH75()
 
-smutansGenes <- readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
-             indexFile ="smutans/inst/extdata/count-ua159.txt.index",
-             condition = c("UA159GLU", "UA159GAL", "TW1GLU", "TW1GAL"),
-             firstFactor = c("UA159GLU", "UA159GAL"),
-             firstFactorLabel = c("ua159", "tw1"),
-             secondFactor = c("UA159GLU", "TW1GLU"),
-             secondFactorLabel = c("glucose","galactose"),
-             name="S. mutans UA159, TW1, Glucose, and Galactose", 
-             lab="University of Florida, and Cornell University", 
-             contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-             title="Streptococcus mutans RNA-Seq Studies", 
-             url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-             abstract="RNA-seq of 13 biological replicates from Streptococcus mutans",
-             pubmedid <- "999999999")
+agGenes <- readSmutans(countsFile="../output/agalactiae/1/bwa/count-NC_004368.txt", 
+    indexFile="../output/agalactiae/1/run-analysis/count-hcmb.index",
+    condition = c("hm","cm","hb","cb"),
+    firstFactor = c("hm","hb"), 
+    firstFactorLabel = c("human", "cow"), 
+    secondFactor = c("hm", "cm"), 
+    secondFactorLabel = c("milk","broth"), 
+    name="S. agalctiae human, cow, milk, and broth")
 
-sm835Genes <- 
-  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
-               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
-                condition = c("835NP", "835P", "UA159noCSP"),
-                firstFactor = c("835NP", "835P", "UA159noCSP"),
-                firstFactorLabel = c("ua159"),
-                secondFactor = c(),
-                secondFactorLabel = c("835np","835p", "ua159nocsp"),
-                name="S. mutans 835NP, 835P, UA159 no CSP", 
-                lab="University of Florida, and Cornell University", 
-                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-                title="Streptococcus mutans RNA-Seq Studies", 
-                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-                abstract="RNA-seq of 8 biological replicates from Streptococcus mutans",
-                pubmedid <- "999999999")
+ag <- newSmutans( agGenes )
+smutans.de2Clust( ag )
 
-smpHGenes <-
-  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
-               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
-                condition = c("UA159PH7", "UA159PH5", "Smu21PH7", "Smu21PH5"),
-                firstFactor = c("UA159PH7", "UA159PH5"),
-                firstFactorLabel = c("ua159", "smu21"),
-                secondFactor = c("UA159PH7", "Smu21PH7"),
-                secondFactorLabel = c("ph7","ph5"),
-                name="S. mutans UA159 pH7 and pH5", 
-                lab="University of Florida, and Cornell University", 
-                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-                title="Streptococcus mutans RNA-Seq Studies", 
-                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-                abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans",
-                pubmedid <- "999999999")
-
-smu21pHGenes <-
-  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
-               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
-                condition = c("Smu21PH7", "Smu21PH5"),
-                firstFactor = c(),
-                firstFactorLabel = c("smu21"),
-                secondFactor = c(),
-                secondFactorLabel = c("ph7", "ph5"),
-                name="S. mutans UA159 pH7 and pH5", 
-                lab="University of Florida, and Cornell University", 
-                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-                title="Streptococcus mutans RNA-Seq Studies", 
-                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-                abstract="RNA-seq of UA159 pH 7 and pH 5 replicates from Streptococcus mutans",
-                pubmedid <- "999999999")
-
-cspGenes <-
-  readSmutans (countsFile="smutans/inst/extdata/count-ua159-bwa.txt",
-               indexFile ="smutans/inst/extdata/count-ua159.txt.index",
-                condition = c("UA159noCSP", "UA159CSP", "Smu86noCSP", "Smu86CSP"),
-                firstFactor = c("UA159noCSP", "UA159CSP"),
-                firstFactorLabel = c("ua159", "smu86"),
-                secondFactor = c("UA159noCSP", "Smu86noCSP"),
-                secondFactorLabel = c("noCSP","CSP"),
-                name="S. mutans no CSP and with CSP", 
-                lab="University of Florida, and Cornell University", 
-                contact="Drs. Robert Burne, Michael Stanhope, and Adam Siepel", 
-                title="Streptococcus mutans RNA-Seq Studies", 
-                url="http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.cgi?acc=XXX", 
-                abstract="RNA-seq of UA159 no CSP and with CSP replicates from Streptococcus mutans",
-                pubmedid <- "999999999")
 #design <- pData( smutansGenes )[,c("type","condition")]
 #fullCountsTable <- counts( smutansGenes )
 #cds <- newCountDataSet( fullCountsTable, design )

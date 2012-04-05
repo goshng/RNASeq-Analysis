@@ -124,6 +124,10 @@ setMethod("smutans.de2",
 
       cds <- newCountDataSet( countsTable, conds )
       cds <- estimateSizeFactors( cds )
+
+      # For no replicate case:
+      # object@cds <- estimateDispersions( cds,method="blind",sharingMode="fit-only")
+      
       object@cds <- estimateDispersions( cds )
       object@res <- nbinomTest( object@cds, condA, condB )
       object@pval <- object@res$pval
@@ -263,15 +267,15 @@ setMethod("smutans.de2Clust",
     heatmap( as.matrix( dists ),
        symm=TRUE, scale="none", margins=margins,
        col = colorRampPalette(c("black","white"))(100),
-       labCol = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
-       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type)
+       labCol = paste( rownames(pData(cdsFullBlind)), pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+       labRow = paste( rownames(pData(cdsFullBlind)), pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type)
        )
 #    heatmap( as.matrix( dists ), Colv=TRUE,
 #       symm=TRUE, scale="none", margins=margins,
 #       col = colorRampPalette(c("black","white"))(100),
 #       trace="none", density.info="none",
-#       labRow = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
-#       labCol = paste( pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+#       labRow = paste( rownames(pData(cdsFullBlind)), pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
+#       labCol = paste( rownames(pData(cdsFullBlind)), pData(cdsFullBlind)$condition, pData(cdsFullBlind)$type),
 #       dendrogram = "both", keysize = 1.2
 #       )
     if (file != "default")
