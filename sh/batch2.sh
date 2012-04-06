@@ -762,9 +762,20 @@ EOF
 cat>$BASEDIR/job-simulate.R<<EOF
 ############################################################################
 # Create a test fastq files by sampling 10 100-bp short reads for each gene.
-library(easyRNASeq)
+library(DESeq)
+library(ShortRead)
 library(rtracklayer)
+library(GenomicRanges)
+library(VariantAnnotation)
+library(GenomicFeatures)
+  $REFGENOMETXDB
 gff.file <- "$RDATADIR/$GENOMEGFF"
+
+# saveFeatures and loadFeatures
+txdb <- load("NC_004350.sqlite")
+feature.cds <- cds(txdb, columns="exon_name")
+strand(feature.cds) <- '*'
+
 genome.file <- "$RDATADIR/$GENOMEFASTA"
 fastq.file <- "$RDATADIR/$TESTFASTQNUM.fq"
 file.create(fastq.file)
@@ -802,18 +813,21 @@ read.extract <- function (x,y,z,w) {
   cat(oneRead, file=fastq.file, append=TRUE)
 }
 
-gene.range3 <- import.gff3(gff.file)
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
+# gene.range3 <- import.gff3(gff.file)
+# gene.range1 <- gene.range3[gene.range3\$type=="gene",]
+# gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
 
 s.mutans.sequence <- read.DNAStringSet(genome.file)
 chrom.list <- names(s.mutans.sequence)
-#i <- chrom.list[1]
-#i <- chrom.list[2]
+
+stopifnot( length(names(s.mutans.sequence)) == 1 )
 for (i in names(s.mutans.sequence)) { 
   cat (i,"\\n")
 
-  geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
+  # FIXME: change this when we have multiple chromosomes
+  geneIR <- ranges(feature.cds)
+  # geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
+
   geneIR <- geneIR[width(geneIR)>1000]
   geneIR <- geneIR - 100
   if (length(geneIR) > 0) {
@@ -839,13 +853,25 @@ for (i in names(s.mutans.sequence)) {
   }
 }
 
-cl.sum <- rep(0,times=length(gene.range2\$ranges))
+cl.sum <- rep(0,times=length(ranges(feature.cds)))
 #i <- chrom.list[1]
 #i <- chrom.list[2]
+# We need something like this:
+# bv <- readBamGappedAlignments(bam.file,use.names=TRUE,param=ScanBamParam(what=c("mapq")))
+# Or, we need a GappedAlignments object:
+# rd <- GappedAlignments(seqnames="a", seqnames = Rle("chr1"), pos = as.integer(100), +  cigar = "300M", strand = strand("+"))
+# If then, the following would be a singel command:
+# olap <- summarizeOverlaps(feature.cds,bv,mode="IntersectionStrict")
+# saveFeatures
+
 for (i in names(s.mutans.sequence)) { 
   cat (i,"\\n")
   alnIR <- ranges(read.GR[seqnames(read.GR)==i])
-  geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
+
+  # FIXME: not checked
+  # geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
+  geneIR <- ranges(feature.cds[seqnames(feature.cds)==i])
+
   cl <- countOverlaps(geneIR,alnIR)
   cl.sum[gene.range2\$space==i] <- cl.sum[gene.range2\$space==i] + cl
 }
