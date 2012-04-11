@@ -1,7 +1,7 @@
 User Manual of RNAseq Analysis
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
-v1.2, March 2012
+v1.3, April 2012
 
 Introduction
 ------------
@@ -188,6 +188,7 @@ variables would cause problems.
 . reference genome ID in _REFGENOMEID_
 . reference genome fasta file in _REFGENOMEFASTA_
 . reference genome annotation file in _REFGENOMEGFF_
+. reference genome annotation TrancriptDb file in _REFGENOMETXDB_
 . cram reference genome fasta file in _CRAMGENOMEFASTA_
 . cram wall time in _CRAMWALLTIME_
 . pipeline wall time in _QCALIGNDEWALLTIME_
@@ -197,6 +198,12 @@ variables would cause problems.
 . set bwa options in _BWAOPTION_
 . Rscript path in _CACRSCRIPT_
 . set _SINGLECHROMOSOME_ to TRUE or FALSE
+. set _TESTFASTQ_ to integers
+
+.Four FASTQ files are created
+----
+TESTFASTQ:1 2 3 4
+----
 
 Set _SINGLECHROMOSOME_ to TRUE if you have a single chromosome, which is often
 the case for bacterial genomes.
@@ -724,21 +731,264 @@ To fine a transcript map.
 
 Configuration
 -------------
-File +conf/README.template+ must be used to create +conf/README+ that is used
-for accessing files. 
+File +conf/README.template+ can be used to create +conf/README+.
+Add the following lines for your preferences.
+
+.To execute jobs in your local machine
+----
+RUNMODE:local
+----
+
+.To execute jobs in a remote machine
+----
+RUNMODE:remote
+----
+
+Set more variables if you execute jobs in a remote machine. We let the remote
+machine be CAC, which is one of the cornell linux clusters. We are not sure what
+other linux cluster options are available. If your cluster system is different
+from one in CAC, you have to modify parts of the cluster job submission in SHELL
+scripts. You are recommended to set up ssh login without password because we
+need log in the remote machine to create directories and copy files back and
+forth. See 
+http://www.linuxproblem.org/art_9.html
+or
+http://smbjorklund.no/ssh-login-without-password-using-os-x.
+
+.User ID and login address
+----
+CAC_USERNAME:sc2265
+CAC_LOGIN:linuxlogin.cac.cornell.edu
+----
+
+Set the _CAC_LOGIN_ variable even if you execute jobs in your local machine.
+This is a trick. Otherwise, we have to replace all of the commands for a remote
+machine with those of the commands for a local machine.
+
+.User ID and login address
+----
+CAC_LOGIN:localhost
+----
+
+We used to have _CAC_ROOT_ as a directory for saving scripts and input/output
+files. Now, we have two separate directories for saving and running scripts in
+a remote machine, and for saving input/output files. We do not use _CAC_ROOT_
+variable any more. 
+
+----
+CAC_ROOT:Documents/Projects/rnaseq
+----
+
+Shell scripts are copied to a directory. _CACWORKDIR_ variable is species file
+variable not conf variable.
+
+.Scripts directory
+----
+CACWORKDIR:run/rnaseq/040812
+----
+
+Create the working directory.
+
+----
+pbs$ mkdir -p $HOME/run/rnaseq/040812
+----
+
+While running jobs, input and output files are stored in _ROUTPUTDIR_ directory.
+When jobs are finished, files can be copied to the output directory of the base
+directory in your local machine. This may be confusing, but convenient because
+we can easily delete _ROUTPUTDIR_ directory when we do not need it. We would
+want to save files in the output directory in your local machine.
+
+.Input and output directories
+----
+ROUTPUTDIR:/Users/goshng/Documents/Projects/RNASeq-Analysis/routput
+----
+
+----
+pbs$ mkdir -p /Users/goshng/Documents/Projects/RNASeq-Analysis/routput
+----
+
+If the remote machine is a linux cluster such as PBS, one may need config the
+batch system. The CAC cluster requires access identifier and queue name.
+
+.To execute jobs in a linux cluster machine
+----
+RUNMODE:pbs
+----
+
+.Batch system configuration
+----
+BATCHEMAIL:schoi@cornell.edu
+BATCHACCESS:acs4_0001
+QUEUENAME:v4
+----
 
 Installation
 ------------
 Software packages are employed for the analysis. These should be installed on
-the local or remote machine.
+the local or remote machine. First, create directories called +downloads+ and
++build+. If you use your local machine, follow this instruction in your machine.
+You have to log in your remote machine if you use other machine such as a linux
+cluster.
+
+----
+$ mkdir -p downloads/build
+----
+
+Create a +bin+ directory to save executable files.
+
+----
+$ mkdir -p $HOME/usr/bin
+----
 
 BWA
 ~~~
-Dowanload BWA source code at http://bio-bwa.sourceforge.net. You could compile
-the source in this repository. Edit +conf/README+ if necessary.
+Dowanload BWA source code available at http://bio-bwa.sourceforge.net. 
+
 ----
-$ cd src/bwa-0.5.9
-$ make
+$ downloads/bwa-0.6.1.tar.bz2
+----
+
+Extract the file and compile it.
+
+----
+$ cd downloads/build
+$ tar jxf ../bwa-0.6.1.tar.bz2
+$ cd bwa-0.6.1; make; cd ..
+$ mv bwa-0.6.1 $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Shell variable $BWA is replaced by
++/home/userid/usr/bin/bwa-0.6.1/bwa+.
+
+----
+BWA:usr/bin/bwa-0.6.1/bwa
+----
+
+SAMTools
+~~~~~~~~
+Download SAMtools available at http://samtools.sourceforge.net.
+
+----
+$ downloads/samtools-0.1.18.tar.bz2
+----
+
+Extract the file and compile it.
+
+----
+$ cd downloads/build
+$ tar jxf ../samtools-0.1.18.tar.bz2
+$ cd samtools-0.1.18; make; cd ..
+$ mv samtools-0.1.18 $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Shell variable $SAMTOOLS is replaced by
++/home/userid/usr/bin/samtools-0.1.18/samtools+.
+
+----
+SAMTOOLS:usr/bin/samtools-0.1.18/samtools
+----
+
+subread
+~~~~~~~
+Download subread available at http://subread.sourceforge.net. 
+Another short read aligner. This is used in menu *batch2*.
+As of April 2012, it did not support Mac OS X. Authors said that they would make
+a Mac OS X version available in 2012.
+
+prinseq
+~~~~~~~
+Download a prinseq lite version available at http://prinseq.sourceforge.net.
+Extract the file and move the directory.
+
+----
+$ cd downloads/build
+$ tar zxf ../prinseq-lite-0.17.4.tar.gz
+$ mv prinseq-lite-0.17.4 $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Shell variable $PRINSEQ is replaced by
++/home/userid/usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl+.
+
+----
+PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
+----
+
+Picard
+~~~~~~
+Download Picard available at http://picard.sourceforge.net. Unzip the file and
+move directories.
+
+----
+$ cd downloads/build
+$ unzip ../picard-tools-1.65.zip
+$ mv picard-tools-1.65 $HOME/usr/bin
+$ mv snappy-java-1.0.3-rc3.jar $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Shell variable $PICARD is replaced by
++/home/userid/usr/bin/picard-tools-1.65+.
+
+----
+PICARD:usr/bin/picard-tools-1.65
+----
+
+CRAM Toolkit
+~~~~~~~~~~~~
+Download CRAM Toolkit available at http://www.ebi.ac.uk/ena/about/cram_toolkit.
+Move the file to +$HOME/usr/bin+.
+
+----
+$ cd downloads/build
+$ mv ../cramtools.jar $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Shell variable $CRAMTOOLS is replaced by
++/home/userid/usr/bin/cramtools.jar+.
+
+----
+CRAMTOOLS:usr/bin/cramtools.jar
+----
+
+cutadapt
+~~~~~~~~
+Download cutadapt available at http://code.google.com/p/cutadapt.
+
+----
+$ cd downloads/build
+$ tar zxf ../cutadapt-1.0.tar.gz 
+$ mv cutadapt-1.0 $HOME/usr/bin
+----
+
+Edit +conf/README+ if necessary; Add the following line. The base directory is
+$HOME or your home directory. Note that _CUTADAPT_ must be the absolute path of
+the binary executable. We would call python with the executable. Do not use a
+relative file path.
+
+----
+CUTADAPT:/home/user/usr/bin/cutadapt-1.0/cutadapt
+----
+
+NOTE:The following prorams need to be checked. I have not yet time to edit the
+following description of the installation.
+
+----
+$ python setup.py build
+$ sudo python setup.py install
+CUTADAPT:/usr/local/bin/cutadapt
+----
+
+python
+~~~~~~
+Set _PYTHON_ variable to a file.
+
+----
+PYTHON:/opt/epd/bin/python2.7
 ----
 
 BOWTIE
@@ -749,18 +999,6 @@ should print a help message from it. Edit +conf/README+ if necessary.
 $ src/bowtie-0.12.7/bowtie
 ----
 
-SAMTools
-~~~~~~~~
-Download SAMtools at http://samtools.sourceforge.net. You could compile the
-source in this repository of rnaseq-analysis.
-----
-$ cd src/samtools-0.1.16
-$ make
-----
-
-subread
-~~~~~~~
-Another short read aligner. This is used in menu *batch2*.
 
 segemehl
 ~~~~~~~~

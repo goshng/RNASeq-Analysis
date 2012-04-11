@@ -1,6 +1,7 @@
 function conf {
   CONFFILE=conf/README
   PROJECTNAME=$(grep ^PROJECTNAME $CONFFILE | cut -d":" -f2)
+  RUNMODE=$(grep ^RUNMODE $CONFFILE | cut -d":" -f2)
   CAC_USERNAME=$(grep ^CAC_USERNAME $CONFFILE | cut -d":" -f2)
   CAC_LOGIN=$(grep ^CAC_LOGIN $CONFFILE | cut -d":" -f2)
   CAC_ROOT=$(grep ^CAC_ROOT $CONFFILE | cut -d":" -f2)
@@ -14,7 +15,9 @@ function conf {
   MAQ=$(grep ^MAQ $CONFFILE | cut -d":" -f2)
   BWA=$(grep ^BWA $CONFFILE | cut -d":" -f2)
   PICARD=$(grep ^PICARD $CONFFILE | cut -d":" -f2)
+  PRINSEQ=$(grep ^PRINSEQ $CONFFILE | cut -d":" -f2)
   CUTADAPT=$(grep ^CUTADAPT $CONFFILE | cut -d":" -f2)
+  PYTHON=$(grep ^PYTHON $CONFFILE | cut -d":" -f2)
   CRAMTOOLS=$(grep ^CRAMTOOLS $CONFFILE | cut -d":" -f2)
   BOWTIE=$(grep ^BOWTIE $CONFFILE | cut -d":" -f2)
   SAMTOOLS=$(grep ^SAMTOOLS $CONFFILE | cut -d":" -f2)

@@ -17,10 +17,7 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-# SPECIES=ua159
-#SPECIES=smu21
 REPETITION=1
-REPLICATE=1
 function batch2 {
   select SPECIES in ${SPECIESS[@]}; do 
   if [ "$SPECIES" == "" ];  then
@@ -33,10 +30,8 @@ function batch2 {
     batch2-push-data
 
     batch2-get-data
-  #  ucsc-data
-    batch2-run
+#  ucsc-data
     batch2-run-cram
-    batch2-run-fastq-qc
     batch2-run-bwa-align
 
     batch2-run-samtools-pileup
@@ -78,13 +73,15 @@ function batch2-copy-scripts {
   scp -qr pl $CAC_USERHOST:$CACWORKDIR
 }
 
+# Set the shell variables for batch2 SHELL script
 function batch2-variable {
   SPECIESFILE=species/$SPECIES
-  # Local output directories.
-  # ROOTANALYSISDIR is set by conf.sh.
+
+  # ROOTANALYSISDIR is set by run.sh.
   OUTPUTDIR=$ROOTANALYSISDIR/output
+
+  # Local output directories.
   BASEDIR=$OUTPUTDIR/$SPECIES
-  BASERUNANALYSIS=$BASEDIR/run-analysis
   NUMBERDIR=$BASEDIR/$REPETITION
   DATADIR=$NUMBERDIR/data
   BWADIR=$NUMBERDIR/bwa
@@ -95,65 +92,89 @@ function batch2-variable {
   # ROUTPUTDIR is set by conf.sh.
   RBASEDIR=$ROUTPUTDIR/$SPECIES
   RNUMBERDIR=$ROUTPUTDIR/$SPECIES/$REPETITION
-  RANALYSISDIR=$RNUMBERDIR/run-analysis
   RDATADIR=$RNUMBERDIR/data
   RBWADIR=$RNUMBERDIR/bwa
   RSUBREADDIR=$RNUMBERDIR/subread
+  RANALYSISDIR=$RNUMBERDIR/run-analysis
 
   # Compute node output directories.
   CBASEDIR=output/$SPECIES
   CNUMBERDIR=$CBASEDIR/$REPETITION
-  CANALYSISDIR=$CNUMBERDIR/run-analysis
   CDATADIR=$CNUMBERDIR/data
   CBWADIR=$CNUMBERDIR/bwa
   CSUBREADDIR=$CNUMBERDIR/subread
+  CANALYSISDIR=$CNUMBERDIR/run-analysis
 }
 
+# Create output directories for the species directory
+# FIXME: we did not used $BASEDIR/data
 function batch2-output {
-  mkdir -p $BASEDIR/data
-  mkdir -p $BASERUNANALYSIS
   mkdir -p $DATADIR
   mkdir -p $BWADIR
   mkdir -p $SUBREADDIR
   mkdir -p $RUNANALYSIS
 }
 
-
+# Set species file variables
 function batch2-speciesfile {
+  # . fastq files
+  # . adapter sequences
+  # . quality score scheme
+  # . cram data directory in _CRAMDIR_
+  # . fastq file indices in _FASTQFILES_
+  FASTQFILES=$(grep ^FASTQFILES\: $SPECIESFILE | cut -d":" -f2)
+  # . fastq file labels in _FASTQLABEL_
   FASTQLABEL=$(grep ^FASTQLABEL\: $SPECIESFILE | cut -d":" -f2)
-  SINGLECHROMOSOME=$(grep ^SINGLECHROMOSOME\: $SPECIESFILE | cut -d":" -f2)
-  TESTFASTQ=$(grep ^TESTFASTQ\: $SPECIESFILE | cut -d":" -f2)
-  TESTFASTQNUM=FASTQ$(printf "%03d" $TESTFASTQ)
-  CRAMDIR=$(grep ^CRAMDIR\: $SPECIESFILE | cut -d":" -f2)
-  CRAMGENOMEFASTA=$(grep ^CRAMGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
-  REFGENOMENAME=$(grep ^REFGENOMENAME\: $SPECIESFILE | cut -d":" -f2)
+  # . cluster working directory in _CACWORKDIR_
+  CACWORKDIR=$(grep ^CACWORKDIR\: $SPECIESFILE | cut -d":" -f2)
+  # . reference genome ID in _REFGENOMEID_
   REFGENOMEID=$(grep ^REFGENOMEID\: $SPECIESFILE | cut -d":" -f2)
-  REFGENOMELENGTH=$(grep ^REFGENOMELENGTH\: $SPECIESFILE | cut -d":" -f2)
+  # . reference genome fasta file in _REFGENOMEFASTA_
   REFGENOMEFASTA=$(grep ^REFGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
-  REFGENOMEGBK=$(grep ^REFGENOMEGBK\: $SPECIESFILE | cut -d":" -f2)
+  # . reference genome annotation file in _REFGENOMEGFF_
   REFGENOMEGFF=$(grep ^REFGENOMEGFF\: $SPECIESFILE | cut -d":" -f2)
+  # . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
+  REFGENOMETXDB=$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMETXDBBASE=$(basename $REFGENOMETXDB)
+  # . cram reference genome fasta file in _CRAMGENOMEFASTA_
+  CRAMGENOMEFASTA=$(grep ^CRAMGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
+  # . cram wall time in _CRAMWALLTIME_
+  CRAMWALLTIME=$(grep ^CRAMWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  # . pipeline wall time in _QCALIGNDEWALLTIME_
+  QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  # . split file size limit in _MAXLINEDE_
+  MAXLINEDE=$(grep ^MAXLINEDE\: $SPECIESFILE | cut -d":" -f2)
+  # . minimum alignment mapping quality in _MINMAPQ_
+  MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
+  # . number CPUs in a compute node in _BWAALIGNNCPU_
+  BWAALIGNNCPU=$(grep ^BWAALIGNNCPU\: $SPECIESFILE | cut -d":" -f2)
+  # . set bwa options in _BWAOPTION_
+  BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
+  # . Rscript path in _CACRSCRIPT_
+  CACRSCRIPT=$(grep ^CACRSCRIPT\: $SPECIESFILE | cut -d":" -f2)
+  # . set _SINGLECHROMOSOME_ to TRUE or FALSE
+  SINGLECHROMOSOME=$(grep ^SINGLECHROMOSOME\: $SPECIESFILE | cut -d":" -f2)
+  # . set _TESTFASTQ_ to integers
+  TESTFASTQ=$(grep ^TESTFASTQ\: $SPECIESFILE | cut -d":" -f2)
+
+  #################################################################
+  # We may use these.
+  BWAALIGNWALLTIME=$(grep ^BWAALIGNWALLTIME\: $SPECIESFILE | cut -d":" -f2)
+  CRAMDIR=$(grep ^CRAMDIR\: $SPECIESFILE | cut -d":" -f2)
+
+  #################################################################
+  # Many of the following variables are not needed. They may have to be moved to
+  # somewhere else.
+  REFGENOMENAME=$(grep ^REFGENOMENAME\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMELENGTH=$(grep ^REFGENOMELENGTH\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMEGBK=$(grep ^REFGENOMEGBK\: $SPECIESFILE | cut -d":" -f2)
   RNAZNNODE=$(grep ^RNAZNNODE\: $SPECIESFILE | cut -d":" -f2)
   RNAZWALLTIME=$(grep ^RNAZWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   PILEUPWALLTIME=$(grep ^PILEUPWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  DENNODE=$(grep ^DENNODE\: $SPECIESFILE | cut -d":" -f2)
-  DEWALLTIME=$(grep ^DEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  CRAMWALLTIME=$(grep ^CRAMWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  MAXLINEDE=$(grep ^MAXLINEDE\: $SPECIESFILE | cut -d":" -f2)
-  MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
-  CACRSCRIPT=$(grep ^CACRSCRIPT\: $SPECIESFILE | cut -d":" -f2)
-  QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQNNODE=$(grep ^PARSERNASEQNNODE\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQWALLTIME=$(grep ^PARSERNASEQWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
-  BWAALIGNNNODE=$(grep ^BWAALIGNNNODE\: $SPECIESFILE | cut -d":" -f2)
-  BWAALIGNWALLTIME=$(grep ^BWAALIGNWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  FASTQQCNNODE=$(grep ^FASTQQCNNODE\: $SPECIESFILE | cut -d":" -f2)
-  FASTQQCWALLTIME=$(grep ^FASTQQCWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  FASTQFILES=$(grep ^FASTQFILES\: $SPECIESFILE | cut -d":" -f2)
-  CACWORKDIR=$(grep ^CACWORKDIR\: $SPECIESFILE | cut -d":" -f2)
   READDEPTH=$(grep ^READDEPTH\: $SPECIESFILE | cut -d":" -f2)
   REFGENOMEPTT=$(grep ^REFGENOMEPTT\: $SPECIESFILE | cut -d":" -f2)
-  BWAALIGNNCPU=$(grep ^BWAALIGNNCPU\: $SPECIESFILE | cut -d":" -f2)
 }
 
 function batch2-push-data {
@@ -166,13 +187,8 @@ ssh -x $CAC_USERHOST mkdir -p $RDATADIR
 scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMEGFF $CAC_USERHOST:$RDATADIR
 scp $CRAMGENOMEFASTA $CAC_USERHOST:$RDATADIR
+scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
 
-#REFGENOMEGBK=$REFGENOMEGBK
-#if [ \$REFGENOMEGBK != "NA" ]; then
-#  scp $REFGENOMEGFF $CAC_USERHOST:$RDATADIR
-#  scp $REFGENOMEPTT $CAC_USERHOST:$RDATADIR
-#fi
-#scp $BWADIR/feature-genome.out-geneonly $CAC_USERHOST:$RBWADIR
 #scp output/data/bacteria.fa $CAC_USERHOST:$RDATADIR
 
 echo Edit push-data.sh to send cram or fastq files.
@@ -183,73 +199,6 @@ for g in $FASTQFILES; do
   # scp $CRAMDIR/\$FASTQNUM.cram $CAC_USERHOST:$RDATADIR
 done
 
-EOF
-
-}
-
-function batch2-run {
-cat>$BASEDIR/run.sh<<EOF
-#!/bin/bash
-STATUS=fastq-qc
-bash run-\$STATUS.sh
-while [ 1 ]; do
-  sleep 60
-
-  if [ "\$STATUS" == "fastq-qc" ]; then
-    NJOBS=\$(qstat | grep $PROJECTNAME-QC | wc -l) 
-    if [ \$NJOBS -eq 0 ]; then
-      STATUS=bwa-align
-      bash run-\$STATUS.sh
-    fi  
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "bwa-align" ]; then
-    NJOBS=\$(qstat | grep $PROJECTNAME-BWA | wc -l) 
-    if [ \$NJOBS -eq 0 ]; then
-      STATUS=de-all
-      bash run-\$STATUS.sh
-    fi  
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "de-all" ]; then
-    NJOBS=\$(qstat | grep $PROJECTNAME-DE | wc -l) 
-    if [ \$NJOBS -eq 0 ]; then
-      STATUS=sum-de-all
-#      STATUS=parsernaseq
-      bash \$STATUS.sh
-    fi  
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "parsernaseq" ]; then
-    NJOBS=\$(qstat | grep $PROJECTNAME-PARSE | wc -l) 
-    if [ \$NJOBS -eq 0 ]; then
-      STATUS=rnaz
-      bash \$STATUS.sh
-    fi  
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "rnaz" ]; then
-    NJOBS=\$(qstat | grep $PROJECTNAME-RNAZ | wc -l) 
-    if [ \$NJOBS -eq 0 ]; then
-      STATUS=sum-de-all
-      bash \$STATUS.sh
-    fi  
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "sum-de-all" ]; then
-    STATUS=exit
-  fi  
-  sleep 30
-
-  if [ "\$STATUS" == "exit" ]; then
-    break
-  fi
-done
 EOF
 }
 
@@ -287,10 +236,6 @@ function copy-data {
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
   mkdir -p $CBWADIR
-
-  # Copy common data
-#  cp $RDATADIR/$GENOMEFASTA $CDATADIR
-#  cp $CDATADIR/$GENOMEFASTABASENAME.fna $CDATADIR/$GENOMEFASTABASENAME.fa
 }
 
 function process-data {
@@ -305,133 +250,6 @@ copy-data
 process-data
 cd
 rm -rf \$TMPDIR
-EOF
-
-}
-
-function batch2-run-fastq-qc {
-  
-cat>$BASEDIR/run-fastq-qc.sh<<EOF
-#!/bin/bash
-FASTQFILES=( $FASTQFILES )
-FASTQQCNNODE=\$((\${#FASTQFILES[@]} / 8))
-REMAINDER=\$((\${#FASTQFILES[@]} % 8))
-if [ "\$REMAINDER" -gt 0 ]; then
-  FASTQQCNNODE=\$((FASTQQCNNODE+1))
-fi
-sed s/PBSARRAYSIZE/\$FASTQQCNNODE/g < batch-fastq-qc.sh > tbatch.sh
-nsub tbatch.sh 
-rm tbatch.sh
-EOF
-
-cat>$BASEDIR/batch-fastq-qc.sh<<EOF
-#!/bin/bash
-#PBS -l walltime=${FASTQQCWALLTIME}:00:00,nodes=1
-#PBS -A ${BATCHACCESS}
-#PBS -j oe
-#PBS -N $PROJECTNAME-QC
-#PBS -q ${QUEUENAME}
-#PBS -m e
-#PBS -M ${BATCHEMAIL}
-#PBS -t 1-PBSARRAYSIZE
-
-function copy-data {
-  cd \$TMPDIR
-
-  # Programs and scripts.
-  cp -r \$PBS_O_WORKDIR/pl .
-
-  # All of the batchjob scripts.
-  cp \$PBS_O_WORKDIR/job-fastq-qc* .
-
-  # Create output directories at the compute node.
-  mkdir -p $CBWADIR
-  mkdir -p $CDATADIR
-
-  # Do not copy short reads because a compute node might not be able to store
-  # all of the short reads. I have to copy each file for each job.
-  # cp $RBWADIR/FASTQ*.cutadapt.fq.gz $CBWADIR
-}
-
-function retrieve-data {
-  # cp $CBWADIR/*.cutadapt.fq.gz $RBWADIR
-  cp $CBWADIR/*.prinseq.fq.gz $RBWADIR
-  echo Copy each file in the job.
-}
-
-function process-data {
-  cd \$TMPDIR
-  CORESPERNODE=8
-  FASTQFILES=( $FASTQFILES )
-  for (( i=0; i<CORESPERNODE; i++))
-  do
-    g=\$((8 * (PBS_ARRAYID-1) + i))
-    bash job-fastq-qc2 \$(printf "%03d" \${FASTQFILES[\$g]})&
-  done
-}
-
-copy-data
-process-data; wait
-retrieve-data
-cd
-rm -rf \$TMPDIR
-EOF
-
-# For the first round of RNASeq
-grep ^ADAPTER $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-fastq-qc
-grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ >> $BASEDIR/job-fastq-qc
-cat>>$BASEDIR/job-fastq-qc<<EOF
-ADAPTERSEQUENCE=ADAPTER\$1
-cp $RDATADIR/FASTQ\$1.fq.gz $CBWADIR/temp.FASTQ\$1.fq.gz
-/opt/epd/bin/python2.7 \$HOME/$CUTADAPT/cutadapt --minimum-length=25 \\
-  -a \${!ADAPTERSEQUENCE} \\
-  -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
-  $CBWADIR/temp.FASTQ\$1.fq.gz
-rm $CBWADIR/temp.FASTQ\$1.fq.gz
-EOF
-
-# For the 2nd round
-grep ^ADAPTER $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-fastq-qc2
-grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ >> $BASEDIR/job-fastq-qc2
-cat>>$BASEDIR/job-fastq-qc2<<EOF
-ADAPTERSEQUENCE=ADAPTER\$1
-QUALITYSCORESEQUENCE=QUALITYSCORE\$1
-
-if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  ADAPTERSEQUENCE=ADAPTER\$1
-  cp $RDATADIR/FASTQ\$1.fq.gz $CBWADIR/temp.FASTQ\$1.fq.gz
-else
-  cp $RDATADIR/FASTQ\$1.fq.gz $CDATADIR
-  zcat $CDATADIR/FASTQ\$1.fq.gz \\
-    | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
-    | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
-  rm $CDATADIR/FASTQ\$1.fq.gz
-fi
-
-/opt/epd/bin/python2.7 \$HOME/$CUTADAPT/cutadapt --minimum-length=25 \\
-  -a \${!ADAPTERSEQUENCE} \\
-  -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
-  $CBWADIR/temp.FASTQ\$1.fq.gz
-rm $CBWADIR/temp.FASTQ\$1.fq.gz
-
-if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
-  perl pl/prinseq-lite.pl \\
-    -fastq stdin \\
-    -phred64 \\
-    -trim_qual_right 20 \\
-    -rm_header \\
-    -out_good stdout | \\
-  gzip > $CBWADIR/FASTQ\$1.prinseq.fq.gz
-else
-  gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
-  perl pl/prinseq-lite.pl \\
-    -fastq stdin \\
-    -trim_qual_right 20 \\
-    -rm_header \\
-    -out_good stdout | \\
-  gzip > $CBWADIR/FASTQ\$1.prinseq.fq.gz
-fi
 EOF
 }
 
@@ -517,7 +335,6 @@ rm -rf \$TMPDIR
 EOF
 }
 
-
 function batch2-run-samtools-pileup {
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
   GENOMEGFF=$(basename $REFGENOMEGFF)
@@ -573,10 +390,6 @@ function process-data {
     $CBWADIR/FASTQ\$NUM.sorted.bam \\
     $CBWADIR/FASTQ\$NUM.mpileup
   cp $CBWADIR/FASTQ\$NUM.mpileup $RBWADIR
-
-#  bash job-$status \$NUM \\
-#    $CSUBREADDIR/FASTQ\$NUM.sorted.bam \\
-#    $CSUBREADDIR/FASTQ\$NUM.mpileup
 }
 
 copy-data
@@ -616,15 +429,17 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 # #PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
+
 function copy-data {
   cd \$TMPDIR
 
   # Programs and scripts.
   cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$PRINSEQ pl
   cp \$HOME/$SAMTOOLS samtools
   cp \$HOME/$BWA bwa
-  cp \$HOME/$SUBREADBUILDINDEX subread-buildindex
-  cp \$HOME/$SUBREADALIGN subread-align
+  # cp \$HOME/$SUBREADBUILDINDEX subread-buildindex
+  # cp \$HOME/$SUBREADALIGN subread-align
 
   # All of the batchjob scripts.
   cp \$PBS_O_WORKDIR/job-cram .
@@ -669,23 +484,30 @@ function process-data {
     $CBWADIR/FASTQ\$NUM.sorted \\
     $CSUBREADDIR/FASTQ\$NUM.sorted
 
+# 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
-  BAMFILE2=$CSUBREADDIR/FASTQ\$NUM.sorted.bam
-  CLFILE1=$RBWADIR/FASTQ\$NUM.cl
-  CLFILE2=$RSUBREADDIR/FASTQ\$NUM.cl
-  PREFIX1=BWA-
-  PREFIX2=SUBREAD-
-  for k in {1..2}; do
-    BAMFILE=BAMFILE\$k
-    CLFILE=CLFILE\$k
-    PREFIX=PREFIX\$k
-    ./samtools view \${!BAMFILE} | split -d -l $MAXLINEDE - \${!PREFIX}
-    for i in \`ls \${!PREFIX}*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
-    for i in \`ls \${!PREFIX}*.bam\`; do
-      bash job-de \$i
-    done
-    bash job-de2 \${!CLFILE} \${!PREFIX}
-  done 
+  NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.recovered.fq.gz | wc -l)
+  NUMBER_READ=\$((NUMBER_READ4 / 4))
+  echo bash job-de \$BAMFILE1 \$NUMBER_READ
+  bash job-de \$BAMFILE1 \$NUMBER_READ
+  cp \$BAMFILE1.cl $RBWADIR
+
+#  BAMFILE2=$CSUBREADDIR/FASTQ\$NUM.sorted.bam
+#  CLFILE1=$RBWADIR/FASTQ\$NUM.cl
+#  CLFILE2=$RSUBREADDIR/FASTQ\$NUM.cl
+#  PREFIX1=BWA-
+#  PREFIX2=SUBREAD-
+#  for k in {1..2}; do
+#    BAMFILE=BAMFILE\$k
+#    CLFILE=CLFILE\$k
+#    PREFIX=PREFIX\$k
+#    ./samtools view \${!BAMFILE} | split -d -l $MAXLINEDE - \${!PREFIX}
+#    for i in \`ls \${!PREFIX}*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
+#    for i in \`ls \${!PREFIX}*.bam\`; do
+#      bash job-de \$i
+#    done
+#    bash job-de2 \${!CLFILE} \${!PREFIX}
+#  done 
 }
 
 copy-data
@@ -697,66 +519,40 @@ EOF
 
 cat>$BASEDIR/job-check<<EOF
 RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-check.R
+
+for i in $FASTQFILES; do
+  TESTFASTQNUM=FASTQ\$(printf "%03d" \$i)
+  \$RSCRIPT job-check.R \$TESTFASTQNUM
+done 
+
 EOF
 
 cat>$BASEDIR/job-check.R<<EOF
-load("$RSUBREADDIR/$TESTFASTQNUM.cl")
-cl.subread <- cl
-rm(cl)
-load("$RBWADIR/$TESTFASTQNUM.cl")
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-simulate.R FASTQ001\n")
+  quit("yes")
+}
+load(sprintf("$RBWADIR/%s.sorted.bam.cl", args[1]))
 cl.bwa <- cl
 rm(cl)
-load("$TESTFASTQNUM.cl")
+
+load(sprintf("$RBWADIR/%s.cl", args[1]))
 cl.sim <- cl
 rm(cl)
+
 print(sum(cl.bwa==cl.sim)/length(cl.sim))
-print(sum(cl.subread==cl.sim)/length(cl.sim))
-EOF
-
-cat>$BASEDIR/job-extract<<EOF
-RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-extract.R
-echo Created File: $RDATADIR/$GENOMEGFF.fa
-EOF
-
-cat>$BASEDIR/job-extract.R<<EOF
-############################################################################
-# Create a test fastq files by sampling 10 100-bp short reads for each gene.
-library(easyRNASeq)
-library(rtracklayer)
-gff.file <- "$RDATADIR/$GENOMEGFF"
-genome.file <- "$RDATADIR/$GENOMEFASTA"
-fasta.file <- "$RDATADIR/$GENOMEGFF.fa"
-
-file.create(fasta.file)
-
-gene.range3 <- import.gff3(gff.file)
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
-s.mutans.sequence <- read.DNAStringSet(genome.file)
-chrom.list <- names(s.mutans.sequence)
-
-for (i in seq(nrow(gene.range2))) {
-  j <- as.character(gene.range2[i,]\$space)
-  x <- start(gene.range2[i,]\$ranges)
-  y <- end(gene.range2[i,]\$ranges)
-  s.mutans <- s.mutans.sequence[[j]]
-  gene.seq <- subseq(s.mutans,start=x,end=y)
-  if (gene.range2[i,]\$strand == '-') {
-    gene.seq <- reverseComplement(gene.seq)
-  }
-  oneRead <- sprintf(">%s\\n%s\\n",gene.range2[i,]\$locus_tag,toString(gene.seq))
-  cat(oneRead, file=fasta.file, append=TRUE)
-}
 EOF
 
 cat>$BASEDIR/job-simulate<<EOF
 RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-simulate.R
-gzip $RDATADIR/$TESTFASTQNUM.fq
-echo Created File: $RDATADIR/$TESTFASTQNUM.fq.gz
+for i in $TESTFASTQ; do
+  TESTFASTQNUM=FASTQ\$(printf "%03d" \$i)
+  \$RSCRIPT job-simulate.R \$TESTFASTQNUM
+  gzip $RDATADIR/\$TESTFASTQNUM.fq
+  echo Created File: $RDATADIR/\$TESTFASTQNUM.fq.gz
+done 
 EOF
 
 cat>$BASEDIR/job-simulate.R<<EOF
@@ -768,18 +564,27 @@ library(rtracklayer)
 library(GenomicRanges)
 library(VariantAnnotation)
 library(GenomicFeatures)
-  $REFGENOMETXDB
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript job-simulate.R FASTQ001\n")
+  quit("yes")
+}
+cl.file <- sprintf("$RBWADIR/%s.cl", args[1])
+
+txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
 gff.file <- "$RDATADIR/$GENOMEGFF"
 
 # saveFeatures and loadFeatures
-txdb <- load("NC_004350.sqlite")
+txdb <- loadFeatures(txdb.file)
 feature.cds <- cds(txdb, columns="exon_name")
 strand(feature.cds) <- '*'
 
 genome.file <- "$RDATADIR/$GENOMEFASTA"
-fastq.file <- "$RDATADIR/$TESTFASTQNUM.fq"
+fastq.file <- sprintf("$RDATADIR/%s.fq", args[1])
 file.create(fastq.file)
 read.GR <- GRanges()
+read.GA <- GappedAlignments()
 
 read.loc <- function(x) { 
   s <- sample(c(TRUE,FALSE),size=1) 
@@ -813,10 +618,6 @@ read.extract <- function (x,y,z,w) {
   cat(oneRead, file=fastq.file, append=TRUE)
 }
 
-# gene.range3 <- import.gff3(gff.file)
-# gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-# gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
 s.mutans.sequence <- read.DNAStringSet(genome.file)
 chrom.list <- names(s.mutans.sequence)
 
@@ -824,9 +625,7 @@ stopifnot( length(names(s.mutans.sequence)) == 1 )
 for (i in names(s.mutans.sequence)) { 
   cat (i,"\\n")
 
-  # FIXME: change this when we have multiple chromosomes
-  geneIR <- ranges(feature.cds)
-  # geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
+  geneIR <- ranges(feature.cds[seqnames(feature.cds)==i])
 
   geneIR <- geneIR[width(geneIR)>1000]
   geneIR <- geneIR - 100
@@ -836,14 +635,11 @@ for (i in names(s.mutans.sequence)) {
 
     read.start.end.strand <- mapply(read.loc, read.pos)
     
-    one.GR <- GRanges( seqnames = Rle(i, length(read.pos)),
-                       ranges =
-                         IRanges(start=unlist(read.start.end.strand[1,]),
-                                 end=unlist(read.start.end.strand[2,]),
-                                 names=sprintf("%s.%09d",i,seq(length(read.pos)))),
-                        strand = unlist(read.start.end.strand[3,])
-                     )
-    read.GR <- c(read.GR,one.GR)
+    one.GA <- GappedAlignments( seqnames = Rle(i, length(read.pos)),
+                                pos = as.integer(unlist(read.start.end.strand[1,])),
+                                cigar = rep("100M", length(read.pos)),
+                                strand = unlist(read.start.end.strand[3,]) )
+    read.GA <- c(read.GA,one.GA)
 
     read.simulated <- mapply(read.extract, 
                              unlist(read.start.end.strand[1,]),
@@ -853,32 +649,11 @@ for (i in names(s.mutans.sequence)) {
   }
 }
 
-cl.sum <- rep(0,times=length(ranges(feature.cds)))
-#i <- chrom.list[1]
-#i <- chrom.list[2]
-# We need something like this:
-# bv <- readBamGappedAlignments(bam.file,use.names=TRUE,param=ScanBamParam(what=c("mapq")))
-# Or, we need a GappedAlignments object:
-# rd <- GappedAlignments(seqnames="a", seqnames = Rle("chr1"), pos = as.integer(100), +  cigar = "300M", strand = strand("+"))
-# If then, the following would be a singel command:
-# olap <- summarizeOverlaps(feature.cds,bv,mode="IntersectionStrict")
-# saveFeatures
+olap <- summarizeOverlaps(feature.cds,read.GA,mode="IntersectionStrict")
 
-for (i in names(s.mutans.sequence)) { 
-  cat (i,"\\n")
-  alnIR <- ranges(read.GR[seqnames(read.GR)==i])
-
-  # FIXME: not checked
-  # geneIR <- gene.range2[gene.range2\$space==i, ]\$ranges
-  geneIR <- ranges(feature.cds[seqnames(feature.cds)==i])
-
-  cl <- countOverlaps(geneIR,alnIR)
-  cl.sum[gene.range2\$space==i] <- cl.sum[gene.range2\$space==i] + cl
-}
-cl <- cl.sum
-save(cl,file="$TESTFASTQNUM.cl")
+cl <- assays(olap)\$counts[,1]
+save(cl,file=cl.file)
 EOF
-
 
 grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-cram
 cat>>$BASEDIR/job-cram<<EOF
@@ -975,12 +750,11 @@ cat>>$BASEDIR/job-fastq-qc<<EOF
 ADAPTERSEQUENCE=ADAPTER\$1
 QUALITYSCORESEQUENCE=QUALITYSCORE\$1
 
- 
-/opt/epd/bin/python2.7 \$HOME/$CUTADAPT/cutadapt --minimum-length=25 \\
+$PYTHON $CUTADAPT --minimum-length=25 \\
   -a \${!ADAPTERSEQUENCE} \\
   -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
   \$2 &> /dev/null
-rm \$2
+# rm \$2
 
 gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
   perl pl/prinseq-lite.pl \\
@@ -1024,6 +798,8 @@ QUALITYSCORESEQUENCE=QUALITYSCORE\$1
 ./samtools sort $CBWADIR/FASTQ\$1.bam \$3 &> /dev/null
 rm $CBWADIR/FASTQ\$1.sai
 rm $CBWADIR/FASTQ\$1.bam
+# FIXME:subread
+exit
 
 # Subread alignment
 gunzip \$2
@@ -1067,73 +843,75 @@ EOF
 
 # DE count
 cat>$BASEDIR/job-de.R<<EOF
-library(easyRNASeq)
+library(DESeq)
+library(ShortRead)
 library(rtracklayer)
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 1)
-{
-  cat ("Rscript job-de.R 1\n")
-  quit("yes")
-}
-gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
-
-bam.file <- paste(args[1])
-cl.file <- paste(args[1], "cl", sep=".")
-indexFile <- indexBam(bam.file)
-
-aln <- readAligned(bam.file,type="BAM")
-aln <- aln[!is.na(position(aln))]
-
-cl.sum <- rep(0,times=length(gene.range2\$ranges))
-for (i in unique(gene.range2\$space)) {
-  aln2 <- aln
-  if ($SINGLECHROMOSOME) {
-    aln2 <- aln
-  } else {
-    cfilt <- chromosomeFilter(paste("^",as.character(i),"$",sep=""))
-    aln2 <- aln[cfilt(aln)]
-  }
-  if (length(aln2) > 0) {
-    alnIR <- IRanges(start=position(aln2),width=width(aln2))
-    geneIR <- gene.range2[gene.range2\$space==as.character(i), ]\$ranges
-    cl <- countOverlaps(geneIR,alnIR)
-    cl.sum[gene.range2\$space==as.character(i)] <- cl.sum[gene.range2\$space==as.character(i)] + cl
-  }
-}
-cl <- cl.sum
-save(cl,file=cl.file)
-
-EOF
-
-cat>$BASEDIR/job-de2.R<<EOF
+library(GenomicRanges)
+library(VariantAnnotation)
+library(GenomicFeatures)
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 2)
 {
-  cat ("Rscript job-de.R 1 BWA-\n")
+  cat ("Rscript job-de.R bam.file 1000\n")
   quit("yes")
 }
-cl.pattern <- paste(args[2],"[[:digit:]]+.bam.cl",sep="")
-cl.files <- list.files(pattern=cl.pattern)
-load(cl.files[1])
-cl.sum <- rep(0,times=length(cl))
-for (i in cl.files) {
-  load(i)
-  cl.sum <- cl.sum + cl
-}
-cl <- cl.sum
-save(cl,file=args[1])
+txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
+bam.file <- paste(args[1])
+num.total.read <- args[2]
+cl.file <- paste(args[1], "cl", sep=".")
+
+# saveFeatures and loadFeatures
+txdb <- loadFeatures(txdb.file)
+
+# 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
+indexBam(bam.file)
+bam.what <- c("qname","flag","pos","mapq","cigar")
+bvAll <- scanBam(bam.file, param=ScanBamParam(what=bam.what))
+bv <- readBamGappedAlignments(bam.file,use.names=TRUE,param=ScanBamParam(what=c("mapq")))
+# 2. Number of short reads mapped 
+# > length(bv)
+num.mapped.read <- length(bv)
+# 3. Number of uniquely mapped short reads
+# Select mapped reads with mapq greater than or equal to $MINMAPQ
+bv <- bv[elementMetadata(bv)["mapq"][,1] >= $MINMAPQ]
+num.unique.read <- length(bv)
+# 4. Number of short reads uniquely mapped on CDS regions
+# Map the uniquely mapped reads on CDS regions
+# Remove strands information
+feature.cds <- cds(txdb, columns="exon_name")
+strand(feature.cds) <- '*'
+strand(bv) <- '*'
+stopifnot(length(runValue(seqnames(feature.cds)))==1)
+seqnames(bv) <- rep(runValue(seqnames(feature.cds)),length(bv))
+olap <- summarizeOverlaps(feature.cds, bv,mode="IntersectionStrict")
+sum(assays(olap)\$counts)
+cl <- assays(olap)\$counts[,1]
+
+# 5. Number of short reads uniquely mapped on non-coding regions
+# Flattened tx
+feature.tx.flat <- transcripts(txdb)
+strand(feature.tx.flat) <- '*'
+feature.tx.flat <- reduce(feature.tx.flat)
+
+feature.nc <- transcripts(txdb)
+strand(feature.nc) <- '*'
+feature.nc <- gaps(reduce(feature.nc))
+feature.nc <- feature.nc[-2:-1]
+# sum(width(feature.nc))
+stopifnot(length(runValue(seqnames(feature.nc)))==1)
+seqnames(bv) <- rep(runValue(seqnames(feature.nc)),length(bv))
+olap <- summarizeOverlaps(feature.nc,bv,mode="IntersectionStrict")
+cl.nc <- assays(olap)\$counts[,1]
+# [1] 510054
+sum(width(feature.nc)) + sum(width(feature.tx.flat)) 
+
+save(num.total.read, num.mapped.read, num.unique.read, cl, cl.nc,file=cl.file)
+
 EOF
 
 cat>$BASEDIR/job-de<<EOF
 RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-de.R \$1
-EOF
-
-cat>$BASEDIR/job-de2<<EOF
-RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-de2.R \$1 \$2
+\$RSCRIPT job-de.R \$1 \$2
 EOF
 
 cat>$BASEDIR/job-de-sum<<EOF
@@ -1146,7 +924,7 @@ RALIGNDIR1=$RBWADIR
 RALIGNDIR2=$RSUBREADDIR
 FILE=/tmp/\$(basename \$0).\$RANDOM.txt
 echo $FASTQFILES > \$FILE
-for k in {1..2}; do
+for k in {1..1}; do
   RALIGNDIR=RALIGNDIR\$k
   \$RSCRIPT job-de-sum.R \${!RALIGNDIR} \$FILE
 done
@@ -1155,28 +933,44 @@ EOF
 
 cat>$BASEDIR/job-de-sum.R<<EOF
 library(rtracklayer)
+library(GenomicFeatures)
+library(xtable)
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 2)
 {
-  cat ("Rscript job-de-sum.R output/ua159/1/subread fastq_index_file\n")
+  cat ("Rscript job-de-sum.R output/ua159/1/bwa fastq_index_file\n")
   quit("yes")
 }
-gene.range3 <- import.gff3("$RDATADIR/$GENOMEGFF")
-gene.range1 <- gene.range3[gene.range3\$type=="gene",]
-gene.range2 <- gene.range1[grep("SMU[rt]", gene.range1\$locus_tag, invert=TRUE),]
+txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
+txdb <- loadFeatures(txdb.file)
+feature.cds <- cds(txdb, columns="exon_name")
 
-count.table <- data.frame(gene=gene.range2\$locus_tag)
+count.table <- data.frame(gene=unlist(elementMetadata(feature.cds)["exon_name"][,1]))
 
+table.read.statistics <- c()
 fastQIndex <- scan(args[2])
 for (i in fastQIndex) {
-  cl.file <- sprintf("%s/FASTQ%03d.cl", args[1], i)
+  cl.file <- sprintf("%s/FASTQ%03d.sorted.bam.cl", args[1], i)
   load(cl.file)
+  table.read.statistics <- 
+    rbind(table.read.statistics, c(i, num.total.read, num.mapped.read, num.unique.read, sum(cl), sum(cl.nc)))
   count.table <- data.frame(count.table,cl)
   colnames(count.table)[ncol(count.table)] <- paste("X",i,sep="")
 }
 colnames(count.table) <- sub("X","",colnames(count.table))
 count.table.file <- sprintf("%s/count.txt", args[1])
 write.table(count.table,file=count.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
+
+colnames(table.read.statistics) <- c("Sample ID", "Total number of reads", "Mapped reads", "Unique reads", "Reads on CDS regions", "Reads on noncoding regions")
+x.big <- xtable( as.data.frame(table.read.statistics),
+                 display=c("d","d","d","d","d","d"),
+                 align=c('r','r','r','r','r','r'),
+                 label='count',
+                 caption='{\\bf Summary statistics of short reads.}'
+               )
+print( x.big,
+       caption.placement="top",
+       include.rownames=TRUE )
 EOF
 }
 
@@ -1199,7 +993,7 @@ cat>$BASEDIR/get-data.sh<<EOF
 #done
 
 scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
-scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
+# scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RDATADIR/*.cram $DATADIR
 # scp $CAC_USERHOST:$RDATADIR/$GENOMEGFF.fa $DATADIR
 

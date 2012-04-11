@@ -1,0 +1,54 @@
+# Species file for analysis based on S. mutans data
+# =================================================
+
+# . fastq files
+FASTQ001:R/x.fq.gz
+FASTQ002:R/x.fq.gz
+FASTQ003:R/x.fq.gz
+FASTQ004:R/x.fq.gz
+# . adapter sequences
+ADAPTER001:GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTTG
+ADAPTER002:GATCGGAAGAGCACACGTCTGAACTCCAGTCACTGACCAATCTCGTATGCCGTCTTCTGCTTG
+ADAPTER003:GATCGGAAGAGCACACGTCTGAACTCCAGTCACACAGTGATCTCGTATGCCGTCTTCTGCTTG
+ADAPTER004:GATCGGAAGAGCACACGTCTGAACTCCAGTCACGCCAATATCTCGTATGCCGTCTTCTGCTTG
+# . quality score scheme
+QUALITYSCORE001:sanger
+QUALITYSCORE002:sanger
+QUALITYSCORE003:sanger
+QUALITYSCORE004:sanger
+# . cram data directory in _CRAMDIR_
+
+#. fastq file indices in _FASTQFILES_
+FASTQFILES:1 2 3 4
+# . fastq file labels in _FASTQLABEL_
+FASTQLABEL:UA159 UA159 TW1 TW1
+# . cluster working directory in _CACWORKDIR_
+CACWORKDIR:run/rnaseq/040812
+# . reference genome ID in _REFGENOMEID_
+REFGENOMEID:NC_004350
+# . reference genome fasta file in _REFGENOMEFASTA_
+REFGENOMEFASTA:input/NC_004350.fna
+# . reference genome annotation file in _REFGENOMEGFF_
+REFGENOMEGFF:input/NC_004350.gff
+# . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
+REFGENOMETXDB:input/NC_004350.txdb
+# . cram reference genome fasta file in _CRAMGENOMEFASTA_
+CRAMGENOMEFASTA:input/NC_004350.fna
+# . cram wall time in _CRAMWALLTIME_
+CRAMWALLTIME:12
+# . pipeline wall time in _QCALIGNDEWALLTIME_
+QCALIGNDEWALLTIME:24
+# . split file size limit in _MAXLINEDE_: we may not need this.
+MAXLINEDE:5000000
+# . minimum alignment mapping quality in _MINMAPQ_
+MINMAPQ:30
+# . number CPUs in a compute node in _BWAALIGNNCPU_
+BWAALIGNNCPU:1
+# . set bwa options in _BWAOPTION_: no option
+
+#. Rscript path in _CACRSCRIPT_
+CACRSCRIPT:Rscript
+# . set _SINGLECHROMOSOME_ to TRUE or FALSE
+SINGLECHROMOSOME:TRUE
+# . set _TESTFASTQ_ to an integer
+TESTFASTQ:1 2 3 4
