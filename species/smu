@@ -19,9 +19,9 @@ QUALITYSCORE004:sanger
 # . cram data directory in _CRAMDIR_
 
 #. fastq file indices in _FASTQFILES_
-FASTQFILES:1 2 3 4
+FASTQFILES:1 2
 # . fastq file labels in _FASTQLABEL_
-FASTQLABEL:UA159 UA159 TW1 TW1
+FASTQLABEL:UA159 TW1
 # . cluster working directory in _CACWORKDIR_
 CACWORKDIR:run/rnaseq/040812
 # . reference genome ID in _REFGENOMEID_
@@ -51,4 +51,4 @@ CACRSCRIPT:Rscript
 # . set _SINGLECHROMOSOME_ to TRUE or FALSE
 SINGLECHROMOSOME:TRUE
 # . set _TESTFASTQ_ to an integer
-TESTFASTQ:1 2 3 4
+TESTFASTQ:1 2

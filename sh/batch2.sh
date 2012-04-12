@@ -865,8 +865,8 @@ txdb <- loadFeatures(txdb.file)
 
 # 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
 indexBam(bam.file)
-bam.what <- c("qname","flag","pos","mapq","cigar")
-bvAll <- scanBam(bam.file, param=ScanBamParam(what=bam.what))
+#bam.what <- c("qname","flag","pos","mapq","cigar")
+#bvAll <- scanBam(bam.file, param=ScanBamParam(what=bam.what))
 bv <- readBamGappedAlignments(bam.file,use.names=TRUE,param=ScanBamParam(what=c("mapq")))
 # 2. Number of short reads mapped 
 # > length(bv)
@@ -952,8 +952,13 @@ fastQIndex <- scan(args[2])
 for (i in fastQIndex) {
   cl.file <- sprintf("%s/FASTQ%03d.sorted.bam.cl", args[1], i)
   load(cl.file)
+  num.total.read <- as.integer(num.total.read)
   table.read.statistics <- 
-    rbind(table.read.statistics, c(i, num.total.read, num.mapped.read, num.unique.read, sum(cl), sum(cl.nc)))
+    rbind(table.read.statistics, 
+    c(i, num.total.read, sprintf("%d (%d)",num.mapped.read, round(num.mapped.read/num.total.read*100)), 
+                         sprintf("%d (%d)",num.unique.read, round(num.unique.read/num.total.read*100)),
+			 sprintf("%d (%d)",sum(cl), round(sum(cl)/num.total.read*100)), 
+			 sprintf("%d (%d)",sum(cl.nc), round(sum(cl.nc)/num.total.read*100))))
   count.table <- data.frame(count.table,cl)
   colnames(count.table)[ncol(count.table)] <- paste("X",i,sep="")
 }
@@ -961,16 +966,16 @@ colnames(count.table) <- sub("X","",colnames(count.table))
 count.table.file <- sprintf("%s/count.txt", args[1])
 write.table(count.table,file=count.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
 
-colnames(table.read.statistics) <- c("Sample ID", "Total number of reads", "Mapped reads", "Unique reads", "Reads on CDS regions", "Reads on noncoding regions")
+colnames(table.read.statistics) <- c("Sample ID", "Number of reads", "Mapped reads", "Unique reads", "Reads on CDS", "Reads on noncoding regions")
 x.big <- xtable( as.data.frame(table.read.statistics),
-                 display=c("d","d","d","d","d","d"),
-                 align=c('r','r','r','r','r','r'),
+                 display=c("d","d","s","s","s","s","s"),
+                 align=c('l','r','r','r','r','r','r'),
                  label='count',
-                 caption='{\\bf Summary statistics of short reads.}'
+                 caption='{\\\\bf Summary statistics of short reads.}'
                )
 print( x.big,
        caption.placement="top",
-       include.rownames=TRUE )
+       include.rownames=FALSE )
 EOF
 }
 

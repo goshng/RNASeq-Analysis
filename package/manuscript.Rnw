@@ -99,6 +99,16 @@ small RNAs found in our study could be involved in the regulation of CcpA. Our
 study provides more precise landscape of transcriptome changes in response to
 different carbon sources.
 
+\section*{Main findings}
+The resolution of RNA-Seq has advanced many aspects of the existing gene
+annotation, including the determination of gene boundaries for known genes and
+the identification of novel transcribed regions in many of the bacteria that
+have previously been sequenced.
+For example, for L. monocytogenes, 517 primary operons were identified that
+encode 1719 genes, which represent 60% of the annotated genome
+The knowledge gained regarding untranslated regulatory regions, operons and
+sRNAs is triggering re-evaluation and re-annotation of many bacterial genomes.
+
 \section*{Introduction}
 % Biological motivations: S. mutans, CCR and CcpA
 About one fifth of children of ages ranging from 2 to 19 were reported to have
@@ -168,7 +178,8 @@ RNAs intact.  Then, we followed the TruSeq Illumina kit to prepare the cDNA
 libraries.  
 
 \subsection*{Short reads alignments}
-About 20 millions of short reads were sequenced for each sample.  We used a
+About 20 millions of short reads were sequenced for each sample 
+(table \ref{count}).  We used a
 short read aligner, \program{BWA} \citep{Li2009a}, to map the sequenced short
 reads on the reference genome, \textit{S.\ mutans} UA159 (NCBI accession
 NC\_004350). Because the aligner allowed a few gaps for efficient alignments of
@@ -332,30 +343,30 @@ grNoncoding <- gaps(ranges(smutansData.txGenes))
 grRNAz <- ranges(smutansData.txRNAz)
 # 
 matchUnannotatedRNA <- findOverlaps(grRNAz,grNoAnnotation,type="within")
-txRNAz.unannotated <- grRNAz[matchMatrix(matchUnannotatedRNA)[,1]]
+txRNAz.unannotated <- grRNAz[as.matrix(matchUnannotatedRNA)[,1]]
 
 # A bug in GenomicRanges: the last segment is the while genome. I removed it
 # from the noncoding ranges.
 # matchNoncoding <- findOverlaps(grNoncoding,grTx)
 
 # Expressed transcripts without annotated genes
-grTxWGenes <- grTx[unique(matchMatrix(matchGenesTx)[,2])]
-grTxWOGenes <- grTx[-unique(matchMatrix(matchGenesTx)[,2])]
-grTxWOAnnotation <- grTx[-unique(matchMatrix(matchAnnotationTx)[,2])]
+grTxWGenes <- grTx[unique(as.matrix(matchGenesTx)[,2])]
+grTxWOGenes <- grTx[-unique(as.matrix(matchGenesTx)[,2])]
+grTxWOAnnotation <- grTx[-unique(as.matrix(matchAnnotationTx)[,2])]
 
 # Find transcripts with genes with conflicted strands
 grGenesPlus <- smutansData.txGenes[strand(smutansData.txGenes)=='+']
 grGenesMnus <- smutansData.txGenes[strand(smutansData.txGenes)=='-']
 #mtchPlus <- findOverlaps(grGenesPlus,grTxWGenes)
 #mtchMnus <- findOverlaps(grGenesMnus,grTxWGenes)
-#txWithConflictedGenes <- intersect(matchMatrix(mtchPlus)[,2],matchMatrix(mtchMnus)[,2])
+#txWithConflictedGenes <- intersect(as.matrix(mtchPlus)[,2],as.matrix(mtchMnus)[,2])
 
 # Tx with genes strands
 grTx2 <- grTxWGenes[!strand(grTxWGenes)=='*'] 
 
 # Find the number of genes in segments.
 matchGenesTx2 <- findOverlaps(smutansData.txGenes,grTx2,type="within")
-number.genes.tx <- runLength(Rle(matchMatrix(matchGenesTx2)[,"subject"]))
+number.genes.tx <- runLength(Rle(as.matrix(matchGenesTx2)[,"subjectHits"]))
 
 # Length distribution of UTR regions
 # grTx2 <- grTxWGenes[-txWithConflictedGenes] 
@@ -364,15 +375,15 @@ mtchPlus <- findOverlaps(grGenesPlus,grTx2,type="within")
 mtchMnus <- findOverlaps(grGenesMnus,grTx2,type="within")
 length5UTR <- c()
 length3UTR <- c()
-for (i in unique(matchMatrix(mtchPlus)[,"subject"])) {
-  x <- matchMatrix(mtchPlus)[matchMatrix(mtchPlus)[,"subject"]==i,"query"]
+for (i in unique(as.matrix(mtchPlus)[,"subjectHits"])) {
+  x <- as.matrix(mtchPlus)[as.matrix(mtchPlus)[,"subjectHits"]==i,"queryHits"]
   y <- min(start(grGenesPlus[x])) - start(grTx2[i])
   z <- end(grTx2[i]) - max(end(grGenesPlus[x])) 
   length5UTR <- c(length5UTR,y)
   length3UTR <- c(length3UTR,z)
 }
-for (i in unique(matchMatrix(mtchMnus)[,"subject"])) {
-  x <- matchMatrix(mtchMnus)[matchMatrix(mtchMnus)[,"subject"]==i,"query"]
+for (i in unique(as.matrix(mtchMnus)[,"subjectHits"])) {
+  x <- as.matrix(mtchMnus)[as.matrix(mtchMnus)[,"subjectHits"]==i,"queryHits"]
   y <- min(start(grGenesMnus[x])) - start(grTx2[i])
   z <- end(grTx2[i]) - max(end(grGenesMnus[x])) 
   length5UTR <- c(length5UTR,z)
@@ -384,10 +395,10 @@ pileup.x <- lapply(ranges(smutansData.txGenes), function(x) seqselect(smutansDat
 pileup.y <- mapply(function(x,y) sum(x)/y, x=pileup.x, y=width(smutansData.txGenes))
 elementMetadata(smutansData.txGenes)["score"] <- pileup.y
 mtch3 <- findOverlaps(smutansData.txGenes,grTx2)
-x <- rle(matchMatrix(mtch3)[,"subject"])
+x <- rle(as.matrix(mtch3)[,"subjectHits"])
 comp.exp.two.genes <- c()
 for (i in x$values[x$lengths > 1]) {
-  y <- combn(matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==i],2)
+  y <- combn(as.matrix(mtch3)[,"queryHits"][as.matrix(mtch3)[,"subjectHits"]==i],2)
   for (j in 1:dim(y)[2]) {
     comp.exp.two.genes <- cbind(comp.exp.two.genes,as.matrix(elementMetadata(smutansData.txGenes)["score"][y[,j],]))
   }
@@ -398,9 +409,9 @@ for (i in 1:length(x$values)) {
   if (i == length(x$values)) {
     break
   }
-  y1 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i]]
+  y1 <- as.matrix(mtch3)[,"queryHits"][as.matrix(mtch3)[,"subjectHits"]==x$values[i]]
   i2 <- i + 1
-  y2 <- matchMatrix(mtch3)[,"query"][matchMatrix(mtch3)[,"subject"]==x$values[i2]]
+  y2 <- as.matrix(mtch3)[,"queryHits"][as.matrix(mtch3)[,"subjectHits"]==x$values[i2]]
   l <- as.matrix(do.call(expand.grid, list(y1,y2)))
   for (j in 1:dim(l)[1]) {
     comp.exp.two.genes.between.transcript <- cbind(comp.exp.two.genes.between.transcript,as.matrix(elementMetadata(smutansData.txGenes)["score"][l[j,],]))
@@ -441,8 +452,8 @@ lowly expressed (\Sexpr{length(notExpressedTx)}
 out of 
 \Sexpr{length(smutansData.txGrCombined)}).
 Of the total \Sexpr{length(smutansData.txGenes)} of genes,
-\Sexpr{length(matchMatrix(matchGenesTx)[,1])}
-(\Sexpr{as.integer(length(matchMatrix(matchGenesTx)[,1])/length(smutansData.txGenes)*100)}\%) 
+\Sexpr{length(as.matrix(matchGenesTx)[,1])}
+(\Sexpr{as.integer(length(as.matrix(matchGenesTx)[,1])/length(smutansData.txGenes)*100)}\%) 
 were designated as expressed. 
 Genes that were not designated as expressed could be due to false gene
 annotations or possibility of true negative expression under the experimental
@@ -477,7 +488,7 @@ appeared to start and end near the boundaries of annotated genes.  Gene
 expression levels for adjacent genes within expressed transcripts were more
 correlated than those between adjacent transcripts 
 (fig.\ \ref{figExpressionTwoGene}).
-Among the \Sexpr{length(unique(matchMatrix(matchGenesTx2)[,"subject"]))} segments
+Among the \Sexpr{length(unique(as.matrix(matchGenesTx2)[,"subjectHits"]))} segments
 with genes of all of the same strands, 
 \Sexpr{sum(number.genes.tx==1)} segments contained a single gene while 
 \Sexpr{sum(number.genes.tx > 1)} contained more than one gene.

@@ -2,12 +2,13 @@
 # =======================
 #
 # PROJECTNAME:projectName
+# RUNMODE:cac remote local (1 of these three)
+# NUMBERCPU:8
 #
 # Cluster ID setup
 # ----------------
 # CAC_USERNAME:clusterUsername
 # CAC_LOGIN:clusterURL
-# CAC_ROOT:clusterBase
 #
 # X11 linux ID setup
 # ------------------
@@ -20,10 +21,19 @@
 # BATCHEMAIL:email
 # BATCHACCESS:access
 # QUEUENAME:queue
+# ROUTPUTDIR:/remote/dir
 #
 # Global setup
 # ------------
-# BWA:src/bwa-0.5.9/bwa
-# SAMTOOLS:src/samtools-0.1.16/samtools
+# BWA:usr/bin/bwa-0.6.1/bwa
+# SAMTOOLS:usr/bin/samtools-0.1.18/samtools
+# PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
+# PICARD:usr/bin/picard-tools-1.65
+# CRAMTOOLS:usr/bin/cramtools.jar
+#PYTHON:python
+#CUTADAPT:/usr/local/bin/cutadapt
+# PYTHON:/opt/epd/bin/python2.7
+# CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
+
 # SEGEMEHL:src/segemehl_0_0_9_4/segemehl.x
 # BOWTIE:src/bowtie-0.12.7/bowtie

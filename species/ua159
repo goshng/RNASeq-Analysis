@@ -198,7 +198,7 @@ REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus
 # . reference genome annotation file in _REFGENOMEGFF_
 REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
 # . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
-REFGENOMETXDB:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.txdb
+REFGENOMETXDB:data/NC_004350.txdb
 # . cram reference genome fasta file in _CRAMGENOMEFASTA_
 CRAMGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
 # . cram wall time in _CRAMWALLTIME_
