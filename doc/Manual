@@ -991,6 +991,14 @@ Set _PYTHON_ variable to a file.
 PYTHON:/opt/epd/bin/python2.7
 ----
 
+Rscript
+~~~~~~~
+Set _CACRSCRIPT_ variable.
+
+----
+CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+----
+
 BOWTIE
 ~~~~~~
 Download BOWTIE and install it under +src+ directory. The following command

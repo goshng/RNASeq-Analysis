@@ -18,6 +18,7 @@ function conf {
   PRINSEQ=$(grep ^PRINSEQ $CONFFILE | cut -d":" -f2)
   CUTADAPT=$(grep ^CUTADAPT $CONFFILE | cut -d":" -f2)
   PYTHON=$(grep ^PYTHON $CONFFILE | cut -d":" -f2)
+  CACRSCRIPT=$(grep ^CACRSCRIPT $CONFFILE | cut -d":" -f2)
   CRAMTOOLS=$(grep ^CRAMTOOLS $CONFFILE | cut -d":" -f2)
   BOWTIE=$(grep ^BOWTIE $CONFFILE | cut -d":" -f2)
   SAMTOOLS=$(grep ^SAMTOOLS $CONFFILE | cut -d":" -f2)

@@ -151,7 +151,7 @@ function batch2-speciesfile {
   # . set bwa options in _BWAOPTION_
   BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
   # . Rscript path in _CACRSCRIPT_
-  CACRSCRIPT=$(grep ^CACRSCRIPT\: $SPECIESFILE | cut -d":" -f2)
+  # CACRSCRIPT=$(grep ^CACRSCRIPT\: $SPECIESFILE | cut -d":" -f2)
   # . set _SINGLECHROMOSOME_ to TRUE or FALSE
   SINGLECHROMOSOME=$(grep ^SINGLECHROMOSOME\: $SPECIESFILE | cut -d":" -f2)
   # . set _TESTFASTQ_ to integers

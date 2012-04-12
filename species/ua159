@@ -214,7 +214,6 @@ BWAALIGNNCPU:8
 # . set bwa options in _BWAOPTION_
 
 # . Rscript path in _CACRSCRIPT_
-CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 # . set _SINGLECHROMOSOME_ to TRUE or FALSE
 SINGLECHROMOSOME:TRUE
 # . set _TESTFASTQ_ to integers
