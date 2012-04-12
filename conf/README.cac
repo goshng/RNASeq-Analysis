@@ -2,14 +2,13 @@
 # =======================
 #
 PROJECTNAME:sm
-RUNMODE:local
-NUMBERCPU:1
-ROUTPUTDIR:/Users/goshng/Documents/Projects/RNASeq-Analysis/routput
+RUNMODE:cac
+NUMBERCPU:8
 #
 # Cluster ID setup
 # ----------------
-CAC_USERNAME:goshng
-CAC_LOGIN:localhost
+CAC_USERNAME:sc2265
+CAC_LOGIN:linuxlogin.cac.cornell.edu
 #
 # X11 linux ID setup
 # ------------------
@@ -19,22 +18,23 @@ CAC_LOGIN:localhost
 #
 # Cluster access to job submission
 # --------------------------------
-# BATCHEMAIL:email
-# BATCHACCESS:access
-# QUEUENAME:queue
+BATCHEMAIL:schoi@cornell.edu
+BATCHACCESS:acs4_0001
+QUEUENAME:v4
+ROUTPUTDIR:/v4scratch/sc2265/rnaseq/output
 #
 # Global setup
 # ------------
 BWA:usr/bin/bwa-0.6.1/bwa
 SAMTOOLS:usr/bin/samtools-0.1.18/samtools
-PRINSEQ:usr/bin/prinseq-lite-0.18.1/prinseq-lite.pl
-PICARD:usr/bin/picard-tools-1.66
+PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
+PICARD:usr/bin/picard-tools-1.65
 CRAMTOOLS:usr/bin/cramtools.jar
-PYTHON:python
-CUTADAPT:/Users/goshng/arch/Darwin-i386/bin/cutadapt
-CACRSCRIPT:Rscript
-# PYTHON:/opt/epd/bin/python2.7
-# CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
+#PYTHON:python
+#CUTADAPT:/usr/local/bin/cutadapt
+PYTHON:/opt/epd/bin/python2.7
+CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
+CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 
 # SEGEMEHL:src/segemehl_0_0_9_4/segemehl.x
 # BOWTIE:src/bowtie-0.12.7/bowtie

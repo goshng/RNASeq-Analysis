@@ -913,7 +913,7 @@ z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, tr
 xm <- tableGlucoseOnly[rep(seq(length(z)),sapply(z,length)),]
 xm[,"Functional Class"] <- unlist(z)
 # Use xm to plot a dotchart.
-dotchart(xm[,"fold"],labels=xm[,"Functional Class"],
+dotchart(xm[,"fold"],labels=xm[,"Functional Class"],cex=0.5,
         main="",xlab="Log2 fold change",col="black",pch=88)
 @
 \begin{sidewaysfigure}
@@ -977,7 +977,7 @@ z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, tr
 xm <- tableGalactoseOnly[rep(seq(length(z)),sapply(z,length)),]
 xm[,"Functional Class"] <- unlist(z)
 # Use xm to plot a dotchart.
-dotchart(xm[,"fold"],labels=xm[,"Functional Class"],
+dotchart(xm[,"fold"],labels=xm[,"Functional Class"],cex=0.5,
         main="",xlab="Log2 fold change",col="black",pch=88)
 @
 \begin{sidewaysfigure}
@@ -1033,7 +1033,7 @@ z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, tr
 xm <- tableUA159Only[rep(seq(length(z)),sapply(z,length)),]
 xm[,"Functional Class"] <- unlist(z)
 # Use xm to plot a dotchart.
-dotchart(xm[,"fold"],labels=xm[,"Functional Class"],
+dotchart(xm[,"fold"],labels=xm[,"Functional Class"],cex=0.5,
         main="",xlab="Log2 fold change",col="black",pch=88)
 @
 \begin{sidewaysfigure}
@@ -1085,7 +1085,7 @@ z <- sapply(y, function(x) {x1=strsplit(as.character(x),"\\|\\|"); lapply(x1, tr
 xm <- tableTW1Only[rep(seq(length(z)),sapply(z,length)),]
 xm[,"Functional Class"] <- unlist(z)
 # Use xm to plot a dotchart.
-dotchart(xm[,"fold"],labels=xm[,"Functional Class"],
+dotchart(xm[,"fold"],labels=xm[,"Functional Class"],cex=0.5,
         main="",xlab="Log2 fold change",col="black",pch=88)
 @
 \begin{sidewaysfigure}
