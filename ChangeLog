@@ -45,6 +45,24 @@ Histories
 ---------
 This history can be useful later.
 
+Fri Apr 13 09:06:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We do the filtering before cramming FASTQ files.
+
+.job-fastqc
+. Keep :N: sequences
+. Cut adapter sequences
+. Cut tails of low quality
+
+Thu Apr 12 13:18:41 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Show BAM files in UCSC genome browser
+----
+https://cgwb.nci.nih.gov/goldenPath/help/bam.html
+http://ged.msu.edu/angus/tutorials/ucsc-visualization.html
+----
+
 Sat Apr  7 03:49:41 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

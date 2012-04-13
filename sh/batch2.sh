@@ -28,16 +28,16 @@ function batch2 {
     batch2-output
     batch2-speciesfile 
     batch2-push-data
-
     batch2-get-data
+
 #  ucsc-data
+    batch2-run-fastqc
     batch2-run-cram
     batch2-run-bwa-align
-
     batch2-run-samtools-pileup
 
-    # This would replace fastq-qc, bwa-align, and de.
-    # Because this creates similar job scripts to those created by fastq-qc,
+    # This would replace fastqc, bwa-align, and de.
+    # Because this creates similar job scripts to those created by fastqc,
     # bwa-align, or de, place qcalignde after them.
     batch2-run-qcalignde
 
@@ -146,8 +146,6 @@ function batch2-speciesfile {
   MAXLINEDE=$(grep ^MAXLINEDE\: $SPECIESFILE | cut -d":" -f2)
   # . minimum alignment mapping quality in _MINMAPQ_
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
-  # . number CPUs in a compute node in _BWAALIGNNCPU_
-  BWAALIGNNCPU=$(grep ^BWAALIGNNCPU\: $SPECIESFILE | cut -d":" -f2)
   # . set bwa options in _BWAOPTION_
   BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
   # . Rscript path in _CACRSCRIPT_
@@ -202,6 +200,69 @@ done
 EOF
 }
 
+function batch2-run-fastqc {
+  STATUS=fastqc
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  
+cat>$BASEDIR/run-$STATUS.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$STATUS.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$STATUS.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${QCALIGNDEWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-QC
+#PBS -q ${QUEUENAME}
+#PBS -m e
+# #PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$PRINSEQ pl
+  cp \$HOME/$SAMTOOLS samtools
+  cp \$HOME/$BWA bwa
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-fastqc .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+
+  cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
+  bash job-fastqc \$NUM \\
+    $CDATADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
+  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+}
+
+copy-data
+process-data
+cd
+rm -rf \$TMPDIR
+EOF
+}
+
 function batch2-run-cram {
   CRAMGENOMEFASTAFILENAME=$(basename $CRAMGENOMEFASTA)
   CRAMGENOMEFASTABASENAME=${CRAMGENOMEFASTAFILENAME%.fna}
@@ -243,7 +304,13 @@ function process-data {
   CORESPERNODE=1
   FASTQFILES=( $FASTQFILES )
   g=\$((PBS_ARRAYID-1))
-  bash job-cram \$(printf "%03d" \${FASTQFILES[\$g]})
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+
+  cp $RBWADIR/FASTQ\$NUM.prinseq.fq.gz $CBWADIR/FASTQ\$NUM.fq.gz 
+  bash job-cram \$NUM \\
+    $CBWADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.cram
+  cp $CBWADIR/FASTQ\$NUM.cram $RBWADIR
 }
 
 copy-data
@@ -288,7 +355,7 @@ function copy-data {
   # All of the batchjob scripts.
   cp \$PBS_O_WORKDIR/job-cram .
   cp \$PBS_O_WORKDIR/job-cram2fastq .
-  cp \$PBS_O_WORKDIR/job-fastq-qc .
+  cp \$PBS_O_WORKDIR/job-fastqc .
   cp \$PBS_O_WORKDIR/job-bwa-align .
   cp \$PBS_O_WORKDIR/job-de* .
   cp \$PBS_O_WORKDIR/job-de*.R .
@@ -444,7 +511,7 @@ function copy-data {
   # All of the batchjob scripts.
   cp \$PBS_O_WORKDIR/job-cram .
   cp \$PBS_O_WORKDIR/job-cram2fastq .
-  cp \$PBS_O_WORKDIR/job-fastq-qc .
+  cp \$PBS_O_WORKDIR/job-fastqc .
   cp \$PBS_O_WORKDIR/job-bwa-align .
   cp \$PBS_O_WORKDIR/job-de* .
   cp \$PBS_O_WORKDIR/job-de*.R .
@@ -471,22 +538,20 @@ function process-data {
   g=\$((PBS_ARRAYID-1))
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
   # input: cram, and output: bam
-  bash job-cram2fastq \$NUM \\
-    $RDATADIR/FASTQ\$NUM.cram \\
-    $CDATADIR/FASTQ\$NUM.recovered.fq
-  gzip $CDATADIR/FASTQ\$NUM.recovered.fq
-  bash job-fastq-qc \$NUM \\
-    $CDATADIR/FASTQ\$NUM.recovered.fq.gz \\
-    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
 
+  cp $RBWADIR/FASTQ\$NUM.cram $CBWADIR
+  bash job-cram2fastq \$NUM \\
+    $CBWADIR/FASTQ\$NUM.cram \\
+    $CBWADIR/FASTQ\$NUM.recovered.fq
+  gzip $CBWADIR/FASTQ\$NUM.recovered.fq
   bash job-bwa-align \$NUM \\
-    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.recovered.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted \\
     $CSUBREADDIR/FASTQ\$NUM.sorted
 
 # 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
-  NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.recovered.fq.gz | wc -l)
+  NUMBER_READ4=\$(zcat $RDATADIR/FASTQ\$NUM.fq.gz | wc -l)
   NUMBER_READ=\$((NUMBER_READ4 / 4))
   echo bash job-de \$BAMFILE1 \$NUMBER_READ
   bash job-de \$BAMFILE1 \$NUMBER_READ
@@ -655,15 +720,20 @@ cl <- assays(olap)\$counts[,1]
 save(cl,file=cl.file)
 EOF
 
+# CRAM
+# $1: a three-digit number
+# $2: a gzipped fastq file
+# $3: a cram file
 grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-cram
 cat>>$BASEDIR/job-cram<<EOF
+#  bash job-cram \$NUM \\
+#    $CBWADIR/FASTQ\$NUM.fq.gz \\
+#    $RDATADIR/FASTQ\$NUM.cram
 QUALITYSCORESEQUENCE=QUALITYSCORE\$1
 
 cp $RDATADIR/$CRAMGENOMEFASTAFILENAME $CDATADIR
 cp $CDATADIR/$CRAMGENOMEFASTABASENAME.fna $CDATADIR/$CRAMGENOMEFASTABASENAME.fa
 
-cp $RDATADIR/FASTQ\$1.fq.gz $CBWADIR
-GZIPFASTAQFILE=$CBWADIR/FASTQ\$1.fq.gz
 FASTAQFILE=\${GZIPFASTAQFILE%.gz}
 
 ./bwa index -p $CBWADIR/$CRAMGENOMEFASTABASENAME-bwa -a is \\
@@ -671,21 +741,19 @@ FASTAQFILE=\${GZIPFASTAQFILE%.gz}
 
 # We need more preprocessing of fastq files.
 if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  ADAPTERSEQUENCE=ADAPTER\$1
-  mv \$GZIPFASTAQFILE $CBWADIR/temp.FASTQ\$1.fq.gz
+  cp \$2 $CBWADIR/temp.FASTQ\$1.fq.gz
 else
-  zcat \$GZIPFASTAQFILE \\
+  zcat \$2 \\
     | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
     | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
-  rm \$GZIPFASTAQFILE
 fi
 
 if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
-  ./bwa aln -I -t $BWAALIGNNCPU \\
+  ./bwa aln -I -t $NUMBERCPU \\
     $CBWADIR/$CRAMGENOMEFASTABASENAME-bwa \\
     $CBWADIR/temp.FASTQ\$1.fq.gz > $CBWADIR/FASTQ\$1.sai
 else
-  ./bwa aln -t $BWAALIGNNCPU \\
+  ./bwa aln -t $NUMBERCPU \\
     $CBWADIR/$CRAMGENOMEFASTABASENAME-bwa \\
     $CBWADIR/temp.FASTQ\$1.fq.gz > $CBWADIR/FASTQ\$1.sai
 fi
@@ -704,14 +772,14 @@ rm $CBWADIR/FASTQ\$1.bam
 ./samtools faidx $CDATADIR/$CRAMGENOMEFASTABASENAME.fa
 ./samtools index $CBWADIR/FASTQ\$1.sorted.bam
 
+#  --capture-all-quality-scores \\
 java -jar \$HOME/$CRAMTOOLS cram \\
-  --capture-all-quality-scores \\
   --input-bam-file $CBWADIR/FASTQ\$1.sorted.bam \\
   --reference-fasta-file $CDATADIR/$CRAMGENOMEFASTABASENAME.fa \\
   --output-cram-file $CDATADIR/FASTQ\$1.cram
 rm $CBWADIR/FASTQ\$1.sorted.bam
 
-cp $CDATADIR/FASTQ\$1.cram $RDATADIR
+cp $CDATADIR/FASTQ\$1.cram \$3
 
 EOF
 
@@ -744,23 +812,30 @@ EOF
 # $1: a three-digit number
 # $2: a gzipped fastq file
 # $3: a QC'ed gzipped fastq file
-grep ^ADAPTER $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-fastq-qc
-grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ >> $BASEDIR/job-fastq-qc
-cat>>$BASEDIR/job-fastq-qc<<EOF
+grep ^ADAPTER $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-fastqc
+grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ >> $BASEDIR/job-fastqc
+cat>>$BASEDIR/job-fastqc<<EOF
 ADAPTERSEQUENCE=ADAPTER\$1
 QUALITYSCORESEQUENCE=QUALITYSCORE\$1
+
+# We need more preprocessing of fastq files.
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  cp \$2 $CBWADIR/temp.FASTQ\$1.fq.gz
+else
+  zcat \$2 \\
+    | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
+    | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
+fi
 
 $PYTHON $CUTADAPT --minimum-length=25 \\
   -a \${!ADAPTERSEQUENCE} \\
   -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
-  \$2 &> /dev/null
-# rm \$2
+  $CBWADIR/temp.FASTQ\$1.fq.gz &> /dev/null
 
 gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
   perl pl/prinseq-lite.pl \\
     -fastq stdin \\
     -trim_qual_right 20 \\
-    -rm_header \\
     -out_good stdout | \\
   gzip > $CBWADIR/outfile
 rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
@@ -783,7 +858,7 @@ QUALITYSCORESEQUENCE=QUALITYSCORE\$1
   $CSUBREADDIR/$GENOMEFASTA-subread \\
   $CDATADIR/$GENOMEFASTA &> /dev/null
 
-./bwa aln -t $BWAALIGNNCPU \\
+./bwa aln -t $NUMBERCPU \\
   $BWAOPTION \\
   $CBWADIR/$GENOMEFASTA-bwa \\
   \$2 > $CBWADIR/FASTQ\$1.sai 2> /dev/null
@@ -805,7 +880,7 @@ exit
 gunzip \$2
 FASTAQFILE=\${2%.gz}
 ./subread-align \\
-  --threads $BWAALIGNNCPU \\
+  --threads $NUMBERCPU \\
   --phred 3 \\
   --unique \\
   -i $CSUBREADDIR/$GENOMEFASTA-subread \\

@@ -194,13 +194,13 @@ CACWORKDIR:run/rnaseq/021412
 # . reference genome ID in _REFGENOMEID_
 REFGENOMEID:NC_004350
 # . reference genome fasta file in _REFGENOMEFASTA_
-REFGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+REFGENOMEFASTA:data/NC_004350.fna
 # . reference genome annotation file in _REFGENOMEGFF_
-REFGENOMEGFF:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff
+REFGENOMEGFF:data/NC_004350.gff
 # . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
 REFGENOMETXDB:data/NC_004350.txdb
 # . cram reference genome fasta file in _CRAMGENOMEFASTA_
-CRAMGENOMEFASTA:/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna
+CRAMGENOMEFASTA:data/NC_004350.fna
 # . cram wall time in _CRAMWALLTIME_
 CRAMWALLTIME:6
 # . pipeline wall time in _QCALIGNDEWALLTIME_
@@ -209,8 +209,6 @@ QCALIGNDEWALLTIME:8
 MAXLINEDE:5000000
 # . minimum alignment mapping quality in _MINMAPQ_
 MINMAPQ:30
-# . number CPUs in a compute node in _BWAALIGNNCPU_
-BWAALIGNNCPU:8
 # . set bwa options in _BWAOPTION_
 
 # . Rscript path in _CACRSCRIPT_

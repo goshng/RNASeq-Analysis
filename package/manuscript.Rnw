@@ -46,6 +46,7 @@ Michael J.\ Stanhope$^{2}$, and Adam Siepel$^{1}$}
 
 \date{ }
 \maketitle
+\thispagestyle{empty}
 
 
 \begin{footnotesize}
@@ -84,32 +85,32 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 \end{minipage}
 \end{tabular}
 
-\thispagestyle{empty}
 \end{titlepage}
+
+\setcounter{page}{2}
 
 \doublespacing
 
-\section*{Abstract}
+\section*{ABSTRACT}
+
+\fixme{Add more specific findings while summarizing the results. Connect two
+ideas of the differential expression study and transcriptome study.}
 A bacterial transcriptome of the primary etiological agent of human dental
 caries, \textit{Streptococcus mutans}, is described using deep RNA sequencing.
-RNA transcripts inferred from the RNA-seq data revealed novel messenger RNAs,
-and small RNAs. Differential expression studies on the role of CcpA in 
+The technique of RNA-Seq has allowed 
+the determination of transcript boundaries for annotated genes and
+the identification of previously unknown transcribed regions 
+including mRNAs and small noncoding RNAs in the genome.
+Differential expression studies on the role of CcpA in 
 carbon catabolite repression (CCR) suggested that some of the novel mRNAs and
 small RNAs found in our study could be involved in the regulation of CcpA. Our
 study provides more precise landscape of transcriptome changes in response to
 different carbon sources.
+The knowledge that we gained from the current study of \textit{S. mutans}
+transcriptome will lead to re-evaluation of the bacterial genome.
 
-\section*{Main findings}
-The resolution of RNA-Seq has advanced many aspects of the existing gene
-annotation, including the determination of gene boundaries for known genes and
-the identification of novel transcribed regions in many of the bacteria that
-have previously been sequenced.
-For example, for L. monocytogenes, 517 primary operons were identified that
-encode 1719 genes, which represent 60% of the annotated genome
-The knowledge gained regarding untranslated regulatory regions, operons and
-sRNAs is triggering re-evaluation and re-annotation of many bacterial genomes.
+\section*{INTRODUCTION}
 
-\section*{Introduction}
 % Biological motivations: S. mutans, CCR and CcpA
 About one fifth of children of ages ranging from 2 to 19 were reported to have
 untreated cavities in the United States \citep{health2010}. Oral bacteria digest
@@ -155,128 +156,7 @@ differentially expressed. This provided more refined views of dynamic changes in
 the transcriptome landscape of the etiological agent of human dental caries,
 \textit{S.\ mutans}, than previously reported by \citet{Abranches2008}.
 
-\section*{Materials and Methods}
-
-\subsection*{Bacterial strains and growth conditions}
-\fixme{Burne group describes bacterial strains and growth conditions and other
-necessary works. Please, add texts and SCC will copy-edit them.}
-
-\subsection*{RNA isolation}
-\fixme{Burne group describes RNA isolations and other works. Please, add texts
-and SCC will copy-edit them.}
-
-\subsection*{RNA sequencing}
-Deep sequencing of the RNA samples were performed at the Cornell University Life
-Sciences Core Laboratories Center (Ithaca, NY).  RNA extraction was performed
-using a modified Qiagen RNAease protocol (Qiagen, Inc., Chatsworth, CA): cells
-were pelleted, resuspended in RNA protect reagent, frozen, and then resuspended
-in TE, mechanically disrupted in a bead beater in the presence of glass beads
-and acidic phenol. We used the Qiagen kit to obtain total RNAs.  The RNA sample
-was passed through the Ambion MicrobExpress kit twice, which removed ribosomal
-RNAs only using magnetic beads.  This procedure left small RNAs and transfer
-RNAs intact.  Then, we followed the TruSeq Illumina kit to prepare the cDNA
-libraries.  
-
-\subsection*{Short reads alignments}
-About 20 millions of short reads were sequenced for each sample 
-(table \ref{count}).  We used a
-short read aligner, \program{BWA} \citep{Li2009a}, to map the sequenced short
-reads on the reference genome, \textit{S.\ mutans} UA159 (NCBI accession
-NC\_004350). Because the aligner allowed a few gaps for efficient alignments of
-millions of sequences of size being 100 base pairs long, short reads that
-consisted of RNAs with sequencing adapter sequences would not be mapped.  We
-used \program{cutadapt} \citep{Martin2011} to remove parts of adapter sequences
-from short reads before mapping on the reference genome.  Mapped short read
-alignments were converted into readable formats using \program{samtools}
-\citep{Li2009b}. 
-
-\subsection*{Transcript predictions}
-RNA transcripts were inferred by applying a hidden Markov model to site-wise
-expression levels \citep{Martin2010}.  We used the pileup command of
-\program{BWA} to convert the short reads alignments to pilup values, which were
-taken as the site-wise expression levels along the genome.  Site-wise expression
-levels are a list of site-wise non-negative integers that represents numbers of
-short reads mapped to a particular genomic position.  We used the following
-options for the transcript inference program, \program{ParseRNAseq}: ``-c 10 -b
-25 -force\_gp'' to bin expression levels into 25 parts, and to allow 10 emission
-states for relative expression intensity. We also used the genes as the
-predicted parts of transcripts.    Because we enriched mRNAs in the cDNA
-preparation, we intented to group annotated genes to segments, which could be
-transcripts. We did not aim at finding precise transcription start or end sites.
-Because we did not have strand-specific RNA-seq of the samples due to limited
-resources, we could not tell in which directions transcripts were oriented
-solely based on RNA-seq data. Instead, we used strands of annotated genes to
-determine strands of predicted transcripts.
-
-\subsection*{Prediction of small RNAs and targets}
-Although our RNA-seq data did not enriched non-coding small RNAs in the cDNA
-preparation, we retained small RNAs in the sample by attempting to deplete only
-ribosomal RNAs from the sample. Because non-coding small RNAs and coding
-mRNAs were mixed in the sample, it was difficult to discriminate small
-non-coding RNAs from mRNAs unless non-coding RNAs expressions were masked by
-neighboring background RNA expressions. 
-Therefore, we sought a way of predicting small RNAs
-using \program{RNAz} \citep{Gruber2010}, which  used homologous sequences and
-RNA secondary structures to predict putative non-coding RNAs. Because sequence
-alignments were a critical step for finding small RNAs in the approach, we
-collated sequences similar to intergenic regions, and refined the alignments using
-a multiple sequence alignment tool. Exracting
-intergenic regions including up- and down-stream, we searched a database of
-bacterial genomes using BLAST \citep{Altschul1990} for similar intergenic
-sequences, subsequently, refining the sequence alignments using MUSCLE
-\citep{Edgar2004a}.  Then, we applied \program{RNAz} to the alignments for
-scoring regions for small RNAs \citep{Washietl2005,Gruber2010}.  Targets of
-transcripts with high scores for small RNAs were also predicted using
-\program{RNAplex} \citep{Tafer2008}, and \program{RNAplfold}
-\citep{Bernhart2006}.  Target genes were scored for each small RNA candidate,
-which was used to perform functional category enrichment tests of targets for
-each small RNA candidate.
-
-\subsection*{Experimental validation of small RNAs}
-\fixme{Burne group might have done or be able to do some experimental
-validations of putative non-coding RNAs shown at table \ref{tabUnannotatedRNA}
-\citep[e.g.,][]{Altuvia2007}.}
-
-\subsection*{Statistical analysis for differential expressions}
-We used \Rpackage{DESeq} \citep{Anders2010} to determine differentially
-expressed genes based on negative binomial model originally developed by
-\citet{Robinson2007}.  Steps of analyzing RNA-seq data for determining
-differentially expressed genes were described in \cite{Oshlack2010}.  We counted
-short reads aligned to annotated genes in the reference genome, forming a table
-of read counts of the genes. Statistical software R \citep{R2011} with
-\Rpackage{DEseq} was subsequently employed to infer differentially expressed
-genes in the different biological conditions.  
-
-\subsection*{Gene category associations}
-We compiled three sets of gene categories for testing functional associations.
-Firstly, we assigned genes to Gene Ontology (GO) categories by comparing the
-\textit{S.\ mutans} genes to bacterial proteins from the Uniref90 database using
-\program{BLASTP}, and then assigning the same GO classification as the target
-gene of the uniProt GOA database if the match had an $E$-value of
-$<1.0\times10^{-5}.$  A gene family was assigned a given classification if any
-of its genes was assigned that classification.  Secondly, we collated functional
-classes of genes in the Oral Pathogen Sequence Databases available at
-\url{http://oralgen.lanl.gov}. Thirdly, we used a set of metabolite pathways for
-\textit{S.\ mutans} available at Kyoto Encyclopedia of Genes and Genomes (KEGG)
-\citep{Kanehisa2012}.  Using the sets of gene categories for \textit{S.\ mutans}
-we performed a Mann-Whitney $U$ test of the values of target genes of small RNAs
-associated with a given category versus those for the other categories. We
-used a variation of Fisher's exact test accounting for gene lengths to test
-enrichments of differentially expressed genes \citep{Young2010}.  Both of the
-tests were corrected for multiple testing hypotheses \citep{Benjamini1995}.
-
-\subsection*{UCSC genome browser tracks and data availability}
-We created tracks for our recently released Streptococcus Genome Browser
-(\url{http://strep-genome.bscb.cornell.edu}) that summarized the results of our
-\textit{S.\ mutans} transcriptome analysis with known genes, gene expression
-levels based on the short read alignments, predicted putative transcript
-segments, and predictd small non-coding RNAs.  They should be accessed by clade
-\textit{Streptococcus}, and genome \textit{S. mutans UA159}.  These tracks can
-be used to inspect loci of interest and to compare the results of different
-RNA-seq data sets.  They can also be queried and intersected with other tracks
-using the UCSC Table Browser.
-
-\section*{Results}
+\section*{RESULTS}
 
 <<eval=FALSE,echo=FALSE,results=hide>>=
 # not run when smutans R package is installed
@@ -422,12 +302,12 @@ for (i in 1:length(x$values)) {
 \subsection*{Experimental results from Burne group}
 \fixme{Add some if needed.}
 
-\subsection*{Results from Stanhop group when RNA sequencing preparation}
+\subsection*{Results from Stanhope group when RNA sequencing preparation}
 \fixme{Add some if needed.}
 
-\subsection*{Statistics of short reads}
 
 \subsection*{Cluster of RNA samples}
+
 First using the table of read counts of annotated genes we formed a cluster of
 the 13 RNA-seq samples (fig.\ \ref{figClust}). The effect of nutrients appeared
 to be stronger than that of the deletion of \textit{ccpA} genes from the UA159
@@ -756,7 +636,7 @@ Figures \ref{figRNALocus1}, \ref{figRNALocus2}, and \ref{figRNALocus3} shows MFE
 structures with encoding positional entropy of differentially expressed putative
 structural non-coding RNAs.
 
-\section*{Discussion}
+\section*{DISCUSSION}
 
 Our current knowledge of the transcriptome is limited to annotated or predicted
 genes.  Whole transcriptome sequencing using high throughput sequencing
@@ -776,7 +656,131 @@ annotated genes and their transcriptions: a gene contains two transcripts, and
 non-coding regions contain transcripts.  We hope that our study could serve as a
 foundation for a comprehensive study of the \textit{S.\ mutans} transcriptome.
 
-\section*{Acknowledgments}
+\section*{METHODS}
+
+\subsection*{Bacterial strains and growth conditions}
+\fixme{Burne group describes bacterial strains and growth conditions and other
+necessary works. Please, add texts and SCC will copy-edit them.}
+
+\subsection*{RNA isolation}
+\fixme{Burne group describes RNA isolations and other works. Please, add texts
+and SCC will copy-edit them.}
+
+\subsection*{RNA sequencing}
+Deep sequencing of the RNA samples were performed at the Cornell University Life
+Sciences Core Laboratories Center (Ithaca, NY).  RNA extraction was performed
+using a modified Qiagen RNAease protocol (Qiagen, Inc., Chatsworth, CA): cells
+were pelleted, resuspended in RNA protect reagent, frozen, and then resuspended
+in TE, mechanically disrupted in a bead beater in the presence of glass beads
+and acidic phenol. We used the Qiagen kit to obtain total RNAs.  The RNA sample
+was passed through the Ambion MicrobExpress kit twice, which removed ribosomal
+RNAs only using magnetic beads.  This procedure left small RNAs and transfer
+RNAs intact.  Then, we followed the TruSeq Illumina kit to prepare the cDNA
+libraries.  
+
+\subsection*{Short reads alignments}
+About 20 millions of short reads were sequenced for each sample 
+(table \ref{count}).  We used a
+short read aligner, \program{BWA} \citep{Li2009a}, to map the sequenced short
+reads on the reference genome, \textit{S.\ mutans} UA159 (NCBI accession
+NC\_004350). Because the aligner allowed a few gaps for efficient alignments of
+millions of sequences of size being 100 base pairs long, short reads that
+consisted of RNAs with sequencing adapter sequences would not be mapped.  We
+used \program{cutadapt} \citep{Martin2011} to remove parts of adapter sequences
+from short reads before mapping on the reference genome.  Mapped short read
+alignments were converted into readable formats using \program{samtools}
+\citep{Li2009b}. 
+
+\subsection*{Transcript predictions}
+RNA transcripts were inferred by applying a hidden Markov model to site-wise
+expression levels \citep{Martin2010}.  We used the pileup command of
+\program{BWA} to convert the short reads alignments to pilup values, which were
+taken as the site-wise expression levels along the genome.  Site-wise expression
+levels are a list of site-wise non-negative integers that represents numbers of
+short reads mapped to a particular genomic position.  We used the following
+options for the transcript inference program, \program{ParseRNAseq}: ``-c 10 -b
+25 -force\_gp'' to bin expression levels into 25 parts, and to allow 10 emission
+states for relative expression intensity. We also used the genes as the
+predicted parts of transcripts.    Because we enriched mRNAs in the cDNA
+preparation, we intented to group annotated genes to segments, which could be
+transcripts. We did not aim at finding precise transcription start or end sites.
+Because we did not have strand-specific RNA-seq of the samples due to limited
+resources, we could not tell in which directions transcripts were oriented
+solely based on RNA-seq data. Instead, we used strands of annotated genes to
+determine strands of predicted transcripts.
+
+\subsection*{Prediction of small RNAs and targets}
+Although our RNA-seq data did not enriched non-coding small RNAs in the cDNA
+preparation, we retained small RNAs in the sample by attempting to deplete only
+ribosomal RNAs from the sample. Because non-coding small RNAs and coding
+mRNAs were mixed in the sample, it was difficult to discriminate small
+non-coding RNAs from mRNAs unless non-coding RNAs expressions were masked by
+neighboring background RNA expressions. 
+Therefore, we sought a way of predicting small RNAs
+using \program{RNAz} \citep{Gruber2010}, which  used homologous sequences and
+RNA secondary structures to predict putative non-coding RNAs. Because sequence
+alignments were a critical step for finding small RNAs in the approach, we
+collated sequences similar to intergenic regions, and refined the alignments using
+a multiple sequence alignment tool. Exracting
+intergenic regions including up- and down-stream, we searched a database of
+bacterial genomes using BLAST \citep{Altschul1990} for similar intergenic
+sequences, subsequently, refining the sequence alignments using MUSCLE
+\citep{Edgar2004a}.  Then, we applied \program{RNAz} to the alignments for
+scoring regions for small RNAs \citep{Washietl2005,Gruber2010}.  Targets of
+transcripts with high scores for small RNAs were also predicted using
+\program{RNAplex} \citep{Tafer2008}, and \program{RNAplfold}
+\citep{Bernhart2006}.  Target genes were scored for each small RNA candidate,
+which was used to perform functional category enrichment tests of targets for
+each small RNA candidate.
+
+\subsection*{Experimental validation of small RNAs}
+\fixme{Burne group might have done or be able to do some experimental
+validations of putative non-coding RNAs shown at table \ref{tabUnannotatedRNA}
+\citep[e.g.,][]{Altuvia2007}.}
+
+\subsection*{Statistical analysis for differential expressions}
+We used \Rpackage{DESeq} \citep{Anders2010} to determine differentially
+expressed genes based on negative binomial model originally developed by
+\citet{Robinson2007}.  Steps of analyzing RNA-seq data for determining
+differentially expressed genes were described in \cite{Oshlack2010}.  We counted
+short reads aligned to annotated genes in the reference genome, forming a table
+of read counts of the genes. Statistical software R \citep{R2011} with
+\Rpackage{DEseq} was subsequently employed to infer differentially expressed
+genes in the different biological conditions.  
+
+\subsection*{Gene category associations}
+We compiled three sets of gene categories for testing functional associations.
+Firstly, we assigned genes to Gene Ontology (GO) categories by comparing the
+\textit{S.\ mutans} genes to bacterial proteins from the Uniref90 database using
+\program{BLASTP}, and then assigning the same GO classification as the target
+gene of the uniProt GOA database if the match had an $E$-value of
+$<1.0\times10^{-5}.$  A gene family was assigned a given classification if any
+of its genes was assigned that classification.  Secondly, we collated functional
+classes of genes in the Oral Pathogen Sequence Databases available at
+\url{http://oralgen.lanl.gov}. Thirdly, we used a set of metabolite pathways for
+\textit{S.\ mutans} available at Kyoto Encyclopedia of Genes and Genomes (KEGG)
+\citep{Kanehisa2012}.  Using the sets of gene categories for \textit{S.\ mutans}
+we performed a Mann-Whitney $U$ test of the values of target genes of small RNAs
+associated with a given category versus those for the other categories. We
+used a variation of Fisher's exact test accounting for gene lengths to test
+enrichments of differentially expressed genes \citep{Young2010}.  Both of the
+tests were corrected for multiple testing hypotheses \citep{Benjamini1995}.
+
+\section*{DATA ACCESS}
+
+\subsection*{UCSC genome browser tracks and data availability}
+We created tracks for our recently released Streptococcus Genome Browser
+(\url{http://strep-genome.bscb.cornell.edu}) that summarized the results of our
+\textit{S.\ mutans} transcriptome analysis with known genes, gene expression
+levels based on the short read alignments, predicted putative transcript
+segments, and predictd small non-coding RNAs.  They should be accessed by clade
+\textit{Streptococcus}, and genome \textit{S. mutans UA159}.  These tracks can
+be used to inspect loci of interest and to compare the results of different
+RNA-seq data sets.  They can also be queried and intersected with other tracks
+using the UCSC Table Browser.
+
+\section*{ACKNOWLEDGMENTS}
+
 \fixme{Add more peoples or fundings if needed.}
 This study was funded by the National Institute of Allergy and Infectious
 Disease, US National Institutes of Health, under grant number AI073368-01A2
@@ -786,16 +790,18 @@ Fellowship for Science and Engineering (to A.S.).
 We thank Christopher Browngardt for assistance with labelling functional classes
 of \textit{S.\ mutans} genes.
 
-\renewcommand*{\refname}{Literature Cited}
-\bibliographystyle{../../latex/bst/mbe}
+\section*{FIGURE LEGENDS}
+
+\section*{FIGURES}
+
+\section*{TABLES}
+
+\clearpage{}
+
+\renewcommand*{\refname}{REFERENCES}
+\bibliographystyle{../../latex/bst/genres}
 \bibliography{siepel-mutans}
 \clearpage{}
-
-\section*{Tables}
-
-\clearpage{}
-
-\section*{Figures}
 
 \end{document}
 

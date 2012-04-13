@@ -615,7 +615,7 @@ multhist(l,breaks=bin)
 \centering
 \includegraphics[width=.9\textwidth]{supplementary-figGrCombinedExpression}
 \caption{{\bf Average pileup values for segments.}
-The last bin sums from 1000 bp to 5000 bp.
+The last bin sums from 1000 to 50000. 
 }
 \label{figGrCombinedExpression}
 \end{figure}

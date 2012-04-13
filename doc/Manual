@@ -194,7 +194,6 @@ variables would cause problems.
 . pipeline wall time in _QCALIGNDEWALLTIME_
 . split file size limit in _MAXLINEDE_
 . minimum alignment mapping quality in _MINMAPQ_
-. number CPUs in a compute node in _BWAALIGNNCPU_
 . set bwa options in _BWAOPTION_
 . Rscript path in _CACRSCRIPT_
 . set _SINGLECHROMOSOME_ to TRUE or FALSE
@@ -245,6 +244,7 @@ QUEUENAME:v4dev
 .Execute scripts to check the simulation
 ----
 $ bash job-simulate
+$ bash run-fastqc.sh
 $ bash run-cram.sh
 $ bash run-qcalignde.sh
 $ bash job-check
@@ -462,7 +462,6 @@ MINMAPQ:30
 .Maximum hours for zipping fastq files
 ----
 CRAMWALLTIME:12
-BWAALIGNNCPU:8 
 ----
 We use BWA to map reads for zipping them.
 
