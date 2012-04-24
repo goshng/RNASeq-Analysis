@@ -45,6 +45,31 @@ Histories
 ---------
 This history can be useful later.
 
+
+Wed Apr 18 02:44:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Tomato
+----
+1. Number of reads or depth on variants
+2. Remove read duplicates
+3. Threshold 3 read depths
+4. Poly-pen analysis
+5. Compare IL and persicum to remove vairants with the same variants.
+----
+
+Sat Apr 14 14:07:55 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://compgen.bscb.cornell.edu/~choi/FASTQ001.sorted.bam
+
+.Tracks
+----
+track type=bam name="My BAM" bigDataUrl=http://compgen.bscb.cornell.edu/~choi/2.sorted.bam
+track name='RNAz' description='RNAz'
+track name='Noncoding' description='Noncoding Track'
+----
+
 Fri Apr 13 09:06:50 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 We do the filtering before cramming FASTQ files.
@@ -53,6 +78,33 @@ We do the filtering before cramming FASTQ files.
 . Keep :N: sequences
 . Cut adapter sequences
 . Cut tails of low quality
+
+.ShortRead R package and qa
+----
+Read a FASTQ file.
+qa(dirPath, pattern=character(0), 
+   type=c("SolexaExport", "SolexaRealign", "Bowtie", "MAQMap", 
+          "MAQMapShort", "fastq", "BAM"),
+  ...)
+qaSummary <- qa(sp)
+> fq <- readFastq(sp, fqpattern)
+> reads <- sread(fq)
+> qualities <- quality(fq)
+> report(qaSummary, dest="/path/to/report_directory")
+----
+
+.Fastq file report summary
+----
+source("http://bioconductor.org/biocLite.R")
+biocLite("qrqc")
+library(qrqc)
+----
+
+.Export GRanges object to a BED file
+----
+library(rtracklayer)
+export(smutansData.txRNAz,con="a.bed")
+----
 
 Thu Apr 12 13:18:41 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -457,6 +509,7 @@ babylon:/lab/data/S_mutans/RNA-seq.31Oct11 (2nd)
 babylon:/lab/data/S_mutans/RNA-seq.1Nov11 (2nd)
 babylon:/lab/data/S_mutans/RNA-seq.4-7Nov11 (some of them are missing)
 babylon:/lab/data/S_mutans/RNA-seq.8FEb12/RNA-seq.8FEb12 (4th)
+babylon:/lab/data/S_agalactiae/RNA_seq.4Aug11
 edit check.sh.1 and run it.
 babylon:/home/sc2265/work bash check.sh.1
 ----

@@ -241,6 +241,14 @@ to use a development queue.
 QUEUENAME:v4dev
 ----
 
+.To align reads step-by-step
+----
+$ bash run-fastqc.sh
+$ bash run-cram.sh
+$ bash run-cram2fastq.sh
+$ bash run-bwa-align.sh
+----
+
 .Execute scripts to check the simulation
 ----
 $ bash job-simulate

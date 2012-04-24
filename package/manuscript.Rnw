@@ -39,7 +39,6 @@ of {\em Streptococcus mutans} }
 \author{Sang Chul Choi$^{1}$, Charles D.\ Danko$^{1}$, 
 Melissa J.\ Hubisz$^{1}$, \\
 Paulina Dmitrievna Pavinski Bitar$^{2}$, \\
-\fixme{Add more coauthors, or change the order of authors if needed} \\
 Robert A.\ Burne$^{3}$
 Michael J.\ Stanhope$^{2}$, and Adam Siepel$^{1}$}
 
@@ -64,8 +63,6 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 \end{footnotesize}
 
 \vspace{1in}
-
-\fixme{Add more corresponding authors.}
 
 \begin{tabular}{lp{4.5in}}
 {\bf Submission type:}& Research Article
@@ -95,17 +92,21 @@ College of Dentistry, University of Florida, Gainesville, Florida 32610 USA
 
 \fixme{Add more specific findings while summarizing the results. Connect two
 ideas of the differential expression study and transcriptome study.}
+
 A bacterial transcriptome of the primary etiological agent of human dental
 caries, \textit{Streptococcus mutans}, is described using deep RNA sequencing.
 The technique of RNA-Seq has allowed 
 the determination of transcript boundaries for annotated genes and
 the identification of previously unknown transcribed regions 
 including mRNAs and small noncoding RNAs in the genome.
+
 Differential expression studies on the role of CcpA in 
 carbon catabolite repression (CCR) suggested that some of the novel mRNAs and
-small RNAs found in our study could be involved in the regulation of CcpA. Our
-study provides more precise landscape of transcriptome changes in response to
-different carbon sources.
+small RNAs found in our study could be involved in the regulation of CcpA. 
+
+Our study provides more precise landscape of transcriptome changes in response to
+different carbon sources in \textit{S. mutans}.
+
 The knowledge that we gained from the current study of \textit{S. mutans}
 transcriptome will lead to re-evaluation of the bacterial genome.
 
@@ -124,7 +125,7 @@ carbon sources via a regulation called carbon catabolite repression (CCR)
 CCR.  CCR were known to regulates the expression of virulence factors in many
 pathogenic bacteria, thereby subjecting a number of genes to CCR.  CcpA was
 shown to regulate metabolism and virulence gene expression in 
-\textit{S.\ mutans} through CCR in transcriptom study using 
+\textit{S.\ mutans} through CCR in transcriptome study using 
 the microarray technique based on DNA hybridization \citep{Abranches2008}. 
 
 % Technological motivations: RNA-seq, and microarray, bacterial transcriptomes
@@ -299,19 +300,230 @@ for (i in 1:length(x$values)) {
 }
 @
 
-\subsection*{Experimental results from Burne group}
-\fixme{Add some if needed.}
+<<eval=FALSE,echo=FALSE,result=hide>>=
+# To find Infernal small RNAs expressed in RNA-seq data
+grTx <- smutansData.txGrCombined[!(elementMetadata(smutansData.txGrCombined)$zero > 0.1 & elementMetadata(smutansData.txGrCombined)$pileup < 5)]
+smutansData.txInfernal <- smutansData.txAnnotation[1:274]
+ol.Infernal <- findOverlaps(smutansData.txInfernal,grTx,type="within")
+r <- ranges(grTx[unique(ol.Infernal@subjectHits)])
+for (i in seq(length(r))) {
+  cat(paste("chr1:",start(r)[i],"-",end(r)[i]),"\n")
+}
+#chr1: 22518 - 23227 tRNA
+#chr1: 23229 - 25062 tRNA
+#chr1: 97029 - 99661 mir
+#chr1: 99934 - 100544 tRNA
+#chr1: 111689 - 118470 mir
+#chr1: 152804 - 153769 * STnc490k different position
+#chr1: 182583 - 185313 mir
+#chr1: 190870 - 191839 tRNA
+#chr1: 293153 - 293660 * SRP_bact SRP_euk_arch different position
+#chr1: 322211 - 328546 tRNA
+#chr1: 413043 - 415691 * T-box
+#chr1: 552584 - 553935 mir
+#chr1: 626450 - 630612 * P15 (ambiguous) 
+#chr1: 660501 - 661809 * L20_leader (strong) LR-PK1 (ambiguous)
+#chr1: 666062 - 667070 * TPP (ambiguous but strong)
+#chr1: 710297 - 712890 mir
+#chr1: 796924 - 798060 * L21_leader (ambiguous)
+#chr1: 800164 - 814296 * PyrR (ambiguous)
+#chr1: 938383 - 938619 mir
+#chr1: 995160 - 998898 snoR72 (ambiguous)
+#chr1: 1115782 - 1117618 * Glycin (ambiguous)
+#chr1: 1140867 - 1142427 tRNA
+#chr1: 1142434 - 1149502 tRNA
+#chr1: 1163587 - 1166184 PyrR (ambiguous)
+#chr1: 1209827 - 1214087 tRNA
+#chr1: 1214631 - 1215039 * L19_leader (ambiguous)
+#chr1: 1326825 - 1328325 * CRISPER (ambiguous)
+#chr1: 1410520 - 1420619 * His_leader (ambiguous)
+#chr1: 1439314 - 1447074 * T-box (ambigous)
+#chr1: 1447225 - 1451227 Thr_leader
+#chr1: 1487846 - 1488056 mir
+#chr1: 1605925 - 1606244 mir
+#chr1: 1615311 - 1618362 23S-methyl
+#chr1: 1654702 - 1655118 tRNA
+#chr1: 1677566 - 1678101 * T-box (ambiguous)
+#chr1: 1678104 - 1678469 tRNA
+#chr1: 1758499 - 1759936 mir
+#chr1: 1783980 - 1787743 mir
+#chr1: 1838690 - 1844933 * mir
+#chr1: 2023401 - 2026533 tRNA mir
 
-\subsection*{Results from Stanhope group when RNA sequencing preparation}
-\fixme{Add some if needed.}
+# To find RNAz predicted small RNAs expressed in RNA-seq data
+ol <- findOverlaps(smutansData.txRNAz,grTx,type="within")
+r <- ranges(grTx[unique(ol@subjectHits)])
+for (i in seq(length(r))) {
+  cat(paste("chr1:",start(r)[i],"-",end(r)[i]),"\n")
+}
+#chr1: 301108 - 303712 no
+#chr1: 303714 - 304038 * locus100 His_leader (weak)
+#chr1: 340223 - 341140 * locus101 
+#chr1: 378392 - 382328 
+#chr1: 413043 - 415691 * locus103 T-box (strong)
+#chr1: 480819 - 482162 * locus104 (ambiguous)
+#chr1: 681862 - 684666 * locus107 yybP-ykoY (ambiguous)
+#chr1: 742326 - 747734 * locus108 (ambiguous)
+#chr1: 908974 - 911426 * locus110 (weak)
+#chr1: 1036181 - 1038689 locus2
+#chr1: 1209827 - 1214087 locus4 tRNA (false?)
+#chr1: 1304269 - 1305793 locus7 (ambiguous)
+#chr1: 1678104 - 1678469 locus53 tRNA
+#chr1: 1783980 - 1787743 locus69
 
+# Expressed regions without annotations
+smutansData.txAllAnnotation <- c(smutansData.txRNAz,smutansData.txAnnotation)
+strand(smutansData.txAllAnnotation) <- '*'
+smutansData.txAllAnnotation <- gaps(reduce(smutansData.txAllAnnotation))
+smutansData.txAllAnnotation <- smutansData.txAllAnnotation[-2:-1]
+# Check sum(width(smutansData.txAllAnnotation)) is small or < 10% of 2Mbp.
+x <- c()
+for (i in seq(length(smutansData.txAllAnnotation))) {
+  s <- start(ranges(smutansData.txAllAnnotation))[i]
+  e <- end(ranges(smutansData.txAllAnnotation))[i]
+  x <- c(x,sum(smutansData.txPileup[s:e])/(e-s+1))
+}
+elementMetadata(smutansData.txAllAnnotation)[,"score"]<-x
+smutansData.txNoAnnotation <- smutansData.txAllAnnotation[order(elementMetadata(smutansData.txAllAnnotation)[,"score"])]
+for (i in seq(length(smutansData.txNoAnnotation))) {
+  if (abs(start(smutansData.txNoAnnotation)[i] - end(smutansData.txNoAnnotation)[i]) > 50) {
+    cat(paste("chr1:",start(smutansData.txNoAnnotation)[i],"-",end(smutansData.txNoAnnotation)[i]),"\n")
+  }
+}
+# This does not work. I think that I have to manually check.
+strand(smutansData.txNoAnnotation) <- '+'
+x <- elementMetadata(smutansData.txNoAnnotation)[,"score"]
+x <- as.integer(x*1000/max(x))
+elementMetadata(smutansData.txNoAnnotation)[,"score"] <- x
+smutansData.txNoAnnotation <- sort(smutansData.txNoAnnotation)
+elementMetadata(smutansData.txNoAnnotation)[,"name"] <- seq(length(smutansData.txNoAnnotation))
+export.bed(smutansData.txNoAnnotation,con="b.bed")
+x <- c(46, 69, 73, 74, 75, 76, 80, 97, 103, 212, 261, 280, 288, 317, 440, 450, 478,
+484 , 628 , 753 , 1011, 1019 , 1037 , 1084, 1097, 1176, 1291, 1444, 1508,
+1518, 1600, 1605, 1638, 1645, 1690)
+for (i in x) {
+  cat(paste("chr1:",start(smutansData.txNoAnnotation)[i],"-",end(smutansData.txNoAnnotation)[i]),"\n")
+}
 
-\subsection*{Cluster of RNA samples}
+# 46
+# 69 * strong
+# 73 ambiguous
+# 74 very weak
+# 75 ambiguous
+# 76 ambiguous
+# 80 * weak
+# 97 *
+# 103 *
+# 212 * strong
+# 261 *
+# 280 *
+# 288 * one gene?
+# 317 * in between tRNAs
+# 440 weak
+# 450 * strong
+# 478 * strong
+# 484 * strong
+# 628 *
+# 753 *
+# 1011 * strong
+# 1019 * tail of a gene?
+# 1037 * strong?
+# 1084 * strong
+# 1097 * left? PCR amplification error?
+# 1176 * start or end of genes?
+# 1291 * end of the gene?
+# 1444 * 
+# 1508 * strong
+# 1518 * strong
+# 1600 * start of the gene?
+# 1605 * new gene in between genes?
+# 1638 * start of the gene?
+# 1645 * start of the gene?
+# 1690 * in between genes?
 
-First using the table of read counts of annotated genes we formed a cluster of
-the 13 RNA-seq samples (fig.\ \ref{figClust}). The effect of nutrients appeared
-to be stronger than that of the deletion of \textit{ccpA} genes from the UA159
-genome. 
+for (i in seq(length(txRNAz.unannotated))) {
+  cat(paste("# ",names(txRNAz.unannotated)[i],"  chr1:",start(txRNAz.unannotated)[i],"-",end(txRNAz.unannotated)[i]),"\n")
+}
+#  locus99   chr1: 302288 - 302403  no
+#  locus100   chr1: 303745 - 303859 did
+#  locus101   chr1: 340263 - 340343 did
+#  locus102   chr1: 378452 - 378505 good one
+#  locus104   chr1: 481458 - 481539 not a good candidate
+#  locus106   chr1: 674067 - 674135 maybe one
+#  locus108   chr1: 747483 - 747567 not a good one
+#  locus110   chr1: 911157 - 911258 not a good one
+#  locus2   chr1: 1036231 - 1036283 not a good one
+#  locus5   chr1: 1244007 - 1244086 not a good one
+#  locus6   chr1: 1297150 - 1297227 not a good one
+#  locus7   chr1: 1304792 - 1304926 not a good one
+#  locus8   chr1: 1313525 - 1313674 not a good one
+#  locus10   chr1: 1564032 - 1564149 not a good one
+#  locus69   chr1: 1787575 - 1787687 not a good one
+#  locus85   chr1: 1864317 - 1864461 not a good one
+@
+
+\subsection*{Small RNAs expressed in RNA-seq}
+
+We compiled 274 predicted RNAs by using cmsearch program from Infernal (v1.0)
+with default options for models in RFAM 9.1 \citep{Gardner2009,Nawrocki2009}.
+By intersecting the predicted RNAs locations and RNA-seq expressed regions,
+we found more evidence for some of the predicted RNAs (table \ref{tab:infernal}).
+Several RNAs were shown to be clearly expressed by RNA-seq experiments:
+T-box strong, RNaseP\_bact\_a, RNaseP\_bact\_b, L20\_leader, tmRNA, FMN, and 6S.
+Other RNAs, TPP and Glycin, were located close to their neighboring genes,
+making it hard to discriminate them from the genes.
+
+Additionally, we predicted 
+\Sexpr{length(smutansData.txRNAz)}
+structural RNAs using RNAz, most of which were overlapped with those from
+the Infernal prediction. We found a few of them to be expressed based on RNA-seq
+experiments (table \ref{tab:RNAz}).
+Region locus100 had tens of short reads mapped on it, which was near
+His\_leader predicted by Infernal. 
+Although region locus101 was ambiguous in its location with respect to its neighboring
+genes, its predicted secondary structure hinted at its potential as a functional
+RNA. Region locus103 was expressed clearly compared with neighboring regions; the
+region was predicted as T-box by Infernal.
+Although region locus107 was ambiguous in its location with respect to its neighboring
+genes expression, its good secondary structure and yybP-ykoY predicted by
+Infernal hinted at the RNA functional potential of the region.
+
+\subsection*{Unannotated regions expressed in RNA-seq}
+
+We focused 16 regions that had not been annotated either by previously known
+genes or by the potentially functional RNA prediction of our current study
+(table \ref{tab:unannotated}). Four regions inlcuding novel6,
+novel7, novel10, and novel11 showed that their expression levels were not
+clearly dicriminated from their flanking genes. 
+Located in between SMU.305 and SMU.307 was, for example, novel6, which was
+connected in expression level by large number of short reads with SMU.307.
+The other 12 regions appeared to show distinct expression levels compared with
+flank regions. Region novel1 was situated in between SMU.61 and SMU.63c, which
+had different strands.
+Although seemingly separated from either of the two genes, it was connected by
+links of average about 20 depths of short reads with the either of them.
+Regions novel2, novel13, and novel15 appeared to be expressed very weakly.
+A few regions were neighboring known RNAs: 
+novel3 located in between SMU.97 and SMU.t19,
+novel4 located in between SMU.t20 and SMU.107, and
+novel6 situated to the right of
+SRP\_bact and SRP\_euk\_arch predicted by Infernal.
+We also examined regions in between known CDS or tRNAs, which could be
+unannotated regions but likely to be in operon with its neighboring genes
+(table \ref{tab:inbewteencds}). 
+
+% Of the \Sexpr{length(colnames(smutans.genes.criteria))-1} predicted non-coding RNAs
+% \Sexpr{length(txRNAz.unannotated)} were in  
+% unannotated non-coding regions (table \ref{tabUnannotatedRNA}).  
+
+Using
+\program{RNAplex} \citep{Tafer2008} and \program{RNAplfold} \citep{Bernhart2006}
+we predicted target genes of the putative non-coding RNAs.  Table \ref{tab:goseq}
+shows functional categories enriched with target genes for predicted small RNAs.
+
+We found that a few of the putative small RNAs were structured with stable stems
+(figs.\ \ref{figRNALocus1}, \ref{figRNALocus2}, and \ref{figRNALocus3}).  
+
 
 \subsection*{Predicted transcripts}
 
@@ -373,23 +585,19 @@ with genes of all of the same strands,
 \Sexpr{sum(number.genes.tx==1)} segments contained a single gene while 
 \Sexpr{sum(number.genes.tx > 1)} contained more than one gene.
 
-\subsection*{Predictions of small RNAs}
+The automatically defined transcripts using site-wise expression values by the
+hidden Markov model and mapped short reads displayed using UCSC genome browser
+tracks guided us to define transcripts.
 
-We predicted
-\Sexpr{length(colnames(smutans.genes.criteria))-1} putative non-coding RNAs, most of
-which were already annotated.  
-Of the \Sexpr{length(colnames(smutans.genes.criteria))-1} predicted non-coding RNAs
-\Sexpr{length(txRNAz.unannotated)} were in  
-unannotated non-coding regions (table \ref{tabUnannotatedRNA}).  Using
-\program{RNAplex} \citep{Tafer2008} and \program{RNAplfold} \citep{Bernhart2006}
-we predicted target genes of the putative non-coding RNAs.  Table \ref{tab:goseq}
-shows functional categories enriched with target genes for predicted small RNAs.
-We found that a few of the putative small RNAs were structured with stable stems
-(figs.\ \ref{figRNALocus1}, \ref{figRNALocus2}, and \ref{figRNALocus3}).  
-\fixme{We might be able to 
-further experimentally verify potentially important small RNAs.}
+tx0391
+tx0392
 
 \subsection*{Differential expression of RNA transcripts}
+
+First using the table of read counts of annotated genes we formed a cluster of
+the 13 RNA-seq samples (fig.\ \ref{figClust}). The effect of nutrients appeared
+to be stronger than that of the deletion of \textit{ccpA} genes from the UA159
+genome. 
 
 <<echo=FALSE,result=hide>>=
 glucoseOnly <- newSmutans( smutansGenes, title="Glucose Only" )

@@ -33,6 +33,7 @@ function batch2 {
 #  ucsc-data
     batch2-run-fastqc
     batch2-run-cram
+    batch2-run-cram2fastq
     batch2-run-bwa-align
     batch2-run-samtools-pileup
 
@@ -353,12 +354,8 @@ function copy-data {
   cp \$HOME/$SUBREADALIGN subread-align
 
   # All of the batchjob scripts.
-  cp \$PBS_O_WORKDIR/job-cram .
   cp \$PBS_O_WORKDIR/job-cram2fastq .
-  cp \$PBS_O_WORKDIR/job-fastqc .
   cp \$PBS_O_WORKDIR/job-bwa-align .
-  cp \$PBS_O_WORKDIR/job-de* .
-  cp \$PBS_O_WORKDIR/job-de*.R .
 
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
@@ -367,11 +364,6 @@ function copy-data {
 
   # Copy common data
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
-  cp $RDATADIR/$GENOMEGFF $CDATADIR
-}
-
-function retrieve-data {
-  echo No Copy!
 }
 
 function process-data {
@@ -381,13 +373,14 @@ function process-data {
   g=\$((PBS_ARRAYID-1))
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
 
+  cp $RBWADIR/FASTQ\$NUM.cram $CBWADIR
   bash job-cram2fastq \$NUM \\
-    $RDATADIR/FASTQ\$NUM.cram \\
-    $CDATADIR/FASTQ\$NUM.recovered.fq
-  gzip $CDATADIR/FASTQ\$NUM.recovered.fq
+    $CBWADIR/FASTQ\$NUM.cram \\
+    $CBWADIR/FASTQ\$NUM.recovered.fq
+  gzip $CBWADIR/FASTQ\$NUM.recovered.fq
 
   bash job-bwa-align \$NUM \\
-    $CDATADIR/FASTQ\$NUM.recovered.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.recovered.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted \\
     $CSUBREADDIR/FASTQ\$NUM.sorted
 
@@ -470,6 +463,76 @@ function create-index {
   echo $FASTQLABEL > $RUNANALYSIS/count.txt.index
 }
 
+function batch2-run-cram2fastq {
+  STATUS=cram2fastq
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  GENOMEGFF=$(basename $REFGENOMEGFF)
+  CRAMGENOMEFASTAFILENAME=$(basename $CRAMGENOMEFASTA)
+  CRAMGENOMEFASTABASENAME=${CRAMGENOMEFASTAFILENAME%.fna}
+  
+cat>$BASEDIR/run-$STATUS.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$STATUS.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$STATUS.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${QCALIGNDEWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-$STATUS
+#PBS -q ${QUEUENAME}
+#PBS -m e
+# #PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$PRINSEQ pl
+  cp \$HOME/$SAMTOOLS samtools
+  cp \$HOME/$BWA bwa
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-cram2fastq .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+  # input: cram, and output: bam
+
+  cp $RBWADIR/FASTQ\$NUM.cram $CBWADIR
+  bash job-cram2fastq \$NUM \\
+    $CBWADIR/FASTQ\$NUM.cram \\
+    $CBWADIR/FASTQ\$NUM.recovered.fq
+  gzip $CBWADIR/FASTQ\$NUM.recovered.fq
+
+  cp $CBWADIR/FASTQ\$NUM.recovered.fq.gz $RBWADIR
+}
+
+copy-data
+process-data
+cd
+rm -rf \$TMPDIR
+EOF
+}
+
 function batch2-run-qcalignde {
   STATUS=qcalignde 
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
@@ -544,6 +607,7 @@ function process-data {
     $CBWADIR/FASTQ\$NUM.cram \\
     $CBWADIR/FASTQ\$NUM.recovered.fq
   gzip $CBWADIR/FASTQ\$NUM.recovered.fq
+
   bash job-bwa-align \$NUM \\
     $CBWADIR/FASTQ\$NUM.recovered.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted \\
@@ -555,6 +619,7 @@ function process-data {
   NUMBER_READ=\$((NUMBER_READ4 / 4))
   echo bash job-de \$BAMFILE1 \$NUMBER_READ
   bash job-de \$BAMFILE1 \$NUMBER_READ
+  cp \$BAMFILE1 $RBWADIR
   cp \$BAMFILE1.cl $RBWADIR
 
 #  BAMFILE2=$CSUBREADDIR/FASTQ\$NUM.sorted.bam

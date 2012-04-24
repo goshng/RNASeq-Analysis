@@ -161,6 +161,122 @@ print( tw1.summary.stat.xtable,
        include.rownames=FALSE )
 @
 
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Infernal predicted small RNAs that appeared to be expressed in UA159 Glucose
+RNA-seq.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cl}
+\hline 
+Position & Description \\
+\hline 
+chr1: 413043 - 415691 & T-box \\
+chr1: 439797 - 440210 & RNaseP\_bact\_a, RNaseP\_bact\_b \\
+chr1: 659901 - 661209 & L20\_leader \\
+chr1: 666062 - 667070 & TPP (ambiguous) \\
+chr1: 1115846 - 1116774 & Glycin (ambiguous) \\
+chr1: 1139350 - 1139673 & tmRNA \\
+chr1: 1202719 - 1202902 & T-box \\
+chr1: 1615122 - 1615307 & FMN \\
+chr1: 1927964 - 1928120 & 6S \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:infernal}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf RNAz predicted small RNAs that appeared to be expressed in UA159 Glucose
+RNA-seq.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cll}
+\hline 
+ID & Position & Infernal prediction \\
+\hline 
+locus100 & chr1: 303714 - 304038 & His\_leader \\
+locus101 & chr1: 340223 - 341140 & \\
+locus103 & chr1: 413043 - 415691 & T-box \\
+% locus104 & chr1: 480819 - 482162 & \\
+locus107 & chr1: 681862 - 684666 & yybP-ykoY \\
+% locus85 & chr1: 1864317 -1864461 & \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:RNAz}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Expressed regions of unannotated regions in UA159 Glucose
+RNA-seq.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cll}
+\hline 
+ID & Position & Description \\
+\hline 
+novel1 & chr1: 62546 - 63078 & clear, strong \\
+novel2 & chr1: 69293 - 69630 & weak \\
+novel3 & chr1: 99553 - 100331 & clear, strong \\
+novel4 & chr1: 108631 - 109107 & clear, strong \\
+novel5 & chr1: 211452 - 211769 & clear, strong \\
+novel6 & chr1: 293238 - 293666 & vague, strong \\
+novel7 & chr1: 484053 - 484635 & clear, strong \\
+novel8 & chr1: 523427 - 524198 & clear, weak \\
+novel9 & chr1: 530356 - 530591 & clear, weak \\
+novel10 & chr1: 702752 - 703471 & vague, strong \\
+novel11 & chr1: 1202920 - 1203816 & vague \\
+novel12 & chr1: 1254303 - 1255083 & clear, strong \\
+novel13 & chr1: 1370933 - 1371532 & weak \\
+novel14 & chr1: 1757571 - 1758606 & clear, strong \\
+novel15 & chr1: 1769455 - 1770330 & clear, weak \\
+novel16 & chr1: 76962 - 77575 & SMU.76 and SMU.78 \\
+% & chr1: 1291334 - 1291685 & PCR amplification error \\
+% & chr1: 1689061 - 1689404 & PCR amplification error \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:unannotated}
+\end{table}
+%-----------------------------------------------------------------------------
+
+\clearpage{}
+%-----------------------------------------------------------------------------
+\begin{table}[!h]
+\caption{{\bf Regions expressed in between CDS regions in UA159 Glucose
+RNA-seq.}}
+\vspace{1ex}
+\noindent \begin{centering}
+\begin{tabular}{cll}
+\hline 
+ID & Position & Description \\
+\hline 
+bt1 & chr1: 68950 - 69214 & between SMU.67 and SMU.68 \\
+bt2 & chr1: 268249 - 269322 & between SMU.281 and SMU.283 \\
+bt3 & chr1: 301821 - 302287 & between SMU.317 and SMU.318 \\
+bt4 & chr1: 328198 - 328359 & between SMU.t34 and SMU.t35 \\
+bt5 & chr1: 473362 - 473629 & start of SMU.503c \\
+bt6 & chr1: 869137 - 869771 & start of SMU.911c \\
+bt7 & chr1: 1176217 - 1176736 & start of SMU.1237c \\
+bt8 & chr1: 1185233 - 1185628 & end of SMU.1249c \\
+bt9 & chr1: 1534290 - 1534622 & end of SMU.1604.c \\
+bt10 & chr1: 1870392 - 1871025 & between SMU.1995c and SMU.1996 \\
+bt11 & chr1: 1893131 - 1893647 & start of SMU.2026c \\
+\hline 
+\end{tabular}
+\par\end{centering}
+\label{tab:inbewteencds}
+\end{table}
+%-----------------------------------------------------------------------------
+
 <<echo=FALSE,results=tex>>=
 ir1 <- gaps(ranges(smutansData.txAnnotation))
 ir2 <- ranges(smutansData.txRNAz)
