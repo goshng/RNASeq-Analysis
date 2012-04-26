@@ -28,8 +28,8 @@ ROUTPUTDIR:/v4scratch/sc2265/rnaseq/output
 BWA:usr/bin/bwa-0.6.1/bwa
 SAMTOOLS:usr/bin/samtools-0.1.18/samtools
 PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
-PICARD:usr/bin/picard-tools-1.65
-CRAMTOOLS:usr/bin/cramtools.jar
+PICARD:usr/bin/picard-tools-1.67
+CRAMTOOLS:usr/bin/cramtools-0.8.jar
 #PYTHON:python
 #CUTADAPT:/usr/local/bin/cutadapt
 PYTHON:/opt/epd/bin/python2.7

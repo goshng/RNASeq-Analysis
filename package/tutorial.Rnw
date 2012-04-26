@@ -52,11 +52,30 @@ are described in \cite{Oshlack2010}.
 
 \Rpackage{ShortRead}
 
+<<eval=FALSE,echo=TRUE>>=
 library(ShortRead)
+
+fastqFileOrg <- "/v4scratch/sc2265/rnaseq/output/ua159/1/data/FASTQ001.fq.gz"
+fastqFile <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.prinseq.fq.gz"
+
 fastqFile <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.recovered.fq.gz"
 fq <- readFastq(fastqFile, withIds=TRUE)
+fqOrg <- readFastq(fastqFileOrg, withIds=TRUE)
+
+# Number of reads
+length(fq)
+# The first 3 Reads
 head(sread(fq), 3)
+# The first 3 Read quality scores
 head(quality(fq), 3)
+# The first 3 Read IDs
+head(id(fq), 3)
+# Tally reads by length
+table(width(fq))
+# Remove reads with N
+fqN <- fq
+fq <- fqN[grep("N",sread(fqN),invert=TRUE)]
+# 
 sampler <- FastqSampler(fastqFile, 100000)
 fqSample <- yield(sampler)
 report(qa(fqSample),dest="/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/report001")
@@ -64,9 +83,10 @@ report(qa(fqSample),dest="/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/report001"
 qa2 <- qa(fq, basename(fastqFile)) 
 qa3 <- qa(fqSample, basename(fastqFile)) 
 report(qa2,dest="/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/report001")
-X11 error in report
 
 indexBam(reads_fn)
+@
+X11 error in report
 
 Reweight each read.
 
@@ -75,6 +95,7 @@ Reweight each read.
 
 \subsection{Correct bias in short reads}
 
+<<eval=FALSE,echo=TRUE>>=
 library(seqbias) 
 library(Rsamtools) 
 ref_fn <- "/v4scratch/sc2265/rnaseq/output/ua159/1/data/NC_004350.fna"
@@ -99,9 +120,12 @@ freqs <- kmer.freq( seqs, counts )
 sb <- seqbias.fit( ref_fn, reads_fn, L = 5, R = 20 )
 bias <- seqbias.predict( sb, I )
 bias <- seqbias.predict( sb, I.all )
+bias <- seqbias.predict( sb5, I.all )
+
 bias[[2]][99996]
 seqbias.save(sb,"/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.yml")
 sb <- seqbias.load( ref_fn, "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.yml")
+sb5 <- seqbias.load( ref_fn, "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001-500000.yml")
 sb5 <- seqbias.fit( ref_fn, reads_fn, n=5e5, L = 5, R = 20 )
 
 N <- width(ref_seq) # genome length
@@ -110,23 +134,178 @@ cnt <- count.reads(reads_fn, GRanges("seq1", IRanges(start = 1, width = N)), sb 
 
 readlen <- 100
 cov <- coverage(GRanges("NC_004350.1", IRanges(start = 1:N, width = readlen)), weight = cnt[[1]])
+@
+
+\subsection{Load biasseq}
+
+<<eval=FALSE,echo=TRUE>>=
+library(seqbias) 
+library(Rsamtools) 
+ref_fn <- "/v4scratch/sc2265/rnaseq/output/ua159/1/data/NC_004350.fna"
+ref_f <- FaFile( ref_fn ) 
+open.FaFile( ref_f )
+reads_fn <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.sorted.bam"
+indexBam(reads_fn)
+ref_seqs <- scanFaIndex( ref_f )
+
+ref_seq <- getSeq(ref_f)
+I.all <- GRanges(seqnames=Rle(c("NC_004350.1"),c(2)),
+                 ranges=IRanges(c(1,1),width=rep(width(ref_seq),2)),
+                 strand=Rle(strand(c("+","-")),c(1,1)))
+seqlengths(I.all) <- c(width(ref_seq))
+
+sb5 <- seqbias.load( ref_fn, "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001-500000.yml")
+bias <- seqbias.predict( sb5, I.all )
+@
 
 \subsection{Compute the coverage of short reads}
 
+<<eval=FALSE,echo=TRUE>>=
 bamFile <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.sorted.bam"
 aln <- readGappedAlignments(bamFile)
 aln <- as(aln, "GRanges")
 coverage(aln)
 cov <- coverage(aln, weight = cnt[[1]])
+bias[[2]][99996]
+
+cvg <- rep(0,width(ref_seq))
+s1 <- start(aln)
+s2 <- end(aln)
+s3 <- strand(aln)
+for (i in 1:length(aln)) {
+  if (i %% 100000 == 0) {
+    print(i)
+  }
+  if (runValue(s3[i]) == "+") {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[1]][s1[i]]
+  } else {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[2]][s2[i]]
+  }
+}
+cvgFile <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.cvg"
+save(cvg,file=cvgFile)
+@
 
 \subsection{Export coverage to a wiggle file}
+
+\section{BWA}
+
+\subsection{Count non-unique reads}
+
+bamFile=/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.sorted.bam
+samtools view \$bamFile | grep -v XT:A:U | wc -l
+
+The automatic annotation of bacterial genomes
+Emily J. Richardson and Mick Watson
 
 rtracklayer
 export()
 
+\section{Parallel running}
+
+\subsection{Multicore}
+
+<<eval=FALSE,echo=TRUE>>=
+install.packages(c("multicore", "snow", "foreach", "doMC", "doSNOW"))
+install.packages(c("Rmpi", "doMPI"))
+library(multicore) 
+multicore:::detectCores()
+@
+
+\section{Apply functions}
+
+\subsection{lapply}
+
+/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript 1.R 8 1
+<<eval=FALSE,echo=TRUE>>=
+library(seqbias)
+library(Rsamtools) 
+library(ShortRead)
+
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 2)
+{
+  cat ("Rscript 1.R 8 1\n")
+  quit("no")
+}
+
+bamFile <- "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.sorted.bam"
+aln <- readGappedAlignments(bamFile)
+aln <- as(aln, "GRanges")
+
+n <- as.integer(args[1]) + 1L
+a <- as.integer(seq(1L,length(aln),length.out=n))
+a[9] <- a[9] + 1
+s.1 <- a[as.integer(args[2])]
+s.2 <- a[as.integer(args[2]) + 1] - 1
+quit("no")
+
+ref_fn <- "/v4scratch/sc2265/rnaseq/output/ua159/1/data/NC_004350.fna"
+ref_f <- FaFile( ref_fn ) 
+open.FaFile( ref_f )
+ref_seqs <- scanFaIndex( ref_f )
+ref_seq <- getSeq(ref_f)
+I.all <- GRanges(seqnames=Rle(c("NC_004350.1"),c(2)),
+                 ranges=IRanges(c(1,1),width=rep(width(ref_seq),2)),
+                 strand=Rle(strand(c("+","-")),c(1,1)))
+seqlengths(I.all) <- c(width(ref_seq))
+
+sb5 <- seqbias.load( ref_fn, "/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001-500000.yml")
+bias <- seqbias.predict( sb5, I.all )
+
+s1 <- start(aln)
+s2 <- end(aln)
+s3 <- strand(aln)
+
+# foreach (i=1:length(aln)) %do% {
+cvg <- rep(0,width(ref_seq))
+# for (i in 1:length(aln)) {
+for (i in s.1:s.2) {
+  if (runValue(s3[i]) == "+") {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[1]][s1[i]]
+  } else {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[2]][s2[i]]
+  }
+}
+cvgFile <- paste("/v4scratch/sc2265/rnaseq/output/ua159/1/bwa/FASTQ001.cvg",args[2],sep=".")
+save(cvg,file=cvgFile)
+close.FaFile( ref_f )
+@
+
+track type=wiggle_0 name="RNA-seq" description="RNA-seq 1" visibility=full
+autoScale=on color=0,200,100 priority=30
+fixedStep chrom=chr1 start=1 step=1
+1
+...
+1
+
+
+\subsection{doMC}
+
+<<eval=FALSE,echo=TRUE>>=
+library(doMC)
+registerDoMC()
+a <- foreach(i=1:1000000) %dopar% sqrt(i)
+getDoParWorkers()
+getDoParName()
+getDoParVersion()
+options(cores=8)
+@
+
+<<eval=FALSE,echo=TRUE>>=
+cvg <- foreach (i=1:length(aln),.combine="+") %dopar% {
+  if (runValue(s3[i]) == "+") {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[1]][s1[i]]
+  } else {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[2]][s2[i]]
+  }
+  cvg
+}
+@
+
 
 \section{Session Info}
-<<sessi>>=
+<<session>>=
 sessionInfo()
 @
 
