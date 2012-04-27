@@ -19,3 +19,7 @@
 make cornell DBS=AEXT01
 make cornell DBS=NC_004368
 make cornell DBS=NC_007432
+
+# Edit dbDbInsert.sql
+# Add items in hgcentral or hgcentral_protected databases
+# hgsql hgcentral < dbDbInsert.sql
