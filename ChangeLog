@@ -68,8 +68,17 @@ Histories
 ---------
 This history can be useful later.
 
+
+
 Thu Apr 26 15:25:02 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To load a genome browser track
+----
+git:peach/ucscgb
+compgen:/home/choi/tmp/aga
+compgen:/home/choi/public_html/local_track
+----
 
 ----
 run/rnaseq/021412/batch-coverage.sh
