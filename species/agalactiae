@@ -107,7 +107,8 @@ QUALITYSCORE087:sanger
 CRAMDIR:output/data/cram
 
 # fastq indices to analyze
-FASTQFILES:56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85
+# FASTQFILES:56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85
+FASTQFILES:56
 # FASTQFILES:86 87
 
 # fastq labels
@@ -118,23 +119,25 @@ FASTQLABEL:sag82hm sag82hm sag82hm sag61hm sag61hm sag61hm sag61hb sag61hb sag56
 CACWORKDIR:run/rnaseq/032912
 
 # Reference genome ID
-# REFGENOMEID:NC_007432
-# REFGENOMEID:NC_004368
-REFGENOMEID:AEXT01
+REFGENOMEID:NC_007432
+REFGENOMEID:NC_004368
+# REFGENOMEID:AEXT01
 
 # We have a single chromosome.
-# SINGLECHROMOSOME:TRUE
-SINGLECHROMOSOME:FALSE
+SINGLECHROMOSOME:TRUE
+# SINGLECHROMOSOME:FALSE
 
 # Reference genome FASTA 
-# REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
+REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
 # REFGENOMEFASTA:input/Streptococcus_agalactiae_NEM316/NC_004368.fna
-REFGENOMEFASTA:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.fna
+# REFGENOMEFASTA:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.fna
 
 # Reference genome annotation
-# REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
 # REFGENOMEGFF:input/Streptococcus_agalactiae_NEM316/NC_004368.gff
-REFGENOMEGFF:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
+# REFGENOMEGFF:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
+
+REFGENOMETXDB:data/NC_004350.txdb
 
 # CRAM reference genome FASTA
 CRAMGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna

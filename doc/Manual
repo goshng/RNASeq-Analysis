@@ -249,6 +249,24 @@ $ bash run-cram2fastq.sh
 $ bash run-bwa-align.sh
 ----
 
++run-fastqc.sh+ converts +data/FASTQ001.fq.gz+ to +bwa/FASTQ001.prinseq.fq.gz+.
++run-cram.sh+ converts +bwa/FASTQ001.prinseq.fq.gz+ to +bwa/FASTQ001.cram+.
++run-cram2fastq.sh+ converts +bwa/FASTQ001.cram+ to +bwa/FASTQ001.recovered.fq.gz+.
++run-bwa-align.sh+ converts +bwa/FASTQ001.recovered.fq.gz+ to +bwa/FASTQ001.sorted.bam+.
+
+
++run-de.sh+ converts +bwa/FASTQ001.sorted.bam+ to +bwa/FASTQ001.sorted.bam.cl+.
+
+Does +run-de.sh+ do this? We do not have that.
+
+Randomly sample about 5 percent of the short reads.
+awk 'BEGIN {srand()} !/^$/ {if (rand() <= .05 && NR%4==0) for ( o = 1; o <= 4; o++ ) {getline; print}}'
+
+.Sample 0.1 percent of the total reads
+----
+fastq-sample.sh FASTQ056.fq.gz FASTQ056-0.001.fq.gz 0.001
+----
+
 .Execute scripts to check the simulation
 ----
 $ bash job-simulate
@@ -439,7 +457,8 @@ bash job-bwa-align 056 FASTQ056.prinseq.fq.gz bwa/FASTQ056.sorted subread/FASTQ0
 ----
 
 In the third stage of +job-de+ we take the short read alignment files to count
-short reads mapped on genes.
+short reads mapped on genes for summarizing numbers of reads see +job-de+,
++job-de.R+.
 
 .Two pairs of input and output files of +job-de+ stage
 ----

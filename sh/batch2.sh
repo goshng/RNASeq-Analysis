@@ -373,19 +373,13 @@ function process-data {
   g=\$((PBS_ARRAYID-1))
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
 
-  cp $RBWADIR/FASTQ\$NUM.cram $CBWADIR
-  bash job-cram2fastq \$NUM \\
-    $CBWADIR/FASTQ\$NUM.cram \\
-    $CBWADIR/FASTQ\$NUM.recovered.fq
-  gzip $CBWADIR/FASTQ\$NUM.recovered.fq
-
+  cp $RBWADIR/FASTQ\$NUM.recovered.fq.gz $CBWADIR
   bash job-bwa-align \$NUM \\
     $CBWADIR/FASTQ\$NUM.recovered.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted \\
     $CSUBREADDIR/FASTQ\$NUM.sorted
 
   cp $CBWADIR/FASTQ\$NUM.sorted.bam $RBWADIR
-  cp $CSUBREADDIR/FASTQ\$NUM.sorted.bam $RSUBREADDIR
 }
 
 copy-data
@@ -837,8 +831,11 @@ rm $CBWADIR/FASTQ\$1.bam
 ./samtools faidx $CDATADIR/$CRAMGENOMEFASTABASENAME.fa
 ./samtools index $CBWADIR/FASTQ\$1.sorted.bam
 
-#  --capture-all-quality-scores \\
 java -jar \$HOME/$CRAMTOOLS cram \\
+  --capture-all-quality-scores \\
+  --include-unmapped-reads \\
+  --capture-unmapped-quality-scores \\
+  --capture-all-tags \\
   --input-bam-file $CBWADIR/FASTQ\$1.sorted.bam \\
   --reference-fasta-file $CDATADIR/$CRAMGENOMEFASTABASENAME.fa \\
   --output-cram-file $CDATADIR/FASTQ\$1.cram
@@ -885,12 +882,19 @@ QUALITYSCORESEQUENCE=QUALITYSCORE\$1
 
 # We need more preprocessing of fastq files.
 if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  PHRED64=-phred64
   cp \$2 $CBWADIR/temp.FASTQ\$1.fq.gz
 else
+  PHRED64=
   zcat \$2 \\
     | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
     | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
 fi
+
+# No need or maybe.
+# Split fastq files to as many files as compute nodes.
+# Run them simultaneously and concatenate their resulting files.
+# $CBWADIR/temp.FASTQ\$1.fq.gz
 
 $PYTHON $CUTADAPT --minimum-length=25 \\
   -a \${!ADAPTERSEQUENCE} \\
@@ -899,10 +903,12 @@ $PYTHON $CUTADAPT --minimum-length=25 \\
 
 gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
   perl pl/prinseq-lite.pl \\
+    -ns_max_n 0 \$PHRED64 \\
     -fastq stdin \\
     -trim_qual_right 20 \\
     -out_good stdout | \\
   gzip > $CBWADIR/outfile
+
 rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
 mv $CBWADIR/outfile \$3
 EOF
@@ -916,13 +922,18 @@ grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-bwa-align
 cat>>$BASEDIR/job-bwa-align<<EOF
 QUALITYSCORESEQUENCE=QUALITYSCORE\$1
 
+# We need more preprocessing of fastq files.
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  PHRED64=-I
+else
+  PHRED64=
+fi
+
 ./bwa index -p $CBWADIR/$GENOMEFASTA-bwa -a is \\
   $CDATADIR/$GENOMEFASTA &> /dev/null
 
-./subread-buildindex -o \\
-  $CSUBREADDIR/$GENOMEFASTA-subread \\
-  $CDATADIR/$GENOMEFASTA &> /dev/null
-
+# BWA (in CRAM step) converts Illumina 1.5+ quality scores to Sanger scores.
+# We no longer need to call bwa with -I option.
 ./bwa aln -t $NUMBERCPU \\
   $BWAOPTION \\
   $CBWADIR/$GENOMEFASTA-bwa \\
@@ -940,6 +951,10 @@ rm $CBWADIR/FASTQ\$1.sai
 rm $CBWADIR/FASTQ\$1.bam
 # FIXME:subread
 exit
+
+./subread-buildindex -o \\
+  $CSUBREADDIR/$GENOMEFASTA-subread \\
+  $CDATADIR/$GENOMEFASTA &> /dev/null
 
 # Subread alignment
 gunzip \$2
