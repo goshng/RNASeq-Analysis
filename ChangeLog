@@ -44,6 +44,11 @@ Compare agal. and tomato.
 TODO
 ----
 
+S. mutans
+~~~~~~~~~
+Tracks
+1. known genes, transcripts, BAM, wiggle BAM tracks, wiggle in log(x+1)
+
 Tomato
 ~~~~~~
 1. Number of reads or depth on variants
@@ -64,11 +69,17 @@ S. agalactiae
    Comparative genomics and the role of lateral gene transfer in the evolution
    of bovine adapted Streptococcus agalactiae.
 
+
+
 Histories
 ---------
 This history can be useful later.
 
 
+Sat Apr 28 17:15:09 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I have found out that S. mutans UA159 genome was updated as of March 13, 2012.
+I need to rerun the pipeline to update the result.
 
 Thu Apr 26 15:25:02 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,6 +115,17 @@ http://compgen.bscb.cornell.edu/~choi/FASTQ001.sorted.bam
 .Tracks
 ----
 track type=bam name="My BAM" bigDataUrl=http://compgen.bscb.cornell.edu/~choi/2.sorted.bam
+The reference genome name must be changed to chr1 in the BAM file.
+BAM file must be 644 chmod.
+Edit NC_007432.fna so that its sequence name is chr1.
+samtools faidx NC_007432.fna
+samtools view FASTQ056.sorted.bam | sed s/gi\|76786714\|ref\|NC_007432.1\|/chr1/
+| samtools view -bS -T NC_007432.fna - > 3.bam
+samtools index 3.bam
+mkdir /gbdb_cornell/hg19/bbi/
+mv 3.bam /gbdb_cornell/hg19/bbi/
+hgBbiDbLink hg19 myLocalBamTrack /gbdb_cornell/hg19/bbi/myLocalFile.bam
+
 track name='RNAz' description='RNAz'
 track name='Noncoding' description='Noncoding Track'
 ----
@@ -2144,6 +2166,7 @@ $ hgsql SmuUA159 -e "update rnaSeq01 set file='/gbdb_cornell/SmuUA159/wib/FASTQ0
 ----
 $ local_tracks/trackDb/streptococcus/SmuUA159/trackDb.ra 
 $ make cornell DBS=SmuUA159
+http://genome-source.cse.ucsc.edu/gitweb/?p=kent.git;a=blob;f=src/hg/makeDb/trackDb/README
 ----
 
 .A script to upload the samples to UCSC genome browser tracks at Cornell.

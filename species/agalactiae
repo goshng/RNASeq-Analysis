@@ -127,6 +127,8 @@ REFGENOMEID:NC_004368
 SINGLECHROMOSOME:TRUE
 # SINGLECHROMOSOME:FALSE
 
+REFGENOMEGENBANK:data/NC_007432.gbk
+
 # Reference genome FASTA 
 REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
 # REFGENOMEFASTA:input/Streptococcus_agalactiae_NEM316/NC_004368.fna
@@ -136,6 +138,8 @@ REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
 REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
 # REFGENOMEGFF:input/Streptococcus_agalactiae_NEM316/NC_004368.gff
 # REFGENOMEGFF:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
+
+REFGENOMEPTT:data/NC_007432.ptt
 
 REFGENOMETXDB:data/NC_004350.txdb
 
@@ -163,3 +167,10 @@ BWAALIGNNCPU:8
 # We use a customized R
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 
+# BWA Align Wall Time
+BWAALIGNWALLTIME:24
+
+DBNAME:NC_007432
+CLADENAME:streptococcus
+GENOMENAME:S. agalactiae A909
+ASSEMBLYNAME:Mar 13 2012

@@ -231,7 +231,6 @@ elsif ($cmd eq "ptt2")
     }
   }
 }
-
 elsif ($cmd eq "gff")
 {
   convert_gff_ingene($in, $feature, $out); 

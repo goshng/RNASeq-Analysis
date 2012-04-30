@@ -101,32 +101,13 @@ CHOICES=( init-file-system \
           bwa-index-genome \
           bwa-align \
           bwa-align-per-fastq \
-          # bwa-samse \
-          # bwa-samtools-view \
-          # bwa-samtools-sort \
           bwa-mpileup \
-          # bwa-samtools-bed \
-          # bwa-batch-align-to-bed \
           ---BWA-OTHER---\
           bwa-samtools-wig \
           bwa-summary \
           bwa-pos2wig \
-          ---TRACK---\
-          bwa-R-saveimage \
-          bwa-danko-writewiggle \
-          ---BOWTIE-ALIGN---\
-          bowtie-index-genome \
-          bowtie-align \
-          ---MAQ-ALIGN---\
-          maq-align \
           ---DE---\
           feature-genome \
-          de-count \
-          deseq \
-          bwa-degseq-bed \
-          bowtie-refflat \
-          degseq \
-          edgeR \
           ---TRANSCRIPT---\
           transcript-genecoverage \
           transcript-parsernaseq \
@@ -134,17 +115,7 @@ CHOICES=( init-file-system \
           transcript-cufflinks \
           ---SMALL-RNA---\
           rna-rnaz \
-          ---ETC---\
-          bwa-danko-countreadsininterval \
-          bwa-danko-metagene \
-          bwa-danko-detecttranscriptsem \
-          segemehl-index-genome \
           ---READ-QUALITY-CHECK--- \
-          fastxtoolkit-fastq_to_fasta \
-          fastxtoolkit-fastx_quality_stats \
-          ---JOBS--- \
-	  job-truncate-reads \
-	  job-truncate-reads-local \
           warranty \
           copyright \
           quit )

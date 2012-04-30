@@ -37,7 +37,7 @@ function feature-genome {
         echo "#!/bin/bash" > $BATCHFILE
       fi
 
-      REFGENOMEPTT=$(grep REFGENOMEPTT $SPECIESFILE | cut -d":" -f2)
+      REFGENOMEPTT=$(grep ^REFGENOMEPTT\: $SPECIESFILE | cut -d":" -f2)
       COMMAND1="perl pl/$FUNCNAME.pl ptt2 \
         -geneonly \
         -in $REFGENOMEPTT \

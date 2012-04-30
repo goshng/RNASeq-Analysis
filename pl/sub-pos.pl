@@ -37,7 +37,8 @@ sub rnaseqPosParse ($) {
     $rec->{start}  = $e[1]; 
     $rec->{end}    = $e[2]; 
     $rec->{name}   = $e[3]; 
-    $rec->{strand} = $e[4]; 
+    $rec->{score}  = $e[4]; 
+    $rec->{strand} = $e[5]; 
     $rec->{count}  = 0;
     unless ($rec->{start} < $rec->{end})
     {

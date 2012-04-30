@@ -24,17 +24,20 @@ function batch2 {
     echo -e "You need to enter something\n"
     continue
   else  
+
     batch2-variable
     batch2-output
     batch2-speciesfile 
     batch2-push-data
     batch2-get-data
 
-#  ucsc-data
+    ucsc-data
     batch2-run-fastqc
     batch2-run-cram
     batch2-run-cram2fastq
     batch2-run-bwa-align
+    batch2-run-bias 
+    batch2-run-coverage
     batch2-run-samtools-pileup
 
     # This would replace fastqc, bwa-align, and de.
@@ -45,8 +48,7 @@ function batch2 {
     create-index
 
     # batch2-run-blast
-
-  #  batch-run-parsernaseq
+    batch-run-parsernaseq
   #
   #  batch-run-rnaz
   #  prepare-data-rnaz
@@ -130,6 +132,9 @@ function batch2-speciesfile {
   CACWORKDIR=$(grep ^CACWORKDIR\: $SPECIESFILE | cut -d":" -f2)
   # . reference genome ID in _REFGENOMEID_
   REFGENOMEID=$(grep ^REFGENOMEID\: $SPECIESFILE | cut -d":" -f2)
+  # . reference genome genbank file in _REFGENOMEGENBANK_
+  REFGENOMEGENBANK=$(grep ^REFGENOMEGENBANK\: $SPECIESFILE | cut -d":" -f2)
+  GENOMEGENBANK=$(basename $REFGENOMEGENBANK)
   # . reference genome fasta file in _REFGENOMEFASTA_
   REFGENOMEFASTA=$(grep ^REFGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
   # . reference genome annotation file in _REFGENOMEGFF_
@@ -173,7 +178,12 @@ function batch2-speciesfile {
   PARSERNASEQNNODE=$(grep ^PARSERNASEQNNODE\: $SPECIESFILE | cut -d":" -f2)
   PARSERNASEQWALLTIME=$(grep ^PARSERNASEQWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   READDEPTH=$(grep ^READDEPTH\: $SPECIESFILE | cut -d":" -f2)
+
   REFGENOMEPTT=$(grep ^REFGENOMEPTT\: $SPECIESFILE | cut -d":" -f2)
+  DBNAME=$(grep ^DBNAME\: $SPECIESFILE | cut -d":" -f2)
+  CLADENAME=$(grep ^CLADENAME\: $SPECIESFILE | cut -d":" -f2)
+  GENOMENAME=$(grep ^GENOMENAME\: $SPECIESFILE | cut -d":" -f2)
+  ASSEMBLYNAME=$(grep ^ASSEMBLYNAME\: $SPECIESFILE | cut -d":" -f2)
 }
 
 function batch2-push-data {
@@ -187,6 +197,7 @@ scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMEGFF $CAC_USERHOST:$RDATADIR
 scp $CRAMGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
+scp $REFGENOMEPTT $CAC_USERHOST:$RDATADIR
 
 #scp output/data/bacteria.fa $CAC_USERHOST:$RDATADIR
 
@@ -221,7 +232,7 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 #PBS -N $PROJECTNAME-QC
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {
@@ -283,7 +294,7 @@ cat>$BASEDIR/batch-cram.sh<<EOF
 #PBS -N $PROJECTNAME-CRAM
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {
@@ -324,15 +335,16 @@ EOF
 function batch2-run-bwa-align {
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
   GENOMEGFF=$(basename $REFGENOMEGFF)
-cat>$BASEDIR/run-bwa-align.sh<<EOF
+  status=bwa-align
+cat>$BASEDIR/run-$status.sh<<EOF
 #!/bin/bash
 FASTQFILES=( $FASTQFILES )
-sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-bwa-align.sh > tbatch.sh
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$status.sh > tbatch.sh
 nsub tbatch.sh 
 rm tbatch.sh
 EOF
 
-cat>$BASEDIR/batch-bwa-align.sh<<EOF
+cat>$BASEDIR/batch-$status.sh<<EOF
 #!/bin/bash
 #PBS -l walltime=${BWAALIGNWALLTIME}:00:00,nodes=1
 #PBS -A ${BATCHACCESS}
@@ -340,7 +352,7 @@ cat>$BASEDIR/batch-bwa-align.sh<<EOF
 #PBS -N $PROJECTNAME-BWA
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {
@@ -389,6 +401,245 @@ rm -rf \$TMPDIR
 EOF
 }
 
+function batch2-run-bias {
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  GENOMEGFF=$(basename $REFGENOMEGFF)
+  status=bias
+cat>$BASEDIR/run-$status.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$status.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/batch-$status.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=24:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-BIAS
+#PBS -q ${QUEUENAME}
+#PBS -m e
+$EMAILON#PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+RSCRIPT=$CACRSCRIPT
+
+function copy-data {
+  cd \$TMPDIR
+  cp \$PBS_O_WORKDIR/job-bias.R .
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+  \$RSCRIPT job-bias.R FASTQ\$NUM
+}
+
+copy-data
+process-data
+cd
+rm -rf \$TMPDIR
+EOF
+
+cat>$BASEDIR/job-$status.R<<EOF
+library(seqbias) 
+library(Rsamtools) 
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript 1.R FASTQ001\\n")
+  quit("no")
+}
+
+ref_fn <- "$RDATADIR/$GENOMEFASTA"
+ref_f <- FaFile( ref_fn ) 
+open.FaFile( ref_f )
+bamFile <- sprintf("$RBWADIR/%s.sorted.bam", args[1])
+indexBam(bamFile)
+ref_seqs <- scanFaIndex( ref_f )
+
+ref_seq <- getSeq(ref_f)
+I.all <- GRanges(seqnames=Rle(names(ref_seq),c(2)),
+                 ranges=IRanges(c(1,1),width=rep(width(ref_seq),2)),
+                 strand=Rle(strand(c("+","-")),c(1,1)))
+seqlengths(I.all) <- c(width(ref_seq))
+sb <- seqbias.fit( ref_fn, bamFile, L = 5, R = 20 )
+ymlFile <- sprintf("$RBWADIR/%s.yml", args[1])
+seqbias.save(sb,ymlFile)
+EOF
+}
+
+function batch2-run-coverage {
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  status=coverage
+cat>$BASEDIR/run-$status.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/80/g < batch-$status.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+
+cat>$BASEDIR/run-$status-pull.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+RSCRIPT=$CACRSCRIPT
+for k in ${FASTQFILES[@]}; do
+  TESTFASTQNUM=FASTQ\$(printf "%03d" \$k)
+  \$RSCRIPT job-$status-pull.R \$TESTFASTQNUM
+  rm $RBWADIR/\$TESTFASTQNUM.cvg.*
+done
+EOF
+
+cat>$BASEDIR/batch-$status.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=24:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-COV
+#PBS -q ${QUEUENAME}
+#PBS -m e
+$EMAILON#PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+NUMSPLIT=\$((PBSARRAYSIZE * 8))
+RSCRIPT=$CACRSCRIPT
+
+function copy-data {
+  cd \$TMPDIR
+  cp \$PBS_O_WORKDIR/job-coverage.R .
+  cp \$HOME/$SAMTOOLS samtools
+  mkdir -p $CBWADIR
+  mkdir -p $CDATADIR
+  for k in ${FASTQFILES[@]}; do
+    FASTQNUM=FASTQ\$(printf "%03d" \$k)
+    cp $RBWADIR/\$FASTQNUM.sorted.bam $CBWADIR
+  done
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+  ./samtools faidx $CDATADIR/$GENOMEFASTA 
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  for k in ${FASTQFILES[@]}; do
+    FASTQNUM=FASTQ\$(printf "%03d" \$k)
+    CORESPERNODE=8
+    for (( i=1; i<=CORESPERNODE; i++)); do
+      g=\$((CORESPERNODE * (PBS_ARRAYID-1) + i))
+      cp $CBWADIR/\$FASTQNUM.sorted.bam $CBWADIR/\$FASTQNUM.\$i.sorted.bam
+      \$RSCRIPT job-coverage.R \$FASTQNUM $CBWADIR/\$FASTQNUM.\$i.sorted.bam \$NUMSPLIT \$g &
+    done
+    wait
+  done
+}
+
+copy-data
+process-data
+wait
+cd
+rm -rf \$TMPDIR
+EOF
+
+
+cat>$BASEDIR/job-coverage.R<<EOF
+library(seqbias)
+library(Rsamtools)
+library(ShortRead)
+
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 4)
+{
+  cat ("Rscript 1.R FASTQ001 8 1\\n")
+  quit("no")
+}
+
+# bamFile <- sprintf("$CBWADIR/%s.sorted.bam", args[2])
+bamFile <- args[2]
+aln <- readGappedAlignments(bamFile)
+aln <- as(aln, "GRanges")
+
+n <- as.integer(args[3]) + 1L
+a <- as.integer(seq(1L,length(aln),length.out=n))
+a[n] <- a[n] + 1
+s.1 <- a[as.integer(args[4])]
+s.2 <- a[as.integer(args[4]) + 1] - 1
+
+ref_fn <- "$CDATADIR/$GENOMEFASTA"
+ref_f <- FaFile( ref_fn )
+open.FaFile( ref_f )
+ref_seqs <- scanFaIndex( ref_f )
+ref_seq <- getSeq(ref_f)
+I.all <- GRanges(seqnames=Rle(c("chr1"),c(2)),
+                 ranges=IRanges(c(1,1),width=rep(width(ref_seq),2)),
+                 strand=Rle(strand(c("+","-")),c(1,1)))
+seqlengths(I.all) <- c(width(ref_seq))
+
+ymlFile <- sprintf("$RBWADIR/%s.yml", args[1])
+sb <- seqbias.load( ref_fn, ymlFile)
+bias <- seqbias.predict( sb, I.all )
+
+s1 <- start(aln)
+s2 <- end(aln)
+s3 <- strand(aln)
+
+cvg <- rep(0,width(ref_seq))
+for (i in s.1:s.2) {
+  if (runValue(s3[i]) == "+") {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[1]][s1[i]]
+  } else {
+    cvg[s1[i]:s2[i]] <- cvg[s1[i]:s2[i]] + 1/bias[[2]][s2[i]]
+  }
+}
+cvgFile <- sprintf("$RBWADIR/%s.cvg.%s",args[1],args[4])
+save(cvg,file=cvgFile)
+close.FaFile( ref_f )
+EOF
+
+cat>$BASEDIR/job-coverage-pull.R<<EOF
+library(seqbias)
+library(Rsamtools)
+library(ShortRead)
+
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 1)
+{
+  cat ("Rscript 1.R FASTQ001\\n")
+  quit("no")
+}
+ref_fn <- "$RDATADIR/$GENOMEFASTA"
+ref_f <- FaFile( ref_fn )
+open.FaFile( ref_f )
+ref_seqs <- scanFaIndex( ref_f )
+ref_seq <- getSeq(ref_f)
+
+a <- list.files(path = "$RBWADIR", pattern=paste(args[1],".cvg.",sep="") , full.names = TRUE)
+
+cvg.org <- rep(0,width(ref_seq))
+for (i in a) {
+  load(i)
+  cvg.org <- cvg.org + cvg
+}
+cvgFile <- sprintf("$RBWADIR/%s.coverage.RData",args[1])
+save(cvg.org,file=cvgFile)
+
+close.FaFile( ref_f )
+
+wigFile <- sprintf("$RBWADIR/%s.wig",args[1])
+
+cat("track type=wiggle_0 name=\\"RNA-seq\\" description=\\"RNA-seq\\" visibility=full autoScale=on color=0,200,100 priority=30\\n",
+    file=wigFile)
+cat("fixedStep chrom=chr1 start=1 step=1\\n",
+    file=wigFile,append=TRUE)
+write(cvg.org,file=wigFile,ncolumns=1,append=TRUE)
+EOF
+
+}
+
 function batch2-run-samtools-pileup {
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
   GENOMEGFF=$(basename $REFGENOMEGFF)
@@ -409,7 +660,7 @@ cat>$BASEDIR/batch-$status.sh<<EOF
 #PBS -N $PROJECTNAME-PILEUP
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {
@@ -480,7 +731,7 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 #PBS -N $PROJECTNAME-$STATUS
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 
@@ -550,7 +801,7 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 #PBS -N $PROJECTNAME-QAD
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 
@@ -891,23 +1142,74 @@ else
     | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
 fi
 
-# No need or maybe.
 # Split fastq files to as many files as compute nodes.
 # Run them simultaneously and concatenate their resulting files.
-# $CBWADIR/temp.FASTQ\$1.fq.gz
+l=\$(zcat $CBWADIR/temp.FASTQ\$1.fq.gz | wc -l) 
+s1=\$((l / 4)) 
+s2=\$((l % 4)) 
+if [ \$s2 -ne 0 ]; then
+  echo "Length of FASTQ files must be multiples of 4"
+  exit
+fi
+s3=\$((s1 / $NUMBERCPU + $NUMBERCPU)) 
+s4=\$((s3 * 4)) 
+zcat $CBWADIR/temp.FASTQ\$1.fq.gz | split -d -a 2 -l \$s4 - $CBWADIR/temp.FASTQ\$1.
 
-$PYTHON $CUTADAPT --minimum-length=25 \\
-  -a \${!ADAPTERSEQUENCE} \\
-  -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
-  $CBWADIR/temp.FASTQ\$1.fq.gz &> /dev/null
+y=\$(($NUMBERCPU - 1)) 
+for i in \$(eval echo {0..\$y}); do
+  FASTQSPLITNUM=$CBWADIR/temp.FASTQ\$1.\$(printf "%02d" \$i) 
+  mv \$FASTQSPLITNUM \$FASTQSPLITNUM.fq
+  gzip \$FASTQSPLITNUM.fq &
+done
+wait
 
-gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
-  perl pl/prinseq-lite.pl \\
-    -ns_max_n 0 \$PHRED64 \\
-    -fastq stdin \\
-    -trim_qual_right 20 \\
-    -out_good stdout | \\
-  gzip > $CBWADIR/outfile
+for i in \$(eval echo {0..\$y}); do
+  FASTQSPLITNUM=$CBWADIR/temp.FASTQ\$1.\$(printf "%02d" \$i) 
+  FASTQCUTADAPTNUM=$CBWADIR/FASTQ\$1.cutadapt.\$(printf "%02d" \$i).fq.gz
+
+  $PYTHON $CUTADAPT --minimum-length=25 \\
+    -a \${!ADAPTERSEQUENCE} \\
+    -o \$FASTQCUTADAPTNUM \\
+    \$FASTQSPLITNUM.fq.gz &> /dev/null &
+
+done
+wait
+
+for i in \$(eval echo {0..\$y}); do
+  FASTQSPLITNUM=$CBWADIR/temp.FASTQ\$1.\$(printf "%02d" \$i) 
+  FASTQCUTADAPTNUM=$CBWADIR/FASTQ\$1.cutadapt.\$(printf "%02d" \$i).fq.gz
+  FASTQPRINSEQNUM=$CBWADIR/FASTQ\$1.prinseq.\$(printf "%02d" \$i).fq.gz
+
+  gzip -dc \$FASTQCUTADAPTNUM | \\
+    perl pl/prinseq-lite.pl \\
+      -ns_max_n 0 \$PHRED64 \\
+      -fastq stdin \\
+      -trim_qual_right 30 \\
+      -out_good stdout | \\
+    gzip > \$FASTQPRINSEQNUM &
+done
+wait
+
+CONFASTQPRINSEQNUM=""
+for i in \$(eval echo {0..\$y}); do
+  FASTQPRINSEQNUM=$CBWADIR/FASTQ\$1.prinseq.\$(printf "%02d" \$i).fq.gz
+  CONFASTQPRINSEQNUM="\$CONFASTQPRINSEQNUM \$FASTQPRINSEQNUM"
+done
+cat \$CONFASTQPRINSEQNUM > $CBWADIR/outfile
+
+# Single cpu version
+#$PYTHON $CUTADAPT --minimum-length=25 \\
+#  -a \${!ADAPTERSEQUENCE} \\
+#  -o $CBWADIR/FASTQ\$1.cutadapt.fq.gz \\
+#  $CBWADIR/temp.FASTQ\$1.fq.gz &> /dev/null
+#
+#gzip -dc $CBWADIR/FASTQ\$1.cutadapt.fq.gz | \\
+#  perl pl/prinseq-lite.pl \\
+#    -ns_max_n 0 \$PHRED64 \\
+#    -fastq stdin \\
+#    -trim_qual_right 30 \\
+#    -out_good stdout | \\
+#  gzip > $CBWADIR/outfile
 
 rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
 mv $CBWADIR/outfile \$3
@@ -1138,7 +1440,11 @@ function batch2-get-data {
   GENOMEGFF=$(basename $REFGENOMEGFF)
 cat>$BASEDIR/get-data.sh<<EOF
 #!/bin/bash
-# scp $CAC_USERHOST:$RBWADIR/*.de $BWADIR
+scp $CAC_USERHOST:$RBWADIR/*.wig $BWADIR
+scp $CAC_USERHOST:$RBWADIR/*.bed2 $BWADIR
+scp $CAC_USERHOST:$RBWADIR/*.operon $BWADIR
+# scp $CAC_USERHOST:$RBWADIR/*.sorted.bam $BWADIR
+
 # scp $CAC_USERHOST:$RBWADIR/*rrna $BWADIR
 # scp $CAC_USERHOST:$RBWADIR/*-sum.pos $BWADIR
 # scp $CAC_USERHOST:$RBWADIR/*.wig $BWADIR
@@ -1152,7 +1458,7 @@ cat>$BASEDIR/get-data.sh<<EOF
 #  scp $CAC_USERHOST:$RSUBREADDIR/\$FASTQNUM.sorted.bam $SUBREADDIR
 #done
 
-scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
+#scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RDATADIR/*.cram $DATADIR
 # scp $CAC_USERHOST:$RDATADIR/$GENOMEGFF.fa $DATADIR
@@ -1160,11 +1466,200 @@ scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
 EOF
 }
 
+# UCSC
+# 1. We need to know directories: local_tracks and /gbdb.
+# 2. We might need to run hgsql.
+# 3. We might need to place files at /gbdb.
+# 4. We need to run make cornell at local_tracks.
+# 
+# We first create a database for a genome browser: job-ucsc-db. Copy this to a
+# linux machine where UCSC genome browser is up and running. Just run it.
+# We could have a run directory as we do in CAC. We need a GenBank file.
 function ucsc-data {
+
+cat>$BASEDIR/run-ucsc.sh<<EOF
+bash job-ucsc-db
+bash job-ucsc-bed
+hgsql hgcentral_protected < dbDbInsert.sql
+echo make cornell DBS=$DBNAME
+# samtools faidx NC_004350.fna
+# samtools view FASTQ001.sorted.bam | sed s/gi\|347750429\|ref\|NC_004350.2\|/chr1/ | samtools view -bS -T NC_004350.fna - > FASTQ001rnaseqBam.bam
+# samtools index FASTQ001rnaseqBam.bam 
+# mkdir /gbdb_cornell/SmuUA159v2/bbi
+# mv FASTQ001rnaseqBam.bam* /gbdb_cornell/SmuUA159v2/bbi
+# hgBbiDbLink SmuUA159v2 FASTQ001rnaseqBam /gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam
+EOF
+
+cat>$BASEDIR/job-ucsc-db<<EOF
+KENT=/usr/local/software/kent
+gbToFaRa /dev/null $DBNAME.fna $DBNAME.ra $DBNAME.ta $DBNAME.gbk
+toUpper $DBNAME.fna $DBNAME.fna.upper
+faSize $DBNAME.fna.upper
+
+rm $DBNAME.fna $DBNAME.ra $DBNAME.ta
+echo ">chr1" > $DBNAME.fna
+grep -v ">" $DBNAME.fna.upper >> $DBNAME.fna
+rm $DBNAME.fna.upper
+
+hgFakeAgp -minContigGap=1 $DBNAME.fna $DBNAME.agp
+faToTwoBit $DBNAME.fna $DBNAME.2bit
+mkdir -p /gbdb_cornell/$DBNAME/html
+cp $DBNAME.2bit /gbdb_cornell/$DBNAME
+
+echo "  creating a database ..."
+twoBitInfo $DBNAME.2bit stdout | sort -k2nr > chrom.sizes
+rm -rf bed
+mkdir -p bed/chromInfo
+awk '{printf "%s\\t%d\\t/gbdb_cornell/DBNAME/DBNAME.2bit\\n", \$1, \$2}' \\
+  chrom.sizes > bed/chromInfo/chromInfo.tab.tmp
+sed s/DBNAME/$DBNAME/g < bed/chromInfo/chromInfo.tab.tmp > bed/chromInfo/chromInfo.tab
+hgsql -e "create database $DBNAME;" mysql
+
+echo "  creating grp, chromInfo tables ..."
+hgsql $DBNAME < \$KENT/src/hg/lib/grp.sql
+
+cp bed/chromInfo/chromInfo.tab /tmp/
+hgLoadSqlTab $DBNAME chromInfo \$KENT/src/hg/lib/chromInfo.sql \\
+  /tmp/chromInfo.tab
+rm /tmp/chromInfo.tab
+hgGoldGapGl $DBNAME $DBNAME.agp
+
+echo "  creating GC5 track ..."
+mkdir bed/gc5Base
+hgGcPercent -wigOut -doGaps -file=stdout -win=5 -verbose=0 $DBNAME \\
+  $DBNAME.2bit | wigEncode stdin bed/gc5Base/gc5Base.{wig,wib}
+hgLoadWiggle -pathPrefix=/gbdb_cornell/$DBNAME/wib \\
+  $DBNAME gc5Base bed/gc5Base/gc5Base.wig
+mkdir -p /gbdb_cornell/$DBNAME/wib/bed/gc5Base
+cp bed/gc5Base/gc5Base.wib /gbdb_cornell/$DBNAME/wib/bed/gc5Base
+rm -rf bed
+done
+EOF
+
+cat>$BASEDIR/job-ucsc-bed<<EOF
+KENT=/usr/local/software/kent
+hgLoadBed $DBNAME knownGenes $DBNAME.knownGenes.bed
+
+FASTQFILES=( $FASTQFILES )
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$g)
+  # BED tracks
+  hgLoadBed $DBNAME \${FASTQNUM}rnaseqTx \${FASTQNUM}rnaseqTx.bed
+
+  # Bam tracks
+  hgBbiDbLink $DBNAME \${FASTQNUM}rnaseqBam \\
+    /gbdb_cornell/$DBNAME/bbi/\${FASTQNUM}rnaseqBam .bam
+
+  # Wiggle tracks
+  wigEncode \$FASTQNUM.wig \$FASTQNUM.temp.wig \$FASTQNUM.wib
+  hgLoadWiggle $DBNAME \${FASTQNUM}rnaseqWiggle \$FASTQNUM.temp.wig
+  rm \$FASTQNUM.temp.wig
+  mkdir /gbdb_cornell/$DBNAME/wib/
+  mv \$FASTQNUM.wib /gbdb_cornell/$DBNAME/wib/
+  hgsql $DBNAME -e "update \${FASTQNUM}rnaseqWiggle set file='/gbdb_cornell/$DBNAME/wib/\$FASTQNUM.wib'"
+
+done
+
+EOF
+
+cat>$BASEDIR/dbDbInsert.sql<<EOF
+INSERT INTO dbDb
+    (name, description, nibPath, organism,
+     defaultPos, active, orderKey, genome, scientificName,
+     htmlPath, hgNearOk, hgPbOk, sourceName)
+VALUES
+    ("$DBNAME", "$ASSEMBLYNAME", "/gbdb_cornell/$DBNAME", "$GENOMENAME",
+     "chr1:1-100000", 1, 1, "$GENOMENAME", "$GENOMENAME",
+     "/gbdb_cornell/$DBNAME/html/description.html", 0, 0, "NCBI");
+INSERT INTO defaultDb (genome, name) VALUES ("$GENOMENAME", "$DBNAME");
+INSERT INTO genomeClade (genome, clade, priority) VALUES ("$GENOMENAME", "$CLADENAME", 9);
+EOF
+
 cat>$BASEDIR/send-ucsc-data.sh<<EOF
 #!/bin/bash
-scp -qr $BWADIR $X11_USERNAME@$X11_LOGIN:public_html/rnaseq/bwa-$SPECIES
+FASTQFILES=( $FASTQFILES )
+ssh -x $X11_USERNAME@$X11_LOGIN mkdir -p $CACWORKDIR
+
+scp $BASEDIR/ucsc-trackDb.sh $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/run-ucsc.sh $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/job-ucsc-db $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/job-ucsc-bed $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/dbDbInsert.sql $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/run-ucsc.sh $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+scp $BASEDIR/1/data/feature-genome.out-geneonly $X11_USERNAME@$X11_LOGIN:$CACWORKDIR/$DBNAME.knownGenes.bed
+
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$g)
+  scp $BASEDIR/1/bwa/\$FASTQNUM.operon \\
+    $X11_USERNAME@$X11_LOGIN:$CACWORKDIR/\${FASTQNUM}rnaseqTx.bed
+  scp $BASEDIR/1/bwa/\$FASTQNUM.sorted.bam \\
+    $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+  scp $BASEDIR/1/bwa/\$FASTQNUM.wig \\
+    $X11_USERNAME@$X11_LOGIN:$CACWORKDIR
+done
+
+scp $REFGENOMEGENBANK $X11_USERNAME@$X11_LOGIN:$CACWORKDIR/$DBNAME.gbk
+# scp -qr $BWADIR $X11_USERNAME@$X11_LOGIN:public_html/rnaseq/bwa-$SPECIES
 EOF
+
+cat>$BASEDIR/ucsc-trackDb.sh<<EOF
+track knownGenes
+shortLabel Known Genes
+longLabel Known Genes
+group genes
+priority 50
+visibility pack
+type bed 6
+colorByStrand 255,0,0 0,0,255
+itemRgb on
+EOF
+# Add more RNA-seq transcripts tracks
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ$(printf "%03d" $g)
+cat>>$BASEDIR/ucsc-trackDb.sh<<EOF 
+
+track ${FASTQNUM}rnaseqTx
+shortLabel RNA-seq Transcripts ${FASTQNUM}
+longLabel RNA-seq Transcripts ${FASTQNUM}
+group genes
+priority $g
+visibility pack
+type bed 6
+colorByStrand 255,0,0 0,0,255
+itemRgb on
+EOF
+done
+# Add more BAM tracks
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ$(printf "%03d" $g)
+cat>>$BASEDIR/ucsc-trackDb.sh<<EOF 
+
+track ${FASTQNUM}rnaseqBam
+shortLabel RNA-seq BAM ${FASTQNUM}
+longLabel RNA-seq BAM ${FASTQNUM}
+group genes
+priority $g
+visibility pack
+type bam
+EOF
+done
+# Add more Wiggle tracks
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ$(printf "%03d" $g)
+cat>>$BASEDIR/ucsc-trackDb.sh<<EOF 
+
+track ${FASTQNUM}rnaseqWiggle
+shortLabel RNA-seq Wiggle ${FASTQNUM}
+longLabel RNA-seq Wiggle ${FASTQNUM}
+group genes
+priority $g
+visibility full
+type wig
+autoScale on
+alwaysZero on
+color=0,200,100 
+EOF
+done
 
 cat>$BASEDIR/ucsc-data.sh<<EOF
 #!/bin/bash
@@ -1206,34 +1701,39 @@ for g in $FASTQFILES; do
   echo -e "" >> \$TRACKDBRA
 done
 EOF
+# FIXME:public_html
   scp -q $BASEDIR/ucsc-data.sh $X11_USERNAME@$X11_LOGIN:public_html/rnaseq
   echo "To send the data to the genome browser:"
   echo "bash $BASEDIR/send-ucsc-data.sh"
 }
-##################################################
-
-
 
 function batch-run-parsernaseq {
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
   GENOMEGFF=$(basename $REFGENOMEGFF)
+  GENOMEPTT=$(basename $REFGENOMEPTT)
   STATUS=parsernaseq
 cat>$BASEDIR/run-$STATUS.sh<<EOF
 #!/bin/bash
-sed s/PBSARRAYSIZE/$PARSERNASEQNNODE/g < batch-$STATUS.sh > tbatch.sh
+FASTQFILES=( $FASTQFILES )
+c=\$((\${#FASTQFILES[@]} / $NUMBERCPU))
+b=\$((\${#FASTQFILES[@]} % $NUMBERCPU))
+if [ \$b -ne 0 ]; then
+  c=\$((c+1))
+fi
+sed s/PBSARRAYSIZE/\$c/g < batch-$STATUS.sh > tbatch.sh
 nsub tbatch.sh 
 rm tbatch.sh
 EOF
 
 cat>$BASEDIR/batch-$STATUS.sh<<EOF
 #!/bin/bash
-#PBS -l walltime=${PARSERNASEQWALLTIME}:00:00,nodes=1
+#PBS -l walltime=24:00:00,nodes=1
 #PBS -A ${BATCHACCESS}
 #PBS -j oe
 #PBS -N $PROJECTNAME-PARSE
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {
@@ -1242,7 +1742,7 @@ function copy-data {
   # Programs and scripts.
   cp -r \$PBS_O_WORKDIR/pl .
   cp \$PBS_O_WORKDIR/job-$STATUS .
-  cp \$PBS_O_WORKDIR/ParseRNAseq .
+  cp \$HOME/$PARSERNASEQ ParseRNAseq
 
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
@@ -1250,13 +1750,14 @@ function copy-data {
   cp $RBWADIR/feature-genome.out-geneonly $CBWADIR
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
   cp $RDATADIR/$GENOMEGFF $CDATADIR
+  cp $RDATADIR/$GENOMEPTT $CDATADIR
 }
 
-function retrieve-data {
-  cp $CBWADIR/*parsernaseq* $RBWADIR
-  cp $CBWADIR/*.bed* $RBWADIR
-  cp $CBWADIR/*.operon* $RBWADIR
-}
+#function retrieve-data {
+  # cp $CBWADIR/*parsernaseq* $RBWADIR
+  # cp $CBWADIR/*.bed* $RBWADIR
+  # cp $CBWADIR/*.operon* $RBWADIR
+#}
 
 function process-data {
   cd \$TMPDIR
@@ -1273,7 +1774,6 @@ function process-data {
 
 copy-data
 process-data; wait
-retrieve-data
 cd
 rm -rf \$TMPDIR
 EOF
@@ -1281,15 +1781,25 @@ EOF
 cat>$BASEDIR/job-$STATUS<<EOF
 FASTQNUM=FASTQ\$1
 cp $RBWADIR/\$FASTQNUM.wig $CBWADIR
-cp $RBWADIR/\$FASTQNUM-sum.pos $CBWADIR
+# cp $RBWADIR/\$FASTQNUM-sum.pos $CBWADIR
+
+# in BED format
+perl pl/feature-genome.pl ptt2 \\
+  -geneonly \\
+  -in $CDATADIR/$GENOMEPTT \\
+  -out $CBWADIR/feature-genome.out-geneonly
+
 # This is okay.
 perl pl/transcript-parsernaseq.pl pileup \\
   -wiggle $CBWADIR/\$FASTQNUM.wig \\
   -out $CBWADIR/\$FASTQNUM.parsernaseq.pileup
+
+# not a BED format, inclusive.
 # This is okay.
 perl pl/transcript-parsernaseq.pl gene \\
   -feature $CBWADIR/feature-genome.out-geneonly \\
   -out $CBWADIR/feature-genome.out-parsernaseq
+
 # This is okay.
 ./ParseRNAseq \\
   $CBWADIR/\$FASTQNUM.parsernaseq.pileup \\
@@ -1297,42 +1807,49 @@ perl pl/transcript-parsernaseq.pl gene \\
   $CBWADIR/feature-genome.out-parsernaseq \\
   $CBWADIR/\$FASTQNUM.parsernaseq \\
   -c 10 -b 25 -force_gp -fmt
+cp $CBWADIR/\$FASTQNUM.parsernaseq $RBWADIR
 
 # This did not work.
-perl pl/transcript-parsernaseq.pl bed \\
-  -parsernaseq $CBWADIR/\$FASTQNUM.parsernaseq \\
-  -out $CBWADIR/\$FASTQNUM.bed
+#perl pl/transcript-parsernaseq.pl bed \\
+#  -parsernaseq $CBWADIR/\$FASTQNUM.parsernaseq \\
+#  -out $CBWADIR/\$FASTQNUM.bed
 
+# To create a BED file from the prediction.
 # This is okay.
 perl pl/transcript-parsernaseq.pl gff \\
   -parsernaseq $CBWADIR/\$FASTQNUM.parsernaseq \\
   -out $CBWADIR/\$FASTQNUM.bed2
+cp $CBWADIR/\$FASTQNUM.bed2 $RBWADIR
+
+# To create operon with strands.
 # This is okay.
 perl pl/transcript-parsernaseq.pl operon \\
   -feature $CBWADIR/feature-genome.out-geneonly \\
   -parsernaseq $CBWADIR/\$FASTQNUM.parsernaseq \\
   -out $CBWADIR/\$FASTQNUM.operon
+cp $CBWADIR/\$FASTQNUM.operon $RBWADIR
 
 # This works.
-perl pl/bwa-pos2wig.pl end \\
-  -genomeLength $REFGENOMELENGTH \\
-  -in $CBWADIR/\$FASTQNUM-sum.pos \\
-  -out $CBWADIR/\$FASTQNUM-end.wig
-
-# This works.
-perl pl/transcript-parsernaseq.pl adjust \\
-  -end $CBWADIR/\$FASTQNUM-end.wig \\
-  -operon $CBWADIR/\$FASTQNUM.operon \\
-  -out $CBWADIR/\$FASTQNUM.operon2
-# This works.
-perl pl/transcript-parsernaseq.pl slope \\
-  -windowsize 95 \\
-  -end $CBWADIR/\$FASTQNUM-end.wig \\
-  -operon $CBWADIR/\$FASTQNUM.operon \\
-  -out $CBWADIR/\$FASTQNUM.operon.slope
+#perl pl/bwa-pos2wig.pl end \\
+#  -genomeLength $REFGENOMELENGTH \\
+#  -in $CBWADIR/\$FASTQNUM-sum.pos \\
+#  -out $CBWADIR/\$FASTQNUM-end.wig
+#
+## This works.
+#perl pl/transcript-parsernaseq.pl adjust \\
+#  -end $CBWADIR/\$FASTQNUM-end.wig \\
+#  -operon $CBWADIR/\$FASTQNUM.operon \\
+#  -out $CBWADIR/\$FASTQNUM.operon2
+## This works.
+#perl pl/transcript-parsernaseq.pl slope \\
+#  -windowsize 95 \\
+#  -end $CBWADIR/\$FASTQNUM-end.wig \\
+#  -operon $CBWADIR/\$FASTQNUM.operon \\
+#  -out $CBWADIR/\$FASTQNUM.operon.slope
 EOF
 }
 
+####################################################################
 BASEDIR=test/RNAz
 NCBIBACTERIADIR=/Volumes/Elements/Documents/Projects/mauve/bacteria
 MAKEBLASTDB=build/ncbi-blast-2.2.25+/bin/makeblastdb
@@ -1379,7 +1896,7 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 #PBS -N $PROJECTNAME-RNAZ
 #PBS -q ${QUEUENAME}
 #PBS -m e
-# #PBS -M ${BATCHEMAIL}
+$EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
 function copy-data {

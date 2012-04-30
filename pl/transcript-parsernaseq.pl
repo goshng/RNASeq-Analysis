@@ -221,7 +221,8 @@ elsif ($cmd eq "gene")
   for (my $i = 0; $i <= $#genes; $i++)
   {
     my $g = $genes[$i];
-    my $l = $g->{end} - $g->{start} + 1;
+    my $l = $g->{end} - $g->{start};
+    $g->{start}++;
     my $spaces = "    "; # ParseRNAseq needs spaces not tabs.
     print $outfile "$g->{name}$spaces$g->{strand}$spaces$g->{start}$spaces$g->{end}$spaces$l\n";
   }
@@ -1044,7 +1045,7 @@ ParseRNASeq.
 
 Command:
   pileup - Using FASTQ01.wig file that is created by samtools mpileup to create
-  a pileup file for ParaseRNASeq.
+  a pileup file for ParaseRNAseq.
 
   gene - Using feature-genome.out-geneonly file that is created by menu
   feature-genome I create a gene annotation file for ParseRNASeq.

@@ -9,6 +9,12 @@ function conf {
   X11_LOGIN=$(grep ^X11_LOGIN $CONFFILE | cut -d":" -f2)
   X11_ROOT=$(grep ^X11_ROOT $CONFFILE | cut -d":" -f2)
   BATCHEMAIL=$(grep ^BATCHEMAIL $CONFFILE | cut -d":" -f2)
+  EMAILON=$(grep ^EMAILON $CONFFILE | cut -d":" -f2)
+  if [ $EMAILON == "TRUE" ]; then
+    EMAILON=""
+  else
+    EMAILON="# "
+  fi
   BATCHACCESS=$(grep ^BATCHACCESS $CONFFILE | cut -d":" -f2)
   QUEUENAME=$(grep ^QUEUENAME $CONFFILE | cut -d":" -f2)
 
@@ -20,6 +26,7 @@ function conf {
   PYTHON=$(grep ^PYTHON $CONFFILE | cut -d":" -f2)
   CACRSCRIPT=$(grep ^CACRSCRIPT $CONFFILE | cut -d":" -f2)
   CRAMTOOLS=$(grep ^CRAMTOOLS $CONFFILE | cut -d":" -f2)
+  PARSERNASEQ=$(grep ^PARSERNASEQ $CONFFILE | cut -d":" -f2)
   BOWTIE=$(grep ^BOWTIE $CONFFILE | cut -d":" -f2)
   SAMTOOLS=$(grep ^SAMTOOLS $CONFFILE | cut -d":" -f2)
   SUBREADBUILDINDEX=$(grep ^SUBREADBUILDINDEX $CONFFILE | cut -d":" -f2)

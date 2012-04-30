@@ -186,6 +186,7 @@ variables would cause problems.
 . fastq file labels in _FASTQLABEL_
 . cluster working directory in _CACWORKDIR_
 . reference genome ID in _REFGENOMEID_
+. reference genome genbank file in _REFGENOMEGENBANK_
 . reference genome fasta file in _REFGENOMEFASTA_
 . reference genome annotation file in _REFGENOMEGFF_
 . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
@@ -198,6 +199,7 @@ variables would cause problems.
 . Rscript path in _CACRSCRIPT_
 . set _SINGLECHROMOSOME_ to TRUE or FALSE
 . set _TESTFASTQ_ to integers
+. set _BWAALIGNWALLTIME_ to an integer
 
 .Four FASTQ files are created
 ----
@@ -247,13 +249,39 @@ $ bash run-fastqc.sh
 $ bash run-cram.sh
 $ bash run-cram2fastq.sh
 $ bash run-bwa-align.sh
+$ bash run-bias.sh
+$ bash run-coverage.sh
+$ bash run-coverage-pull.sh
+$ bash run-parsernaseq.sh
+$ bash run-ucsc.sh
 ----
 
 +run-fastqc.sh+ converts +data/FASTQ001.fq.gz+ to +bwa/FASTQ001.prinseq.fq.gz+.
 +run-cram.sh+ converts +bwa/FASTQ001.prinseq.fq.gz+ to +bwa/FASTQ001.cram+.
 +run-cram2fastq.sh+ converts +bwa/FASTQ001.cram+ to +bwa/FASTQ001.recovered.fq.gz+.
 +run-bwa-align.sh+ converts +bwa/FASTQ001.recovered.fq.gz+ to +bwa/FASTQ001.sorted.bam+.
++run-bias.sh+ converts +bwa/FASTQ001.sorted.bam+ to +bwa/FASTQ001.yml+.
++run-coverage.sh+ converts +bwa/FASTQ001.sorted.bam+ and +bwa/FASTQ001.yml+ to
++bwa/FASTQ001.cvg.*+.
++run-coverage-pull.sh+ converts +bwa/FASTQ001.cvg.*+ to +bwa/FASTQ001.coverage.RData+.
+and +bwa/FASTQ001.wig+.
 
++run-fastqc.sh+ can use multiple CPUs by splitting FASTQ files, each of which is
+processed by cutadapt and prinseq.
++run-coverage.sh+ can use multiple nodes. BAM files are copied to each node
+computer and copied again because readGappedAlignments(bamFile) R function
+crashes when it tries to read a file from many computers.
+
++run-parsernaseq.sh+ creates +bwa/FASTQ001.parsernaseq+, +bwa/FASTQ001.bed2+ and 
++bwa/FASTQ001.operon+. 
+File +bwa/FASTQ001.bed2+ is the ParseRNAseq output file in BED format.
+File +bwa/FASTQ001.operon+ is another BED file of the transcript calls with
+strand information inferred from genes annotations.
+
++run-ucsc.sh+ creates scripts and files to upload the genome browser.
+----
+$ bash job-ucsc-bed
+----
 
 +run-de.sh+ converts +bwa/FASTQ001.sorted.bam+ to +bwa/FASTQ001.sorted.bam.cl+.
 
@@ -844,10 +872,13 @@ RUNMODE:pbs
 
 .Batch system configuration
 ----
+EMAILON:TRUE
 BATCHEMAIL:schoi@cornell.edu
 BATCHACCESS:acs4_0001
 QUEUENAME:v4
 ----
+
+If _EMAILON_ is not TRUE, then email notification is disabled.
 
 Installation
 ------------

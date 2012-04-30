@@ -12,13 +12,14 @@ CAC_LOGIN:linuxlogin.cac.cornell.edu
 #
 # X11 linux ID setup
 # ------------------
-# X11_USERNAME:x11Username
-# X11_LOGIN:x11URL
+X11_USERNAME:goshng
+X11_LOGIN:kimjaeok
 # X11_ROOT:x11Base
 #
 # Cluster access to job submission
 # --------------------------------
-BATCHEMAIL:schoi@cornell.edu
+EMAILON:FALSE
+BATCHEMAIL:goshng@gmail.com
 BATCHACCESS:acs4_0001
 QUEUENAME:v4
 ROUTPUTDIR:/v4scratch/sc2265/rnaseq/output
@@ -30,6 +31,7 @@ SAMTOOLS:usr/bin/samtools-0.1.18/samtools
 PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
 PICARD:usr/bin/picard-tools-1.67
 CRAMTOOLS:usr/bin/cramtools-0.8.jar
+PARSERNASEQ:usr/bin/ParseRNAseq
 #PYTHON:python
 #CUTADAPT:/usr/local/bin/cutadapt
 PYTHON:/opt/epd/bin/python2.7
