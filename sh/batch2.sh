@@ -199,14 +199,11 @@ scp $CRAMGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
 scp $REFGENOMEPTT $CAC_USERHOST:$RDATADIR
 
-#scp output/data/bacteria.fa $CAC_USERHOST:$RDATADIR
-
 echo Edit push-data.sh to send cram or fastq files.
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
   FASTQFILE=\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
-  # scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
-  # scp $CRAMDIR/\$FASTQNUM.cram $CAC_USERHOST:$RDATADIR
+  scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
 done
 
 EOF
@@ -804,7 +801,6 @@ cat>$BASEDIR/batch-$STATUS.sh<<EOF
 $EMAILON#PBS -M ${BATCHEMAIL}
 #PBS -t 1-PBSARRAYSIZE
 
-
 function copy-data {
   cd \$TMPDIR
 
@@ -813,8 +809,6 @@ function copy-data {
   cp \$HOME/$PRINSEQ pl
   cp \$HOME/$SAMTOOLS samtools
   cp \$HOME/$BWA bwa
-  # cp \$HOME/$SUBREADBUILDINDEX subread-buildindex
-  # cp \$HOME/$SUBREADALIGN subread-align
 
   # All of the batchjob scripts.
   cp \$PBS_O_WORKDIR/job-cram .
@@ -834,60 +828,36 @@ function copy-data {
   cp $RDATADIR/$GENOMEGFF $CDATADIR
 }
 
-function retrieve-data {
-  # cp $CBWADIR/*.cutadapt.fq.gz $RBWADIR
-  # cp $CBWADIR/*.prinseq.fq.gz $RBWADIR
-  echo No Copy!
-}
-
 function process-data {
   cd \$TMPDIR
   FASTQFILES=( $FASTQFILES )
   g=\$((PBS_ARRAYID-1))
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
-  # input: cram, and output: bam
 
-  cp $RBWADIR/FASTQ\$NUM.cram $CBWADIR
-  bash job-cram2fastq \$NUM \\
-    $CBWADIR/FASTQ\$NUM.cram \\
-    $CBWADIR/FASTQ\$NUM.recovered.fq
-  gzip $CBWADIR/FASTQ\$NUM.recovered.fq
-
+  # 1. Filter out bad parts and reads
+  cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
+  bash job-fastqc \$NUM \\
+    $CDATADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
+  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+   
+  # 2. Align the sort reads
   bash job-bwa-align \$NUM \\
-    $CBWADIR/FASTQ\$NUM.recovered.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted \\
     $CSUBREADDIR/FASTQ\$NUM.sorted
 
-# 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
+  # 3. Count short reads
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
-  NUMBER_READ4=\$(zcat $RDATADIR/FASTQ\$NUM.fq.gz | wc -l)
+  NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
   NUMBER_READ=\$((NUMBER_READ4 / 4))
-  echo bash job-de \$BAMFILE1 \$NUMBER_READ
   bash job-de \$BAMFILE1 \$NUMBER_READ
   cp \$BAMFILE1 $RBWADIR
   cp \$BAMFILE1.cl $RBWADIR
-
-#  BAMFILE2=$CSUBREADDIR/FASTQ\$NUM.sorted.bam
-#  CLFILE1=$RBWADIR/FASTQ\$NUM.cl
-#  CLFILE2=$RSUBREADDIR/FASTQ\$NUM.cl
-#  PREFIX1=BWA-
-#  PREFIX2=SUBREAD-
-#  for k in {1..2}; do
-#    BAMFILE=BAMFILE\$k
-#    CLFILE=CLFILE\$k
-#    PREFIX=PREFIX\$k
-#    ./samtools view \${!BAMFILE} | split -d -l $MAXLINEDE - \${!PREFIX}
-#    for i in \`ls \${!PREFIX}*\`; do ./samtools view -Sb -T $CDATADIR/$GENOMEFASTA \$i > \$i.bam; done
-#    for i in \`ls \${!PREFIX}*.bam\`; do
-#      bash job-de \$i
-#    done
-#    bash job-de2 \${!CLFILE} \${!PREFIX}
-#  done 
 }
 
 copy-data
 process-data
-retrieve-data
 cd
 rm -rf \$TMPDIR
 EOF

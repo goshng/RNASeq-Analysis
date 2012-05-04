@@ -12,8 +12,8 @@ CAC_LOGIN:linuxlogin.cac.cornell.edu
 #
 # X11 linux ID setup
 # ------------------
-X11_USERNAME:goshng
-X11_LOGIN:kimjaeok
+X11_USERNAME:choi
+X11_LOGIN:compgen
 # X11_ROOT:x11Base
 #
 # Cluster access to job submission

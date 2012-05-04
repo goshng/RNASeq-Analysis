@@ -4,10 +4,9 @@ library(rtracklayer)
 library(GenomicRanges)
 library(VariantAnnotation)
 library(GenomicFeatures)
-gffFile <- "/Volumes/Elements/Documents/Projects/mauve/bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.gff"
-gffFile <- "/v4scratch/sc2265/rnaseq/output/cornell/1/data/NC_004350.gff"
+gffFile <- "data/NC_004350.gff"
 sm.gff <- import.gff3(gffFile)
-sm.source <- sm.gff[sm.gff$type=="source",]
+sm.source <- sm.gff[1,] #sm.gff$type=="region",]
 sm.gene <- sm.gff[sm.gff$type=="gene",]
 sm.exon <- sm.gff[sm.gff$type=="exon",]
 sm.CDS <- sm.gff[sm.gff$type=="CDS",]
@@ -23,10 +22,10 @@ transcripts <-
 # Compare CDS and gene locus tags
 x <- c()
 y <- c()
-for (i in sm.gene$locus_tag) {
-  if (sum(sm.CDS$locus_tag == i) > 0) {
-    x <- c(x,start(sm.CDS)[sm.CDS$locus_tag == i])
-    y <- c(y,end(sm.CDS)[sm.CDS$locus_tag == i])
+for (i in sm.gene$ID) {
+  if (sum(unlist(sm.CDS$Parent) == i) > 0) {
+    x <- c(x,start(sm.CDS)[unlist(sm.CDS$Parent) == i])
+    y <- c(y,end(sm.CDS)[unlist(sm.CDS$Parent) == i])
   } else {
     x <- c(x,NA)
     y <- c(y,NA)
@@ -53,6 +52,10 @@ chrominfo <-
 
 TxDb.Smutans.UA159.uid57947.knownGene <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
 txdb <- TxDb.Smutans.UA159.uid57947.knownGene 
+saveFeatures(txdb,file="data/NC_004350.txdb")
+print("Check data/NC_004350.txdb")
+q("no")
+
 
 cds(txdb, columns="tx_name")
 cds(txdb, columns="exon_name")

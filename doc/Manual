@@ -254,7 +254,14 @@ $ bash run-coverage.sh
 $ bash run-coverage-pull.sh
 $ bash run-parsernaseq.sh
 $ bash run-ucsc.sh
+$ bash run-de.sh -> not yet
 ----
+
+.To count reads
+----
+$ bash run-qcalignde.sh 
+----
++run-qcalignde.sh+ includes fastqc, bwa-align, and de.
 
 +run-fastqc.sh+ converts +data/FASTQ001.fq.gz+ to +bwa/FASTQ001.prinseq.fq.gz+.
 +run-cram.sh+ converts +bwa/FASTQ001.prinseq.fq.gz+ to +bwa/FASTQ001.cram+.
@@ -268,6 +275,17 @@ and +bwa/FASTQ001.wig+.
 
 +run-fastqc.sh+ can use multiple CPUs by splitting FASTQ files, each of which is
 processed by cutadapt and prinseq.
+
+.To filter out the raw fastq files for quality control
+----
+bash job-fastqc 001 FASTQ001.fq.gz FASTQ001.prinseq.fq.gz 
+----
+
+.To align short reads on a reference genome
+----
+bash job-bwa-align 001 FASTQ001.prinseq.fq.gz FASTQ001.sorted 
+----
+
 +run-coverage.sh+ can use multiple nodes. BAM files are copied to each node
 computer and copied again because readGappedAlignments(bamFile) R function
 crashes when it tries to read a file from many computers.
@@ -298,8 +316,6 @@ fastq-sample.sh FASTQ056.fq.gz FASTQ056-0.001.fq.gz 0.001
 .Execute scripts to check the simulation
 ----
 $ bash job-simulate
-$ bash run-fastqc.sh
-$ bash run-cram.sh
 $ bash run-qcalignde.sh
 $ bash job-check
 ----
@@ -315,6 +331,12 @@ the job.
 .Time limit for a job of quality control, alignment, and counting short reads
 ----
 QCALIGNDEWALLTIME:12
+----
+
+.To create txdb from gff
+----
+Edit NC_004350.fna and NC_004350.gff so that the chromosome name is chr1.
+Rscript R/gff2txdb.R
 ----
 
 .To count short reads

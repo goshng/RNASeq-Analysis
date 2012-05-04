@@ -6,33 +6,9 @@ To Do
 -----
 .Immediate term
 . Develop (or improve ParseRNAseq) something to use processed RNA-seq data.
-. Summarize what I did for finding small RNAs and their targets (with GO
-analysis)
-. Send two emails about the latest update of RNA-Seq result.
-. Predict transcripts using RNA-Seq and annotated genes
-. Study DE using the transcripts and small RNAs in S. mutans.
-. p-values of small RNAs and p-values of their targets for DE
-.Some of the old things to do 
-. Implement "contigwiggle" of samtools-pileup.pl
-. Document features including genes, small RNAs using predicted transcripts
-.. Comparison with microarray results (OMZ, TW1)
-. Literature search on bacteria and RNA-Seq.
-. Find segmentation algorithm softwares to call operon (What is known about
-operon structures of S. mutans?).
-.. Use Charles's method or Martin's method to predict transcripts
-. Suboperons prediction using two samples of RNA-Seq data.
-. To compare the result of RNA-Seq and that of microarray experiment. (done)
-. Upload RNA-Seq gene expression tracks. (done)
-. Find papers that Burne mentioned. (done)
-. Compile emails with Robert Burne. (done)
-. Meeting time 1 P.M. on Friday (done)
-. Add the gene ontology analysis (done)
-. Mult-factor analysis (done)
-Write a short report on the RNA-Seq data. (done)
 
 .Intermediate term
 . Genome annotations using the RNA-Seq data sets.
-. de novo assembly using RNA-Seq (Find tools)
 
 .Long term
 . Study of evolution of bacterial gene expression 
@@ -48,6 +24,7 @@ S. mutans
 ~~~~~~~~~
 Tracks
 1. known genes, transcripts, BAM, wiggle BAM tracks, wiggle in log(x+1)
+2. hgcentral_protected is protected? The four DB's are not displayed.
 
 Tomato
 ~~~~~~
@@ -69,12 +46,18 @@ S. agalactiae
    Comparative genomics and the role of lateral gene transfer in the evolution
    of bovine adapted Streptococcus agalactiae.
 
-
-
 Histories
 ---------
 This history can be useful later.
 
+
+Thu May  3 17:04:38 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To convert gff to txdb file.
+----
+Rscript R/gff2txdb.R
+----
 
 Sat Apr 28 17:15:09 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
