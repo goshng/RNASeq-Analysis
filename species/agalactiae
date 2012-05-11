@@ -2,36 +2,36 @@
 # ===================================
 
 # fastq files
-FASTQ056:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_82.1M.fastq.gz
-FASTQ057:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_82.2M.fastq.gz
-FASTQ058:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_82.3M.fastq.gz
-FASTQ059:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_61.1M.fastq.gz
-FASTQ060:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_61.2M.fastq.gz
-FASTQ061:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2397_SAG_61.3M.fastq.gz
-FASTQ062:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_61.1B.fastq.gz
-FASTQ063:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_61.2B.fastq.gz
-FASTQ064:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_56.1M.fastq.gz
-FASTQ065:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_56.2M.fastq.gz
-FASTQ066:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_56.3M.fastq.gz
-FASTQ067:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_56.2B.fastq.gz
-FASTQ068:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_56.3B.fastq.gz
-FASTQ069:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_2.1M.fastq.gz
-FASTQ070:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_2.2M.fastq.gz
-FASTQ071:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_2.3M.fastq.gz
-FASTQ072:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_2.1B.fastq.gz
-FASTQ073:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_2.2B.fastq.gz
-FASTQ074:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_2.3B.fastq.gz
-FASTQ075:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_13.1M.fastq.gz
-FASTQ076:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_13.2M.fastq.gz
-FASTQ077:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/8_2395_SAG_13.3M.fastq.gz
-FASTQ078:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_13.1B.fastq.gz
-FASTQ079:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_13.2B.fastq.gz
-FASTQ080:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2398_SAG_13.3B.fastq.gz
-FASTQ081:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_14.1M.fastq.gz
-FASTQ082:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_14.2M.fastq.gz
-FASTQ083:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2396_SAG_14.3M.fastq.gz
-FASTQ084:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_14.1B.fastq.gz
-FASTQ085:/Volumes/Elements/Documents/Projects/rnaseq/data/RNA_seq.4Aug11/2399_SAG_14.2B.fastq.gz
+FASTQ056:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_82.1M.fastq.gz
+FASTQ057:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_82.2M.fastq.gz
+FASTQ058:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_82.3M.fastq.gz
+FASTQ059:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_61.1M.fastq.gz
+FASTQ060:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_61.2M.fastq.gz
+FASTQ061:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2397_SAG_61.3M.fastq.gz
+FASTQ062:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_61.1B.fastq.gz
+FASTQ063:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_61.2B.fastq.gz
+FASTQ064:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_56.1M.fastq.gz
+FASTQ065:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_56.2M.fastq.gz
+FASTQ066:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_56.3M.fastq.gz
+FASTQ067:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_56.2B.fastq.gz
+FASTQ068:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_56.3B.fastq.gz
+FASTQ069:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_2.1M.fastq.gz
+FASTQ070:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_2.2M.fastq.gz
+FASTQ071:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_2.3M.fastq.gz
+FASTQ072:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_2.1B.fastq.gz
+FASTQ073:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_2.2B.fastq.gz
+FASTQ074:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_2.3B.fastq.gz
+FASTQ075:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_13.1M.fastq.gz
+FASTQ076:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_13.2M.fastq.gz
+FASTQ077:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/8_2395_SAG_13.3M.fastq.gz
+FASTQ078:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_13.1B.fastq.gz
+FASTQ079:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_13.2B.fastq.gz
+FASTQ080:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2398_SAG_13.3B.fastq.gz
+FASTQ081:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_14.1M.fastq.gz
+FASTQ082:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_14.2M.fastq.gz
+FASTQ083:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2396_SAG_14.3M.fastq.gz
+FASTQ084:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_14.1B.fastq.gz
+FASTQ085:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/RNA_seq.4Aug11/2399_SAG_14.2B.fastq.gz
 FASTQ086:test.fq.gz
 FASTQ087:test.fq.gz
 
@@ -135,25 +135,22 @@ REFGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
 # REFGENOMEFASTA:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.fna
 
 # Reference genome annotation
-REFGENOMEGFF:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
-# REFGENOMEGFF:input/Streptococcus_agalactiae_NEM316/NC_004368.gff
-# REFGENOMEGFF:input/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
+REFGENOMEGFF:input/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+# REFGENOMEGFF:input/smutans/Streptococcus_agalactiae_NEM316/NC_004368.gff
+# REFGENOMEGFF:input/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
 
 REFGENOMEPTT:data/NC_007432.ptt
 
 REFGENOMETXDB:data/NC_004350.txdb
 
 # CRAM reference genome FASTA
-CRAMGENOMEFASTA:input/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
+CRAMGENOMEFASTA:input/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
 
 # CRAM Wall Time
 CRAMWALLTIME:12
 
 # Pipeline Wall Time
 QCALIGNDEWALLTIME:12
-
-# File split size for DE counts
-MAXLINEDE:5000000
 
 # Minimum alignment quality score
 MINMAPQ:30

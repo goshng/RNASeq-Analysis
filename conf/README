@@ -14,7 +14,6 @@ CAC_LOGIN:linuxlogin.cac.cornell.edu
 # ------------------
 X11_USERNAME:choi
 X11_LOGIN:compgen
-# X11_ROOT:x11Base
 #
 # Cluster access to job submission
 # --------------------------------
@@ -37,7 +36,3 @@ PARSERNASEQ:usr/bin/ParseRNAseq
 PYTHON:/opt/epd/bin/python2.7
 CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
-
-# SEGEMEHL:src/segemehl_0_0_9_4/segemehl.x
-# BOWTIE:src/bowtie-0.12.7/bowtie
-

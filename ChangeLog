@@ -50,6 +50,28 @@ Histories
 ---------
 This history can be useful later.
 
+Fri May 11 10:33:35 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To open the vignette file of R package smutans.
+----
+> library(smutans)
+> vignette("smutans")
+----
+
+.To create 051112.tar.gz
+----
+vims vince
+package/sagalactiae.Rnw
+----
+
+.To total the numbers of reads
+----
+for i in {2..31}; do cut -f$i count-NC_004368.txt | paste -sd+ - | bc; done
+----
+
+I need to consider 7 comparisons of S. mutans. I also need to consider AEXT01 83
+alignments. 
 
 Thu May  3 17:04:38 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

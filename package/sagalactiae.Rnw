@@ -1,0 +1,178 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color} 
+\usepackage{setspace} 
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{xr}
+
+% Text layout
+\oddsidemargin 0in
+\evensidemargin 0in
+\topmargin -.5in
+\textwidth 6.5in
+\textheight 9in
+\usepackage[labelfont=bf,labelsep=period,justification=raggedright]{caption}
+
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=6,height=6}
+\newcommand{\Rpackage}[1]{R package \textit{#1}}
+\newcommand{\program}[1]{{\texttt{#1}}}
+\newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
+\newcommand{\comment}[1]{}
+
+\makeatother
+\pagestyle{myheadings}
+\markright{Transcriptome of Streptococcus agalactiae}
+
+\begin{document}
+
+\begin{titlepage}
+
+\title{Defining Transcriptome using RNA Sequencing\\
+of {\em Streptococcus agalactiae} }
+
+\author{Vince P.\ Richards$^{1}$, Sang Chul Choi$^{2}$,
+and Adam Siepel$^{2}$, and Michael J.\ Stanhope$^{1}$}
+
+\date{ }
+\maketitle
+\thispagestyle{empty}
+
+\begin{footnotesize}
+\begin{center}
+$^1$Department of Population Medicine and Diagnostic Sciences,\\
+College of Veterinary Medicine, Cornell University, Ithaca, NY 14853, USA
+\\[1ex]
+$^2$Department of Biological Statistics and Computational Biology,\\
+Cornell University, Ithaca, NY 14853, USA
+\end{center}
+\end{footnotesize}
+
+\vspace{1in}
+
+\begin{tabular}{lp{4.5in}}
+{\bf Submission type:}& Research Article
+\vspace{1ex}\\
+{\bf Keywords:}&RNA-seq, non-coding RNAs
+\vspace{1ex}\\
+{\bf Running Head:}&Transcriptome of {\em Streptococcus agalactiae}
+\vspace{1ex}\\ 
+{\bf Corresponding Author:}&
+\begin{minipage}[t]{4in}
+ Adam Siepel\\
+ 102E Weill Hall, Cornell University\\
+ Ithaca, NY 14853\\
+ Phone: +1-607-254-1157\\
+ Fax: +1-607-255-4698\\
+ Email: acs4@cornell.edu
+\end{minipage}
+\end{tabular}
+
+\end{titlepage}
+
+\setcounter{page}{1}
+
+\doublespacing
+
+\section*{ABSTRACT}
+
+A bacterial strain NEM316 of {\em Streptococcus agalactiae} has been known to
+originate in humans. We provide a series of evidence for the hypothesis that it
+is originated from cows. 
+
+\section*{INTRODUCTION}
+
+\section*{RESULTS}
+
+@
+<<echo=FALSE,results=hide>>=
+library(smutans)
+
+for (i in c("NC_004368")) {
+file.1 <- paste("../output/agalactiae/1/bwa/count-",i,".txt", sep="")              
+file.out.1 <- paste(i,"-sag56-A-milk-B-broth-clust.pdf", sep="")                         
+file.out.2 <- paste(i,"-sag56-A-milk-B-broth.csv", sep="")                               
+file.out.3 <- paste(i,"-sag56-A-milk-B-broth.ps", sep="")  
+
+agGenes <-
+  readSmutans(countsFile=file.1,
+              indexFile="../output/agalactiae/1/run-analysis/count.txt.index",
+              condition = c("sag56hm", "sag56hb"),
+              firstFactorLabel = c("NEM316"),
+              secondFactorLabel = c("sag56hm", "sag56hb"),
+              name="S. agalactiae NEM316 in milk versus broth")
+                                                                                
+ag <- newSmutans( agGenes , title="S. agalactiae NEM316 in milk versus broth")
+                                                                                
+pdf(file.out.1)                                                                 
+smutans.de2Clust( ag )                                                          
+dev.off()                                                                       
+                                                                                
+ag <- smutans.de2( ag, type="NEM316", condA="sag56hm", condB="sag56hb")
+smutans.de2List( ag, file=file.out.2 )                                          
+smutans.plotDiffExp(ag,file=file.out.3,qval=0.05)                               
+}
+@
+
+\subsection*{Differential expression of RNA transcripts}
+
+\section*{METHODS}
+
+\subsection*{Bacterial strains and growth conditions}
+
+\subsection*{RNA isolation}
+
+\subsection*{RNA sequencing}
+
+\subsection*{Short reads alignments}
+About 20 millions of short reads were sequenced for each sample                 
+(table \ref{count}).  We used a                                                 
+short read aligner, \program{BWA} \citep{Li2009a}, to map the sequenced short   
+reads on the reference genome, \textit{S.\ mutans} UA159 (NCBI accession        
+NC\_004350). Because the aligner allowed a few gaps for efficient alignments of 
+millions of sequences of size being 100 base pairs long, short reads that       
+consisted of RNAs with sequencing adapter sequences would not be mapped.  We    
+used \program{cutadapt} \citep{Martin2011} to remove parts of adapter sequences 
+from short reads before mapping on the reference genome.  Mapped short read     
+alignments were converted into readable formats using \program{samtools}        
+\citep{Li2009b}.
+
+\subsection*{Transcript predictions}
+
+\subsection*{Prediction of small RNAs and targets}
+
+\subsection*{Experimental validation of small RNAs}
+
+\subsection*{Statistical analysis for differential expressions}
+
+\subsection*{Gene category associations}
+
+\section*{DATA ACCESS}
+
+\section*{ACKNOWLEDGMENTS}
+
+\fixme{Add more peoples or fundings if needed.}
+This study was funded by the National Institute of Allergy and Infectious
+Disease, US National Institutes of Health, under grant number AI073368-01A2
+(to M.J.S.\ and A.S).  Additional support was provided by National Science
+Foundation CAREER Award DBI-0644111 and a David and Lucile Packard
+Fellowship for Science and Engineering (to A.S.).  
+We thank Christopher Browngardt for assistance with labelling functional classes
+of \textit{S.\ mutans} genes.
+
+\section*{FIGURE LEGENDS}
+
+\section*{FIGURES}
+
+\section*{TABLES}
+
+\clearpage{}
+
+\bibliographystyle{mbe}
+\bibliography{siepel-mutans}
+\clearpage{}
+
+\end{document}
+

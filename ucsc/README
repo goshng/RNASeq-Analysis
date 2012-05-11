@@ -1,0 +1,19 @@
+UCSC hgcentral database update
+==============================
+
+.To add SmuUA159v2, and three S. agalactiae
+----
+$ hgsql hgcentral_protected < hgcentral.protected.sql
+----
+
+.Frequenctly used SQL
+----
+mysql> show databases
+mysql> show tables;
+mysql> desc defaultDb;
+----
+
+.To change values of a row in a table
+----
+update defaultDb set name='SmuUA159v2' where genome='S. mutans UA159';
+----

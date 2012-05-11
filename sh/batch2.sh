@@ -148,8 +148,6 @@ function batch2-speciesfile {
   CRAMWALLTIME=$(grep ^CRAMWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   # . pipeline wall time in _QCALIGNDEWALLTIME_
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
-  # . split file size limit in _MAXLINEDE_
-  MAXLINEDE=$(grep ^MAXLINEDE\: $SPECIESFILE | cut -d":" -f2)
   # . minimum alignment mapping quality in _MINMAPQ_
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
   # . set bwa options in _BWAOPTION_
@@ -512,10 +510,6 @@ function copy-data {
   cp \$HOME/$SAMTOOLS samtools
   mkdir -p $CBWADIR
   mkdir -p $CDATADIR
-  for k in ${FASTQFILES[@]}; do
-    FASTQNUM=FASTQ\$(printf "%03d" \$k)
-    cp $RBWADIR/\$FASTQNUM.sorted.bam $CBWADIR
-  done
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
   ./samtools faidx $CDATADIR/$GENOMEFASTA 
 }
@@ -523,8 +517,10 @@ function copy-data {
 function process-data {
   cd \$TMPDIR
   FASTQFILES=( $FASTQFILES )
-  for k in ${FASTQFILES[@]}; do
+  for k in \${FASTQFILES[@]}; do
     FASTQNUM=FASTQ\$(printf "%03d" \$k)
+    cp $RBWADIR/\$FASTQNUM.sorted.bam $CBWADIR
+
     CORESPERNODE=8
     for (( i=1; i<=CORESPERNODE; i++)); do
       g=\$((CORESPERNODE * (PBS_ARRAYID-1) + i))
@@ -532,6 +528,8 @@ function process-data {
       \$RSCRIPT job-coverage.R \$FASTQNUM $CBWADIR/\$FASTQNUM.\$i.sorted.bam \$NUMSPLIT \$g &
     done
     wait
+
+    rm $CBWADIR/\$FASTQNUM.*sorted.bam 
   done
 }
 
@@ -633,6 +631,72 @@ cat("track type=wiggle_0 name=\\"RNA-seq\\" description=\\"RNA-seq\\" visibility
 cat("fixedStep chrom=chr1 start=1 step=1\\n",
     file=wigFile,append=TRUE)
 write(cvg.org,file=wigFile,ncolumns=1,append=TRUE)
+EOF
+
+cat>$BASEDIR/job-$status-start-end.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+RSCRIPT=$CACRSCRIPT
+for k in \${FASTQFILES[@]}; do
+  TESTFASTQNUM=FASTQ\$(printf "%03d" \$k)
+  \$RSCRIPT job-$status-start-end.R \$TESTFASTQNUM $RBWADIR/\$TESTFASTQNUM.sorted.bam
+done
+EOF
+cat>$BASEDIR/job-$status-start-end.R<<EOF
+library(seqbias)
+library(Rsamtools)
+library(ShortRead)
+
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 2)
+{
+  cat ("Rscript 1.R FASTQ001 FASTQ001.bam\\n")
+  quit("no")
+}
+
+bamFile <- args[2]
+aln <- readGappedAlignments(bamFile)
+aln <- as(aln, "GRanges")
+
+ref_fn <- "$RDATADIR/$GENOMEFASTA"
+ref_f <- FaFile( ref_fn )
+open.FaFile( ref_f )
+ref_seqs <- scanFaIndex( ref_f )
+ref_seq <- getSeq(ref_f)
+I.all <- GRanges(seqnames=Rle(c("chr1"),c(2)),
+                 ranges=IRanges(c(1,1),width=rep(width(ref_seq),2)),
+                 strand=Rle(strand(c("+","-")),c(1,1)))
+seqlengths(I.all) <- c(width(ref_seq))
+
+ymlFile <- sprintf("$RBWADIR/%s.yml", args[1])
+sb <- seqbias.load( ref_fn, ymlFile)
+bias <- seqbias.predict( sb, I.all )
+
+s1 <- start(aln)
+s2 <- end(aln)
+s3 <- strand(aln)
+
+lenseq <- width(ref_seq)
+s1 <- start(aln)
+s1 <- s1[as.logical(s3 == '+')]
+s1 <- IRanges(s1, width = 1)
+s1 <- coverage(s1)
+s1 <- as.vector(s1) 
+s1 <- c(s1,rep(0,lenseq - length(s1)))
+s1 <- s1/bias[[1]]
+s2 <- start(aln)
+s2 <- s2[as.logical(s3 == '-')]
+s2 <- IRanges(s2, width = 1)
+s2 <- coverage(s2)
+s2 <- as.vector(s2)
+s2 <- c(s2,rep(0,lenseq - length(s2)))
+s2 <- s2/bias[[2]]
+cvgStart <- s1 + s2
+
+map.readFile <- sprintf("$RBWADIR/%s.start",args[1])
+write(cvgStart,file=map.readFile)
+close.FaFile( ref_f )
+print(paste("Check",map.readFile))
 EOF
 
 }
