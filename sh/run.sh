@@ -71,6 +71,8 @@ source sh/bwa-mpileup.sh
 source sh/transcript-summary.sh
 source sh/job-truncate-reads.sh 
 source sh/job-truncate-reads-local.sh 
+source sh/convert-gff2txdb.sh
+source sh/count-cds.sh
 source sh/batch.sh
 source sh/batch2.sh
 
@@ -96,6 +98,9 @@ CHOICES=( init-file-system \
           ---BATCH---\
 	  batch \
 	  batch2 \
+          ---TXDB---\
+	  convert-gff2txdb \
+	  count-cds \
           ---BWA-ALIGN---\
           cp-genome \
           bwa-index-genome \
@@ -164,6 +169,8 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-summary" ]; then $CHOICE; break
   elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "convert-gff2txdb" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "count-cds" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
   elif [ "$CHOICE" == "batch" ]; then $CHOICE; break

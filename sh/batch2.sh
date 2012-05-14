@@ -904,6 +904,9 @@ function process-data {
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
   cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+
+  NUMBER_READPRIN4=\$(zcat $CBWADIR/FASTQ\$NUM.prinseq.fq.gz | wc -l)
+  NUMBER_READPRIN=\$((NUMBER_READPRIN4 / 4))
    
   # 2. Align the sort reads
   bash job-bwa-align \$NUM \\
@@ -915,7 +918,7 @@ function process-data {
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
   NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
   NUMBER_READ=\$((NUMBER_READ4 / 4))
-  bash job-de \$BAMFILE1 \$NUMBER_READ
+  bash job-de \$BAMFILE1 \$NUMBER_READ \$NUMBER_READPRIN
   cp \$BAMFILE1 $RBWADIR
   cp \$BAMFILE1.cl $RBWADIR
 }
@@ -924,6 +927,40 @@ copy-data
 process-data
 cd
 rm -rf \$TMPDIR
+EOF
+
+cat>$BASEDIR/feature-txnc.txt<<EOF
+###################################################################
+# 4. Number of short reads uniquely mapped on CDS regions
+# Map the uniquely mapped reads on CDS regions
+# Remove strands information
+# 4.1 Reads mapped on CDS tx
+# 4.2 Reads mapped on non CDS tx
+# 4.3 Reads mapped on non-genic tx
+# 4.4 Reads mapped on tx and non-genic tx -> Is this all?
+feature.tx <- transcripts(txdb)
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx)\$tx_id %in% unlist(elementMetadata(feature.cds)\$tx_id)
+# 4.1 Reads mapped on CDS tx
+feature.cds <- feature.tx[x]
+elementMetadata(feature.cds) <- data.frame(tx_id=elementMetadata(feature.cds)\$tx_id, tx_name=elementMetadata(feature.cds)\$tx_name,type="CDS")
+
+# 4.2 Reads mapped on non CDS tx
+feature.nocds <- feature.tx[!x]
+elementMetadata(feature.nocds) <- data.frame(tx_id=elementMetadata(feature.nocds)\$tx_id, tx_name=elementMetadata(feature.nocds)\$tx_name,type="NOCDS")
+
+# 4.3 Reads mapped on non-genic tx
+feature.ng <- transcripts(txdb)
+strand(feature.ng) <- '*'
+feature.ng <- gaps(reduce(feature.ng))
+feature.ng <- feature.ng[strand(feature.ng)=='*']
+# 4.4 Reads mapped on tx and non-genic tx
+x <- seq(from=length(feature.tx)+1,to=length(feature.tx)+length(feature.ng))
+y <- paste("NC",x,sep="_")
+elementMetadata(feature.ng) <- data.frame(tx_id=x,tx_name=y,type="NG") #,stringsAsFactors=FALSE)
+feature.txnc <- c(feature.cds,feature.nocds,feature.ng)
+rm(x,y)
+###################################################################
 EOF
 
 cat>$BASEDIR/job-check<<EOF
@@ -958,6 +995,7 @@ cat>$BASEDIR/job-simulate<<EOF
 RSCRIPT=$CACRSCRIPT
 for i in $TESTFASTQ; do
   TESTFASTQNUM=FASTQ\$(printf "%03d" \$i)
+  rm $RDATADIR/\$TESTFASTQNUM.fq.gz
   \$RSCRIPT job-simulate.R \$TESTFASTQNUM
   gzip $RDATADIR/\$TESTFASTQNUM.fq
   echo Created File: $RDATADIR/\$TESTFASTQNUM.fq.gz
@@ -982,12 +1020,15 @@ if (length(args) != 1)
 cl.file <- sprintf("$RBWADIR/%s.cl", args[1])
 
 txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
-gff.file <- "$RDATADIR/$GENOMEGFF"
+
 
 # saveFeatures and loadFeatures
 txdb <- loadFeatures(txdb.file)
-feature.cds <- cds(txdb, columns="exon_name")
-strand(feature.cds) <- '*'
+EOF
+
+cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-simulate.R 
+cat>>$BASEDIR/job-simulate.R<<EOF
+strand(feature.txnc) <- '*'
 
 genome.file <- "$RDATADIR/$GENOMEFASTA"
 fastq.file <- sprintf("$RDATADIR/%s.fq", args[1])
@@ -1030,11 +1071,11 @@ read.extract <- function (x,y,z,w) {
 s.mutans.sequence <- read.DNAStringSet(genome.file)
 chrom.list <- names(s.mutans.sequence)
 
-stopifnot( length(names(s.mutans.sequence)) == 1 )
+#stopifnot( length(names(s.mutans.sequence)) == 1 )
 for (i in names(s.mutans.sequence)) { 
   cat (i,"\\n")
 
-  geneIR <- ranges(feature.cds[seqnames(feature.cds)==i])
+  geneIR <- ranges(feature.txnc[seqnames(feature.txnc)==i])
 
   geneIR <- geneIR[width(geneIR)>1000]
   geneIR <- geneIR - 100
@@ -1058,7 +1099,7 @@ for (i in names(s.mutans.sequence)) {
   }
 }
 
-olap <- summarizeOverlaps(feature.cds,read.GA,mode="IntersectionStrict")
+olap <- summarizeOverlaps(feature.txnc,read.GA,mode="IntersectionStrict")
 
 cl <- assays(olap)\$counts[,1]
 save(cl,file=cl.file)
@@ -1245,7 +1286,7 @@ cat \$CONFASTQPRINSEQNUM > $CBWADIR/outfile
 #    -out_good stdout | \\
 #  gzip > $CBWADIR/outfile
 
-rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
+#rm $CBWADIR/FASTQ\$1.cutadapt.fq.gz
 mv $CBWADIR/outfile \$3
 EOF
 
@@ -1280,7 +1321,9 @@ fi
   $CBWADIR/$GENOMEFASTA-bwa \\
   $CBWADIR/FASTQ\$1.sai \\
   \$2 \\
-  | ./samtools view -Sb -q $MINMAPQ - > $CBWADIR/FASTQ\$1.bam 
+  | ./samtools view -Sb -q 0 - > $CBWADIR/FASTQ\$1.bam 
+
+#  | ./samtools view -Sb -q $MINMAPQ - > $CBWADIR/FASTQ\$1.bam 
 
 ./samtools sort $CBWADIR/FASTQ\$1.bam \$3 &> /dev/null
 rm $CBWADIR/FASTQ\$1.sai
@@ -1332,6 +1375,7 @@ cat>$BASEDIR/job-samtools-pileup<<EOF
 
 EOF
 
+
 # DE count
 cat>$BASEDIR/job-de.R<<EOF
 library(DESeq)
@@ -1341,68 +1385,75 @@ library(GenomicRanges)
 library(VariantAnnotation)
 library(GenomicFeatures)
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 2)
+if (length(args) != 3)
 {
-  cat ("Rscript job-de.R bam.file 1000\n")
+  cat ("Rscript job-de.R bam.file 1000 1000\n")
   quit("yes")
 }
 txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
 bam.file <- paste(args[1])
-num.total.read <- args[2]
 cl.file <- paste(args[1], "cl", sep=".")
 
 # saveFeatures and loadFeatures
 txdb <- loadFeatures(txdb.file)
 
 # 1. Total number of short reads in fastq: zcat FASTQ051.fq.gz | wc -l
+num.total.read <- args[2]
+# 1.2 Total number of reads that pass filter :N:
+num.n.read <- as.numeric(args[3])
+# 1.3 Show reads mapped in multiple places, then where?
+# ?
+# 2. Number of short reads mapped 
 indexBam(bam.file)
 #bam.what <- c("qname","flag","pos","mapq","cigar")
 #bvAll <- scanBam(bam.file, param=ScanBamParam(what=bam.what))
 bv <- readBamGappedAlignments(bam.file,use.names=TRUE,param=ScanBamParam(what=c("mapq")))
-# 2. Number of short reads mapped 
 # > length(bv)
 num.mapped.read <- length(bv)
 # 3. Number of uniquely mapped short reads
 # Select mapped reads with mapq greater than or equal to $MINMAPQ
+bv.multiple <- bv[elementMetadata(bv)["mapq"][,1] < $MINMAPQ]
 bv <- bv[elementMetadata(bv)["mapq"][,1] >= $MINMAPQ]
 num.unique.read <- length(bv)
-# 4. Number of short reads uniquely mapped on CDS regions
-# Map the uniquely mapped reads on CDS regions
-# Remove strands information
-feature.cds <- cds(txdb, columns="exon_name")
-strand(feature.cds) <- '*'
+
+# Find overlapped genes
+feature.tx <- transcripts(txdb)
+for (i in seq(length(feature.tx))) {
+  x <- findOverlaps(feature.tx[i],feature.tx)
+  stopifnot(length(x) > 0) 
+  if (length(x) > 1) {
+    x <- findOverlaps(feature.tx[i],feature.tx,minoverlap=100L)
+    if (length(x) > 1) {
+      print(i)
+      print(x)
+    }
+  }
+}
+EOF
+
+cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-de.R 
+cat>>$BASEDIR/job-de.R<<EOF
+# Remove strands from both feature and BAM alignments.
+strand(feature.txnc) <- '*'
+
 strand(bv) <- '*'
-stopifnot(length(runValue(seqnames(feature.cds)))==1)
-seqnames(bv) <- rep(runValue(seqnames(feature.cds)),length(bv))
-olap <- summarizeOverlaps(feature.cds, bv,mode="IntersectionStrict")
-sum(assays(olap)\$counts)
+olap <- summarizeOverlaps(feature.txnc,bv,mode="IntersectionStrict")
 cl <- assays(olap)\$counts[,1]
+cl.nc <- cl[elementMetadata(feature.txnc)\$type=="NG"]
 
-# 5. Number of short reads uniquely mapped on non-coding regions
-# Flattened tx
-feature.tx.flat <- transcripts(txdb)
-strand(feature.tx.flat) <- '*'
-feature.tx.flat <- reduce(feature.tx.flat)
+strand(bv.multiple) <- '*'
+olap <- summarizeOverlaps(feature.txnc,bv.multiple,mode="IntersectionStrict")
+cl.multiple <- assays(olap)\$counts[,1]
+cl.multiple.nc <- cl.multiple[elementMetadata(feature.txnc)\$type=="NG"]
+cl.multiple.nocds <- cl.multiple[elementMetadata(feature.txnc)\$type=="NOCDS"]
 
-feature.nc <- transcripts(txdb)
-strand(feature.nc) <- '*'
-feature.nc <- gaps(reduce(feature.nc))
-feature.nc <- feature.nc[-2:-1]
-# sum(width(feature.nc))
-stopifnot(length(runValue(seqnames(feature.nc)))==1)
-seqnames(bv) <- rep(runValue(seqnames(feature.nc)),length(bv))
-olap <- summarizeOverlaps(feature.nc,bv,mode="IntersectionStrict")
-cl.nc <- assays(olap)\$counts[,1]
-# [1] 510054
-sum(width(feature.nc)) + sum(width(feature.tx.flat)) 
-
-save(num.total.read, num.mapped.read, num.unique.read, cl, cl.nc,file=cl.file)
+save(num.total.read, num.n.read, num.mapped.read, num.unique.read, cl, cl.nc, cl.multiple, cl.multiple.nc, cl.multiple.nocds, file=cl.file)
 
 EOF
 
 cat>$BASEDIR/job-de<<EOF
 RSCRIPT=$CACRSCRIPT
-\$RSCRIPT job-de.R \$1 \$2
+\$RSCRIPT job-de.R \$1 \$2 \$3
 EOF
 
 cat>$BASEDIR/job-de-sum<<EOF
@@ -1434,9 +1485,15 @@ if (length(args) != 2)
 }
 txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
 txdb <- loadFeatures(txdb.file)
-feature.cds <- cds(txdb, columns="exon_name")
+EOF
+cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-de-sum.R 
+cat>>$BASEDIR/job-de-sum.R<<EOF
+count.table <- data.frame(gene=elementMetadata(feature.txnc)\$tx_name)
+count.table.multiple <- data.frame(gene=elementMetadata(feature.txnc)\$tx_name)
 
-count.table <- data.frame(gene=unlist(elementMetadata(feature.cds)["exon_name"][,1]))
+#feature.tx <- transcripts(txdb)
+#feature.cds <- cds(txdb, columns="exon_name")
+#count.table <- data.frame(gene=unlist(elementMetadata(feature.cds)["exon_name"][,1]))
 
 table.read.statistics <- c()
 fastQIndex <- scan(args[2])
@@ -1446,21 +1503,37 @@ for (i in fastQIndex) {
   num.total.read <- as.integer(num.total.read)
   table.read.statistics <- 
     rbind(table.read.statistics, 
-    c(i, num.total.read, sprintf("%d (%d)",num.mapped.read, round(num.mapped.read/num.total.read*100)), 
+    c(i, num.total.read, sprintf("%d (%d)",num.n.read, round(num.n.read/num.total.read*100)), 
+                         sprintf("%d (%d)",num.mapped.read, round(num.mapped.read/num.total.read*100)),
+                         sprintf("%d (%d)",sum(cl.multiple.nocds), round(sum(cl.multiple.nocds)/num.total.read*100)),
                          sprintf("%d (%d)",num.unique.read, round(num.unique.read/num.total.read*100)),
 			 sprintf("%d (%d)",sum(cl), round(sum(cl)/num.total.read*100)), 
 			 sprintf("%d (%d)",sum(cl.nc), round(sum(cl.nc)/num.total.read*100))))
   count.table <- data.frame(count.table,cl)
   colnames(count.table)[ncol(count.table)] <- paste("X",i,sep="")
+  count.table.multiple <- data.frame(count.table.multiple,cl.multiple)
+  colnames(count.table.multiple)[ncol(count.table.multiple)] <- paste("X",i,sep="")
 }
 colnames(count.table) <- sub("X","",colnames(count.table))
 count.table.file <- sprintf("%s/count.txt", args[1])
 write.table(count.table,file=count.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
 
-colnames(table.read.statistics) <- c("Sample ID", "Number of reads", "Mapped reads", "Unique reads", "Reads on CDS", "Reads on noncoding regions")
+colnames(count.table.multiple) <- sub("X","",colnames(count.table.multiple))
+count.table.file <- sprintf("%s/count.multiple.txt", args[1])
+write.table(count.table.multiple,file=count.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
+
+# Total reads: Total number of reads in the FASTQ raw file.
+# N pass reads: Number of reads that pass the Illumina :N: filter
+# Mapped reads: Number of reads that mapped on the reference genome
+# Unique reads: Number of reads that are uniquely mapped
+# Reads within regions: Number of reads that are uniquely mapped within regions
+# Reads within nongenic regions: Number of reads that are uniquely mapped within
+#                                nongenic regions
+# Reads within non-CDS: Number of reads that are multiply mapped within non-CDS
+colnames(table.read.statistics) <- c("Sample ID", "Total reads", "N pass reads", "Mapped reads", "Reads within non-CDS", "Unique reads", "Reads within regions", "Reads within nongenic regions")
 x.big <- xtable( as.data.frame(table.read.statistics),
-                 display=c("d","d","s","s","s","s","s"),
-                 align=c('l','r','r','r','r','r','r'),
+                 display=c("d","d","s","s","s","s","s","s","s"),
+                 align=c('l','r','r','r','r','r','r','r','r'),
                  label='count',
                  caption='{\\\\bf Summary statistics of short reads.}'
                )
@@ -1474,9 +1547,9 @@ function batch2-get-data {
   GENOMEGFF=$(basename $REFGENOMEGFF)
 cat>$BASEDIR/get-data.sh<<EOF
 #!/bin/bash
-scp $CAC_USERHOST:$RBWADIR/*.wig $BWADIR
-scp $CAC_USERHOST:$RBWADIR/*.bed2 $BWADIR
-scp $CAC_USERHOST:$RBWADIR/*.operon $BWADIR
+#scp $CAC_USERHOST:$RBWADIR/*.wig $BWADIR
+#scp $CAC_USERHOST:$RBWADIR/*.bed2 $BWADIR
+#scp $CAC_USERHOST:$RBWADIR/*.operon $BWADIR
 # scp $CAC_USERHOST:$RBWADIR/*.sorted.bam $BWADIR
 
 # scp $CAC_USERHOST:$RBWADIR/*rrna $BWADIR
@@ -1492,7 +1565,8 @@ scp $CAC_USERHOST:$RBWADIR/*.operon $BWADIR
 #  scp $CAC_USERHOST:$RSUBREADDIR/\$FASTQNUM.sorted.bam $SUBREADDIR
 #done
 
-#scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
+scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
+scp $CAC_USERHOST:$RBWADIR/count.multiple.txt $BWADIR/count-$REFGENOMEID.multiple.txt
 # scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RDATADIR/*.cram $DATADIR
 # scp $CAC_USERHOST:$RDATADIR/$GENOMEGFF.fa $DATADIR

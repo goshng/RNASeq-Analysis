@@ -50,6 +50,50 @@ Histories
 ---------
 This history can be useful later.
 
+
+Mon May 14 15:11:38 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.S agalactiae analysis
+----
+mkdir -p output/email/to/vince-richards/051412
+Rscript R/vince-richards-051112.R
+Rscript R/vince-richards-051412.R
+----
+
+Sat May 12 10:19:46 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.job-simulate.R has the following line that causes warnings (I think that I can ignore).
+----
+read.GA <- c(read.GA,one.GA)
+----
+
+.job-de.R has the following line that I cannot understand.
+----
+seqnames(bv) <- rep(runValue(seqnames(feature.nc)),length(bv))
+----
+
+I should distinguish CDS genes and non-CDS genes such as tRNA and rRNA. We need
+to look at function makeTranscriptDb more.
+----
+makeTranscriptDb
+feature.tx.flat <- transcripts(txdb)
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx.flat)$tx_id %in% unlist(elementMetadata(feature.cds)$tx_id)
+feature.noCds <- feature.tx.flat[!x]
+length(unlist(elementMetadata(feature.cds)$tx_id))
+----
+1. transcripts with CDS
+2. transcripts with no CDS
+3. regions not in transcripts
+We need to check AEXT parts.
+
+We would need segments of genes and non-genic regions. Ignore overlapped
+regions. If it is a case of complete overlap, use the larger region. If it is a
+case of partial overlaps, cut the middle point. If it is too much overlap, then
+say 50%, I do not know. Still cut the middle point. 
+
 Fri May 11 10:33:35 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,6 +116,13 @@ for i in {2..31}; do cut -f$i count-NC_004368.txt | paste -sd+ - | bc; done
 
 I need to consider 7 comparisons of S. mutans. I also need to consider AEXT01 83
 alignments. 
+
+.To create a gff from a genbank file (S. agalactiae contigs genome)
+----
+bp_genbank2gff3.pl -out stdout AEXT01.gbff > AEXT01.gff                         
+Edit AEXT01.gff to remove sequences.                                            
+Download AEXT01.fasta from NCBI and edit it to change the sequence names.
+----
 
 Thu May  3 17:04:38 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -377,6 +377,8 @@ output/ua159/1/subread/count.txt
 output/ua159/1/run-analysis/count.txt.index
 ----
 
+Menu *count-cds* extracts CDS genes from +count.txt+.
+
 Look at files in +package/smutans+ for seeing how to determine differentially
 expressed genes. Espeically, see the tutorial of the package in 
 +package/smutans/inst/doc/smutans.pdf+.
@@ -1345,6 +1347,7 @@ a FASTA file for a reference genome must be
 Change the names of other sequences accordingly: chr2 for the second chrmosome.
 An incomplete bacterial genome would have multiple contigs, each of which can be
 considered a chromosome. Use a relative path of the file name not a full path.
+We also need to change chromsome name in a gff file as well.
 
 .Reference genomes
 ----
