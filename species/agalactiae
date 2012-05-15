@@ -145,12 +145,12 @@ SINGLECHROMOSOME:TRUE
 #REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.ptt
 #REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.txdb
 
-REFGENOMEID:NC_004368
-REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gbk
-REFGENOMEFASTA:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.fna
-REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gff
-REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.ptt
-REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.txdb
+#REFGENOMEID:NC_004368
+#REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gbk
+#REFGENOMEFASTA:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.fna
+#REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gff
+#REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.ptt
+#REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.txdb
 
 #REFGENOMEID:AEXT01
 #REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gbk
@@ -158,6 +158,13 @@ REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.tx
 #REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.gff
 #REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.ptt
 #REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.txdb
+
+REFGENOMEID:core
+REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gbk
+REFGENOMEFASTA:data/smutans/core/single.fna
+REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gff
+REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.ptt
+REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.txdb
 
 # CRAM reference genome FASTA
 CRAMGENOMEFASTA:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
