@@ -100,6 +100,7 @@ CHOICES=( init-file-system \
 	  batch2 \
           ---TXDB---\
 	  convert-gff2txdb \
+	  convert-bed2txdb \
 	  count-cds \
           ---BWA-ALIGN---\
           cp-genome \
@@ -170,6 +171,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
   elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
   elif [ "$CHOICE" == "convert-gff2txdb" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "convert-bed2txdb" ]; then $CHOICE; break
   elif [ "$CHOICE" == "count-cds" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
   elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break

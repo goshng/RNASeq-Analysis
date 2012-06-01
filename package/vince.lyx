@@ -1,0 +1,156 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\raggedright
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+We compared gene expression of human strains (A909 and CCUG_37738) with
+ that of cow strains (NEM316 and FSL_S3-026) by following the procedure
+ described in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Oshlack2010"
+
+\end_inset
+
+.
+ We have three replicates of RNA-seq for each of the four strains grown
+ in milk condition.
+ We used a short read aligner, 
+\family typewriter
+BWA
+\family default
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Li2009a"
+
+\end_inset
+
+, to map the sequenced short reads on a reference genome that consists of
+ core protein coding DNA sequences of three strains of the four.
+ Because the aligner allowed a few gaps for efficient alignments of millions
+ of sequences of size being 100 base pairs long, thus leaving short reads
+ with sequencing adapter sequences unmapped, we used 
+\family typewriter
+cutadapt
+\family default
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Martin2011"
+
+\end_inset
+
+ to remove parts of adapter sequences from short reads before mapping on
+ the reference genome.
+ Mapped short read alignments were converted into readable formats using
+ 
+\family typewriter
+samtools
+\family default
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Li2009b"
+
+\end_inset
+
+.
+ We counted short reads aligned to annotated genes in the reference genome,
+ forming a table of read counts of the genes.
+ The statistical software 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "R2011"
+
+\end_inset
+
+ with 
+\family typewriter
+DEseq 
+\family default
+
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Anders2010"
+
+\end_inset
+
+ was subsequently employed to infer differentially expressed genes in the
+ human and cow strains.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "/Users/goshng/Documents/Projects/Peach/notes/latex/bib/siepel-mutans"
+options "/Users/goshng/Documents/Projects/Peach/notes/latex/bst/mbe"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

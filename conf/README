@@ -36,3 +36,4 @@ PARSERNASEQ:usr/bin/ParseRNAseq
 PYTHON:/opt/epd/bin/python2.7
 CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
+# CACRSCRIPT:/home/choi/usr/bin/Rscript

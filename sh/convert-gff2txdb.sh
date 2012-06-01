@@ -117,3 +117,70 @@ EOF
     fi
   done
 }
+
+function convert-bed2txdb {
+  PS3="Choose the species for $FUNCNAME: "
+  select SPECIES in ${SPECIESS[@]}; do 
+    if [ "$SPECIES" == "" ];  then
+      echo -e "You need to enter something\n"
+      continue
+    else  
+      echo -n "What repetition do you wish to run? (e.g., 1) "
+      read REPETITION
+      global-variable
+
+      REFGENOMEBED=$(grep ^REFGENOMEBED\: $SPECIESFILE | cut -d":" -f2)
+      if [ "$REFGENOMEBED" == "" ]; then 
+        echo No REFGENOMEBED in $SPECIESFILE; break; 
+      fi
+      REFGENOMETXDB=$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)
+      if [ "$REFGENOMETXDB" == "" ]; then 
+        echo No REFGENOMETXDB in $SPECIESFILE; break; 
+      fi
+
+      RTEMP=$BWADIR/$RANDOM.R
+      COMMAND="Rscript $RTEMP"
+cat>$RTEMP<<EOF
+library(GenomicFeatures)
+bedFile <- "$REFGENOMEBED"
+sm.bed <- read.table(bedFile,header=F)
+sm.bed\$V2 <- sm.bed\$V2 + 1
+transcripts <- 
+  data.frame( tx_id=seq(length(sm.bed\$V1)),
+              tx_name=sm.bed\$V4,
+              tx_chrom=sm.bed\$V1,
+              tx_strand='+',
+              tx_start=sm.bed\$V2,
+              tx_end=sm.bed\$V3 )
+
+splicings <- 
+  data.frame( tx_id=seq(length(sm.bed\$V1)),
+              exon_rank=seq(length(sm.bed\$V1)),
+              exon_start=sm.bed\$V2,
+              exon_end=sm.bed\$V3,
+              exon_name=sm.bed\$V4,
+              cds_start=sm.bed\$V2,
+              cds_end=sm.bed\$V3 )
+
+chrominfo <-
+  data.frame( chrom="chr1",
+              length=sm.bed[length(sm.bed\$V1),]\$V3,
+              is_circular=FALSE )
+
+txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
+saveFeatures(txdb,file="$REFGENOMETXDB")
+print("Check $REFGENOMETXDB")
+EOF
+      if [ "$BATCH" == "YES" ]; then
+        echo $COMMAND >> $BATCHFILE
+      else
+        echo $COMMAND | bash
+        rm $RTEMP
+        echo $RTEMP
+        echo "Edit and run $RTEMP"
+	echo "e.g., Rscript $RTEMP"
+      fi
+      break
+    fi
+  done
+}

@@ -63,31 +63,57 @@ function fastq-summary {
   done
 }
 
+# Try this.
+# As an example, using the data that come with the qrqc package:
+# 
+# First create the plot you want, on the node.
+# > s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
+# > toplot <- qualPlot(s.fastq)
+# > save(list = "toplot", file = "qualPlot.Rdata")
+# 
+# You could do a whole bunch of different plots, and then save them all using
+# > save(list = ("firstplot","secondplot","thirdplot"), file = "myplots.Rdata")
+# 
+# Now move the qualPlot.Rdata file to the head node (or just read it in from the compute node).
+# 
+# > load("qualPlot.Rdata")
+# > library(ggplot2)
+# > plot(toplot)
+# > ggsave("./qualplot.png")
+
 function fastq-summary-using-qrqc {
 FASTQFILESINR=$(echo $FASTQFILES | sed -e 's/[ ]/,/g')
 cat>$RUNANALYSIS/$FUNCNAME.R<<EOF
 library(qrqc)
 fq.quality <- c($QUALITYSCORELISTINR)
 fq.number <- c($FASTQFILESINR)
+datadir <- "$DATADIR"
+bwadir <- "$BWADIR"
 for (i in 1:length(fq.number)) {
-  fq.name <- sprintf("%s/FASTQ%03d.fq.gz", "$DATADIR", fq.number[i])
+  fq.name <- sprintf("%s/FASTQ%03d.fq.gz", datadir, fq.number[i])
   fq.file <- readSeqFile(fq.name,quality=fq.quality[i])
-  makeReport(fq.file, outputDir="$BWADIR")
+  # makeReport(fq.file, outputDir=bwadir)
+  toplot <- qualPlot(fq.file)
+  fq.plot <- sprintf("%s/FASTQ%03d.qualPlot.RData", bwadir, fq.number[i])
+  save(list="toplot", file = fq.plot)
+}
+EOF
+cat>$RUNANALYSIS/$FUNCNAME-plot.R<<EOF
+library(qrqc)
+library(ggplot2)
+fq.quality <- c($QUALITYSCORELISTINR)
+fq.number <- c($FASTQFILESINR)
+datadir <- "$DATADIR"
+bwadir <- "$BWADIR"
+for (i in 1:length(fq.number)) {
+  fq.plot <- sprintf("%s/FASTQ%03d.qualPlot.RData", bwadir, fq.number[i])
+  fq.pdf <- sprintf("%s/FASTQ%03d.qualPlot.pdf", bwadir, fq.number[i])
+  load(fq.plot)
+  pdf(fq.pdf)
+  plot(toplot)
+  dev.off()
 }
 EOF
   echo Use R 2.15 and Bioconductor 2.10!
   echo Rscript-2.15 $RUNANALYSIS/$FUNCNAME.R
 }
-
-#        echo "FASTQ: $FASTQNUM"
-#        echo "FILE: $GZIPFASTAQFILE"
-#        TOTALLENGTH=$(zcat $GZIPFASTAQFILE|wc -l)
-#        TOTALLENGTH=$(($TOTALLENGTH / 4))
-#        echo "The total number of short reads is $TOTALLENGTH"
-#
-#        NUMBERMAPPEDREAD=$(trim $(cat $BWADIR/$FASTQNUM.bed|wc -l))
-#        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-#        echo "The number of mapped reads using BWA is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"
-#        NUMBERMAPPEDREAD=$(trim $(cat $BOWTIEDIR/$FASTQNUM.bed|wc -l))
-#        PERCENTMAPPEDREAD=$(($NUMBERMAPPEDREAD * 100 / $TOTALLENGTH))
-#        echo "The number of mapped reads using Bowtie is $NUMBERMAPPEDREAD ($PERCENTMAPPEDREAD%)"

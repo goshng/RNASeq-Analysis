@@ -150,6 +150,8 @@ function batch2-speciesfile {
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   # . minimum alignment mapping quality in _MINMAPQ_
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
+  # . minimum base quality to trim 3' end in _MINTRIMQ_
+  MINTRIMQ=$(grep ^MINTRIMQ\: $SPECIESFILE | cut -d":" -f2)
   # . set bwa options in _BWAOPTION_
   BWAOPTION=$(grep ^BWAOPTION\: $SPECIESFILE | cut -d":" -f2)
   # . Rscript path in _CACRSCRIPT_
@@ -201,7 +203,7 @@ echo Edit push-data.sh to send cram or fastq files.
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
   FASTQFILE=\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
-  scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
+  # scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
 done
 
 EOF
@@ -900,6 +902,8 @@ function process-data {
 
   # 1. Filter out bad parts and reads
   cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
+
+
   bash job-fastqc \$NUM \\
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
@@ -944,10 +948,14 @@ x <- elementMetadata(feature.tx)\$tx_id %in% unlist(elementMetadata(feature.cds)
 # 4.1 Reads mapped on CDS tx
 feature.cds <- feature.tx[x]
 elementMetadata(feature.cds) <- data.frame(tx_id=elementMetadata(feature.cds)\$tx_id, tx_name=elementMetadata(feature.cds)\$tx_name,type="CDS")
+feature.txnc <- feature.cds
 
 # 4.2 Reads mapped on non CDS tx
 feature.nocds <- feature.tx[!x]
-elementMetadata(feature.nocds) <- data.frame(tx_id=elementMetadata(feature.nocds)\$tx_id, tx_name=elementMetadata(feature.nocds)\$tx_name,type="NOCDS")
+if (length(feature.nocds) > 0) {
+  elementMetadata(feature.nocds) <- data.frame(tx_id=elementMetadata(feature.nocds)\$tx_id, tx_name=elementMetadata(feature.nocds)\$tx_name,type="NOCDS")
+  feature.txnc <- c(feature.txnc,feature.nocds)
+}
 
 # 4.3 Reads mapped on non-genic tx
 feature.ng <- transcripts(txdb)
@@ -955,11 +963,13 @@ strand(feature.ng) <- '*'
 feature.ng <- gaps(reduce(feature.ng))
 feature.ng <- feature.ng[strand(feature.ng)=='*']
 # 4.4 Reads mapped on tx and non-genic tx
-x <- seq(from=length(feature.tx)+1,to=length(feature.tx)+length(feature.ng))
-y <- paste("NC",x,sep="_")
-elementMetadata(feature.ng) <- data.frame(tx_id=x,tx_name=y,type="NG") #,stringsAsFactors=FALSE)
-feature.txnc <- c(feature.cds,feature.nocds,feature.ng)
-rm(x,y)
+if (length(feature.ng) > 0) {
+  x <- seq(from=length(feature.tx)+1,to=length(feature.tx)+length(feature.ng))
+  y <- paste("NC",x,sep="_")
+  elementMetadata(feature.ng) <- data.frame(tx_id=x,tx_name=y,type="NG")
+  rm(x,y)
+  feature.txnc <- c(feature.txnc,feature.ng)
+}
 ###################################################################
 EOF
 
@@ -1259,7 +1269,7 @@ for i in \$(eval echo {0..\$y}); do
     perl pl/prinseq-lite.pl \\
       -ns_max_n 0 \$PHRED64 \\
       -fastq stdin \\
-      -trim_qual_right 30 \\
+      -trim_qual_right $MINTRIMQ \\
       -out_good stdout | \\
     gzip > \$FASTQPRINSEQNUM &
 done
@@ -1282,7 +1292,7 @@ cat \$CONFASTQPRINSEQNUM > $CBWADIR/outfile
 #  perl pl/prinseq-lite.pl \\
 #    -ns_max_n 0 \$PHRED64 \\
 #    -fastq stdin \\
-#    -trim_qual_right 30 \\
+#    -trim_qual_right $MINTRIMQ \\
 #    -out_good stdout | \\
 #  gzip > $CBWADIR/outfile
 
@@ -1347,7 +1357,7 @@ FASTAQFILE=\${2%.gz}
   -o $CSUBREADDIR/FASTQ\$1.sam &> /dev/null
 
 ./samtools view -bS -o $CSUBREADDIR/FASTQ\$1.bam \\
-  -q $MINMAPQ \\
+  -q 0 \\
   $CSUBREADDIR/FASTQ\$1.sam &> /dev/null
 
 ./samtools sort $CSUBREADDIR/FASTQ\$1.bam \$4 &> /dev/null

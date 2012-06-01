@@ -159,12 +159,21 @@ SINGLECHROMOSOME:TRUE
 #REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.ptt
 #REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_FSL_S3-026/AEXT01.txdb
 
-REFGENOMEID:core
+#REFGENOMEID:core
+#REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gbk
+#REFGENOMEFASTA:data/smutans/core/single.fna
+#REFGENOMEBED:data/smutans/core/single.bed
+#REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+#REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.ptt
+#REFGENOMETXDB:data/smutans/core/single.txdb
+
+REFGENOMEID:core2
 REFGENOMEGENBANK:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gbk
-REFGENOMEFASTA:data/smutans/core/single.fna
-REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.gff
-REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.ptt
-REFGENOMETXDB:data/smutans/Streptococcus_agalactiae_NEM316_uid61585/NC_004368.txdb
+REFGENOMEFASTA:test/core/single2.fna
+REFGENOMEBED:test/core/single2.bed
+REFGENOMEGFF:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.gff
+REFGENOMEPTT:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.ptt
+REFGENOMETXDB:data/smutans/core/single2.txdb
 
 # CRAM reference genome FASTA
 CRAMGENOMEFASTA:data/smutans/Streptococcus_agalactiae_A909_uid57935/NC_007432.fna
@@ -177,6 +186,9 @@ QCALIGNDEWALLTIME:12
 
 # Minimum alignment quality score
 MINMAPQ:30
+
+# Minimum base quality to trim 3' end used by prinseq 
+MINTRIMQ:20
 
 # Number of CPUs in compute nodes
 BWAALIGNNCPU:8

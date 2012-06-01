@@ -2,6 +2,8 @@ RNA-Seq Protocols and Analyses
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 
+Let me focus on the comparative study of the 7 strain (species file smu7).
+
 To Do
 -----
 .Immediate term
@@ -13,15 +15,14 @@ To Do
 .Long term
 . Study of evolution of bacterial gene expression 
 
-Jobs to be finished
--------------------
-Compare agal. and tomato.
-
-TODO
-----
-
 S. mutans
 ~~~~~~~~~
+Others - Vince (S. agalactiae)
+         Sangjoon (835P/NP)
+         Sara (pH5/7, NoCSP/CSP)
+         SangChul (Galucose/Galactose)
+         Comparative study of the 7 strains (UA159 and one of the 6 strains)
+
 Tracks
 1. known genes, transcripts, BAM, wiggle BAM tracks, wiggle in log(x+1)
 2. hgcentral_protected is protected? The four DB's are not displayed.
@@ -33,6 +34,9 @@ Tomato
 3. Threshold 3 read depths
 4. Poly-pen analysis
 5. Compare IL and persicum to remove vairants with the same variants.
+
+Check if Bayesian variable selection regression could work for finding
+connection between chemicals and variants.
 
 S. agalactiae
 ~~~~~~~~~~~~~
@@ -50,6 +54,34 @@ Histories
 ---------
 This history can be useful later.
 
+Thu May 31 16:58:24 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Map the 7 RNA-seq samples on UA159.
+
+I am trying to use swiftgen to create figures from qrqc R package.
+
+
+Tue May 29 10:18:14 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Using core genes to create a core genome 
+----
+test/core
+----
+. Create single2.fna and single2.bed by running test/core/run
+. Run convert-bed2txdb using agalactiae species file
+. bash run-qcalignde.sh
+. bash job-de-sum
+. get output/agalactiae/get-data.sh
+
+Tue May 22 09:33:45 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Prepare tux data set. Create an R script.
+----
+R/tux.R
+----
 
 Mon May 14 15:11:38 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

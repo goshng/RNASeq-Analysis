@@ -49,3 +49,32 @@ head(rowMeans( counts( cds, normalized=TRUE ) ))
 # $ fittedDispEsts : num [1:1931] 0.029 0.0293 0.0764 0.0279 0.0319 ...
 # $ df             : int 2
 # $ sharingMode    : chr "maximum"
+
+#
+condA <- "UA159"
+colA <- pData(cds)$condition=="UA159"
+bmv <- getBaseMeansAndVariances( counts(cds)[,colA],sizeFactors(cds)[colA] )
+rawScvA <- fData(cds)[ , paste( "disp", dispTable(cds), sep="_" ) ]
+
+countsA <- counts(cds)[,colA]
+sizeFactorsA <- sizeFactors(cds)[colA]
+dispsA <- rawScvA
+
+kAs <- rowSums( cbind(countsA) )
+# or 
+kAs <- rowSums( countsA )
+# Computes the average and variance of ???.
+mus <- rowMeans( cbind( t( t( countsA ) / sizeFactorsA ) ) )
+
+# fullVarsA is \sigma^2, which is \mu + 
+fullVarsA <- pmax( mus * sum( sizeFactorsA ) + dispsA * mus^2 * sum(sizeFactorsA^2), 
+                   mus * sum( sizeFactorsA ) * (1+1e-8) )
+
+# From R function of negative binomial, \sigma^2=\mu+\mu^2/size.
+# d=1/size, which is sumDispsA, is equal to (\sigma^2 - \mu)/\mu^2, which is the
+# following line. So, mus * sum( sizeFactorsA ) is \mu?
+sumDispsA <- ( fullVarsA - mus * sum( sizeFactorsA ) ) / ( mus * sum( sizeFactorsA ) )^2
+
+
+
+

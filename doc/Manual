@@ -195,6 +195,7 @@ variables would cause problems.
 . cram wall time in _CRAMWALLTIME_
 . pipeline wall time in _QCALIGNDEWALLTIME_
 . minimum alignment mapping quality in _MINMAPQ_
+. minimum base quality to trim 3' end in _MINTRIMQ_
 . set bwa options in _BWAOPTION_
 . Rscript path in _CACRSCRIPT_
 . set _SINGLECHROMOSOME_ to TRUE or FALSE
@@ -542,6 +543,11 @@ Short reads mapped on a reference genome could be filtered out.
 .Minimum mapping quality
 ----
 MINMAPQ:30
+----
+
+.Minimum trimming quality
+----
+MINTRIMQ:20
 ----
 
 .Maximum hours for zipping fastq files

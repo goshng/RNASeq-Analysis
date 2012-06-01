@@ -1,9 +1,10 @@
 library(smutans)
 
 qval <- 0.05
-baseDirectory <- "output/email/to/vince-richards/051412"
+baseDirectory <- "output/email/to/vince-richards/052912"
 
-c.k <- "NC_004368"
+# c.k <- "NC_004368"
+c.k <- "core2"
 file.1 <- paste("output/agalactiae/1/bwa/count-",c.k,".cds.txt", sep="")
 file.out.1 <- paste(baseDirectory,"/",c.k,"-sag56-A-milk-B-broth-clust.pdf", sep="")
 file.out.2 <- paste(baseDirectory,"/",c.k,"-sag56-A-milk-B-broth.csv", sep="")
