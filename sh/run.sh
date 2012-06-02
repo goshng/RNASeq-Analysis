@@ -92,16 +92,21 @@ SPECIESS=$(ls species|grep -v ^sim)
 PS3="Select the menu : "
 CHOICES=( init-file-system \
           choose-species \
-          ---FASTQ---\
-          fastq-summary \
-          fastq-sample \
-          ---BATCH---\
-	  batch \
-	  batch2 \
-          ---TXDB---\
+          ---ANNOTATION---\
 	  convert-gff2txdb \
 	  convert-bed2txdb \
+          feature-genome \
+          ---BATCH---\
+	  batch2 \
 	  count-cds \
+          ---DE---\
+          deseq \
+          ---FASTQ---\
+          fastq-sample \
+          ---TRANSCRIPT---\
+          transcript-genecoverage \
+          transcript-parsernaseq \
+          transcript-summary \
           ---BWA-ALIGN---\
           cp-genome \
           bwa-index-genome \
@@ -110,18 +115,8 @@ CHOICES=( init-file-system \
           bwa-mpileup \
           ---BWA-OTHER---\
           bwa-samtools-wig \
-          bwa-summary \
-          bwa-pos2wig \
-          ---DE---\
-          feature-genome \
-          ---TRANSCRIPT---\
-          transcript-genecoverage \
-          transcript-parsernaseq \
-          transcript-summary \
-          transcript-cufflinks \
           ---SMALL-RNA---\
           rna-rnaz \
-          ---READ-QUALITY-CHECK--- \
           warranty \
           copyright \
           quit )

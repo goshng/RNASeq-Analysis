@@ -24,7 +24,6 @@ function batch2 {
     echo -e "You need to enter something\n"
     continue
   else  
-
     batch2-variable
     batch2-output
     batch2-speciesfile 
@@ -209,6 +208,17 @@ done
 EOF
 }
 
+function batch2-quality-score {
+  QUALITYSCORELIST=""
+  for g in $FASTQFILES; do
+    QUALITYSCORENUM=QUALITYSCORE$(printf "%03d" $g)
+    QUALITYSCORE=$(grep $QUALITYSCORENUM $SPECIESFILE | cut -d":" -f2)
+    QUALITYSCORELIST="$QUALITYSCORELIST \"$QUALITYSCORE\""
+  done
+  QUALITYSCORELISTINR=$(echo $QUALITYSCORELIST | sed -e 's/[ ]/,/g')
+}
+
+
 function batch2-run-fastqc {
   STATUS=fastqc
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
@@ -243,6 +253,7 @@ function copy-data {
 
   # All of the batchjob scripts.
   cp \$PBS_O_WORKDIR/job-fastqc .
+  cp \$PBS_O_WORKDIR/job-stat* .
 
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
@@ -259,10 +270,19 @@ function process-data {
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
 
   cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
+
+  bash job-stat \$NUM $CDATADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData
+  cp $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData $RBWADIR
+
   bash job-fastqc \$NUM \\
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
-  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+  # cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+  
+  bash job-stat \$NUM $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData
+  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData $RBWADIR
 }
 
 copy-data
@@ -883,6 +903,7 @@ function copy-data {
   cp \$PBS_O_WORKDIR/job-bwa-align .
   cp \$PBS_O_WORKDIR/job-de* .
   cp \$PBS_O_WORKDIR/job-de*.R .
+  cp \$PBS_O_WORKDIR/job-stat* .
 
   # Create output directories at the compute node.
   mkdir -p $CDATADIR
@@ -900,14 +921,20 @@ function process-data {
   g=\$((PBS_ARRAYID-1))
   NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
 
-  # 1. Filter out bad parts and reads
   cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
 
+  bash job-stat \$NUM $CDATADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData
+  cp $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData $RBWADIR
 
   bash job-fastqc \$NUM \\
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
-  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.gz $RBWADIR
+
+#  bash job-stat \$NUM $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
+#    $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData
+#  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData $RBWADIR
+
 
   NUMBER_READPRIN4=\$(zcat $CBWADIR/FASTQ\$NUM.prinseq.fq.gz | wc -l)
   NUMBER_READPRIN=\$((NUMBER_READPRIN4 / 4))
@@ -931,6 +958,68 @@ copy-data
 process-data
 cd
 rm -rf \$TMPDIR
+EOF
+
+# $1: fastq file in gzip
+# $2: RData
+# $3: FASTQ number
+grep ^QUALITYSCORE $SPECIESFILE | sed s/:/=/ > $BASEDIR/job-stat
+cat>>$BASEDIR/job-stat<<EOF
+QUALITYSCORESEQUENCE=QUALITYSCORE\$1
+
+# We need more preprocessing of fastq files.
+if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
+  PHRED64=illumina
+else
+  PHRED64=sanger
+fi
+
+RSCRIPT=$CACRSCRIPT
+\$RSCRIPT job-stat.R \$2 \$3 \$PHRED64
+EOF
+
+cat>$BASEDIR/job-stat.R<<EOF
+library(qrqc)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 3)
+{
+  cat ("Rscript job-stat.R 1.fq.gz 1.fq.RData sanger\n")
+  quit("yes")
+}
+fq.name <- args[1]
+fq.quality <- args[3]
+fq.file <- readSeqFile(fq.name,quality=fq.quality)
+toplot <- qualPlot(fq.file)
+fq.plot <- args[2]
+save(list="toplot", file = fq.plot)
+EOF
+
+# bash job-stat-plot
+cat>$BASEDIR/job-stat-plot<<EOF
+RSCRIPT=$CACRSCRIPT
+for i in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$i)
+  \$RSCRIPT job-stat-plot.R $RBWADIR/\$FASTQNUM.fq.qualPlot.RData \\
+    $RBWADIR/\$FASTQNUM.fq.qualPlot.pdf
+  \$RSCRIPT job-stat-plot.R $RBWADIR/\$FASTQNUM.prinseq.fq.qualPlot.RData \\
+    $RBWADIR/\$FASTQNUM.prinseq.fq.qualPlot.pdf
+done 
+EOF
+
+cat>$BASEDIR/job-stat-plot.R<<EOF
+library(ggplot2)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 2)
+{
+  cat ("Rscript job-stat-plot.R 1.RData 2.pdf\n")
+  quit("yes")
+}
+fq.plot <- args[1]
+fq.pdf <- args[2]
+load(fq.plot)
+pdf(fq.pdf)
+plot(toplot)
+dev.off()
 EOF
 
 cat>$BASEDIR/feature-txnc.txt<<EOF
@@ -1267,6 +1356,7 @@ for i in \$(eval echo {0..\$y}); do
 
   gzip -dc \$FASTQCUTADAPTNUM | \\
     perl pl/prinseq-lite.pl \\
+      -no_qual_header \\
       -ns_max_n 0 \$PHRED64 \\
       -fastq stdin \\
       -trim_qual_right $MINTRIMQ \\
@@ -1478,7 +1568,7 @@ FILE=/tmp/\$(basename \$0).\$RANDOM.txt
 echo $FASTQFILES > \$FILE
 for k in {1..1}; do
   RALIGNDIR=RALIGNDIR\$k
-  \$RSCRIPT job-de-sum.R \${!RALIGNDIR} \$FILE
+  \$RSCRIPT job-de-sum.R \${!RALIGNDIR} \$FILE > \${!RALIGNDIR}/stat\$k.tex
 done
 rm \$FILE
 EOF
@@ -1577,6 +1667,8 @@ cat>$BASEDIR/get-data.sh<<EOF
 
 scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
 scp $CAC_USERHOST:$RBWADIR/count.multiple.txt $BWADIR/count-$REFGENOMEID.multiple.txt
+scp $CAC_USERHOST:$RBWADIR/*.qualPlot.pdf $BWADIR
+scp $CAC_USERHOST:$RBWADIR/stat1.tex $BWADIR
 # scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RDATADIR/*.cram $DATADIR
 # scp $CAC_USERHOST:$RDATADIR/$GENOMEGFF.fa $DATADIR
