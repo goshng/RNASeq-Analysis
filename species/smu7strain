@@ -42,47 +42,21 @@ QUALITYSCORE102:sanger
 QUALITYSCORE103:sanger
 QUALITYSCORE104:sanger
 
-# . fastq file indices in _FASTQFILES_
-FASTQFILES:1 6 7 8 11 12 13 19 20
+# 11VS1
+# REPETITION:7
+# FASTQFILES:1 7 19 20
+# FASTQLABEL:UA159 11VS1 UA159 UA159 
+# CACWORKDIR:run/rnaseq/070612
+# REFGENOMEFASTA:data/analysis/smu7/SMU44-11VS1.fa
+# REFGENOMETXDB:data/analysis/smu7/11vs1.txdb
+# 1SM1
+REPETITION:6
+FASTQFILES:1 6 19 20
+FASTQLABEL:UA159 1SM1 UA159 UA159 
+CACWORKDIR:run/rnaseq/070612
+REFGENOMEFASTA:data/analysis/smu7/SMU21-1SM1.fa
+REFGENOMETXDB:data/analysis/smu7/1sm1.txdb
 
-# . fastq file labels in _FASTQLABEL_
-FASTQLABEL:UA159 1SM1 11VS1 15JP3 N29 NLML4 NMT4863 UA159 UA159 
-
-# . cluster working directory in _CACWORKDIR_
-CACWORKDIR:run/rnaseq/051112
-
-# . reference genome ID in _REFGENOMEID_
-REFGENOMEID:NC_004350
-
-# . reference genome genbank file in _REFGENOMEGENBANK_
-REFGENOMEGENBANK:data/analysis/NC_004350.gbk
-
-# . reference genome fasta file in _REFGENOMEFASTA_
-REFGENOMEFASTA:data/analysis/NC_004350.fna
-
-# . reference genome annotation file in _REFGENOMEGFF_
-REFGENOMEGFF:data/analysis/NC_004350.gff
-
-# . reference genome annotation file in _REFGENOMEPTT_
-REFGENOMEPTT:data/analysis/NC_004350.ptt
-
-# . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
-REFGENOMETXDB:data/analysis/NC_004350.txdb
-
-# . set _SINGLECHROMOSOME_ to TRUE or FALSE
-SINGLECHROMOSOME:TRUE
-
-# . pipeline wall time in _QCALIGNDEWALLTIME_
 QCALIGNDEWALLTIME:24
-
-# . minimum alignment mapping quality in _MINMAPQ_
 MINMAPQ:30
-
-# . minimum base quality to trim 3' end in _MINTRIMQ_
 MINTRIMQ:20
-
-# . Rscript path in _CACRSCRIPT_
-CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
-
-# . set _TESTFASTQ_ to integers
-TESTFASTQ:101 102 103 104

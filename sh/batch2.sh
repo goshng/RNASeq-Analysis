@@ -29,6 +29,7 @@ function batch2 {
     batch2-speciesfile 
     batch2-push-data
     batch2-get-data
+    batch2-make-job
 
     ucsc-data
     batch2-run-fastqc
@@ -40,9 +41,9 @@ function batch2 {
     batch2-run-samtools-pileup
 
     # This would replace fastqc, bwa-align, and de.
-    # Because this creates similar job scripts to those created by fastqc,
-    # bwa-align, or de, place qcalignde after them.
     batch2-run-qcalignde
+    # This would create a tux input file
+    batch2-run-tux
 
     create-index
 
@@ -132,17 +133,17 @@ function batch2-speciesfile {
   # . reference genome ID in _REFGENOMEID_
   REFGENOMEID=$(grep ^REFGENOMEID\: $SPECIESFILE | cut -d":" -f2)
   # . reference genome genbank file in _REFGENOMEGENBANK_
-  REFGENOMEGENBANK=$(grep ^REFGENOMEGENBANK\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMEGENBANK=$ROOTANALYSISDIR/$(grep ^REFGENOMEGENBANK\: $SPECIESFILE | cut -d":" -f2)
   GENOMEGENBANK=$(basename $REFGENOMEGENBANK)
   # . reference genome fasta file in _REFGENOMEFASTA_
-  REFGENOMEFASTA=$(grep ^REFGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMEFASTA=$ROOTANALYSISDIR/$(grep ^REFGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
   # . reference genome annotation file in _REFGENOMEGFF_
-  REFGENOMEGFF=$(grep ^REFGENOMEGFF\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMEGFF=$ROOTANALYSISDIR/$(grep ^REFGENOMEGFF\: $SPECIESFILE | cut -d":" -f2)
   # . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
-  REFGENOMETXDB=$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMETXDB=$ROOTANALYSISDIR/$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)
   REFGENOMETXDBBASE=$(basename $REFGENOMETXDB)
   # . cram reference genome fasta file in _CRAMGENOMEFASTA_
-  CRAMGENOMEFASTA=$(grep ^CRAMGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
+  CRAMGENOMEFASTA=$ROOTANALYSISDIR/$(grep ^CRAMGENOMEFASTA\: $SPECIESFILE | cut -d":" -f2)
   # . cram wall time in _CRAMWALLTIME_
   CRAMWALLTIME=$(grep ^CRAMWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   # . pipeline wall time in _QCALIGNDEWALLTIME_
@@ -178,7 +179,7 @@ function batch2-speciesfile {
   PARSERNASEQWALLTIME=$(grep ^PARSERNASEQWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   READDEPTH=$(grep ^READDEPTH\: $SPECIESFILE | cut -d":" -f2)
 
-  REFGENOMEPTT=$(grep ^REFGENOMEPTT\: $SPECIESFILE | cut -d":" -f2)
+  REFGENOMEPTT=$ROOTANALYSISDIR/$(grep ^REFGENOMEPTT\: $SPECIESFILE | cut -d":" -f2)
   DBNAME=$(grep ^DBNAME\: $SPECIESFILE | cut -d":" -f2)
   CLADENAME=$(grep ^CLADENAME\: $SPECIESFILE | cut -d":" -f2)
   GENOMENAME=$(grep ^GENOMENAME\: $SPECIESFILE | cut -d":" -f2)
@@ -201,7 +202,7 @@ scp $REFGENOMEPTT $CAC_USERHOST:$RDATADIR
 echo Edit push-data.sh to send cram or fastq files.
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
-  FASTQFILE=\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
+  FASTQFILE=$ROOTANALYSISDIR/\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
   # scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
 done
 
@@ -861,6 +862,105 @@ rm -rf \$TMPDIR
 EOF
 }
 
+# This creates a shell script for running a submission of a job.
+# For example, run-bwa-align.sh.
+function batch2-make-run-dot-sh {
+cat>$BASEDIR/run-$1.sh<<EOF
+#!/bin/bash
+FASTQFILES=( $FASTQFILES )
+sed s/PBSARRAYSIZE/\${#FASTQFILES[@]}/g < batch-$1.sh > tbatch.sh
+nsub tbatch.sh 
+rm tbatch.sh
+EOF
+}
+
+# We modify a copy of batch2-run-qcalignde function.
+function batch2-run-tux {
+  STATUS=tux
+  GENOMEFASTA=$(basename $REFGENOMEFASTA)
+  batch2-make-run-dot-sh $STATUS
+cat>$BASEDIR/batch-$STATUS.sh<<EOF
+#!/bin/bash
+#PBS -l walltime=${QCALIGNDEWALLTIME}:00:00,nodes=1
+#PBS -A ${BATCHACCESS}
+#PBS -j oe
+#PBS -N $PROJECTNAME-tux
+#PBS -q ${QUEUENAME}
+#PBS -m e
+$EMAILON#PBS -M ${BATCHEMAIL}
+#PBS -t 1-PBSARRAYSIZE
+
+function copy-data {
+  cd \$TMPDIR
+
+  # Programs and scripts.
+  cp -r \$PBS_O_WORKDIR/pl .
+  cp \$HOME/$PRINSEQ pl
+  cp \$HOME/$SAMTOOLS samtools
+  cp \$HOME/$BWA bwa
+
+  # All of the batchjob scripts.
+  cp \$PBS_O_WORKDIR/job-fastqc .
+  cp \$PBS_O_WORKDIR/job-bwa-align .
+  cp \$PBS_O_WORKDIR/job-tux* .
+
+  # Create output directories at the compute node.
+  mkdir -p $CDATADIR
+  mkdir -p $CBWADIR
+  mkdir -p $CSUBREADDIR
+
+  # Copy common data
+  cp $RDATADIR/$GENOMEFASTA $CDATADIR
+}
+
+function process-data {
+  cd \$TMPDIR
+  FASTQFILES=( $FASTQFILES )
+  g=\$((PBS_ARRAYID-1))
+  NUM=\$(printf "%03d" \${FASTQFILES[\$g]})
+
+  cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
+
+  bash job-fastqc \$NUM \\
+    $CDATADIR/FASTQ\$NUM.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
+
+  NUMBER_READPRIN4=\$(zcat $CBWADIR/FASTQ\$NUM.prinseq.fq.gz | wc -l)
+  NUMBER_READPRIN=\$((NUMBER_READPRIN4 / 4))
+   
+  # 2. Align the sort reads
+  bash job-bwa-align \$NUM \\
+    $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
+    $CBWADIR/FASTQ\$NUM.sorted \\
+    $CSUBREADDIR/FASTQ\$NUM.sorted
+
+  # 3. Count short reads
+  BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
+  NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
+  NUMBER_READ=\$((NUMBER_READ4 / 4))
+  bash job-tux \$BAMFILE1 $CDATADIR/$GENOMEFASTA $CBWADIR/FASTQ\$NUM.bam.tux
+  cp $CBWADIR/FASTQ\$NUM.bam.tux $RBWADIR
+
+  echo -en "  - [" > 2.tmp
+  cat $CBWADIR/FASTQ\$NUM.bam.tux | tr "\\n" "," >> 2.tmp
+  sed s/,$// 2.tmp > $CBWADIR/FASTQ\$NUM.bam.tux.array
+  echo -en "]\n" >> $CBWADIR/FASTQ\$NUM.bam.tux.array
+  rm 2.tmp
+  cp $CBWADIR/FASTQ\$NUM.bam.tux.array $RBWADIR
+
+  echo "============================="
+  echo "The content of BWA directory:"
+  ls $CBWADIR
+  echo "============================="
+}
+
+copy-data
+process-data
+cd
+rm -rf \$TMPDIR
+EOF
+}
+
 function batch2-run-qcalignde {
   STATUS=qcalignde 
   GENOMEFASTA=$(basename $REFGENOMEFASTA)
@@ -950,7 +1050,7 @@ function process-data {
   NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
   NUMBER_READ=\$((NUMBER_READ4 / 4))
   bash job-de \$BAMFILE1 \$NUMBER_READ \$NUMBER_READPRIN
-  cp \$BAMFILE1 $RBWADIR
+#  cp \$BAMFILE1 $RBWADIR
   cp \$BAMFILE1.cl $RBWADIR
 }
 
@@ -1087,7 +1187,13 @@ load(sprintf("$RBWADIR/%s.cl", args[1]))
 cl.sim <- cl
 rm(cl)
 
-print(sum(cl.bwa==cl.sim)/length(cl.sim))
+print(paste("Rate of correction for count:",sum(cl.bwa==cl.sim)/length(cl.sim)))
+q("no")
+x <- scan(sprintf("$RBWADIR/%s.tux", args[1]))
+y <- scan(sprintf("$RBWADIR/%s.bam.tux", args[1]))
+print(sum(x==y)/length(x))
+print(paste("Rate of correction for position of reads:",sum(x==y)/length(x)))
+
 EOF
 
 cat>$BASEDIR/job-simulate<<EOF
@@ -1117,6 +1223,7 @@ if (length(args) != 1)
   quit("yes")
 }
 cl.file <- sprintf("$RBWADIR/%s.cl", args[1])
+tux.file <- sprintf("$RBWADIR/%s.tux", args[1])
 
 txdb.file <- "$RDATADIR/$REFGENOMETXDBBASE"
 
@@ -1170,7 +1277,7 @@ read.extract <- function (x,y,z,w) {
 s.mutans.sequence <- read.DNAStringSet(genome.file)
 chrom.list <- names(s.mutans.sequence)
 
-#stopifnot( length(names(s.mutans.sequence)) == 1 )
+lengthChr1 <- 0
 for (i in names(s.mutans.sequence)) { 
   cat (i,"\\n")
 
@@ -1181,6 +1288,7 @@ for (i in names(s.mutans.sequence)) {
   if (length(geneIR) > 0) {
     read.pos <- c(mapply(function(x,y) sample(x:y,size=10,replace=TRUE),start(geneIR),end(geneIR)))
     s.mutans <- s.mutans.sequence[[i]]
+    lengthChr1 <- length(s.mutans)
 
     read.start.end.strand <- mapply(read.loc, read.pos)
     
@@ -1197,11 +1305,22 @@ for (i in names(s.mutans.sequence)) {
                              seq(length(unlist(read.start.end.strand[3,]))))
   }
 }
-
 olap <- summarizeOverlaps(feature.txnc,read.GA,mode="IntersectionStrict")
-
 cl <- assays(olap)\$counts[,1]
 save(cl,file=cl.file)
+print(paste("See cl file",cl.file))
+q("no")
+
+# We assume that a single chromosome genome.
+stopifnot( length(names(s.mutans.sequence)) == 1 )
+count.read <- rep.int(x=0,times=lengthChr1)
+bv <- read.GA
+a <- table(c(start(bv[strand(bv)=='+']), end(bv[strand(bv)=='-'])))
+count.read[as.integer(names(a))] <- as.vector(a)
+print(paste("Creating tux file",tux.file))
+write(count.read,file=tux.file,ncolumns=1)
+
+print(paste("See tux file",tux.file))
 EOF
 
 # CRAM
@@ -1421,9 +1540,8 @@ fi
   $CBWADIR/$GENOMEFASTA-bwa \\
   $CBWADIR/FASTQ\$1.sai \\
   \$2 \\
-  | ./samtools view -Sb -q 0 - > $CBWADIR/FASTQ\$1.bam 
-
-#  | ./samtools view -Sb -q $MINMAPQ - > $CBWADIR/FASTQ\$1.bam 
+  | ./samtools view -Sb -q $MINMAPQ - > $CBWADIR/FASTQ\$1.bam 
+#  | ./samtools view -Sb -q 0 - > $CBWADIR/FASTQ\$1.bam 
 
 ./samtools sort $CBWADIR/FASTQ\$1.bam \$3 &> /dev/null
 rm $CBWADIR/FASTQ\$1.sai
@@ -1516,6 +1634,7 @@ bv.multiple <- bv[elementMetadata(bv)["mapq"][,1] < $MINMAPQ]
 bv <- bv[elementMetadata(bv)["mapq"][,1] >= $MINMAPQ]
 num.unique.read <- length(bv)
 
+# This takes much time.
 # Find overlapped genes
 feature.tx <- transcripts(txdb)
 for (i in seq(length(feature.tx))) {
@@ -1669,6 +1788,7 @@ scp $CAC_USERHOST:$RBWADIR/count.txt $BWADIR/count-$REFGENOMEID.txt
 scp $CAC_USERHOST:$RBWADIR/count.multiple.txt $BWADIR/count-$REFGENOMEID.multiple.txt
 scp $CAC_USERHOST:$RBWADIR/*.qualPlot.pdf $BWADIR
 scp $CAC_USERHOST:$RBWADIR/stat1.tex $BWADIR
+scp $CAC_USERHOST:$RBWADIR/tux.in $BWADIR
 # scp $CAC_USERHOST:$RSUBREADDIR/count.txt $SUBREADDIR/count-$REFGENOMEID.txt
 # scp $CAC_USERHOST:$RDATADIR/*.cram $DATADIR
 # scp $CAC_USERHOST:$RDATADIR/$GENOMEGFF.fa $DATADIR
@@ -2305,4 +2425,61 @@ echo "See $CBWARNAZDIR/target_go.txt"
 
 EOF
   echo "bash $BASEDIR/postprocess-rnaz.sh to analyze RNAz data"
+}
+
+
+###############################################################################
+# job
+###############################################################################
+function batch2-make-job {
+# 1: a sorted bam file
+# 2: a fasta file for the reference genome
+# 3: an output file
+cat>$BASEDIR/job-tux-sum<<EOF
+#!/bin/bash
+rm $RBWADIR/tux.in
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$g)
+  echo -en "  - [" > 2.tmp
+  cat $RBWADIR/\$FASTQNUM.bam.tux | tr "\\n" "," >> 2.tmp
+  sed s/,$// 2.tmp > $RBWADIR/\$FASTQNUM.bam.tux.array
+  echo -en "]\n" >> $RBWADIR/\$FASTQNUM.bam.tux.array
+  rm 2.tmp
+  cat $RBWADIR/\$FASTQNUM.bam.tux.array >> $RBWADIR/tux.in
+done
+echo Check $RBWADIR/tux.in
+EOF
+cat>$BASEDIR/job-tux<<EOF
+RSCRIPT=$CACRSCRIPT
+\$RSCRIPT job-tux.R \$1 \$2 \$3
+EOF
+cat>$BASEDIR/job-tux.R<<EOF
+library(Rsamtools)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 3)
+{
+  cat ("Rscript job-tux.R bam.file a.fasta\n")
+  quit("yes")
+}
+bam.file <- args[1]
+tux.file <- args[3]
+
+# Read the length of a sequence, and create a vector of int of the size being
+# the length.
+ref_fn <-  args[2]
+ref_f <- FaFile( ref_fn ) 
+open.FaFile( ref_f )
+ref_seq <- getSeq(ref_f)
+count.read <- rep.int(x=0,times=width(ref_seq))
+
+indexBam(bam.file)
+
+bv <- readBamGappedAlignments(bam.file)
+a <- table(c(start(bv[strand(bv)=='+']), end(bv[strand(bv)=='-'])))
+# Print this count.read
+# Test with a samle fasta and a sorted bam file
+count.read[as.integer(names(a))] <- as.vector(a)
+write(count.read,file=tux.file,ncolumns=1)
+close.FaFile( ref_f )
+EOF
 }

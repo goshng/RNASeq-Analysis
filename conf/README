@@ -4,6 +4,7 @@
 PROJECTNAME:sm
 RUNMODE:cac
 NUMBERCPU:8
+ROOTANALYSISDIR:/Volumes/Elements/Documents/Projects/RNASeq-Analysis
 #
 # Cluster ID setup
 # ----------------

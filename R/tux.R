@@ -1,8 +1,8 @@
 library(DESeq)
 library(smutans)
 smomzGenes <- 
-  readSmutans (countsFile="output/ua159/1/bwa/count-NC_004350.txt",
-               indexFile ="output/ua159/1/bwa/count-NC_004350.txt.index",
+  readSmutans (countsFile="/Volumes/Elements/Documents/Projects/RNASeq-Analysis/output/tux/1/bwa/count-NC_004350.txt",
+               indexFile="/Volumes/Elements/Documents/Projects/RNASeq-Analysis/output/tux/1/bwa/count-NC_004350.txt.index",
                condition = c("UA159", "NotUA159"), 
                firstFactorLabel = c("ua159"), 
                secondFactorLabel = c("UA159", "NotUA159"),
@@ -14,11 +14,14 @@ pData( smomzGenes )
 smomzGenes <- estimateSizeFactors( smomzGenes )
 
 # Size Factors
-pData( smomzGenes )$sizeFactor
+print(pData( smomzGenes )$sizeFactor)
 
 # Estimate dispersion
 smomzGenes <- estimateDispersions( smomzGenes )
-str( fitInfo(smomzGenes) )
+print(str( fitInfo(smomzGenes) ))
+quit("no")
+# END
+
 cds <- smomzGenes
 max(log10(rowMeans( counts( cds, normalized=TRUE ) )))
 xg <- 10^seq( -.5, max(log10(rowMeans( counts( cds, normalized=TRUE ) ))) + 1, length.out=300 )

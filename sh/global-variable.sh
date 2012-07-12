@@ -20,7 +20,7 @@ function global-variable {
 
   # SPECIES must be set before the call of this bash function. $SPECIESFILE
   # contains a list of Genbank formatted genome file names.
-  SPECIESFILE=$ROOTANALYSISDIR/species/$SPECIES
+  SPECIESFILE=`pwd`/species/$SPECIES
 
   # The subdirectory output contains directories named after the species file.
   # The output species directory would contain all of the results from the

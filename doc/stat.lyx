@@ -1,0 +1,342 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation landscape
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 0.5cm
+\topmargin 0.5cm
+\rightmargin 0.5cm
+\bottommargin 0.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}[ht] 
+\backslash
+begin{center} 
+\backslash
+caption{{
+\backslash
+bf Summary statistics of short reads.}} 
+\backslash
+label{count} 
+\backslash
+begin{tabular}{rrrrrrrr}   
+\backslash
+hline Sample ID & Total reads & N pass reads & Mapped reads & Reads within
+ non-CDS & Unique reads & Reads within regions & Reads within nongenic regions
+ 
+\backslash
+
+\backslash
+    
+\backslash
+hline 1 & 18931854 & 18857392 (100) & 18709228 (99) & 5086242 (27) & 13237075
+ (70) & 11324901 (60) & 1004828 (5) 
+\backslash
+
+\backslash
+    2 & 22160808 & 22081188 (100) & 21870392 (99) & 6240282 (28) & 15281394
+ (69) & 13187611 (60) & 1270663 (6) 
+\backslash
+
+\backslash
+    3 & 20591432 & 20514558 (100) & 20247536 (98) & 6331721 (31) & 13556067
+ (66) & 11827109 (57) & 947131 (5) 
+\backslash
+
+\backslash
+    4 & 20482548 & 20403470 (100) & 19309357 (94) & 8126415 (40) & 10796435
+ (53) & 9211521 (45) & 715457 (3) 
+\backslash
+
+\backslash
+    5 & 22194404 & 22111801 (100) & 20751210 (93) & 7995840 (36) & 12397729
+ (56) & 10696274 (48) & 993324 (4) 
+\backslash
+
+\backslash
+    15 & 26459250 & 24745550 (94) & 23749485 (90) & 12763705 (48) & 10706644
+ (40) & 9056610 (34) & 829640 (3) 
+\backslash
+
+\backslash
+    16 & 28405080 & 26358323 (93) & 25123156 (88) & 12441482 (44) & 12413922
+ (44) & 10523108 (37) & 1106777 (4) 
+\backslash
+
+\backslash
+    17 & 25265930 & 23634903 (94) & 21695839 (86) & 10750262 (43) & 10696932
+ (42) & 9175522 (36) & 826997 (3) 
+\backslash
+
+\backslash
+    18 & 30150475 & 28056148 (93) & 26944749 (89) & 14630662 (49) & 12043885
+ (40) & 10297661 (34) & 945163 (3) 
+\backslash
+
+\backslash
+    19 & 27126795 & 25094910 (93) & 24927646 (92) & 10023745 (37) & 14562001
+ (54) & 12418903 (46) & 1048900 (4) 
+\backslash
+
+\backslash
+    20 & 29068922 & 27048881 (93) & 26914144 (93) & 10499394 (36) & 16055471
+ (55) & 13724237 (47) & 1100686 (4) 
+\backslash
+
+\backslash
+    21 & 28394975 & 26531255 (93) & 26422285 (93) & 13341530 (47) & 12683035
+ (45) & 10984147 (39) & 876343 (3) 
+\backslash
+
+\backslash
+    22 & 26521261 & 24570851 (93) & 24472993 (92) & 11812890 (45) & 12280694
+ (46) & 10653478 (40) & 840561 (3) 
+\backslash
+
+\backslash
+    24 & 26718633 & 25140321 (94) & 24944200 (93) & 10342274 (39) & 14235674
+ (53) & 12127308 (45) & 1113865 (4) 
+\backslash
+
+\backslash
+    25 & 21085728 & 19517661 (93) & 19364791 (92) & 8850726 (42) & 10233177
+ (49) & 8736900 (41) & 751985 (4) 
+\backslash
+
+\backslash
+    26 & 23424941 & 21923133 (94) & 21791535 (93) & 10997073 (47) & 10497213
+ (45) & 9086985 (39) & 802544 (3) 
+\backslash
+
+\backslash
+    27 & 25150263 & 23343823 (93) & 23202813 (92) & 11931857 (47) & 10973156
+ (44) & 9527072 (38) & 821962 (3) 
+\backslash
+
+\backslash
+    23 & 26564118 & 24901172 (94) & 24748961 (93) & 11281644 (42) & 13154919
+ (50) & 11534098 (43) & 903198 (3) 
+\backslash
+
+\backslash
+    28 & 27256837 & 25457422 (93) & 25305944 (93) & 13024371 (48) & 11999162
+ (44) & 10514755 (39) & 705798 (3) 
+\backslash
+
+\backslash
+    29 & 39945186 & 33769987 (85) & 33087057 (83) & 8046098 (20) & 24412221
+ (61) & 21255040 (53) & 2071927 (5) 
+\backslash
+
+\backslash
+    30 & 34223756 & 29016674 (85) & 28392671 (83) & 6517852 (19) & 21332855
+ (62) & 18591230 (54) & 1831444 (5) 
+\backslash
+
+\backslash
+    31 & 32960580 & 27775394 (84) & 27183781 (82) & 6418516 (19) & 20236634
+ (61) & 17615881 (53) & 1736155 (5) 
+\backslash
+
+\backslash
+    32 & 32510829 & 27374733 (84) & 26569566 (82) & 6251625 (19) & 19863662
+ (61) & 17271630 (53) & 1334786 (4) 
+\backslash
+
+\backslash
+    33 & 30945558 & 25992119 (84) & 25125472 (81) & 4504456 (15) & 20255877
+ (65) & 17665916 (57) & 1254043 (4) 
+\backslash
+
+\backslash
+    34 & 37187978 & 31140757 (84) & 30088540 (81) & 6007599 (16) & 23633721
+ (64) & 20553125 (55) & 1690080 (5) 
+\backslash
+
+\backslash
+    35 & 24069310 & 22628243 (94) & 22445563 (93) & 9436517 (39) & 12671727
+ (53) & 11025701 (46) & 871520 (4) 
+\backslash
+
+\backslash
+    36 & 29623909 & 27639083 (93) & 27393541 (92) & 11579465 (39) & 15417278
+ (52) & 13409979 (45) & 1061794 (4) 
+\backslash
+
+\backslash
+    37 & 22549122 & 21089476 (94) & 20919207 (93) & 7778623 (34) & 12857267
+ (57) & 11039360 (49) & 997342 (4) 
+\backslash
+
+\backslash
+    38 & 31690686 & 29971269 (95) & 29748114 (94) & 12892378 (41) & 16488331
+ (52) & 14165153 (45) & 1210636 (4) 
+\backslash
+
+\backslash
+    39 & 27305662 & 25605734 (94) & 25422122 (93) & 9419437 (34) & 15639720
+ (57) & 13416561 (49) & 1289297 (5) 
+\backslash
+
+\backslash
+    40 & 14138922 & 13208894 (93) & 12032780 (85) & 4851398 (34) & 7032924
+ (50) & 6106197 (43) & 404782 (3) 
+\backslash
+
+\backslash
+    41 & 27379223 & 25682849 (94) & 22926531 (84) & 12192992 (45) & 10417739
+ (38) & 9076502 (33) & 740074 (3) 
+\backslash
+
+\backslash
+    42 & 32993231 & 30802282 (93) & 20405278 (62) & 7878414 (24) & 12291045
+ (37) & 10650957 (32) & 742532 (2) 
+\backslash
+
+\backslash
+    43 & 26147742 & 24343935 (93) & 23314989 (89) & 10073701 (39) & 12948491
+ (50) & 11220421 (43) & 898807 (3) 
+\backslash
+
+\backslash
+    44 & 13922449 & 12966885 (93) & 12905641 (93) & 6465229 (46) & 6202125
+ (45) & 5325335 (38) & 419835 (3) 
+\backslash
+
+\backslash
+    45 & 6638158 & 6280050 (95) & 6255483 (94) & 3325744 (50) & 2821566
+ (43) & 2417164 (36) & 194021 (3) 
+\backslash
+
+\backslash
+    46 & 7555868 & 7024339 (93) & 6988802 (92) & 3259812 (43) & 3600465
+ (48) & 3083802 (41) & 241040 (3) 
+\backslash
+
+\backslash
+    47 & 7138500 & 6736787 (94) & 6711466 (94) & 3630015 (51) & 3003539
+ (42) & 2631794 (37) & 184257 (3) 
+\backslash
+
+\backslash
+    48 & 15226185 & 14392716 (95) & 14340252 (94) & 7160839 (47) & 6998130
+ (46) & 6136369 (40) & 418969 (3) 
+\backslash
+
+\backslash
+    49 & 16185894 & 15251561 (94) & 15186927 (94) & 7142095 (44) & 7861336
+ (49) & 6899460 (43) & 457945 (3) 
+\backslash
+
+\backslash
+    50 & 7230757 & 6866326 (95) & 6710668 (93) & 3403398 (47) & 3200823
+ (44) & 2770195 (38) & 210563 (3) 
+\backslash
+
+\backslash
+    51 & 15166944 & 14333541 (95) & 14133023 (93) & 8355908 (55) & 5522478
+ (36) & 4825707 (32) & 512190 (3) 
+\backslash
+
+\backslash
+    52 & 15124892 & 14327839 (95) & 13941681 (92) & 6410854 (42) & 7318561
+ (48) & 6337446 (42) & 436804 (3) 
+\backslash
+
+\backslash
+    53 & 22386573 & 21282291 (95) & 20840643 (93) & 11288145 (50) & 9321273
+ (42) & 8195762 (37) & 582262 (3) 
+\backslash
+
+\backslash
+    54 & 14098749 & 13326278 (95) & 13062931 (93) & 7326747 (52) & 5580457
+ (40) & 4891420 (35) & 385435 (3) 
+\backslash
+
+\backslash
+    55 & 21472539 & 20350269 (95) & 19937208 (93) & 11613257 (54) & 8093738
+ (38) & 7095072 (33) & 536255 (2) 
+\backslash
+
+\backslash
+     
+\backslash
+hline 
+\backslash
+end{tabular} 
+\backslash
+end{center} 
+\backslash
+end{table} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

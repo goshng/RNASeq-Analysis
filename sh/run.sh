@@ -18,8 +18,6 @@
 # along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-ROOTANALYSISDIR=`pwd`
-
 #####################################################################
 # External shell scripts
 #####################################################################
@@ -75,6 +73,7 @@ source sh/convert-gff2txdb.sh
 source sh/count-cds.sh
 source sh/batch.sh
 source sh/batch2.sh
+source sh/batch3.sh
 
 #####################################################################
 # Read configuration file
@@ -97,7 +96,7 @@ CHOICES=( init-file-system \
 	  convert-bed2txdb \
           feature-genome \
           ---BATCH---\
-	  batch2 \
+	  batch3 \
 	  count-cds \
           ---DE---\
           deseq \
@@ -172,6 +171,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
   elif [ "$CHOICE" == "batch" ]; then $CHOICE; break
   elif [ "$CHOICE" == "batch2" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "batch3" ]; then $CHOICE; break
   elif [ "$CHOICE" == "quit" ]; then break
   else
     echo -e "You need to enter something\n"

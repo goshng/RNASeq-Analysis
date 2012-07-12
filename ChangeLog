@@ -2,7 +2,9 @@ RNA-Seq Protocols and Analyses
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 
-Let me focus on the comparative study of the 7 strain (species file smu7).
+Let me focus on the comparative study of the 7 strain (species file smu7). See
+run/rnaseq/070612
+run/rnaseq/051112
 
 To Do
 -----
@@ -53,6 +55,63 @@ S. agalactiae
 Histories
 ---------
 This history can be useful later.
+
+Mon Jul  9 17:15:10 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We copy batch2 to create batch3. I wish to refine the script by removing
+duplicate files such as ptt files. 
+
+Fri Jul  6 10:01:56 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The hardest part in DE study is to compile a gene list, especially when I have
+customized gene lists. I need to prepare two gene lists. One is from UA159, and
+another from each of the 6 strains. Find the six strains in data directory of
+the archive. The annnotation website xbase appears to annotate genes. Some of
+them are found in UA159, and some of them are not. This is some thing that I
+might want to use.
+---
+/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/analysis/smu7
+---
+I used xbase website to annotate 
+---
+SMU20-15JP3.fa    SMU44-11VS1.fa    SMU57-NMT4863.fa  SMU69-NLML4.fa
+SMU21-1SM1.fa     SMU56-N29.fa      
+---
+to have genbank files
+----
+11vs1.gbk    15jp3.gbk    1sm1.gbk     n29.gbk      nlml4.gbk    nmt4863.gbk
+----
+We extract gff files from the genbank files. The gff file contains chromosome
+names that must be chr#. We change the chromosome names.
+----
+for i in `ls *.gff`; do perl chr1.pl < $i > $i.gf3; done
+----
+We then create txdb files.
+----
+for i in `ls *.gf3`; do Rscript xbasegff2txdb.R $i; done
+----
+Note that entries of gene type contains CDS and non-CDS. CDS genes are also
+found in UA159. non-CDS genes are not found. non-CDS genes could be unique to
+each strain.
+
+Now, we have gene annotations for the six strains. We compare UA159 and each of
+the six strains using either UA159 genome or the strain genome. We use the
+reference genome to count genes. We do this first. Then, we use each of the
+strain genomes to count genes in the strain genome but using UA159 and the
+strain RNA-seq data. 
+
+Thu Jul  5 17:12:15 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use http://www.xbase.ac.uk/annotation to annotate strains in data/analysis/smu7.
+Copy the annotated genbank file to cac where I can run bp_genbank2gff3.pl to
+convert the genbank file to a gff file. 
+----
+cat seq.gbk | perl bp_genbank2gff3.pl -noCDS -in stdin -out stdout > seq.gff
+----
+Use the gff files to have txdb files.
+
 
 Thu May 31 16:58:24 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

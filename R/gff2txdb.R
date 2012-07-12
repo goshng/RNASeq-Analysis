@@ -1,15 +1,17 @@
 library(DESeq)
 library(ShortRead)
-library(rtracklayer)
 library(GenomicRanges)
 library(VariantAnnotation)
 library(GenomicFeatures)
+
+library(rtracklayer)
 gffFile <- "data/NC_004350.gff"
 sm.gff <- import.gff3(gffFile)
 sm.source <- sm.gff[1,] #sm.gff$type=="region",]
+
 sm.gene <- sm.gff[sm.gff$type=="gene",]
-sm.exon <- sm.gff[sm.gff$type=="exon",]
 sm.CDS <- sm.gff[sm.gff$type=="CDS",]
+sm.source <- sm.gff[sm.gff$type=="DNA",]
 
 transcripts <- 
   data.frame( tx_id=seq(length(sm.gene$locus_tag)),
@@ -22,10 +24,17 @@ transcripts <-
 # Compare CDS and gene locus tags
 x <- c()
 y <- c()
+# z <- unlist(sm.CDS$Parent)
+z <- unlist(sm.CDS$locus_tag)
 for (i in sm.gene$ID) {
-  if (sum(unlist(sm.CDS$Parent) == i) > 0) {
-    x <- c(x,start(sm.CDS)[unlist(sm.CDS$Parent) == i])
-    y <- c(y,end(sm.CDS)[unlist(sm.CDS$Parent) == i])
+  if (sum(z == i) > 0) {
+    if (length(start(sm.CDS)[z == i]) != 1) {               
+      print(paste("Check",gffFile))
+      print(start(sm.CDS)[z == i])                          
+      stop(paste("There are multiple CDS for",i))
+    }
+    x <- c(x,start(sm.CDS)[z == i])
+    y <- c(y,end(sm.CDS)[z == i])
   } else {
     x <- c(x,NA)
     y <- c(y,NA)
@@ -33,7 +42,7 @@ for (i in sm.gene$ID) {
 }
 grCDS.start <- x
 grCDS.end <- y
-rm(i,x,y)
+rm(i,x,y,z)
 
 # 
 splicings <- 
@@ -50,8 +59,7 @@ chrominfo <-
               length=end(sm.source),
               is_circular=FALSE )
 
-TxDb.Smutans.UA159.uid57947.knownGene <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
-txdb <- TxDb.Smutans.UA159.uid57947.knownGene 
+txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
 saveFeatures(txdb,file="data/NC_004350.txdb")
 print("Check data/NC_004350.txdb")
 q("no")

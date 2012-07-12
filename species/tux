@@ -2,9 +2,9 @@
 # ================================================
 
 # . fastq files
-FASTQ001:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/downloadalllocal/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
-FASTQ019:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/downloadalllocal/2702_UA159-1_R1.fastq.gz
-FASTQ020:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/downloadalllocal/2703_UA159-2_R1.fastq.gz
+FASTQ001:data/downloadalllocal/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
+FASTQ019:data/downloadalllocal/2702_UA159-1_R1.fastq.gz
+FASTQ020:data/downloadalllocal/2703_UA159-2_R1.fastq.gz
 
 # . adapter sequences
 ADAPTER001:GATCGGAAGAGCACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTTG

@@ -37,10 +37,12 @@ function convert-gff2txdb {
 cat>$RTEMP<<EOF
 library(DESeq)
 library(ShortRead)
-library(rtracklayer)
 library(GenomicRanges)
 library(VariantAnnotation)
 library(GenomicFeatures)
+
+# Necessary R packages
+library(rtracklayer)
 gffFile <- "$REFGENOMEGFF"
 sm.gff <- import.gff3(gffFile)
 sm.source <- sm.gff[1,] #sm.gff$type=="region",]
@@ -70,7 +72,7 @@ for (i in sm.gene\$ID) {
     if (length(start(sm.CDS)[z == i]) != 1) {               
       print(paste("Check",gffFile))
       print(start(sm.CDS)[z == i])                          
-      stop(paste("There are multiple CDS for",i))                               
+      stop(paste("There are multiple CDS for",i))
     }
     x <- c(x,start(sm.CDS)[z == i])
     y <- c(y,end(sm.CDS)[z == i])
@@ -184,3 +186,5 @@ EOF
     fi
   done
 }
+
+

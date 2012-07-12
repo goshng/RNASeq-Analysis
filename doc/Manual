@@ -66,6 +66,13 @@ Quick Start
 .Compare two gene expression
 . Use smutans R package.
 
+.Create a tux input file
+. Run +run-tux.sh+ at _CACWORKDIR_
+. Run +job-tux-sum+ at _CACWORKDIR_
+. Run +output/your species name/get-data.sh+
+. Check +tux.in+ file
+. Check also +R/tux.R+ to find size factors and two alphas.
+
 Menus
 -----
 *RNAseq Analysis* menus provide users with access to commands for analyzing
@@ -576,6 +583,20 @@ are allowed. Give a project name as follows.
 PROJECTNAME:streptoccus
 ----
 
+All of the output files from *RNAseq Analysis* created in +output+ directory. We
+might want to have a separate hard drive for saving those files because output
+files can grow larger than any files in the main source files. We used a
+symbolic link +output+ at the main directory to point to another directory that
+is in a big hard drive. I want to work on the source code *RNAseq Analysis* in
+Dropbox so that I can work at other places than the computer. I could use github
+to update the source at one place, and pull the source at another place. This is
+tedious. One final compromise is to set the output directory directly in the
+configuration. Set _ROOTANALYSISDIR_ to a full file path. 
+
+----
+ROOTANALYSISDIR:/path/to/RNASeq-Analysis
+----
+
 We allow three modes of using *RNAseq Analysis*: local, remote, or cac.
 
 .To execute jobs in your local machine
@@ -1014,7 +1035,6 @@ problems.
 . fastq files
 . quality score scheme
 . adapter sequences
-. cram data directory in _CRAMDIR_ (NOTYET)
 . fastq file indices in _FASTQFILES_
 . fastq file labels in _FASTQLABEL_
 . cluster working directory in _CACWORKDIR_
@@ -1025,28 +1045,24 @@ problems.
 . reference genome annotation file in _REFGENOMEPTT_
 . reference genome annotation TrancriptDb file in _REFGENOMETXDB_
 . set _SINGLECHROMOSOME_ to TRUE or FALSE
-. cram reference genome fasta file in _CRAMGENOMEFASTA_ (NOTYET)
-. cram wall time in _CRAMWALLTIME_ (NOTYET)
 . pipeline wall time in _QCALIGNDEWALLTIME_
 . minimum alignment mapping quality in _MINMAPQ_
 . minimum base quality to trim 3' end in _MINTRIMQ_
 . Rscript path in _CACRSCRIPT_
 . set _TESTFASTQ_ to integers
-. set _BWAALIGNWALLTIME_ to an integer
-. set bwa options in _BWAOPTION_
 
 fastq files
 ~~~~~~~~~~~
-Firstly, place fastq files in your file system or somewhere in the computer.
+Firstly, place fastq files in your _ROOTANALYSISDIR_ in the computer.
 Then, specify locations of the fastq files. Variables are prefixed _FASTQ_ with
 three-digit numbers with zeros prepended. Currently, the file extension must be
 fq and files must be zipped using +gzip+. So, files should end with +fq.gz+. Use
-a full path.
+a path relative to _ROOTANALYSISDIR_ directory.
 
 .fastq files
 ----
-FASTQ001:/path/to/file1.fq.gz
-FASTQ002:/path/to/file2.fq.gz
+FASTQ001:path/to/file1.fq.gz
+FASTQ002:path/to/file2.fq.gz
 ----
 
 quality score
@@ -1114,11 +1130,25 @@ REFGENOMEID:NC_004350
 ----
 
 Set the path of a reference genome genbank file in _REFGENOMEGENBANK_. Use a
-path relative to your base directory. For example, you would have a directory
-called +data+ in *RNASeq-Analysis* directory. Do not use a full path.
+path relative to your _ROOTANALYSISDIR_ directory. For example, you would have a directory
+called +data+ in *RNASeq-Analysis* _ROOTANALYSISDIR_ directory. 
+Use a path relative to _ROOTANALYSISDIR_ directory. 
 
 ----
-REFGENOMEGENBANK:data/NC_004350.gbk
+REFGENOMEGENBANK:path/to/NC_004350.gbk
+----
+
+The path _ROOTANALYSISDIR_ must be set in the configuration file, or
++conf/README+ (see the section <<Configuration>>).
+
+----
+ROOTANALYSISDIR:/path/to/RNASeq-Analysis
+----
+
+So the genbank file must be at 
+
+----
+/path/to/RNASeq-Analysis/path/to/NC_004350.gbk
 ----
 
 To map short reads on a reference genome, you must specify the file paths of
@@ -1136,14 +1166,15 @@ For example, the first line of a FASTA file for a reference genome must be
 
 Change the names of other sequences accordingly: chr2 for the second chrmosome.
 An incomplete bacterial genome would have multiple contigs, each of which can be
-considered a chromosome. Use a relative path of the file name not a full path.
+considered a chromosome. 
+Use a path relative to _ROOTANALYSISDIR_ directory. 
 Note that we also have to change chromsome name in a gff file as well. If there
 are other annotation files, change the names accordingly.
 
 .Reference genomes
 ----
-REFGENOMEFASTA:data/NC_004350.fna
-REFGENOMEGFF:data/NC_004350.gff
+REFGENOMEFASTA:data/to/NC_004350.fna
+REFGENOMEGFF:path/to/NC_004350.gff
 ----
 
 If there are multiple sequences in the reference FASTA file, then 
@@ -1156,17 +1187,17 @@ SINGLECHROMOSOME:TRUE
 We use genome annotations from different sources. We could use a genbank file, a
 gff file, or ptt file. I do not know what annotation files I should use. We
 can extract annotations from a genbank file. In the mean time, we also need to
-provide ptt file.
+provide ptt file.  Use a path relative to _ROOTANALYSISDIR_ directory. 
 
 ----
 REFGENOMEPTT:data/NC_004350.ptt
 ----
 
 We can convert a gff file to a txdb file. See +R/gff2txdb.R+ for detail.
+Use a path relative to _ROOTANALYSISDIR_ directory. 
 
-.Reference genome annotation TrancriptDb file
 ----
-REFGENOMETXDB:data/NC_004350.txdb
+REFGENOMETXDB:path/to/NC_004350.txdb
 ----
 
 pipeline wall time
@@ -1256,35 +1287,93 @@ RNAZNNODE:1
 RNAZWALLTIME:144
 ----
 
-SHELL variables
----------------
-The directory +sh+ contains a number of BASH SHELL scripts. I describe some of
-SHELL often-used variables.
+Bash variables
+--------------
+The directory +sh+ contains a number of BASH SHELL scripts. I describe 
+often-used variables.
 
 .fastQ file name variable
 ----
 FASTQNUM=FASTQ$(printf "%03d" $g)
 ----
+
+batch3.sh
+~~~~~~~~~
+
+Function _batch3-variable_ creates often-used shell variables.
+_ROOTANALYSISDIR_ is set to a full file path by configuration.
+_SPECIESFILE_ is the species file name relative to the directory where a +run+
+is executed. _OUTPUTDIR_ is the output directory relative to _ROOTANALYSISDIR_. 
+_BASEDIR_ is the species filenamed directory at _OUTPUTDIR_. _NUMBERDIR_ is a
+directory 1 (repetition number) at _BASEDIR_. _DATADIR_ is placed at
+_NUMBERDIR_. _BWADIR_ is also at _NUMBERDIR_, and so is _RUNANALYSIS_. Consider
+that _DATADIR_ contains input files, _BWADIR_ contains processed files, and
+_RUNANALYSIS_ contains output files. We have similar directory names in a remote
+machine: _RBASEDIR_, _RNUMBERDIR_, _RDATADIR_, _RBWADIR_, and _RANALYSISDIR_.
+We have similar directory names in a computing machine:
+_CBASEDIR_, _CNUMBERDIR_, _CDATADIR_, _CBWADIR_, and _CANALYSISDIR_.
+
+Function _batch3-output_ creates _DATADIR_, _BWADIR_, and _RUNANALYSIS_
+directories.
+
+Function _batch3-speciesfile_ creates shell variables set by _SPECIESFILE_.
+_FASTQFILES_ is a list of numbers separated by spaces. _FASTQLABEL_ is a list of
+sample names. _CACWORKDIR_ is the directory at which we submit jobs. 
+_REFGENOMEFASTA_ and _REFGENOMETXDB_ are genbank and TranscriptDb files. They
+should be at _ROOTANALYSISDIR_.  _QCALIGNDEWALLTIME_ is the limit of execution
+time in hours.  _MINMAPQ_ is the minimum alignment mapping quality.
+_MINTRIMQ_ is the minimum base quality to trim 3' end. 
+
+Function _batch3-push-data_ help send files to the remote machine for job
+submission by creating a shell script, +push-data.sh+. Execute the shell script
+to send files for processing.
+
+Function _batch3-get-data_ creates a shell script to get resulting files from
+the remote machine. The files are +count.txt+, +count.multiple.txt+,
++qualPlot.pdf+, and +stat1.tex+.
+
+Function _batch3-run-qcalignde_ creates most of shell and R scripts. 
+
+File +run-qcalignde.sh+ is the main script to be executed when submitting jobs
+to the cluster. It replaces a string named PBSARRAYSIZE with the number of FASTQ
+files in +batch-qcalignde.sh+, and submit the batch file.
+
+File +batch-qcalignde.sh+ is the batch script that is submitted to the cluster.
+A function called +process-data+ in the batch script executes a series of jobs
+for a FASTQ file. It first copies a FASTQ file from the remote data directory
+called _RDATADIR_. We should find the FASTQ file in the remote data directory.
+The file is copied to the parallel directory in the compute node, _CDATADIR_.
+We use +job-stat+ to process the FASTQ file. 
+We use +job-fastqc+ to remove parts of or whole short reads with low quality.
+We use +job-bwa-align+ to align reads to a reference genome.
+We use +job-de+ to count reads aligned to the reference genome.
+
+Function _batch3-make-job_ creates all of the job files in shell and R scripts.
+Bash script +job-stat+ takes a three-digit number, a gzipped FASTQ file name,
+and an output RData file name.
+Bash script +job-fastqc+ takes a three-digit number, a gzipped FASTQ file name,
+and another gzipped FASTQ file name (output). 
+Bash script +job-bwa-align+ takes a three-digit number (FASTQ ID), an input
+gzipped FASTQ file name, and an output BAM file base name without the extension
+of bam.
+Bash script +job-de+ takes a sorted BAM file, the number of reads in the sorted
+BAM file, and the number of reads in FASTQ file used as an input to bash script
++job-bwa-align+.
+Bash scripts +job-simulate+ and +job-check+ create a small test data to check
+the alignment and count procedure.
+
+File +feature-txnc.txt+ contains R scripts to use the txdb file specified in a spceis file. This could be the key file for handling gene annotations. This file is added to R script files: +job-de.R+, +job-de-sum.R+, and +job-simulate.R+. We use R function _transcripts_ to extract regions, on which we count reads mapped. R function _cds_ extracts CDS regions. R package _GenomicFeatures_ features the two functions. I need a simple example files for handling R scripts. They are easy to use, and also easy to forget. Let's see what it does. We construct a transcript map with meta data. A transcript is of type being either "CDS" or "NOCDS." Regions not within the transcript map are of type being "NG." An R variable called _feature.txnc_ contains transcripts with 6 columns: seqnames, ranges, strand, tx_id, tx_name, and type. 
+
+R script file +job-de.R+ takes takes a sorted BAM file, the number of reads in the sorted BAM file, and the number of reads in FASTQ file used as an input to bash script +job-bwa-align+. This is the same list of arguments as those of +job-de+. The first argument is used create the output file name by appending ".cl" to the sorted bam file. R package GenomicFeatures is used to extract annotation. The statistics of short reads are incomplete (FIXME). It bothers me that I did not have a complete information about statistics. R package GenomicRanges features summarizeOverlaps, which counts short reads mapped on amap of transcripts. _cl_ contains counts. _cl.nc_ is a subset of _cl_ for nongenic regions. _cl.multiple_ contains reads mapped on multiple places. _cl.multiple.nc_ is a subset of nongenic regions of _cl.multiple_. _cl.multiple.nocds_ is a subset of non-CDS regions of _cl.multiple_. The transcript map in txdb contains genes, non-genic "NG", and non-CDS "NOCDS". We have 4 values for the number of reads. _num.total.read_ is the number of total reads in the FASTQ file. We align _num.n.read_ reads on a reference genome. The bam file contains _num.mapped.read_ reads. Among them _num.unique.read_ reads are aligned with minimum quality score, _MINMAPQ_. _bv_ is an R _GappedAlignments_ object returned by R function _readBamGappedAlignments_ of package _Rsamtools_. _bv_ contains mapped reads with minimum of _MINMAPQ_ mapping quality score. _bv.multiple_ is an R _GappedAlignments_ object that contains mapped reads with mapping quality score less than _MINMAPQ_. We report overlapping genes. ``Now, I see a little bit what I did.'' 
+
+R function _makeTranscriptDb_ requires a few R data frames in its arguments. An argument, transcripts, consists of transcript ID (integer), transcript name (character), chromosome name (character), strand ("+", "-"), start position (integer), end position (integer). A second argument, splicings, consists of transcript ID (integer A), exon ID (integer B), exon name (character), exon start and end (integers), cds start and end (integers). We create a txdb file based on the following rationale. An exon is a transcript. The exon or the transcript may contain a CDS. See the R script in _feature-txnc.txt_ how a txdb file is used.
+
+Bash script +job-de-sum+ calls its R script. It passes _RBWADIR_ directory and a file that contains FASTQ IDs to the R script. R script file +job-de-sum.R+ takes a BWADIR directory, and a file containing FASTQ IDs. Use the ``cl'' files for the FASTQ IDs to create a table of counts. We create several _count.table_ R variables. +job-de.R+ creates _cl_, _cl.cds_, _cl.nocds_, _cl.tx_, and _cl.ng_. For these count variables, we have _count.table_, _count.table.cds_, _count.table.nocds_, and the like. This creates a number of files: 'count', 'count.cds', 'count.nocds', 'count.tx', and 'count.ng'. For multiple matched reads, we have 'count.m', 'count.m.cds', 'count.m.nocds', 'count.m.tx', and 'count.m.ng'. R script 'job-de-sum.R' also creates a table of statistics. Column +a+ is the number of reads in the FASTQ file. Column +b+ is the number of reads after quality control using PRINSEQ. Column +c+ is the number of reads in the sorted BAM file. Column +d+ is the number of counted reads multiply mapped on non-CDS transcripts. Column +e+ is the number of reads uniquely mapped. Column +e+ is the number of counted reads uniquely mapped on transcripts. Column +f+ is the number of counted reads uniquely mapped non-transcript regions.
+
+Bash script +job-simulate+ creates test FASTQ files using txdb annotation. R script +job-simulate.R+ takes _FASTQNUM_ as the only argument.  Because we execute +job-simulate+ at the remote computer not at the compute node, we use _RBWADIR_ and _RDATADIR_ directories not _CBWADIR_ or _CDATADIR_. We use _feature.txnc_ or the complete feature to create short reads. We store sampled reads in _read.GA_. We sample reads from genes with 1,000 base pairs per chromosome. We use positions of reads to create a _GappedAlignments_ object and add it to _read.GA_. We use the positions to extract DNA sequences, and write them to a FASTQ file. Ignore warnings, which arise when adding _GappedAlignments_ with different chromosome configurations. 
+
 Files
 -----
-Input and output files are created in *RNASeq Analysis*. 
-
-feature-genome.out-intergeniconly
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-A BED-format file contains intergenic regions of a reference genome.
-
-.feature-genome.out-geneonly
-----
-chr1  193 1552  SMU.01  0 +
-----
-
-Scripts
-~~~~~~~
-
-.Subtract B from A where A and B are single-column number files
-----
-bash colsubtract.sh A B > C
-----
 
 
 Features
