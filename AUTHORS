@@ -1,8 +1,8 @@
-Authors of mauve-analysis.
+Authors of RNAseq-Analysis.
 See also the files THANKS and ChangeLog.
 
 Sang Chul Choi
-designed and implemented rnaseq-analysis.
+designs and implements RNAseq-analysis.
 
 Charles Danko
-helped implementing rnaseq-analysis.
+helps implement RNAseq-analysis.

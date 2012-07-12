@@ -92,30 +92,13 @@ PS3="Select the menu : "
 CHOICES=( init-file-system \
           choose-species \
           ---ANNOTATION---\
-	  convert-gff2txdb \
-	  convert-bed2txdb \
-          feature-genome \
+          convert-gff2txdb \
           ---BATCH---\
-	  batch3 \
-	  count-cds \
+          batch3 \
           ---DE---\
           deseq \
           ---FASTQ---\
           fastq-sample \
-          ---TRANSCRIPT---\
-          transcript-genecoverage \
-          transcript-parsernaseq \
-          transcript-summary \
-          ---BWA-ALIGN---\
-          cp-genome \
-          bwa-index-genome \
-          bwa-align \
-          bwa-align-per-fastq \
-          bwa-mpileup \
-          ---BWA-OTHER---\
-          bwa-samtools-wig \
-          ---SMALL-RNA---\
-          rna-rnaz \
           warranty \
           copyright \
           quit )

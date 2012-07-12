@@ -105,7 +105,7 @@ scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
-  FASTQFILE=\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
+  FASTQFILE=$ROOTANALYSISDIR/\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
   if [ -f \$FASTQFILE ]; then
     scp \$FASTQFILE $CAC_USERHOST:$RDATADIR/\$FASTQNUM.fq.gz
   else
@@ -794,9 +794,9 @@ function process-data {
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
 
-  bash job-stat \$NUM $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
-    $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData
-  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData $RBWADIR
+#  bash job-stat \$NUM $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
+#    $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData
+#  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData $RBWADIR
 
   # Count reads that pass the quality score filter.
   NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)

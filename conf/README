@@ -18,7 +18,7 @@ X11_LOGIN:compgen
 #
 # Cluster access to job submission
 # --------------------------------
-EMAILON:FALSE
+EMAILON:TRUE
 BATCHEMAIL:goshng@gmail.com
 BATCHACCESS:acs4_0001
 QUEUENAME:v4
