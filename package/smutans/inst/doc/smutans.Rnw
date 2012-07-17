@@ -35,7 +35,7 @@
 We analyze RNA samples from \textit{Streptococcus mutans} using
 RNA-seq to define genes whose expression changes between samples
 \cite{Oshlack2010}. Short reads are first mapped to a reference genome using
-approaches such as \program{BWA} \cite{Li2009a} or \program{subread}.
+approaches such as \program{BWA} \cite{Li2009a}.
 Reads fitting into one of the annotated
 intervals are counted.  These counts are passed to a statistical package which
 detects differences in read counts for statistical significance. For this
@@ -425,7 +425,7 @@ genes}}
 $q^a$ & Description \\
 \hline 
 %-----------------------------------------------------------------------------
-<<goseqUA159only,echo=FALSE,results=tex>>=
+<<goseqUA159only,eval=FALSE,echo=FALSE,results=tex>>=
 data( "smutans.feature.genes" )
 data( "smutans.go.genes" )
 data( "smutans.cat.desc" )
@@ -1118,7 +1118,7 @@ genes}}
 small RNA & $q^a$ & count & GO & Description \\
 \hline 
 %-----------------------------------------------------------------------------
-<<goseqUA159only,echo=FALSE,results=tex>>=
+<<goseqUA159only,echo=FALSE,eval=FALSE,results=tex>>=
 data( "smutans.genes.criteria" )
 data( "smutans.go.genes" )
 data( "smutans.cat.desc" )

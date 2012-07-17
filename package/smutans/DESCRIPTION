@@ -1,6 +1,6 @@
 Package: smutans
-Version: 0.1.8
-Date: 2011-04-03
+Version: 0.1.9
+Date: 2011-07-14
 Title: Data package with per-gene read counts of S. mutans RNA-seq samples. 
 Author: Sang Chul Choi
 Maintainer: Sang Chul Choi <schoi@cornell.edu>

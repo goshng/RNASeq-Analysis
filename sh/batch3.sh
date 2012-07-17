@@ -62,14 +62,14 @@ function batch3-variable {
   RNUMBERDIR=$ROUTPUTDIR/$SPECIES/$REPETITION
   RDATADIR=$RNUMBERDIR/data
   RBWADIR=$RNUMBERDIR/bwa
-  RANALYSISDIR=$RNUMBERDIR/run-analysis
+  RRUNANALYSIS=$RNUMBERDIR/run-analysis
 
   # Compute node output directories.
   CBASEDIR=output/$SPECIES
   CNUMBERDIR=$CBASEDIR/$REPETITION
   CDATADIR=$CNUMBERDIR/data
   CBWADIR=$CNUMBERDIR/bwa
-  CANALYSISDIR=$CNUMBERDIR/run-analysis
+  CRUNANALYSIS=$CNUMBERDIR/run-analysis
 }
 
 # Create output directories for the species directory
@@ -101,6 +101,7 @@ cat>$BASEDIR/push-data.sh<<EOF
 #!/bin/bash
 ssh -x $CAC_USERHOST mkdir -p $RBWADIR
 ssh -x $CAC_USERHOST mkdir -p $RDATADIR
+ssh -x $CAC_USERHOST mkdir -p $RRUNANALYSIS
 scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
 for g in $FASTQFILES; do

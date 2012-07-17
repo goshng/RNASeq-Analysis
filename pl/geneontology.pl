@@ -110,6 +110,8 @@ if ($cmd eq "gene2go")
 {
   # Parse gff file.
   my %locus2protein;
+  my $geneid;
+  my $locustagid;
   open GFF, $params{gff} or die "cannot open $params{gff} $!";
   while (<GFF>)
   {
@@ -117,16 +119,38 @@ if ($cmd eq "gene2go")
     next if /^#/;
 # NC_004350.1	RefSeq	CDS	194	1549	.	+	0	ID=NC_004350.1:dnaA:unknown_transcript_1;Parent=NC_004350.1:dnaA;locus_tag=SMU.01;note=binds to the dnaA-box as an ATP-bound complex at the origin of replication during the initiation of chromosomal replication%3B can also affect transcription of multiple genes including itself.;transl_table=11;product=chromosomal replication initiation protein;protein_id=NP_720488.1;db_xref=GI:24378533;db_xref=GeneID:1029426;exon_number=1
     # if (/locus\_tag=(\w+);.+;protein\_id=(\w+);/)
-    if (/RefSeq\s+CDS\s+.+locus\_tag=([\w.]+);.+;protein\_id=(\w+)/)
+
+    # The S. mutans version 2 does not work with the following line.
+    # if (/RefSeq\s+CDS\s+.+locus\_tag=([\w.]+);.+;protein\_id=(\w+)/)
+
+    if (/RefSeq\s+gene\s+.+ID=(\w+);.+;locus\_tag=([\w.]+)/)
     {
-      if (exists $locus2protein{$1})
+      $geneid = $1; 
+      $locustagid = $2;
+    }
+    elsif (/RefSeq\s+CDS\s+.+Parent=(\w+);.+;protein\_id=(\w+)/)
+    {
+      if ($geneid eq $1)
       {
-        die "GFF: $1 was already added.";
+        if (exists $locus2protein{$locustagid})
+        {
+          die "GFF: $locustagid was already added.";
+        }
+        $locus2protein{$locustagid} = $2;
       }
-      $locus2protein{$1} = $2;
     }
   }
   close GFF;
+
+  # Test
+=comment
+  foreach my $locusid (keys %locus2protein)
+  {
+    my $protein = $locus2protein{$locusid};
+    print "$locusid\t$protein\n";
+  }
+  exit; 
+=cut
 
   # Parse BLAST file.
   my %protein2uniref;
@@ -139,6 +163,10 @@ if ($cmd eq "gene2go")
     # gi|24378533|ref|NP_720488.1|    UniRef90_Q8DWN9 100.00  452     0       0 1       452     1       452     0.0      922
     my @e = split /\t/;
     if ($e[0] =~ /(NP\w+)/)
+    {
+      $proteinid = $1;
+    }
+    elsif ($e[0] =~ /(YP\w+)/)
     {
       $proteinid = $1;
     }
@@ -174,16 +202,19 @@ if ($cmd eq "gene2go")
   }
   close BLAST;
 
-#  print "========== BLAST =========\n";
-#  foreach my $protein (keys %protein2uniref)
-#  {
-#    print $protein;
-#    foreach my $uniref (keys %{ $protein2uniref{$protein} })
-#    {
-#      print " $uniref:$protein2uniref{$protein}{$uniref}\t";
-#    }
-#    print "\n";
-#  }
+=comment
+  print "========== BLAST =========\n";
+  foreach my $protein (keys %protein2uniref)
+  {
+    print $protein;
+    foreach my $uniref (keys %{ $protein2uniref{$protein} })
+    {
+      print " $uniref:$protein2uniref{$protein}{$uniref}\t";
+    }
+    print "\n";
+  }
+  exit;
+=cut
 
   # Parse the goa file.
   my $count = 0;
@@ -209,9 +240,9 @@ if ($cmd eq "gene2go")
       push @gotermArray, $goterm;
       $uniref2goterm{$uniref} = [ @gotermArray ];
     }
-    if ($count % 100000 == 0)
+    if ($count % 1000000 == 0)
     {
-      print STDERR "Read GOA: $count/98948381\r";
+      print STDERR "Read GOA: $count/132425703\r";
     }
   }
   close GOA;
@@ -254,7 +285,7 @@ elsif ($cmd eq "go2ngene")
   {
     chomp;
     my $rec = {};
-    ($rec->{gene}, $rec->{goid}, $rec->{evalue}) = split /\t/; 
+    ($rec->{gene}, $rec->{protein}, $rec->{uniref}, $rec->{goid},$rec->{evalue}) = split /\t/; 
     push @genes, $rec;
   }
   close GENE2GO;

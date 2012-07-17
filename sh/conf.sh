@@ -35,6 +35,9 @@ function conf {
   SUBREADBUILDINDEX=$(grep ^SUBREADBUILDINDEX\: $CONFFILE | cut -d":" -f2)
   SUBREADALIGN=$(grep ^SUBREADALIGN\: $CONFFILE | cut -d":" -f2)
   SEGEMEHL=$(grep ^SEGEMEHL\: $CONFFILE | cut -d":" -f2)
+  MAKEBLASTDB=$(grep ^MAKEBLASTDB\: $CONFFILE | cut -d":" -f2)
+  BLASTN=$(grep ^BLASTN\: $CONFFILE | cut -d":" -f2)
+  BLASTP=$(grep ^BLASTP\: $CONFFILE | cut -d":" -f2)
 
   # Other global variables
   CAC_USERHOST=$CAC_USERNAME@$CAC_LOGIN

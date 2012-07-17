@@ -32,9 +32,6 @@ function choose-species {
       mkdir -p $NUMBERDIR
       mkdir -p $DATADIR
       mkdir -p $BWADIR
-      mkdir -p $SUBREADDIR
-      mkdir -p $MAQDIR
-      mkdir -p $BOWTIEDIR
       mkdir -p $TRANSCRIPTDIR
       mkdir -p $RUNANALYSIS
       break

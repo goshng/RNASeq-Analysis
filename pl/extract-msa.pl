@@ -1,26 +1,27 @@
 #!/usr/bin/perl
 ###############################################################################
-# Copyright (C) 2011 Sang Chul Choi
+# Copyright (C) 2011-2012 Sang Chul Choi
 #
-# This file is part of Mauve Analysis.
+# This file is part of RNAseq Analysis.
 # 
-# Mauve Analysis is free software: you can redistribute it and/or modify
+# RNAseq Analysis is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Mauve Analysis is distributed in the hope that it will be useful,
+# RNAseq Analysis is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Mauve Analysis.  If not, see <http://www.gnu.org/licenses/>.
+# along with RNAseq Analysis.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
+use Bio::SeqIO;
 require 'pl/sub-error.pl';
 require 'pl/sub-bed.pl';
 require 'pl/sub-fasta.pl';
@@ -44,6 +45,10 @@ GetOptions( \%params,
             'reference=s',
             'genomeLength=i',
             'in=s',
+            'in1=s',
+            'in2=s',
+            'gene=s',
+            'coverage=f',
             'indir=s',
             'out=s',
             'outdir=s',
@@ -58,6 +63,10 @@ pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
 my $in;
 my $infile;
+my $in1;
+my $in1file;
+my $in2;
+my $in2file;
 my $out;
 my $outfile;
 my $outdir;
@@ -65,6 +74,12 @@ my $indir;
 my $reference;
 my $muscle;
 my $genomeLength;
+
+my $coverageArg = 0.5;
+if (exists $params{coverage}) {
+  $coverageArg = $params{coverage};
+}
+
 
 if (exists $params{genomeLength}) {
   $genomeLength = $params{genomeLength};
@@ -130,6 +145,17 @@ elsif ($cmd eq "clust")
   {
     &printError("command muscle needs options -indir and -in");
   }
+}
+elsif ($cmd eq "allvsall")
+{
+  unless (exists $params{in1}
+          and exists $params{in2})
+  {
+    &printError("command $cmd needs options -in1 and -in2");
+  }
+}
+elsif ($cmd eq "unique")
+{
 }
 
 ################################################################################
@@ -538,6 +564,140 @@ elsif ($cmd eq "muscle")
   }
   closedir $dh;
 }
+elsif ($cmd eq "allvsall")
+{
+
+}
+elsif ($cmd eq "unique")
+{
+  my $uniqueFile = "$params{out}-unique.csv";
+  open (UNIQUEFILE, ">", "$uniqueFile") or die "cannot open < $uniqueFile: $!";
+  
+  #print $outfile "Coverage: $coverageArg\n";
+  print UNIQUEFILE "gene,coverage\n";
+
+  my %genes;
+  my %geneslen;
+  my %genesMatch;
+  my %genesMatchCoverage;
+  # Find the list of genes.
+  my $seqio  = Bio::SeqIO->new (-format => 'FASTA' , -file => $params{gene});
+  while (my $seqobj = $seqio->next_seq())
+  {
+    $genes{$seqobj->display_id} = 0;
+    $geneslen{$seqobj->display_id} = $seqobj->length();
+    $genesMatch{$seqobj->display_id} = "";
+    $genesMatchCoverage{$seqobj->display_id} = 0;
+  }
+
+  # Compute the coverage of the genes in the BLAST DB.
+  #######################################
+  # Find lines with the first alignments.
+  # @linenumbersFirstAlignment contains start line numbers of queries, and the
+  # number of lines in the BLAST file.
+  my @linenumbersFirstAlignment;
+  my $alnNamePrev = "first";
+  my $line;
+  my $n = 0;
+  while ($line = <$infile>)
+  {
+    $n++;
+    my @e = split /\t/, $line;
+    my $h = {};
+    $h->{qseqid}   = $e[0]; 
+    unless ($alnNamePrev eq $h->{qseqid})
+    {
+      push @linenumbersFirstAlignment, $n;
+    }
+    $alnNamePrev = $h->{qseqid};
+  }
+  $n++;
+  push @linenumbersFirstAlignment, $n;
+  close $infile;
+
+  ###############################
+  # Start of the clust operation.
+  open ($infile, "<", $in) or die "cannot open < $in: $!";
+  for (my $i = 0; $i < $#linenumbersFirstAlignment; $i++)
+  {
+    my $numberFailedToBeAdded = 0;
+    my @cluster;
+    my $lineStart = $linenumbersFirstAlignment[$i];
+    my $lineEnd = $linenumbersFirstAlignment[$i+1];
+    my $fastaFilename; 
+
+    my @coverage;
+    my $genename;
+    my $geneLen;
+    for (my $j = 0; $j < $lineEnd - $lineStart; $j++)
+    {
+      $line = <$infile>;
+      chomp $line;
+      my @e = split /\t/, $line;
+      my $h = {};
+      $h->{qseqid}   = $e[0]; 
+      $h->{sseqid}   = $e[1];
+      $h->{pident}   = $e[2]; 
+      $h->{length}   = $e[3]; 
+      $h->{mismatch} = $e[4]; 
+      $h->{gapopen}  = $e[5]; 
+      $h->{qstart}   = $e[6]; 
+      $h->{qend}     = $e[7]; 
+      $h->{sstart}   = $e[8]; 
+      $h->{send}     = $e[9]; 
+      $h->{evalue}   = $e[10]; 
+      $h->{bitscore} = $e[11]; 
+      $h->{qlen}     = $e[12]; 
+      $h->{qseq}     = $e[13]; 
+      $h->{slen}     = $e[14]; 
+      $h->{sseq}     = $e[15]; 
+
+      my $qMatchLen = $h->{qend} - $h->{qstart} + 1;
+      if ($j == 0)
+      {
+        @coverage = (0) x $h->{qlen};
+        $genename = $h->{qseqid}; 
+        $geneLen = $h->{qlen};
+        $genesMatchCoverage{$h->{qseqid}} = int($qMatchLen/$geneLen*100);
+        if ($qMatchLen/$geneLen > $coverageArg)
+        {
+          $genesMatch{$h->{qseqid}} = $h->{sseqid};
+        }
+      }
+      
+      die "Error: length difference" unless $h->{qlen} == $geneslen{$h->{qseqid}};
+      my @a = (1) x $qMatchLen;
+      splice(@coverage, $h->{qstart} - 1, $qMatchLen, @a);
+    }
+    my $numberSitesCovered = scalar(grep{ $_ > 0 } @coverage); 
+    $genes{$genename} = int($numberSitesCovered/$geneLen*100);
+  }
+
+  # Print genes with coverage less than a cutoff value as unique genes.
+  foreach my $k (keys %genes)
+  {
+    if ($genes{$k} <= $coverageArg)
+    {
+      print UNIQUEFILE $k, ",", $genes{$k}, "\n";
+    }
+  }
+  close UNIQUEFILE; 
+
+  my $similarFile = "$params{out}-similar.csv";
+  open (SIMILARFILE, ">", "$similarFile") 
+    or die "cannot open < $similarFile: $!";
+  print SIMILARFILE "chr2,chr1,Coverage\n";
+
+  foreach my $k (keys %genesMatch)
+  {
+    if (length($genesMatch{$k}) > 1)
+    {
+      print SIMILARFILE $k,",",$genesMatch{$k},",",$genesMatchCoverage{$k},"\n";
+    }
+  }
+  close SIMILARFILE;
+}
+
 
 if (exists $params{in})
 {
@@ -565,6 +725,12 @@ perl extract-msa.pl muscle -indir indir -in file.blast -outdir outdir
 
 perl extract-msa.pl clust -in file.blast -muscle muscle -outdir outdir
 
+perl extract-msa.pl allvsall -in1 in1.blast -in2 in2.blast
+
+perl extract-msa.pl unique -in in.blast
+
+perl extract-msa.pl homologous -in in.blast
+
 =head1 DESCRIPTION
 
 extract-msa.pl parses a BLAST result file to create a list of FASTA files.
@@ -576,6 +742,9 @@ extract-msa.pl parses a BLAST result file to create a list of FASTA files.
   blast6 - Read a BLAST result to create FASTA-format files.
   muscle - Convert FASTA-format alignments to MAF-format ones.
   clust - Find similar sequences for each intergenic region.
+  allvsall - Find unique genes using two blastp all-againt-all result files.
+  unique - Find unique genes using one blastp result file.
+  homologous - Find similar genes using a blastp result file.
 
 clust: for each intergenic region do the following steps. 1. Check the first
 alignment if the query sequence is aligned to a position uniquely, 2. Create a
@@ -586,6 +755,19 @@ FASTA-format file, 4. Align the sequences in the FASTA file, 5. Keep the last
 sequence if it is aligned very well (or it does not have 40 contiguous gaps), 6.
 Go back to step 3 and repeat the procedure of alignmnt quality until there are
 no alignments left.
+
+allvsall: I thought that I have to compare all-against-all comparisons to find
+unique genes. I could just use one BLAST result to find genes that did not match
+to any genes in the BLAST database.
+
+unique: I find genes that are unique to the query genome. First, we need to know
+genes in the query. Genes that are not in the BLAST result are unique. I also
+check if genes with hit in the BLAST result have enough coverage, i.e., ratio of
+regions (to the length of the query) in the query that are aligned to the BLAST
+DB.
+
+homologous: Find the best matched subject gene for each query gene. As we did in
+the command unique, we find genes in the query. 
 
 =over 8
 
@@ -618,6 +800,10 @@ An output directory.
 =item B<-out> <file>
 
 An output file.
+
+=item B<-coverage> <numeric>
+
+The coverage cut-off value between 0 and 1 (default 0.5).
 
 =back
 

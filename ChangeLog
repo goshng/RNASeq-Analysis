@@ -56,6 +56,170 @@ Histories
 ---------
 This history can be useful later.
 
+
+Tue Jul 17 12:38:20 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vince mentioned OrthoMCL2 and MCLblastline for core and non-core genes.
+http://micans.org/mcl/
+
+.Some mcl commands in Jason and Albert presentation document
+----
+http://informatics.nescent.org/wg/phyloinformatics/images/9/95/ISMB2007tutorial-slides.pdf
+----
+
+Let me start at test/mcl. The data set of 57 strains are in data/denovo.
+----
+data/denovo/M03.fasta is a FASTA file that contains protein sequences.
+data/denovo/smu3_asb.fas is a FASTA file that contains DNA sequences.
+data/denovo/SMU3_allcontigs.gbf is a GenBank file.
+----
+We create a FASTA file that contains protein sequences using the 57 GenBank
+files, and .
+----
+for i in `ls *.gbf`; do perl pl/extractcds.pl -f Genbank $i >> all.pep; done
+makeblastdb -dbtype prot -title all -in all.pep
+blastp -query all.pep -db all.pep -evalue 1e-3 -outfmt 7 -out all.blastp.tab
+mcxdeblast --m9 --score=e all.blastp.tab
+mclblastline --mcl-I=1.6 --start-assemble all.blastp.tab
+----
+The BLAST takes time. I am running it on CAC using 8 CPUs. How long? Within a
+day in the CAC.
+BACKTOHERE
+
+The BLAST job in the CAC was finished. I use pl/geneontology.pl to parse it.
+This takes time. How long? It also takes too much memory. This did not take long
+in the CAC cluster where we have much larger memory than we have in my local
+machine.
+----
+output/ua159/1/run-analysis/smutans.gene2go
+output/ua159/1/run-analysis/smutans.go2ngene
+----
+We can use these to find functional associations of DE genes that are determined
+by pH5/pH7, and nocsp/csp.
+
+Mon Jul 16 10:43:43 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I create a menu, goseq, for functional category analyses. The directory
+test/RNAz contains some files that might be helpful. The file sh/batch2.sh
+contains some scripts that will be helpful.  
+
+Melissa let me know where I could find the 6 strains' genbank files.
+----
+babylon:/lab/data/S_mutans/denovo
+----
+I copy them to data/denovo. I need to create DNA and protein sequences, and
+annotations. Let us see what files are available.
+----
+SMU21-1SM1    data/denovo/SMU21_allcontigs.gbf <- we used this
+SMU44-11VS1   data/denovo/SMU44_allcontigs.gbf
+SMU20-15JP3   data/denovo/SMU20_allcontigs.gbf
+SMU56-N29     data/denovo/SMU56_allcontigs.gbf
+SMU69-NLML4   data/denovo/SMU69_allcontigs.gbf
+SMU57-NMT4863 data/denovo/SMU57_allcontigs.gbf
+----
+Use bioperl-get-protein.pl to extract protein sequences.
+----
+perl pl/bioperl-get-protein.pl dna -in data/denovo/SMU21_allcontigs.gbf -out output/denovo/SMU21.fna
+perl pl/bioperl-get-protein.pl protein -in data/denovo/SMU21_allcontigs.gbf -out output/denovo/SMU21.faa
+----
+Use bp_genbank2gff3.pl to extract gff files and remove sequences.
+----
+cat seq.gbk | perl bp_genbank2gff3.pl -in stdin -out stdout > seq.gff
+perl -e "while (<>) { if (/^>/) { last; } print; }" < seq.gff 
+----
+Replace the chromosome names with chr and numbers in the fna and gff files.
+The gff files tend to have multiple instances of regions, which should represent
+chromosomes. This is problmatic because we need one instance of region type in
+the gff file. Use pl/remove-multiple.pl to remove those.
+See the following file for generating DNA and protein sequences and txdb
+annotation files.
+----
+output/denovo/run
+----
+Now, I go to smu7 to run it.
+
+
+I download some files for associating DE genes with functions.
+----
+ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+http://www.geneontology.org/gene-associations/submission/gene_association.goa_uniprot.gz
+http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
+----
+How long did it take to BLAST UA159 genes against uniref90? within a day?
+
+
+Sat Jul 14 14:28:11 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I used NC_004350.gff to find gene products for the genes found to be similar to
+Smu21 genes.
+----
+input: output/smu21/1/run-analysis/similar-gene
+R: output/smu21/1/run-analysis/get-product.R
+output: output/smu21/1/run-analysis/similar-gene.txt
+----
+
+.To Sara 071412
+----
+smu21/1/run-analysis/unique-genes-chr2 -> unique-genes-chr2-smu21
+smu21/1/run-analysis/similar-gene.txt  -> similar-gene-smu21-ua159.txt
+smu86/1/run-analysis/unique-genes-chr2 -> unique-genes-chr2-smu86
+smu86/1/run-analysis/similar-gene.txt  -> similar-gene-smu86-ua159.txt
+----
+
+.To compile smutans
+----
+# Count data files
+cp output/ua159/1/bwa/count.cds package/smutans/inst/extdata/count-ua159-bwa.txt
+cp output/smu21/1/bwa/count.cds package/smutans/inst/extdata/count-smu21-bwa.txt
+cp output/smu86/1/bwa/count.cds package/smutans/inst/extdata/count-smu86-bwa.txt
+# Unique genes
+cp output/smu21/1/run-analysis/unique-genes-chr2 package/smutans/inst/extdata/SMU21.diff.lst
+cp output/smu86/1/run-analysis/unique-genes-chr2 package/smutans/inst/extdata/SMU86.diff.lst
+cp output/smu21/1/run-analysis/unique-genes-chr1 package/smutans/inst/extdata/UA159-SMU21.diff.lst
+cp output/smu86/1/run-analysis/unique-genes-chr1 package/smutans/inst/extdata/UA159-SMU86.diff.lst
+----
+
+.Compile smutan
+----
+# at package directory
+cp smutans/inst/doc/smutans.Rnw .
+R CMD Stangle smutans.Rnw
+Edit smutans.R
+----
+
+Fri Jul 13 12:20:48 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I've found a website that might be useful in comparing genomes to find genes
+unique to a strain.
+http://bioinfo-srv1.awh.unomaha.edu/genomeblast/tutorial.php
+I upload two genbank files. The genbank format for one of the 6 strains is not
+correctly used by the genomeblast website probably because the genbank files of
+the 6 strains were created by xbase website.
+So, I tried to use two FASTA-format files with amino acid sequences. This
+works. Let's create protein sequence files the two.
+
+I use a perl script available at
+http://www.cs.huji.ac.il/course/2008/76552/BioPerl/Sequences/extractcds.pl.html
+I use lynx to print the webpage.
+
+.To create FASTA files of CDS from genbank files 
+----
+perl pl/extractcds.pl -f Genbank data/analysis/smu7/11vs1.gbk > 11vs1.faa
+for i in `ls *.gbk`; do
+  n=${i%.gbk}; perl extractcds.pl -f Genbank $i > $n.faa;
+done
+perl extractcds.pl -f Genbank ../NC_004350.gbk > NC_004350.faa
+----
+
+We also used the genbank file of UA159 to create an amino acid sequences file
+without using the NCBI faa file to match the URL. Now, I use pairs of FASTA
+files with amino acid sequences to find unique CDS genes. Unfortunately, the
+genomeblast appears to be non-functional. 
+
+----
+/Volumes/Elements/Documents/Projects/RNASeq-Analysis/output/smu7/13/run-analysis/chr2-chr1
+----
+
 Mon Jul  9 17:15:10 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 We copy batch2 to create batch3. I wish to refine the script by removing
@@ -82,8 +246,9 @@ to have genbank files
 ----
 11vs1.gbk    15jp3.gbk    1sm1.gbk     n29.gbk      nlml4.gbk    nmt4863.gbk
 ----
-We extract gff files from the genbank files. The gff file contains chromosome
-names that must be chr#. We change the chromosome names.
+We extract gff files from the genbank files using bp\_genbank2gff3.pl. The gff
+file contains chromosome names that must be chr#. We change the chromosome
+names.
 ----
 for i in `ls *.gff`; do perl chr1.pl < $i > $i.gf3; done
 ----

@@ -56,7 +56,6 @@ source sh/fastxtoolkit-fastx_quality_stats.sh
 
 source sh/fastq-sample.sh
 source sh/degseq.sh
-source sh/deseq.sh
 source sh/edgeR.sh
 source sh/transcript-cufflinks.sh
 source sh/transcript-genecoverage.sh
@@ -74,6 +73,8 @@ source sh/count-cds.sh
 source sh/batch.sh
 source sh/batch2.sh
 source sh/batch3.sh
+source sh/deseq.sh
+source sh/goseq.sh
 
 #####################################################################
 # Read configuration file
@@ -83,7 +84,7 @@ conf
 #####################################################################
 # Read directories
 #####################################################################
-SPECIESS=$(ls species|grep -v ^sim)
+SPECIESS=$(ls $ROOTANALYSISDIR/species|grep -v ^sim)
 
 #####################################################################
 # Menus
@@ -97,6 +98,8 @@ CHOICES=( init-file-system \
           batch3 \
           ---DE---\
           deseq \
+          ---GO---\
+          goseq \
           ---FASTQ---\
           fastq-sample \
           warranty \
@@ -136,6 +139,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "fastq-sample" ]; then $CHOICE; break
   elif [ "$CHOICE" == "degseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "deseq" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "goseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break

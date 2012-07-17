@@ -12,17 +12,16 @@ gffFileBasename <- unlist(strsplit(gffFile,"\\."))[1]
 sm.gff <- import.gff3(gffFile)
 sm.gene <- sm.gff[sm.gff$type=="gene",]
 sm.CDS <- sm.gff[sm.gff$type=="CDS",]
-sm.source <- sm.gff[sm.gff$type=="DNA",]
+sm.source <- sm.gff[sm.gff$type=="region",]
 
 transcripts <- 
-  data.frame( tx_id=seq(length(sm.gene$locus_tag)), # integer vector
-              tx_name=sm.gene$locus_tag,            # string vector or factor
-              tx_chrom=sm.gene$space,               # string vector or factor
-              tx_strand=sm.gene$strand,             # strand vector
-              tx_start=start(sm.gene),              # integer vector
-              tx_end=end(sm.gene) )                 # integer vector
+  data.frame( tx_id=seq(length(sm.gene$locus_tag)),
+              tx_name=sm.gene$locus_tag,
+              tx_chrom=sm.gene$space, 
+              tx_strand=sm.gene$strand,
+              tx_start=start(sm.gene),
+              tx_end=end(sm.gene) )
 
-# Each transcript contains an exon. The exon may contain a CDS. 
 # Compare CDS and gene locus tags
 x <- c()
 y <- c()
@@ -48,20 +47,22 @@ rm(i,x,y,z)
 
 # 
 splicings <- 
-  data.frame( tx_id=seq(length(sm.gene$locus_tag)),     # integer A
-              exon_rank=seq(length(sm.gene$locus_tag)), # integer B (unique A-B)
-              exon_name=sm.gene$locus_tag,              # character
-              exon_start=start(sm.gene),                # integer 
-              exon_end=end(sm.gene),                    # integer
-              cds_start=grCDS.start,                    # integer
-              cds_end=grCDS.end )                       # integer
+  data.frame( tx_id=seq(length(sm.gene$locus_tag)),
+              exon_rank=seq(length(sm.gene$locus_tag)),
+              exon_start=start(sm.gene),
+              exon_end=end(sm.gene),
+              exon_name=sm.gene$locus_tag,
+              cds_start=grCDS.start,
+              cds_end=grCDS.end )
 
 chrominfo <-
-  data.frame( chrom=names(sm.gene),    # character
-              length=end(sm.source),   # integer
-              is_circular=FALSE ) 
+  data.frame( chrom=names(sm.gene),
+              length=end(sm.source),
+              is_circular=FALSE )
 
 txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
 saveFeatures(txdb,file=paste(gffFileBasename,"txdb",sep="."))
-print(paste("Check ",gffFileBasename,".txdb",sep=""))
+print(paste("Check",gffFileBasename,".txdb",sep=""))
 q("no")
+
+

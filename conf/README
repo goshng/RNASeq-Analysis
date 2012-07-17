@@ -18,7 +18,7 @@ X11_LOGIN:compgen
 #
 # Cluster access to job submission
 # --------------------------------
-EMAILON:TRUE
+EMAILON:FALSE
 BATCHEMAIL:goshng@gmail.com
 BATCHACCESS:acs4_0001
 QUEUENAME:v4
@@ -38,3 +38,7 @@ PYTHON:/opt/epd/bin/python2.7
 CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 # CACRSCRIPT:/home/choi/usr/bin/Rscript
+
+MAKEBLASTDB:usr/bin/makeblastdb
+BLASTN:usr/bin/blastn
+BLASTP:usr/bin/blastp
