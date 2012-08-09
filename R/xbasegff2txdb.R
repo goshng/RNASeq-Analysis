@@ -23,6 +23,31 @@ transcripts <-
               tx_end=end(sm.gene) )
 
 # Compare CDS and gene locus tags
+#################################################################
+# 1. Using parent information
+x <- c()
+y <- c()
+z <- unlist(sm.CDS$Parent)
+# z <- unlist(sm.CDS$locus_tag)
+for (i in sm.gene$ID) {
+  if (sum(z == i) > 0) {
+    if (length(start(sm.CDS)[z == i]) != 1) {               
+      print(paste("Check",gffFile))
+      print(start(sm.CDS)[z == i])                          
+      stop(paste("There are multiple CDS for gene",i))
+    }
+    x <- c(x,start(sm.CDS)[z == i])
+    y <- c(y,end(sm.CDS)[z == i])
+  } else {
+    x <- c(x,NA)
+    y <- c(y,NA)
+  }
+}
+grCDS.start <- x
+grCDS.end <- y
+rm(i,x,y,z)
+##################################################################
+# 2. FIXME: Using positions?
 x <- c()
 y <- c()
 # z <- unlist(sm.CDS$Parent)
@@ -44,6 +69,7 @@ for (i in sm.gene$ID) {
 grCDS.start <- x
 grCDS.end <- y
 rm(i,x,y,z)
+##################################################################
 
 # 
 splicings <- 

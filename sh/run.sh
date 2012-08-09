@@ -75,6 +75,7 @@ source sh/batch2.sh
 source sh/batch3.sh
 source sh/deseq.sh
 source sh/goseq.sh
+source sh/mcl.sh
 
 #####################################################################
 # Read configuration file
@@ -98,8 +99,8 @@ CHOICES=( init-file-system \
           batch3 \
           ---DE---\
           deseq \
-          ---GO---\
           goseq \
+          mcl \
           ---FASTQ---\
           fastq-sample \
           warranty \
@@ -140,6 +141,7 @@ select CHOICE in ${CHOICES[@]}; do
   elif [ "$CHOICE" == "degseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "deseq" ]; then $CHOICE; break
   elif [ "$CHOICE" == "goseq" ]; then $CHOICE; break
+  elif [ "$CHOICE" == "mcl" ]; then $CHOICE; break
   elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
   elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
   elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break

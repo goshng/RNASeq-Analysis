@@ -356,6 +356,7 @@ cat>$BASEDIR/feature-txnc.txt<<EOF
 feature.tx <- transcripts(txdb)
 # 2. CDS
 feature.cds <- cds(txdb,columns="tx_id")
+stopifnot(length(feature.cds) == length(unlist(elementMetadata(feature.cds)\$tx_id)))
 # 3. Grab transcripts that contain CDS. The x contains TRUE or FALSE that
 # denotes whether a transcript contains a CDS or not.
 x <- elementMetadata(feature.tx)\$tx_id %in% unlist(elementMetadata(feature.cds)\$tx_id)

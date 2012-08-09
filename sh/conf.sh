@@ -38,6 +38,9 @@ function conf {
   MAKEBLASTDB=$(grep ^MAKEBLASTDB\: $CONFFILE | cut -d":" -f2)
   BLASTN=$(grep ^BLASTN\: $CONFFILE | cut -d":" -f2)
   BLASTP=$(grep ^BLASTP\: $CONFFILE | cut -d":" -f2)
+  MCXDEBLAST=$(grep ^MCXDEBLAST\: $CONFFILE | cut -d":" -f2)
+  MCXASSEMBLE=$(grep ^MCXASSEMBLE\: $CONFFILE | cut -d":" -f2)
+  MCLBLASTLINE=$(grep ^MCLBLASTLINE\: $CONFFILE | cut -d":" -f2)
 
   # Other global variables
   CAC_USERHOST=$CAC_USERNAME@$CAC_LOGIN

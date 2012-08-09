@@ -389,10 +389,14 @@ elsif ($cmd eq "clust")
           rnaseqFastaAdd ($fastaFilename, $h->{sseqid}, $h->{sseq});
 
           # Align the sequences using MUSCLE.
+					$fastaFilename =~ s/\(/\\\(/g;
+					$fastaFilename =~ s/\)/\\\)/g;
+					$fastaFilename =~ s/\:/\\\:/g;
           my $muscleCommand = "$muscle -maxiters 1 -diags -quiet -in $fastaFilename -out $fastaFilename.muscle";
           system ($muscleCommand);
 
           # Keep the current sequence if the alignment is good.
+					$fastaFilename =~ s/\\//g;
           my $r = rnaseqFastaManyGap ("$fastaFilename.muscle");
           if ($r == 0)
           {

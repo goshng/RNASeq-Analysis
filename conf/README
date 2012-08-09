@@ -42,3 +42,6 @@ CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 MAKEBLASTDB:usr/bin/makeblastdb
 BLASTN:usr/bin/blastn
 BLASTP:usr/bin/blastp
+MCXDEBLAST:usr/bin/mcxdeblast
+MCXASSEMBLE:usr/bin/mcxassemble
+MCLBLASTLINE:usr/bin/mclblastline

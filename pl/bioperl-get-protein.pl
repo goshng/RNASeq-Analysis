@@ -69,6 +69,8 @@ my $inseq = Bio::SeqIO->new(
                              -format => "Genbank"
                            );
 
+$out = Bio::SeqIO->new( '-format' => 'fasta', '-fh' => $outfile );
+
 while (my $seq = $inseq->next_seq) {
   # print $seq->write_GFF(),"\n";
 
@@ -79,15 +81,23 @@ while (my $seq = $inseq->next_seq) {
     foreach my $tag ( $feat->get_all_tags() ) {
       if ($tag eq 'locus_tag') {
         @a = $feat->get_tag_values($tag);
-	$locus_tag = $a[0];
+        $locus_tag = $a[0];
       }
       if ($tag eq 'translation') {
         @a = $feat->get_tag_values($tag);
         $translation = $a[0];
       }
     }
+
+      #print $outfile ">$locus_tag\n$translation\n";
+    #}
+
     if ($locus_tag ne "" and $translation ne "") {
-      print $outfile ">$locus_tag\n$translation\n";
+      my $seq = Bio::Seq->new (
+                               -seq  => $translation,
+                               -id   => $locus_tag
+                              );
+      $out->write_seq($seq);
     }
   }
 }

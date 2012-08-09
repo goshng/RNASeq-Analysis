@@ -14,7 +14,13 @@ Follow along to acheive the goal mentioned above. Warning! Backup your own raw d
 $ ./run
 ----
 
-First, call *init-file-system* to create directories for output files. Then, call *choose-species* menu to create directories for your project. Select, for example, *batch3*, and follow the instruction in the menu *batch3* below.
+First, call *init-file-system* to create directories for output files. Then, call *choose-species* menu to create directories for your project. See the subsection <<txdb>> for setting up gene annotations. You should configure a set of gene annotations because most of analyses use it. If you configured a gene annotation set by reading the subsection <<txdb>>, then select, for example, *batch3*, and follow the instruction in the menu *batch3* below. Menus might provide scripts in bash or R. Execute them at the base directory of *RNAseq Analysis*. For example, menu *mcl* allows you to execute +job-mcl+ to find core genes. Because they may use Perl or R scripts that are available at the base directories +pl+ or +R+, you must run them at the base directory of *RNAseq Analysis*, which can be different from _ROOTANALYSISDIR_. 
+
+.Execute scripts at the base directory
+----
+$ cd RNAseq-Analysis
+$ bash /path/to/job-mcl
+----
 
 anchor:convention[]
 
@@ -308,11 +314,14 @@ Because each repetition is based on a particular reference genome, you would hav
 $ bash /path/to/job-blast
 ----
 
-The next feature is to determine genes that are unique to one of two genomes. This may belong to other menus. Because finding unique or similar genes are related with DE study, we have the bash script in menu *deseq*.  We extract protein sequences from a genbank file by using +pl/extractcds.pl+ (FIXME: we have two Perl scripts for extracting protein sequences. Use only one of them.). First, extract protein sequences from the genbank file of your bacterial genome. 
+The next feature is to determine genes that are unique to one of two genomes. This may belong to other menus. Because finding unique or similar genes are related with DE study, we have the bash script in menu *deseq*.  We extract protein sequences from a genbank file by using +pl/extractcds.pl+ (FIXME: we have two Perl scripts for extracting protein sequences. Use only one of them. The other is called +bioperl-get-protein.pl+). First, extract protein sequences from the genbank file of your bacterial genome. 
 
 ----
 perl pl/extractcds.pl -f Genbank file.gbk > file.faa
+perl pl/bioperl-get-protein.pl protein -in file.gbk -out file.faa
 ----
+
+They should produce the same sequences
 
 Add the following two lines to use the +faa+ files in addition to the gff file from the first genome. Use the gff file that is downloaded from NCBI bacterial genomes. The first chromosome is contains more refined annotations that the second genome lacks.  
 
@@ -341,8 +350,6 @@ More detailed accounts for the study of differential expressed genes should be f
 
 goseq
 ~~~~~
-THIS NEEDS TO BE REWRITTEN BECAUSE I AM WRITING JUST WHAT I IMPLEMENTED _smutans.de2Goseq_ +smutans+ function.
-
 The function +smutans.de2Goseq+ uses _Smutans_ object to find functional associations of differentially expressed genes. We prepare three required files to execute the function. First, fetures of genes in the reference genome are a table of 6 columns: chromosome, start, end, gene name, 0, and strand. Second, a file that associates genes and functional terms contains 3 columns: gene name, functional term, and a real value. Third, a file that describe functional terms contains 3 columns: functional term, number of genes that belong to the term, and description of the function. 
 
 I download files for functional association
@@ -360,9 +367,49 @@ UNIREFFASTA:data/goseq/uniref90.fasta.gz
 REF1GFF:path/to/file.gff
 ----
 
+We use the gff file referred by _REF1GFF_ to find the list of genes. We could not use txdb because the +pl/geneonlogy.pl+ is a Perl script which might not be able to use txdb files. We need to associate locus tags with protein IDs so that we can associate locus tags with gene ontology terms. We did not have the association of locus tags and protein IDs in txdb files, yet. Even if we did, we still need to use txdb files in a Perl file. One way to sidestep the problem is to produce a file that is easy to parse using a txdb file, and let the Perl script, +pl/geneontology.pl+ use the file. I think that this is a good direction because I wish to have gene annotations only in a txdb file if I could. So, making a txdb file is the first step of gene annotations.
+
 The three file names should have the extensions of the above.
 
+Use txdb to create +_RUNANALYSIS_/feature.gene+.
+
+----
+REFGENOMETXDB:path/to/NC_004350.txdb
+----
+
+Run the following two commands.
+
+----
+$ bash /path/to/job-feature
+$ bash /path/to/job-goseq
+----
+
+There are three parameters to tune the *goseq* analysis. First, we could change BLAST options to associate proteins with gene ontology terms. Second, we could change the q-value of determining differentially expressed genes. Third, we could change the q-value of calling gene ontology terms significant. We use 0.05 for the q-value of the third option (This is hard-coded in +smutans+ R package. We usually change the q-value for the second. The first option may be infrequently used because of the long (1 day) execution time of BLAST.
+
 anchor:Configuration[]
+
+mcl
+~~~
+We use +BLASTP+ and +mcl+ to cluster genes with their protein sequences. The main input file is a FASTA file that contains protein sequences. 
+
+----
+MCLFASTA=path/to/mcl.faa
+----
+
+Gzip the +mcl.faa+ although you write +mcl.faa+ without +.gz+ extension. The FASTA file should contain sequences with title strings that are easy to parse. The output files from menu *mcl* are the output files from +mclblastline+. 
+
+----
+_RUNANALYSIS_/dump.out.all.blastp.tab.*
+----
+
+The file contains rows of gene names, each of which is a group of genes. We can use +pl/find-core-gene.pl+ to find core and non-core genes in a given list of genes in a BED file. The BED file can be created using menu *goseq* using +job-feature+ command (see menu *goseq*). You can view the cluster using +cytoscape+. A simple .sif file can be created from mclblastline's dump file, e.g., dump.out.all.blastp.tab.I12. You insert a string, e.g., typeA, after the first column if there are multiple columns. You could open the new .sif file using menu File/Import/Network (Multiple File Types)... in +cytoscape+.
+
+Run +job-mcl+ at the root directory of *RNAseq Analysis*.
+
+----
+$ bash /path/to/job-mcl
+----
+
 
 Configuration
 -------------
@@ -509,6 +556,206 @@ PYTHON:/opt/epd/bin/python2.7
 CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 ----
+
+anchor:txdb[]
+
+txdb
+~~~~
+The annotation of a genome afffects most of analyses such as differential expresssion of genes, functional association, and gene clusters. You had better to decide what gene annotations you use in *RNAseq Analysis*. A genome in genbank format from NCBI is one of the source of genome annotations. Sometimes, we use a gff file from NCBI that accompanies the genbank file. You could use +pl/bioperl-get-protein.pl+ to create a gff file from a genbank file. Because annotation files in gff format keep changing, we could not prepare a menu in *RNAseq Analysis*. Many of the R scripts in *RNAseq Analysis* use BioConductor R packages. A BioConductor R package, called +GenomicFeatures+, provides a method, _makeTranscriptDb_ that creates a txdb file. We use a gff file to create a txdb file. As I mentioned earlier, it is not trivial to create a txdb using a gff file although it is easy to use _makeTranscriptDb_. So, I want to write down some steps of R scripts to create a txdb file using a gff file.  The chromosome names should be named chr with a number.
+
+Consider that you have a file, named +NC_004350.gff+, in gff format. I downloaded the file from NCBI Bacterial genome FTP site, and replaced the "NC_004350.2" with "chr1" for handling the file more easily. Start an R session and load BioConductor R pacakges, +rtracklayer+ and +GenomicFeatures+. We use a function _import.gff3_ of +rtracklayer+ to import the gff file.
+
+----
+> gffFile <- "NC_004350.gff"
+> library(rtracklayer)
+> library(GenomicFeatures)
+> sm.gff <- import.gff3(gffFile)
+----
+
+The function, _import.gff3_, is helpful in reading a gff file. The output variable _sm.gff_ is a _RangedData_ object, contains a column called _type_ that we use to subset genes and CDS regions of _sm.gff_.
+
+----
+> sm.gene <- sm.gff[sm.gff$type=="gene",]
+> sm.CDS <- sm.gff[sm.gff$type=="CDS",]
+----
+
+The _sm.gene_ object contains all of the annotations including mRNA, rRNA, and others. 
+
+----
+> unique(sm.gff$type)
+[1] region gene   CDS    rRNA   exon   tRNA 
+Levels: CDS exon gene region rRNA tRNA
+----
+
+We call eventually _makeTranscriptDb_ to create a txdb variable, which is saved using _saveFeatures_ function. These two functions are part of BioConductor R package, +GenomicFeatures+. 
+
+----
+> txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
+> gffFileBasename <- unlist(strsplit(gffFile,"\\."))[1]
+> saveFeatures(txdb,file=paste(gffFileBasename,"txdb",sep="."))
+----
+
+You may have noticed three R variables, _transcripts_, _splicings_, and _chrominfo_. You might want to refer to the help page for _makeTranscriptDb_. The first variable is an R data frame with id, name, chrom, strand, start, and end. Prepend the 6 arguments with tx with a underscore as follows.
+
+----
+> transcripts <-                                                                  
+    data.frame( tx_id=seq(length(sm.gene$locus_tag)),                             
+                tx_name=sm.gene$locus_tag,                                        
+                tx_chrom=sm.gene$space,                                           
+                tx_strand=sm.gene$strand,                                         
+                tx_start=start(sm.gene),                                          
+                tx_end=end(sm.gene) )
+> head (transcripts)
+  tx_id tx_name tx_chrom tx_strand tx_start tx_end
+1     1  SMU_01     chr1         +      194   1552
+2     2  SMU_02     chr1         +     1708   2844
+3     3  SMU_05     chr1         +     3106   3297
+----
+
+Let us have _chrominfo_ before explaining how to create _splicing_ because _chrominfo_ is much easier to explain. Our example of a gff file contains a single chromosome, which we renamed it chr1. The length is 2032925. Although it is a circular genome, we set it the corresponding option to FALSE (I do not know what side effect of this is). If there are multiple chromosomes, use R vectors for chrom and length, two of which should parallel side by side.
+
+----
+> chrominfo <-                                                                    
+    data.frame( chrom="chr1",                                             
+                length=2032925,                                            
+                is_circular=FALSE )
+> chrominfo
+  chrom  length is_circular
+1  chr1 2032925       FALSE
+----
+
+A transcript can consist of multiple exons in eukaryotes. The _splicing_ data frame contains exons and their membership in the _transcripts_ data frame. For example, the following is given by the help page of _makeTranscriptDb_ object. We have three transcripts. The first row of _splicing_ data frame represents one and the only exon, which also encodes a protein. The next three exons of 2nd, 3rd, and 4th rows of _splicing_ data frame correspond to three exons that belong to the 2nd transcript. We specify their identifiers in the 2nd transcript using exon's rank. The three exons also encode proteins. The 3rd transcript contains two exons that does not encode a protein, which is denoted by NA in cds start and end.
+
+----
+> ?makeTranscriptDb
+...
+     transcripts <- data.frame(
+                        tx_id=1:3,
+                        tx_chrom="chr1",
+                        tx_strand=c("-", "+", "+"),
+                        tx_start=c(1, 2001, 2001),
+                        tx_end=c(999, 2199, 2199))
+     splicings <-  data.frame(
+                        tx_id=c(1L, 2L, 2L, 2L, 3L, 3L),
+                        exon_rank=c(1, 1, 2, 3, 1, 2),
+                        exon_start=c(1, 2001, 2101, 2131, 2001, 2131),
+                        exon_end=c(999, 2085, 2144, 2199, 2085, 2199),
+                        cds_start=c(1, 2022, 2101, 2131, NA, NA),
+                        cds_end=c(999, 2085, 2144, 2193, NA, NA))
+     
+     txdb <- makeTranscriptDb(transcripts, splicings)
+...     
+----
+
+You have to make sure that you have _splicings_ object correctly. There is no unique way of creating the object. We describe two ways. First, CDS might have an attribute that tells us to which gene that the CDS belongs. The NCBI's gff file contains Parent column, which specifies CDS's membership. We can find the parent gene by searching _sm.gene_ ID for the parent of a CDS.
+
+----
+> colnames(sm.CDS)
+ [1] "source"        "type"          "score"         "strand"       
+ [5] "phase"         "Dbxref"        "gbkey"         "gene"         
+ [9] "gene_synonym"  "genome"        "ID"            "Is_circular"  
+[13] "locus_tag"     "mol_type"      "Name"          "Note"         
+[17] "old_locus_tag" "Parent"        "product"       "protein_id"   
+[21] "pseudo"        "strain"        "transl_table" 
+----
+
+Make sure that each CDS has a single parent, which should be true of bacterial genomes. I intentially added ">" so that you cannot just copy and paste the code. You have to see what each step does. We iterate over all of the gene ID to construct _grCDS.start_ and _grCDS.end_. 
+
+----
+> x <- c()
+> y <- c()
+> z <- unlist(sm.CDS$Parent)
+> stopifnot(nrow(sm.CDS)==length(unlist(sm.CDS$Parent)))
+for (i in sm.gene$ID) {
+  if (sum(z == i) > 0) { # Check if the CDS contains the gene
+    if (length(start(sm.CDS)[z == i]) != 1) { # Check if there is a unique parent gene for CDS.
+      print(paste("Check",gffFile))
+      print(start(sm.CDS)[z == i])
+      stop(paste("There are multiple CDS for gene",i))
+    }
+    x <- c(x,start(sm.CDS)[z == i]) # Add the start position of the CDS of the gene
+    y <- c(y,end(sm.CDS)[z == i])   # Add the end position.
+  } else {
+    x <- c(x,NA) # Add NA if the CDS set does not contain the gene
+    y <- c(y,NA) # Add NA for the end position.
+  }
+}
+> grCDS.start <- x
+> grCDS.end <- y
+> rm(i,x,y,z)
+----
+
+Then, we can create _splicings_ data frame, which is used to create a txdb file.
+
+----
+> splicings <-                                                                    
+    data.frame( tx_id=seq(length(sm.gene$locus_tag)),                             
+                exon_rank=seq(length(sm.gene$locus_tag)),                         
+                exon_start=start(sm.gene),                                        
+                exon_end=end(sm.gene),                                            
+                exon_name=sm.gene$locus_tag,                                      
+                cds_start=grCDS.start,                                            
+                cds_end=grCDS.end )
+----
+
+FIXME: Sometimes, CDS parent information may unavailable. The second approach is to use CDS positions to find their parent genes. 
+
+Add more attributes for genes such as protein ID, product, or some other annotations. This seems not available in _makeTranscriptDb_ function at the moment. We might need to use _sm.gff_ or gff file to add more annotation to CDS or transcripts. 
+
+How do we use the txdb? We take transcripts and CDS using _transcripts_ and _cds_ functions of +GenomicFeatures+ R package. Subset CDS of _transcripts_ by compairing transcript IDs. Then, we add a type column. This can be a step where I can add more annodataion. This operation gives us txdb with and without CDS regions.
+
+----
+library(rtracklayer)
+library(GenomicFeatures)
+txdb <- loadFeatures("1.txdb")
+feature.tx <- transcripts(txdb)
+feature.cds <- cds(txdb,columns="tx_id")
+stopifnot(length(feature.cds) == length(unlist(elementMetadata(feature.cds)$tx_id)))
+x <- elementMetadata(feature.tx)$tx_id %in% unlist(elementMetadata(feature.cds)$tx_id)
+feature.cds <- feature.tx[x]
+elementMetadata(feature.cds) <- data.frame(tx_id=elementMetadata(feature.cds)$tx_id, tx_name=elementMetadata(feature.cds)$tx_name,type="CDS")
+----
+
+We also have transcripts without CDS, and combine _feature.cds_ and _feature.nocds_ to create _feature.txnc_. 
+
+----
+feature.txnc <- feature.cds
+feature.nocds <- feature.tx[!x]
+if (length(feature.nocds) > 0) {                                                
+  elementMetadata(feature.nocds) <- data.frame(tx_id=elementMetadata(feature.nocds)$tx_id, tx_name=elementMetadata(feature.nocds)$tx_name,type="NOCDS")
+  feature.txnc <- c(feature.txnc,feature.nocds)                                 
+}    
+----
+
+We also find the rest of regions as non-genic loci. The combined object, _feature.txnc_, contains three types, CDS, NOCDS, and NG (non-genic). 
+
+----
+feature.ng <- transcripts(txdb)                                                 
+strand(feature.ng) <- '*'                                                       
+feature.ng <- gaps(reduce(feature.ng))                                          
+feature.ng <- feature.ng[strand(feature.ng)=='*']
+if (length(feature.ng) > 0) {                                                   
+  x <- seq(from=length(feature.tx)+1,to=length(feature.tx)+length(feature.ng))  
+  y <- paste("NC",x,sep="_")                                                    
+  elementMetadata(feature.ng) <- data.frame(tx_id=x,tx_name=y,type="NG")        
+  rm(x,y)                                                                       
+  feature.txnc <- c(feature.txnc,feature.ng)                                    
+}
+> Rle(elementMetadata(feature.txnc)$type)
+'factor' Rle of length 3743 with 3 runs
+  Lengths:  1960    82  1701
+  Values :   CDS NOCDS    NG
+Levels(3): CDS NOCDS NG
+----
+
+We can export the combined R object _feature.txnc_ to save it to a BED file. The function _export_ uses the file extension to recognize the export file format. Before exporting _feature.txnc_, we populate the names with transcript names, which should be used as values of the name column of the BED foramt. Otherwise, only dots will be printed out at the name column in a BED file.
+
+----
+names(feature.txnc) <- elementMetadata(feature.txnc)[,"tx_name"]
+export(feature.txnc,"txnc.bed")
+----
+
+Because the procedure is not standarized, you must make sure that your annotations are correct. You could make sure whether the extraction of CDS regions from your _feature.txnc_ was correctly performed using Galaxy web interface that was available at https://main.g2.bx.psu.edu. Use "Upload File" tool to send the gff file +NC_004350.gff+, and convert it to a BED file using "GFF-to-BED" tool. Use "Filter" tool to divide the BED file to a part of plus strand and another of minus strand. Download the two files and concatenate them to a file. Compare the concatenated file and +txnc.bed+. They must be the same except name columns. You may need to verify the correctness of the annotation txdb using other methods for cross check.
 
 anchor:Installation[]
 
@@ -670,6 +917,11 @@ biocLite("DEGseq")
 
 You also need to install an R package, *smutans*, that accompanies *RNAseq Analysis*. The R package uses +DESeq+.
 
+.To install smutans R package.
+----
+R CMD install smutans_0.1.9.tar.gz
+----
+
 BLAST
 ~~~~~
 We will use BLAST for functional association of differentially expressed genes.
@@ -699,7 +951,7 @@ We use +uniprot90+ for functional association.
 wget ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta
 
 BioPerl
--------
+~~~~~~~
 Install BioPerl. We need it when analyzing BLAST result files.
 
 MUSCLE
@@ -961,7 +1213,7 @@ We can convert a gff file to a txdb file. See +R/gff2txdb.R+ or +R/xbasegff2txdb
 REFGENOMETXDB:path/to/NC_004350.txdb
 ----
 
-When gff files are not available, use +pl/bp_genbank2gff3.pl+ to convert a genbank file to a gff file.
+When gff files are not available, use +pl/bp_genbank2gff3.pl+ to convert a genbank file to a gff file. 
 
 ----
 cat file.gbk | perl pl/bp_genbank2gff3.pl -in stdin -out stdout > file.gff
@@ -1148,16 +1400,17 @@ ucsc
 ~~~~
 Files for a UCSC genome browser.
 
-Useful Tools
-------------
-You could annotate bacterial genomes using xbase available at 
-http://www.xbase.ac.uk/annotation.
-You could compare two genomes to find genes unique to one of the two genome using genomeblast available at
-http://bioinfo-srv1.awh.unomaha.edu/genomeblast/tutorial.php. Because genbank files created by +xbase+ were incompatible with the format required by genomeblast, we extract amino acid sequences from genbank file to find genes that are unique to one of the two genomes. A +bioperl+ script, +pl/extractcds.pl+ could be useful to extract protein sequences from a genbank file.
 
 Details and Future Development
 ------------------------------
 You could read the details of implementation as a source code documentation. They may not make sense from the user perspective. Future developments include a pairwise comparison for determining differentially expressed genes, functional association of differentially expressed genes, transcript calls by applying a transcript caller such as ParseRNAseq, export of results (coverage) for showing them in UCSC genome tracks.
+
+Useful Tools
+~~~~~~~~~~~~
+You could annotate bacterial genomes using xbase available at 
+http://www.xbase.ac.uk/annotation.
+You could compare two genomes to find genes unique to one of the two genome using genomeblast available at
+http://bioinfo-srv1.awh.unomaha.edu/genomeblast/tutorial.php. Because genbank files created by +xbase+ were incompatible with the format required by genomeblast, we extract amino acid sequences from genbank file to find genes that are unique to one of the two genomes. A +bioperl+ script, +pl/extractcds.pl+ could be useful to extract protein sequences from a genbank file.
 
 batch3.sh
 ~~~~~~~~~

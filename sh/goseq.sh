@@ -30,7 +30,7 @@ function goseq {
     goseq-speciesfile 
     goseq-push-data
     goseq-get-data
-    # goseq-make-job
+    goseq-make-job
     goseq-run-goseq
     batch3-copy-scripts
     goseq-rmessage
@@ -51,6 +51,14 @@ function goseq-speciesfile {
   GOSEQFASTA=$ROOTANALYSISDIR/$GOSEQFASTA
   REF1GFF=$(grep ^REF1GFF\: $SPECIESFILE | cut -d":" -f2)
   REF1GFF=$ROOTANALYSISDIR/$REF1GFF
+  REFGENOMETXDB=$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)  
+  REFGENOMETXDB=$ROOTANALYSISDIR/$REFGENOMETXDB
+  GENOMETXDB=$(basename $REFGENOMETXDB)
+
+  BLASTEVALUE=$(grep ^BLASTEVALUE\: $SPECIESFILE | cut -d":" -f2)  
+
+  DESEQ=$(grep ^DESEQ\: $SPECIESFILE | cut -d":" -f2)
+  OIFS=$IFS; IFS=','; DESEQCOMPARISON=($DESEQ); IFS=$OIFS
 }
 
 # Send input files to the remote machine.
@@ -80,7 +88,91 @@ EOF
 }
 
 function goseq-make-job {
-  echo No job scripts.  
+cat>$BASEDIR/job-feature<<EOF
+RSCRIPT=Rscript
+\$RSCRIPT $BASEDIR/job-feature.R
+EOF
+
+cat>$BASEDIR/job-feature.R<<EOF
+library(GenomicFeatures)
+library(rtracklayer)
+txdb <- loadFeatures("$REFGENOMETXDB")
+feature.tx <- transcripts(txdb) 
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx)\$tx_id %in% 
+     unlist(elementMetadata(feature.cds)\$tx_id)
+feature.cds <- feature.tx[x]
+names(feature.cds) <- elementMetadata(feature.cds)[,"tx_name"]
+export(feature.cds,"$RUNANALYSIS/feature.genes",format="bed")
+cat("Check $RUNANALYSIS/feature.genes\n")
+EOF
+
+cat>$BASEDIR/job-goseq<<EOF
+RSCRIPT=Rscript
+DESEQ=$DESEQ
+OIFS=\$IFS; IFS=','; DESEQCOMPARISON=(\$DESEQ); IFS=\$OIFS
+for i in "\${DESEQCOMPARISON[@]}"; do
+  OIFS=\$IFS; IFS='/'; SAMPLEAB=(\$i); IFS=\$OIFS
+  CSVFILE=$RUNANALYSIS/\${SAMPLEAB[0]}-\${SAMPLEAB[1]}
+  \$RSCRIPT $BASEDIR/job-goseq.R \${SAMPLEAB[0]} \${SAMPLEAB[1]} \\
+    \$CSVFILE \\
+    $RUNANALYSIS/feature.genes \\
+    $RUNANALYSIS/smutans.gene2go \\
+    $RUNANALYSIS/smutans.go2ngene > \$CSVFILE.goseq
+  echo Check \$CSVFILE.goseq
+done 
+echo "Check $RUNANALYSIS"
+EOF
+
+cat>$BASEDIR/job-goseq.R<<EOF
+library(smutans)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 6)
+{
+  cat ("Rscript job-simulate.R UA159 1SM1 out feature.genes gene2go go2ngene\n")
+  quit("yes")
+}
+sampleA <- args[1]
+sampleB <- args[2]
+csvFile <- paste(args[3],"csv",sep=".")
+clustFile <- paste(args[3],"pdf",sep=".")
+sampleTitle <- paste(sampleA, sampleB)
+sGenes <-
+  readSmutans (countsFile="$BWADIR/count.cds", 
+               indexFile ="$RUNANALYSIS/count.txt.index", 
+               condition = c(sampleA, sampleB),
+               firstFactorLabel = c("reference"),
+               secondFactorLabel = c(sampleA, sampleB))
+omz <- newSmutans( sGenes, title=sampleTitle )
+
+pdf(clustFile)
+smutans.de2Clust( omz )
+dev.off()
+omz <- smutans.de2( omz, type="reference", 
+                    condA=sampleA, condB=sampleB )
+smutans.de2List( omz, csvFile )
+
+f <- args[4]
+smutans.feature.genes = read.table(file=f,head=F)
+stopifnot(ncol(smutans.feature.genes)==6) 
+f <- args[5]
+smutans.go.genes <- read.table(file=f,head=F)
+stopifnot(ncol(smutans.go.genes)==3) 
+f <- args[6]
+smutans.cat.desc = read.table(file=f,head=F,sep="\t",quote="")
+stopifnot(ncol(smutans.cat.desc)==3) 
+
+cat("===============================\n")
+smutans.de2List( omz, qval=0.05 )
+cat("===============================\n")
+smutans.de2Goseq ( omz, qval=0.05, 
+                   feature.gene=smutans.feature.genes,
+                   go.genes=smutans.go.genes,
+                   cat.desc=smutans.cat.desc )
+cat("===============================\n")
+
+EOF
+
 }
 
 function goseq-run-goseq {
@@ -146,8 +238,8 @@ function process-data {
   ./blastp -db $CDATADIR/uniref90 -query $CDATADIR/\$GOSEQFASTA \\
     -task blastp \\
     -outfmt 6 \\
-    -num_threads 8 \\
-    -evalue 0.001 \\
+    -num_threads $NUMBERCPU \\
+    -evalue $BLASTEVALUE \\
     -out $CRUNANALYSIS/goseq.blast
   cp $CRUNANALYSIS/goseq.blast $RRUNANALYSIS
 
@@ -181,6 +273,8 @@ function goseq-rmessage {
   echo "bash $BASEDIR/goseq-push-data.sh"
   echo "work at cac:$CACWORKDIR"
   echo "bash $BASEDIR/goseq-get-data.sh"
+  echo "bash $BASEDIR/job-feature"
+  echo "bash $BASEDIR/job-goseq"
 }
 # END OF GOSEQ
 ################################################################################

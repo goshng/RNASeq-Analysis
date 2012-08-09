@@ -56,6 +56,354 @@ Histories
 ---------
 This history can be useful later.
 
+Thu Aug  9 13:48:19 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Add more RNAseq tracks and count reads mapped on the predicted small RNA
+regions.
+
+Fri Aug  3 09:12:29 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We use use output/data/core-genes-smutans-july31-12.csv to find core genes of 57
+and UA159 strains.
+I need the set of core genes and non-core genes for Smu21 and Smu86 comparisons.
+I also need it for the 7 strain comparisons. Let's do this. I need to find the
+annotations first. See the following file and other 5 txdb file.
+----
+output/denovo/SMU20.txdb
+----
+Inspecting output/smu7 and its species file, we seemed to have run the alignment
+steps. Let's check whether we have a pairwise comparison result file. We have
+result for repetition 6 at output/smu7/6/run-analysis.
+We can use only the core-genes-smutans-july31-12.csv for repetition 1.
+We use output/smu7/1 to annotate UA159 genes.
+Let's extract only gene names from the Excel file,
+output/email/from/michael-stanhope/073112/core\ genes-july31-12.xls 
+to create a CSV file
+output/data/core-genes-smutans-july31-12.csv
+Let's check if locus tags conversion is as expected using 
+data/analysis/NC_004350.gff. R package rtracklayer would be helpful. 
+See the following script to check if we can simply replace the dot in a gene
+name with an underscore.
+----
+sh/check-locus-tag.sh
+----
+SMU_2166, and SMU_2167 are two new genes and the others are tRNAs or rRNAs.
+I have a file, gene_content.tab, for the cluster of genes from Mike. Let us use
+it to find a set of core genes in UA159. I use the following script to 
+----
+sh/find-core-gene.sh 
+----
+We have a perl script pl/find-core-gene.pl, which is used to find core genes.
+Let's use the perl script. Put the script in the sh/find-core-gene.sh. 
+There seems to be more core genes in the list. SMU.1039c belongs to a group with
+at most 54 strains. So, from the procedure that I follow SMU.1039c is not a core
+gene. I use the following script run to create txdb files in output/denovo.
+----
+output/denovo/run
+----
+This is quite a complicate procedure. I am forgetting different things in the
+procedure. Obviously, I cannot remember everything. We have core and non-core
+genes in the following files.
+----
+output/data/SMU20.core.gene
+output/data/SMU21.core.gene
+output/data/SMU44.core.gene
+output/data/SMU56.core.gene
+output/data/SMU57.core.gene
+output/data/SMU69.core.gene
+output/data/SMU86.core.gene
+output/data/UA159.core.gene
+----
+Now, we need find those results that I sent Sara, and append a TRUE or FALSE
+column for each gene. I have files at
+output/email/to/sara-palmer/071712
+Let's use the core gene file and DESeq's csv file to append a TF column.
+For example, use the following two files
+----
+output/email/to/sara-palmer/071712/UA159-11VS1-SMU44.csv
+output/data/SMU44.core.gene
+----
+to append a column to the file. We use a perl script and an R script to create
+the file. See sh/find-core-gene.sh script for the detail of the script.
+
+Thu Aug  2 16:16:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some of RNAz code in github.
+https://github.com/katsuyan/rnaz_extension
+
+Thu Jul 26 10:18:28 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We need to have a list of candidate RNAs. Have them in a BED file. Or, have them
+in R object using rtracklayer and export it.
+
+----
+test/sRNAscanner
+test/rfam
+test/transterm/NC_004350.tt
+----
+
+I create a BED file from Infernal prediction (test/rfam) using rtracklayer. Each
+file in test/rfam/cmsearch contains hits of regions in S. mutans genome. We need
+to choose a E-value threshold to decide which parts are included as predicted
+regions of structural RNAs. I create a perl script, pl/rfam.pl, for converting
+rfam result files to a bam file. I used the pl/rfam.pl to convert cmsearch files
+to BED files. We concatenate all of the BED files to create a single BED file.
+----
+test/rfam/cm.bed
+----
+I use sRNAscanner with its default options to predict small RNAs in intergenic
+regions. The program creates output_files/RNA_position and
+output_files/ng_RNA_position, both of which contain two columns of values for
+location of predicted small RNAs. I used the pl/rfam.pl with srnascanner command
+in the Perl script to create
+----
+test/sRNAscanner/srnascanner.bed
+----
+I use Transterm to predict RITs in S. mutans, creating an output file, which is
+used to create the following BED file.
+----
+test/transterm/transterm.bed
+----
+I use RNIE (https://github.com/ppgardne RNIE: genome-wide prediction of
+bacterial intrinsic terminators by Gardner et al 2011, we used 0.1 E-value
+threshold after running RIT with their trained Covariance Model) to predict RITs 
+----
+test/rnie/rnie.bed
+----
+I will use RNAz to find candiate small RNAs. We also use the sequence alignments
+from Pichon's method. See test/pichon/run for the script.
+.Let's try the Pichon's method. 
+. We have CDS regions from S. mutans.
+. We have RIT regions from TransTerm.
+. We find upstream 200 bp regions of RITs that do not overlap with -25/+60
+regions of CDS's regions.
+. We extract DNA sequences from the genome that correspond to the 200 bp
+upstream of RITs.
+. We align them to a list of bacterial genomes to have multiple sequence
+alignments. This seems to be a critical step in predicting small RNAs, which did
+not have much attention from research community.
+. We have a list of sequence alignments at directory, test/pichon/aln.
+. We need a way of measuring covariation of the alignment by considering all
+possible RNA secondary structrure. Can Infernal's cm programs help me?
+----
+test/pichon/aln
+----
+. It appears to be unclear how to compute the probability of data, or the
+sequence alignment, by integrating over all possible structures and covariance
+model. This has something to do with model averaging, which seems to be
+challenging. If I want to use the machinery of Infernal's command-line tools, I
+might use the inside algorithm for CM (covariance model). I need to build a CM
+using the sequence alignment and a predicted RNA secondary structure. Then, I
+might be able to compute the probability of the data given the CM by summing
+over all possible structures for the sequence alignment data. How do I predict
+a RNA secondary structure using a sequence alignment? RNAalifold (Bernhart08)
+and other methods seem to be used for predicting the consensus RNA secondary
+structure using a sequence alignment. RNAalifold takes files in ClustalW format.
+I use -clw option of Muscle when aligning sequences. I used default options to
+create secondary structures of the alignments. 
+. We build a CM using the RNA secondary structure and the sequence alignment.
+Lindgreen06 addresses the issue of measuring covariation. cmbuild requires a
+file in Stockholm format. Can we use cmbuild or a similar method to score the
+alignment to rank candidate small RNAs? 
+. I do not have a clear idea of how I can rank the sequence alignment and its
+predicted RNA secondary structure. 
+. I use RNAz to score the regions. This is one of ways. I use RNAz to process a
+file in ClustalW format. RNAz's output files contain a line with "SVM RNA-class
+probability:", which is followed by a probability value. This value can be used
+to rank candidate regions of small RNAs with RIT. 
+----
+test/pichon/pichon.bed
+----
+This may be an alternative to Pichon's method. Now, I setup a genome browser for
+small RNAs. I can also use BEDTools to list links to genome browser shots, so
+that Sara can see them in the browser. I start at the following file available
+at compgen.
+----
+compgen:/usr/projects/strep/mutans/SmuUA159v2/run
+----
+How do I load a BED file to a UCSC genome browser? We first load a BED file
+using hgLoadBed: hgLoadBed dbname table file.bed.
+Use the following local tracks after checking out the svn source tree.
+----
+compgen:/home/choi/Documents/Projects/local_tracks
+----
+First, let us try to add the Infernal's structural RNAs.
+Run hgLoadBed SmuUA159v2 infernal cm.bed and 
+edit trackDb/streptococcus/trackDb.ra.
+
+.Add the following track information to trackDb.ra to add a BED file
+----
+track infernal
+shortLabel infernal RFAM
+longLabel infernal RFAM results
+group regulation
+priority 106 
+visibility pack
+type bed 6 . 
+useScore 1
+----
+Run make cornell DBS=SmuUA159v2 at trackDb's base directory.
+
+linksBed -i genes.bed -base http://strep-genome.bscb.cornell.edu 
+  -org streptococcus -db SmuUA159v2 > genes.html
+
+http://strep-genome.bscb.cornell.edu/~choi/ucsc
+
+I use iWeb to create a website.
+
+Wed Jul 25 12:34:57 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's predict small RNAs of S. mutans. A few options of achieving the goal
+include Infernal/Rfam annotation, RNIE, and alignments and predictions based on
+RIT. There is no standard ways of annotating small RNAs. Different criteria
+would find different sets of small RNA prediction. One in common is to use
+multiple sequence alignment for detecting converved regions in conjunction with
+RNA secondary structure prediction. Jiaye's program of inferring s (RNA
+secondary structure impact on evolution) might be useful in scoring small RNA
+candidates. The higher s, the more impact on the evolution of RNAs. We could
+also employ the protein structure impact parameter if the RNAs are anti-sense to
+protein coding DNA sequences on the opposite strand. 
+
+A list of sRNA or small RNA prediction methods
+----
+sRNAPredict3
+sRNAscanner
+RNIE
+RNAz/SIPHT 
+Pichon's method
+Infernal/Rfam
+RNAcode
+RNAdecode
+----
+We have several methods to try for prediction RNAs. Predicted RNAs need to have
+criteria of assementment, or evidence. Does it contain RIT or not? 
+We have a S. mutans UA159 genome version 2. We need to find a list of candidate
+small RNAs with evidence and scores.
+
+What 44 complete genomes?
+
+Mon Jul 23 13:16:31 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To search genomes for small RNAs
+----
+test/infernal
+test/rnie
+test/rfam
+----
+http://infernal.janelia.org/
+
+Melissa told me that Infernal analysis can be done on .
+----
+/usr/projects/strep/mutans/makeInfernalScript.sh
+cac:/home/gfs05/mt269/strep/cmSearch_commands.txt
+cac:/home/gfs05/mt269/strep/runCmSearch.sh
+----
+
+I just download rfam for model files. Using these model files and UA159 genome
+one can annotate the genome with structural RNAs or the RNAs in the model files.
+RNIE or rnie provides model files for annotating RITs.
+
+Sat Jul 21 15:13:19 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It could be useful to use Galaxy as a front-end of a command-line tool. See 
+http://wiki.g2.bx.psu.edu/Admin/Tools/Add%20Tool%20Tutorial for adding a Perl
+script to the Galaxy.
+
+Fri Jul 20 09:31:46 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Galaxy web interface seems to be useful. Is it possible to automate RNAseq
+Analysis using Galaxy web interface? Is it worth trying? I might be able to
+set up a web site that can be used within the school. The set of galaxy seems to
+be easy by following the direcation that is available at
+http://wiki.g2.bx.psu.edu/Admin/Get%20Galaxy
+
+The OrthoMCL seems to be tested. Most of procedure takes not so much time except
+the BLAST, which is done for a day in the cluster with 8 CPUs. 
+We could use mcl alone, or OrthoMCL and mcl combined. We use the latter approach
+because it seems to be what people do. We add one more command in
+find-core-gene.pl for OrthoMCL output file. I am not clear about why we need
+OrthoMCL tool. The mcl can handle some BLAST outputs. At least I need to parse
+the output file differently. We can also create a list of numbers or the number
+of genes in clusters. 
+
+FROM MCL PAPER,
+we have plotted the cumulative size distribution of all clusters obtained at
+different inflation values. For a given cluster size N represented along the
+X-axis, the Y-axis represents the frac- tion of all genes contained in a cluster
+of size at most N. Notice that at any inflation value there is a large number of
+clusters of size 28. These represent well-defined groups of orthologs,
+containing one protein from each species. In order to visualise what is
+happening during the clustering process, we highlight three examples and track
+them across different inflation values.
+----
+y <- c()
+for (i in 3:173) {
+  y <- c(y,sum(x[x<i])/sum(x))
+}
+plot(3:173,y)
+----
+
+Thu Jul 19 08:55:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I executed menu *mcl* again for species ua159 by having 57 strains plus UA159
+genes. I used 1.2 to 2.8 values of so-called inflation parameters. Larger
+inflation would lead to more fine-grained clustering. 
+Do I have to use OrthoMCL? It seems to be a overkill.
+I am trying OrthoMCL.
+mysql -u root -p
+Enter the password. The procedure of BLAST seems to be slow.
+
+The following is blastp options for OrthoMCL, which shows an example of blastall.
+$BLASTP -num_threads 8 -query $FASTAFILE -db $FASTAFILE \
+ -seg yes \
+ -num_descriptions 200000 \
+ -num_alignments 200000 \
+ -dbsize 112642 \
+ -evalue 1e-5 \
+ -outfmt 6 -out $FASTAFILE.blast
+
+########################################
+# blastall vs. blastp
+# -F 'm S'
+#   -seg yes \
+# -v 200000
+#   -num_descriptions 200000 \
+# -b 200000  
+#   -num_alignments 200000 \
+# -z 112642
+#   -dbsize 112642 \
+# -e 1e-5 
+#   -evalue 1e-5 \
+########################################
+
+Wed Jul 18 10:14:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I found a tool called cytoscape, which can be useful for visualizing mcl cluster
+result. 
+http://opentutorials.cgl.ucsf.edu/index.php/Tutorial:ClusterMakerScenario2
+How can I open mcl results in cytoscape?
+A simple .sif file can be created from mclblastline's dump file, e.g., 
+dump.out.all.blastp.tab.I12. I inserted a string, e.g., typeA, after the first
+column if there are multiple columns. I could open the new .sif file using menu
+File/Import/Network (Multiple File Types)... in cytoscape.
+Find core genes in Smu21 and Smu86 among the 57 strains. I need a list of genes
+of Smu21 and Smu86. Let's use menu goseq to create a feature.genes file using
+txdb file. Use the feature.genes and mcl dump file to find core genes.
+----
+perl pl/find-core-gene.pl core -bed feature.genes -mcl dump-file.mcl
+---
+We should have added UA159 proteins in the list for the cluster. Let's create a
+menu *mcl* for this.
+----
+perl pl/extractcds.pl -f Genbank file.gbk > file.faa
+perl pl/bioperl-get-protein.pl protein -in file.gbk -out file.faa
+----
+I think that pl/bioperl-get-protein.pl has been back to the old. DNA option does
+not work. I need to find those codes.
+
+Let us create a txdb with protein IDs. Let's use bp_genbank2gff3.pl to create a
+gff file from a genbank file. 
 
 Tue Jul 17 12:38:20 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,8 +431,18 @@ mcxdeblast --m9 --score=e all.blastp.tab
 mclblastline --mcl-I=1.6 --start-assemble all.blastp.tab
 ----
 The BLAST takes time. I am running it on CAC using 8 CPUs. How long? Within a
-day in the CAC.
-BACKTOHERE
+day in the CAC. Use the following command lines to use mcl.
+----
+MCXDEBLAST=$HOME/usr/bin/mcxdeblast
+perl $MCXDEBLAST --m9 --score=e --sort=a all.blast.tab
+MCXASSEMBLE=$HOME/usr/bin/mcxassemble 
+$MCXASSEMBLE -b all.blast.tab -r max --map
+MCLBLASTLINE=$HOME/usr/bin/mclblastline 
+$MCLBLASTLINE --start-mcl --mcl-I=1.2 all.blast.tab
+Parse dump.out.all.blast.tab.I12 to create core and non-core genes.
+----
+We might need to change the options of mcl to see the effects in the core and
+non-core genes.
 
 The BLAST job in the CAC was finished. I use pl/geneontology.pl to parse it.
 This takes time. How long? It also takes too much memory. This did not take long
@@ -95,7 +453,27 @@ output/ua159/1/run-analysis/smutans.gene2go
 output/ua159/1/run-analysis/smutans.go2ngene
 ----
 We can use these to find functional associations of DE genes that are determined
-by pH5/pH7, and nocsp/csp.
+by pH5/pH7, and nocsp/csp. Let's see smutans R package. I need to create this
+file.
+----
+package/smutans/inst/extdata/feature-genome.out-geneonly
+----
+
+.Use GenomicFeatures to get feature-genome.
+----
+library(GenomicFeatures)
+library(rtracklayer)
+txdb <- loadFeatures("NC_004350.txdb")
+feature.tx <- transcripts(txdb) 
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx)$tx_id %in% unlist(elementMetadata(feature.cds)$tx_id)
+feature.cds <- feature.tx[x]
+names(feature.cds) <- elementMetadata(feature.cds)[,"tx_name"]
+export(feature.cds,"feature.txt",format="bed")
+Save feature.cds in a file with columns like those of feature-genome.out-geneonly
+How do I change the name of GRanges object?
+----
+
 
 Mon Jul 16 10:43:43 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
