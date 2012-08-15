@@ -1,7 +1,7 @@
 User Manual of RNAseq Analysis
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
-v0.1.6, July 2012
+v0.1.7, August 2012
 
 Introduction
 ------------
@@ -95,40 +95,25 @@ Kick Start
 .Find functional associations of differentially expressed genes
 . Use smutans R package.
 
+.Upload BAM files
+. Add KEEPBAM:YES
+. Execute menu *batch3*
+
 Menus
 -----
-*RNAseq Analysis* menus provide users with access to commands for analyzing
-bacterial RNA-seq data. We assume that we would create output directories at _ROOTANALYSISDIR_ directory, which can be different from the current source root directory of *RNAseq Analysis*.
+*RNAseq Analysis* menus provide users with access to commands for analyzing bacterial RNA-seq data. We assume that we would create output directories at _ROOTANALYSISDIR_ directory, which can be different from the current source root directory of *RNAseq Analysis*.
 
 anchor:init-file-system[]
 
 init-file-system
 ~~~~~~~~~~~~~~~~
-This creates +ROOTANALYSISDIR/output+ directory. As mentioned above, we write +output+ without _ROOTANALYSISDIR_. 
-Because the output directory can be large, a
-separate hard drive can be mounted and used by symbolic links. Users might want
-to create +data+, and +downloads+ directories. The +data+ can be used to store
-raw data files including FASTQ, genome, and genome annotation files. The
-+downloads+ directory can be used to store other software packages for
-installation.
+This creates +ROOTANALYSISDIR/output+ directory. As mentioned above, we write +output+ without _ROOTANALYSISDIR_. Because the output directory can be large, a separate hard drive can be mounted and used by symbolic links. Users might want to create +data+, and +downloads+ directories. The +data+ can be used to store raw data files including FASTQ, genome, and genome annotation files. The +downloads+ directory can be used to store other software packages for installation.
 
 anchor:choose-species[]
 
 choose-species
 ~~~~~~~~~~~~~~
-Create a file in +ROOTANALYSISDIR/species+ directory before calling this menu.
-We write +species+ without _ROOTANALYSISDIR_. 
-Refer to the 
-section <<SpeciesFile,Species File>>. It creates output directories at the
-species named subdirectory in +output+ directory. Choose a species and a
-repetition number as you are asked. The repetition number can be set in a species file.
-Note that we use the following output
-directory structure. _DATADIR_ is prefixed by _ROOTANALYSISDIR_.
-We use the same output structures in the compute node by
-prefixing _C_, and in the remote machine by prefixing _R_. For example,
-_CDATADIR_ is similar to _DATADIR_ except _OUTPUTDIR_ being just +output+.
-_RDATADIR_ is different from _DATADIR_ in that _OUTPUTDIR_ is replaced by
-_ROUTPUTDIR_, which is set in +conf/README+.
+Create a file in +ROOTANALYSISDIR/species+ directory before calling this menu. We write +species+ without _ROOTANALYSISDIR_. Refer to the section <<SpeciesFile,Species File>>. It creates output directories at the species named subdirectory in +output+ directory. Choose a species and a repetition number as you are asked. The repetition number can be set in a species file. Note that we use the following output directory structure. _DATADIR_ is prefixed by _ROOTANALYSISDIR_. We use the same output structures in the compute node by prefixing _C_, and in the remote machine by prefixing _R_. For example, _CDATADIR_ is similar to _DATADIR_ except _OUTPUTDIR_ being just +output+. _RDATADIR_ is different from _DATADIR_ in that _OUTPUTDIR_ is replaced by _ROUTPUTDIR_, which is set in +conf/README+.
 
 anchor:ShellVariable[]
 
@@ -144,26 +129,13 @@ DATADIR=$NUMBERDIR/data
 BWADIR=$NUMBERDIR/bwa
 RUNANALYSIS=$NUMBERDIR/run-analysis
 ----
-This menu starts to create a directory named after the species file name 
-in the main +output+ directory: _BASEDIR_. Each species named directory can
-contain numbered directories. The number corresponds to _REPETITION_ or repeated
-analyses under the species named project. We would start with a number 1 for the
-first repetition. You can specify _REPETITION_ in the species file. Otherwise, it is set to 1 by default.
-In a number directory, you can have directories such as
-+data+, +bwa+, +run-analysis+, etc.  The +bwa+ directory would contains results
-from analyses using *BWA*. In the bash scripts you can access these directories
-using shell variables. See +sh/global-variable.sh+ for details.
+This menu starts to create a directory named after the species file name in the main +output+ directory: _BASEDIR_. Each species named directory can contain numbered directories. The number corresponds to _REPETITION_ or repeated analyses under the species named project. We would start with a number 1 for the first repetition. You can specify _REPETITION_ in the species file. Otherwise, it is set to 1 by default. In a number directory, you can have directories such as +data+, +bwa+, +run-analysis+, etc.  The +bwa+ directory would contains results from analyses using *BWA*. In the bash scripts you can access these directories using shell variables. See +sh/global-variable.sh+ for details.
 
 anchor:convert-gff2txdb[]
 
 convert-gff2txdb
 ~~~~~~~~~~~~~~~~
-We need an annotation file for differential expression study. We 
-create a txdb file using a gff or a BED file. 
-Because we assume chromosome names to be chr1, chr2, and the like.  
-edit the gff file so that the chromosome name is chr1 for a single chromosome
-bacterial genome. Bacterial genomes with multiple chromosomes should have
-chr1, chr2, etc. You might want to use your own txdb file. Use an R script in +R+ directory to learn to create a txdb file from scratch. See, for example, +R/gff2txdb.R+.
+We need an annotation file for differential expression study. We create a txdb file using a gff or a BED file. Because we assume chromosome names to be chr1, chr2, and the like. edit the gff file so that the chromosome name is chr1 for a single chromosome bacterial genome. Bacterial genomes with multiple chromosomes should have chr1, chr2, etc. You might want to use your own txdb file. Use an R script in +R+ directory to learn to create a txdb file from scratch. See, for example, +R/gff2txdb.R+.
 
 .To create txdb from gff
 ----
@@ -175,49 +147,16 @@ anchor:batch3[]
 
 batch3
 ~~~~~~
-We use the +PRINSEQ+ perl script for quality control.
-The data quality control steps includes removing low quality reads,
-trimming low quality 3' end parts, timming parts of adapters, and the like.  
-We use BioConductor R packages to count reads on a reference annotation of a genome.
-Because the shell scripts in *RNA-seq Analysis* create directories and save
-output files in them, it is good to know what output directories are created. The
-structure of output directories in the local machine where you execute the main
-+run+ script is similar to that in the remote machine such as a cluster of
-compute nodes. In the cluster, you will have a base directory where you would
-submit jobs. This is called a working directory at the cluster, which can be
-configured using _CACWORKDIR_ species variable.  In compute nodes, you will also
-have base directories that are created in +/tmp+ directory. Under the +/tmp+
-directory, you will have a temporary directory; e.g.,
-+1209759-3.scheduler.v4linux+, which would be the base directory in a compute
-node. Refer to menu *choose-species* for the directory structure in a base
-direcotry.
+We use the +PRINSEQ+ perl script for quality control. The data quality control steps includes removing low quality reads, trimming low quality 3' end parts, timming parts of adapters, and the like. We use BioConductor R packages to count reads on a reference annotation of a genome. Because the shell scripts in *RNA-seq Analysis* create directories and save output files in them, it is good to know what output directories are created. The structure of output directories in the local machine where you execute the main +run+ script is similar to that in the remote machine such as a cluster of compute nodes. In the cluster, you will have a base directory where you would submit jobs. This is called a working directory at the cluster, which can be configured using _CACWORKDIR_ species variable.  In compute nodes, you will also have base directories that are created in +/tmp+ directory. Under the +/tmp+ directory, you will have a temporary directory; e.g., +1209759-3.scheduler.v4linux+, which would be the base directory in a compute node. Refer to menu *choose-species* for the directory structure in a base direcotry.
 
-Menu *batch3* creates a number of scripts at _BASEDIR_ 
-(See <<ShellVariable,Output directories>>).  One of the shell
-scripts, +push-data.sh+, is created at _BASEDIR_ by function _batch3-push-data_
-of shell script +sh/batch3.sh+. The shell script transfer 
-input files including RNA-seq data files to the remote machine.
-You might want to check the script to see what files are copied to the
-cluster before executing it because copying large files can take minutes.
-I would copy large RNA-seq data files only once. 
-You could manually copy some files, or change file paths in the remote computer 
-because often the hard drive space at a remote computer can be limited.
-The script also creates data, and bwa directories in the cluster.
-It copies the reference genome, and the annotation file in txdb format.
+Menu *batch3* creates a number of scripts at _BASEDIR_ (See <<ShellVariable,Output directories>>).  One of the shell scripts, +push-data.sh+, is created at _BASEDIR_ by function _batch3-push-data_ of shell script +sh/batch3.sh+. The shell script transfer input files including RNA-seq data files to the remote machine. You might want to check the script to see what files are copied to the cluster before executing it because copying large files can take minutes. I would copy large RNA-seq data files only once. You could manually copy some files, or change file paths in the remote computer because often the hard drive space at a remote computer can be limited. The script also creates data, and bwa directories in the cluster. It copies the reference genome, and the annotation file in txdb format.
 
 .To copy data files to the cluster
 ----
 $ bash output/ua159/push-data.sh
 ----
 
-Wait! You might want to make sure whether the setup is complete before sending
-files and submiting jobs to process those files.  
-We take two steps back before we submit jobs to get
-the result. First, you go through what variables need to be set in the
-species file (see section <<SpeciesFile,Species File>>).
-Second, you can use a test data set to check whether your
-pipeline is working as expected. To test the pipeline of *RNAseq Analysis*, set 
-_FASTQFILES_, and others in the species file
+Wait! You might want to make sure whether the setup is complete before sending files and submiting jobs to process those files. We take two steps back before we submit jobs to get the result. First, you go through what variables need to be set in the species file (see section <<SpeciesFile,Species File>>). Second, you can use a test data set to check whether your pipeline is working as expected. To test the pipeline of *RNAseq Analysis*, set _FASTQFILES_, and others in the species file
 
 ----
 FASTQFILES:101 102
@@ -228,19 +167,9 @@ ADAPTER102:GATCGGAAGAGCACACGTCTGAACTCCAGTCACCTTGTAATCTCGTATGCCGTCTTCTGCTTG
 QCALIGNDEWALLTIME:1
 ----
 
-Warning, again! Backup your important raw data files before using *RNAseq Analysis*. If
-you specify _FASTQFILES_ to FASTQ file IDs of your real data, and execute +job-simulate+,
-then your FASTQ files will be deleted for good. Use *RNAseq Analysis* at your own risk.
+Warning, again! Backup your important raw data files before using *RNAseq Analysis*. If you specify _FASTQFILES_ to FASTQ file IDs of your real data, and execute +job-simulate+, then your FASTQ files will be deleted for good. Use *RNAseq Analysis* at your own risk.
 
-A simulation is not sufficient to check whether the pipeline of counting
-short reads mapped on a reference genome is working properly. It is a
-necessary condition. It also provides a way of debugging the scripts of *RNAseq Analysis*
-when it does not work as expected. The simulation and checking the pipeline takes
-minutes while your real data anlaysis might take hours.
-You might want to use a development queue of your UNIX cluster so that you do not 
-wait for your jobs to complete when queues are full.  
-I set both of the wall time to 1 hour
-to use a development queue by editting +conf/README+. 
+A simulation is not sufficient to check whether the pipeline of counting short reads mapped on a reference genome is working properly. It is a necessary condition. It also provides a way of debugging the scripts of *RNAseq Analysis* when it does not work as expected. The simulation and checking the pipeline takes minutes while your real data anlaysis might take hours. You might want to use a development queue of your UNIX cluster so that you do not wait for your jobs to complete when queues are full. I set both of the wall time to 1 hour to use a development queue by editting +conf/README+. 
 
 ----
 QUEUENAME:v4dev
@@ -254,28 +183,19 @@ cac$ bash run-qcalignde.sh
 cac$ bash job-check
 ----
 
-The last command, +job-check+, check whether two numbers are similar. 
-The ratio of correction means the
-proportion of genes with equal numbers of short reads mapped on a reference
-genome from the simulation.
-The number should be near 1. Often, they were larger than 0.9 but not 0.95. 
-Once you are finished with simulation checks, change the type of queue in the
-configuration file, and wall time _QCALIGNDEWALLTIME_ in the species file. 
-Go through the check list above. Then, submit the job at _CACWORKDIR_.
+The last command, +job-check+, check whether two numbers are similar. The ratio of correction means the proportion of genes with equal numbers of short reads mapped on a reference genome from the simulation. The number should be near 1. Often, they were larger than 0.9 but not 0.95. Once you are finished with simulation checks, change the type of queue in the configuration file, and wall time _QCALIGNDEWALLTIME_ in the species file. Go through the check list above. Then, submit the job at _CACWORKDIR_.
 
 ----
 cac$ bash run-qcalignde.sh
 ----
 
-Once your jobs are finished, run the following command to create count
-files.
+Once your jobs are finished, run the following command to create count files.
 
 ----
 cac$ bash job-de-sum
 ----
 
-You can also create base quality scores of short reads before and after (Not yet implemented) trimming
-3' end of short reads.
+You can also create base quality scores of short reads before and after (Not yet implemented) trimming 3' end of short reads.
 
 ----
 cac$ bash job-stat-plot
@@ -287,9 +207,7 @@ Get result files from the cluster.
 $ bash output/ua159/get-data.sh
 ----
 
-You will have two kinds of files for determining differentially expressed genes:
-+count+ and +count.txt.index+. You can use smutans R package to achieve
-this. 
+You will have two kinds of files for determining differentially expressed genes: +count+ and +count.txt.index+. You can use smutans R package to achieve this. 
 
 ----
 output/ua159/1/bwa/count
@@ -1112,7 +1030,7 @@ Check a list of species file variables in the following.  Note that we must have
 . pipeline wall time in _QCALIGNDEWALLTIME_
 . minimum alignment mapping quality in _MINMAPQ_
 . minimum base quality to trim 3' end in _MINTRIMQ_
-. Rscript path in _CACRSCRIPT_
+. keep BAM files using _KEEPBAM_
 
 fastq files
 ~~~~~~~~~~~
@@ -1250,8 +1168,40 @@ We trim the 3' end of short reads using a threshold of base quality.
 MINTRIMQ:20
 ----
 
+keep BAM files
+~~~~~~~~~~~~~~
+We might want to keep sorted BAM files by setting _KEEPBAM_ variable.
+
+----
+KEEPBAM:YES
+----
+
+
 Files
 -----
+The base directory contains files and directories. Some files and directories are stored in the source repository such as git, and others in local machines. As I mentioned earlier, a separate hard drive can be used to store an +output+ directory. Three base directories are used for the convenience of development. 
+
+.Dropbox base directory
+----
+/Users/goshng/Dropbox/Documents/Projects/RNASeq-Analysis
+----
+
+.Local base directory
+----
+/Users/goshng/Documents/Projects/RNASeq-Analysis
+----
+
+.Storage base directory
+----
+/Volumes/Elements/Documents/Projects/RNASeq-Analysis
+----
+
+The Dropbox and local base directories can be combined into one. We would clone a git repository via github at th Dropbox +Projects+ directory, or local +Projects+ directory. When cloning a git repository at a Dropbox base directory, you may have to still create a local base directory. In the local base directory, link some directories (+pl+, +sh+, and +src+) and the main script file +run+ using soft links. The storage base directory would contain directories for input and output files such as +data+, +downloads+, +email+, +log+, and +output+ directories. Users can create other files and soft-link them at the local base directory. This soft-links allow us to use the local base directory as the main base directory by merging source code and data.
+
+.Clone a git repository
+----
+git clone git@github.com:goshng/RNASeq-Analysis.git 
+----
 
 AUTHORS
 ~~~~~~~
@@ -1260,6 +1210,10 @@ Sang Chul Choi uses Perl, R, and NGS programs to analyze bacterial transcriptome
 COPYING
 ~~~~~~~
 The GNU General Public License. 
+
+ChangeLog
+~~~~~~~~~
+This is a little different from a typical ChangeLog. It is more or less of history of my work. You could find some of actual codes or scripts in +log+ directory.
 
 INSTALL
 ~~~~~~~
@@ -1300,6 +1254,10 @@ The *RNAseq Analysis* is configured using the +README+ in the +conf+ directory.
 doc
 ~~~
 Users should refer to documentation in +doc+ directory, which also contains +lyx+ files for potential publications from the analysis of bacterial transcriptome.
+
+log
+~~~
+This is placed at the storage base directory, where a number of directories can be placed as you do some analyses. The directory name is MMDDYY, where MM is month, DD is a day, and YY is the year. See the ChangeLog for some working information.
 
 package
 ~~~~~~~
@@ -1596,3 +1554,4 @@ awk 'BEGIN {srand()} !/^$/ {if (rand() <= .05 && NR%4==0) for ( o = 1; o <= 4; o
 ----
 fastq-sample.sh FASTQ056.fq.gz FASTQ056-0.001.fq.gz 0.001
 ----
+

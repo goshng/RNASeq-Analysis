@@ -59,7 +59,75 @@ This history can be useful later.
 Thu Aug  9 13:48:19 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Add more RNAseq tracks and count reads mapped on the predicted small RNA
-regions.
+regions. This is about UCSC genome browser tracks. First, we need to have BAM
+files. A BAM file can be placed at http or ftp sites; for example, in a compgen
+----
+compgen:public_html/FASTQ001.sorted.bam
+----
+We place it somewhere database can read.
+----
+/gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam
+----
+We create a table whose name is the same as the track name, e.g., 
+FASTQ001rnaseqBam. We then create the table as follows:
+
+mysql> select * from FASTQ001rnaseqBam;
++----------------------------------------------------+
+| fileName                                           |
++----------------------------------------------------+
+| /gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam | 
++----------------------------------------------------+
+
+How should I change the trackDb.ra file?
+----
+track FASTQ001rnaseqBam
+shortLabel RNA-seq BAM FASTQ001
+longLabel RNA-seq BAM FASTQ001
+group genes
+priority 1
+visibility pack
+type bam 
+----
+Let's create BAM files. So, we need BAM files.
+We added a new species variable, KEEPBAM:YES.
+Let's move BAM and BAM.bai (index) files to 
+compgen:/gbdb_cornell/SmuUA159v2/bbi/
+Let's create a table for
+/gbdb_cornell/SmuUA159v2/bbi/FASTQ002.sorted.bam
+We use hgBbiDbLink for creating a table for BAM track.
+hgBbiDbLink databaseName desiredTableName pathToDataFile
+hgBbiDbLink SmuUA159v2 FASTQ001rnaseqBam /gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam
+hgBbiDbLink SmuUA159v2 FASTQ002rnaseqBam /gbdb_cornell/SmuUA159v2/bbi/FASTQ002.sorted.bam
+We add a track to a trackDb file at
+local_tracks/trackDb/streptococcus/trackSmuUA159v2/trackDb.ra
+Then, I execute  
+make cornell DBS=SmuUA159v2
+at 
+local_tracks/trackDb
+http://strep-genome.bscb.cornell.edu 
+See sh/add-track-ucsc-bam.sh for a how-to of creating tables for BAM tracks.
+
+Let's create the BED files of small RNA, and count reads mapped on it. 
+----
+test/pichon/pichon.bed
+test/rfam/cm.bed
+test/sRNAscanner/srnascanner.bed
+----
+We have the following BED files. Let's consider a BAM file
+----
+output/ua159/1/bwa/FASTQ001.sorted.bam
+----
+We need an R script to count the reads.
+----
+R/count-reads.R
+----
+I create a count file for the BED file.
+----
+test/pichon/pichon.bed.cl
+test/rfam/cm.bed.cl
+test/sRNAscanner/srnascanner.bed.cl
+----
+See +log/080912+ for the process.
 
 Fri Aug  3 09:12:29 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

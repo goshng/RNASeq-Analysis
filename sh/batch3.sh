@@ -93,6 +93,7 @@ function batch3-speciesfile {
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
   MINTRIMQ=$(grep ^MINTRIMQ\: $SPECIESFILE | cut -d":" -f2)
+  KEEPBAM=$(grep ^KEEPBAM\: $SPECIESFILE | cut -d":" -f2)
 }
 
 # Send input files to the remote machine.
@@ -134,6 +135,9 @@ scp $CAC_USERHOST:$RBWADIR/count.m.tx $BWADIR
 for i in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$i)
   scp $CAC_USERHOST:$RBWADIR/\$FASTQNUM*fq.qualPlot.* $BWADIR
+  if [ "$KEEPBAM" == "YES" ]; then
+    scp $CAC_USERHOST:$RBWADIR/\$FASTQNUM.sorted.bam* $BWADIR
+  fi
 done 
 scp $CAC_USERHOST:$RBWADIR/stat1.tex $BWADIR
 echo "Check $BWADIR"
@@ -344,6 +348,7 @@ fi
 ./samtools sort $CBWADIR/FASTQ\$1.bam \$3 &> /dev/null
 rm $CBWADIR/FASTQ\$1.sai
 rm $CBWADIR/FASTQ\$1.bam
+
 EOF
 
 cat>$BASEDIR/feature-txnc.txt<<EOF
@@ -810,6 +815,10 @@ function process-data {
   bash job-bwa-align \$NUM \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted
+  if [ "$KEEPBAM" == "YES" ]; then
+    samtools index $CBWADIR/FASTQ\$NUM.sorted.bam 
+    cp $CBWADIR/FASTQ\$NUM.sorted.bam* $RBWADIR
+  fi
 
   # 3. Count short reads
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
