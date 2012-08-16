@@ -700,24 +700,24 @@ BWA
 Dowanload BWA source code available at http://bio-bwa.sourceforge.net. 
 
 ----
-$ downloads/bwa-0.6.1.tar.bz2
+$ downloads/bwa-0.6.2.tar.bz2
 ----
 
 Extract the file and compile it.
 
 ----
 $ cd downloads/build
-$ tar jxf ../bwa-0.6.1.tar.bz2
-$ cd bwa-0.6.1; make; cd ..
-$ mv bwa-0.6.1 $HOME/usr/bin
+$ tar jxf ../bwa-0.6.2.tar.bz2
+$ cd bwa-0.6.2; make; cd ..
+$ mv bwa-0.6.2 $HOME/usr/bin
 ----
 
 Edit +conf/README+ if necessary; Add the following line. The base directory is
 $HOME or your home directory. Shell variable $BWA is replaced by
-+/home/userid/usr/bin/bwa-0.6.1/bwa+.
++/home/userid/usr/bin/bwa-0.6.2/bwa+.
 
 ----
-BWA:usr/bin/bwa-0.6.1/bwa
+BWA:usr/bin/bwa-0.6.2/bwa
 ----
 
 SAMTools
@@ -825,10 +825,12 @@ to install the R packages:
 biocLite("DESeq")
 biocLite("ShortRead")
 biocLite("rtracklayer")
-biocLite("GenomicRanges")
-biocLite("VariantAnnotation")
 biocLite("GenomicFeatures")
+biocLite("VariantAnnotation")
+The following are installed by the above R packages.
+biocLite("GenomicRanges")
 biocLite("Rsamtools")
+The following are optional.
 biocLite("edgeR")
 biocLite("DEGseq")
 ----
@@ -839,6 +841,14 @@ You also need to install an R package, *smutans*, that accompanies *RNAseq Analy
 ----
 R CMD install smutans_0.1.9.tar.gz
 ----
+
+libxml2
+~~~~~~~
+Download +libxml2+ from http://xmlsoft.org and install it into the machine. R package +DESeq+ requires other R packages that need +libxml2+.
+
+zlib
+~~~~
+Sometime this is also required by +Rsamtools+.
 
 BLAST
 ~~~~~
@@ -1198,8 +1208,9 @@ The base directory contains files and directories. Some files and directories ar
 
 The Dropbox and local base directories can be combined into one. We would clone a git repository via github at th Dropbox +Projects+ directory, or local +Projects+ directory. When cloning a git repository at a Dropbox base directory, you may have to still create a local base directory. In the local base directory, link some directories (+pl+, +sh+, and +src+) and the main script file +run+ using soft links. The storage base directory would contain directories for input and output files such as +data+, +downloads+, +email+, +log+, and +output+ directories. Users can create other files and soft-link them at the local base directory. This soft-links allow us to use the local base directory as the main base directory by merging source code and data.
 
-.Clone a git repository
+.Clone a git repository (read-only and edit)
 ----
+git clone git://github.com/goshng/RNASeq-Analysis.git
 git clone git@github.com:goshng/RNASeq-Analysis.git 
 ----
 
