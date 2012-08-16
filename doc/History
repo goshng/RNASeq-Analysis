@@ -1,0 +1,2987 @@
+RNA-Seq Protocols and Analyses
+==============================
+Sang Chul Choi <goshng@yahoo.co.kr>
+
+Let me focus on the comparative study of the 7 strain (species file smu7). See
+run/rnaseq/070612
+run/rnaseq/051112
+
+To Do
+-----
+.Immediate term
+. Develop (or improve ParseRNAseq) something to use processed RNA-seq data.
+
+.Intermediate term
+. Genome annotations using the RNA-Seq data sets.
+
+.Long term
+. Study of evolution of bacterial gene expression 
+
+S. mutans
+~~~~~~~~~
+Others - Vince (S. agalactiae)
+         Sangjoon (835P/NP)
+         Sara (pH5/7, NoCSP/CSP)
+         SangChul (Galucose/Galactose)
+         Comparative study of the 7 strains (UA159 and one of the 6 strains)
+
+Tracks
+1. known genes, transcripts, BAM, wiggle BAM tracks, wiggle in log(x+1)
+2. hgcentral_protected is protected? The four DB's are not displayed.
+
+Tomato
+~~~~~~
+1. Number of reads or depth on variants
+2. Remove read duplicates
+3. Threshold 3 read depths
+4. Poly-pen analysis
+5. Compare IL and persicum to remove vairants with the same variants.
+
+Check if Bayesian variable selection regression could work for finding
+connection between chemicals and variants.
+
+S. agalactiae
+~~~~~~~~~~~~~
+1. sag82, sag56, sag2: transcriptome definitions.
+   S. agalactiae genome browser up.
+2. Fixing milk condition compare cow and human strains.
+   Human genes in milk condition.
+3. Fixing cow strains compare milk and broth conditions.
+   And, fixing human strains.
+4. Count reads mapped on genes unique to cows. Those genes are from Vince paper.
+   Comparative genomics and the role of lateral gene transfer in the evolution
+   of bovine adapted Streptococcus agalactiae.
+
+Histories
+---------
+This history can be useful later.
+
+Thu Aug  9 13:48:19 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Add more RNAseq tracks and count reads mapped on the predicted small RNA
+regions. This is about UCSC genome browser tracks. First, we need to have BAM
+files. A BAM file can be placed at http or ftp sites; for example, in a compgen
+----
+compgen:public_html/FASTQ001.sorted.bam
+----
+We place it somewhere database can read.
+----
+/gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam
+----
+We create a table whose name is the same as the track name, e.g., 
+FASTQ001rnaseqBam. We then create the table as follows:
+
+mysql> select * from FASTQ001rnaseqBam;
++----------------------------------------------------+
+| fileName                                           |
++----------------------------------------------------+
+| /gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam | 
++----------------------------------------------------+
+
+How should I change the trackDb.ra file?
+----
+track FASTQ001rnaseqBam
+shortLabel RNA-seq BAM FASTQ001
+longLabel RNA-seq BAM FASTQ001
+group genes
+priority 1
+visibility pack
+type bam 
+----
+Let's create BAM files. So, we need BAM files.
+We added a new species variable, KEEPBAM:YES.
+Let's move BAM and BAM.bai (index) files to 
+compgen:/gbdb_cornell/SmuUA159v2/bbi/
+Let's create a table for
+/gbdb_cornell/SmuUA159v2/bbi/FASTQ002.sorted.bam
+We use hgBbiDbLink for creating a table for BAM track.
+hgBbiDbLink databaseName desiredTableName pathToDataFile
+hgBbiDbLink SmuUA159v2 FASTQ001rnaseqBam /gbdb_cornell/SmuUA159v2/bbi/FASTQ001rnaseqBam.bam
+hgBbiDbLink SmuUA159v2 FASTQ002rnaseqBam /gbdb_cornell/SmuUA159v2/bbi/FASTQ002.sorted.bam
+We add a track to a trackDb file at
+local_tracks/trackDb/streptococcus/trackSmuUA159v2/trackDb.ra
+Then, I execute  
+make cornell DBS=SmuUA159v2
+at 
+local_tracks/trackDb
+http://strep-genome.bscb.cornell.edu 
+See sh/add-track-ucsc-bam.sh for a how-to of creating tables for BAM tracks.
+
+Let's create the BED files of small RNA, and count reads mapped on it. 
+----
+test/pichon/pichon.bed
+test/rfam/cm.bed
+test/sRNAscanner/srnascanner.bed
+----
+We have the following BED files. Let's consider a BAM file
+----
+output/ua159/1/bwa/FASTQ001.sorted.bam
+----
+We need an R script to count the reads.
+----
+R/count-reads.R
+----
+I create a count file for the BED file.
+----
+test/pichon/pichon.bed.cl
+test/rfam/cm.bed.cl
+test/sRNAscanner/srnascanner.bed.cl
+----
+See +log/080912+ for the process.
+
+Fri Aug  3 09:12:29 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We use use output/data/core-genes-smutans-july31-12.csv to find core genes of 57
+and UA159 strains.
+I need the set of core genes and non-core genes for Smu21 and Smu86 comparisons.
+I also need it for the 7 strain comparisons. Let's do this. I need to find the
+annotations first. See the following file and other 5 txdb file.
+----
+output/denovo/SMU20.txdb
+----
+Inspecting output/smu7 and its species file, we seemed to have run the alignment
+steps. Let's check whether we have a pairwise comparison result file. We have
+result for repetition 6 at output/smu7/6/run-analysis.
+We can use only the core-genes-smutans-july31-12.csv for repetition 1.
+We use output/smu7/1 to annotate UA159 genes.
+Let's extract only gene names from the Excel file,
+output/email/from/michael-stanhope/073112/core\ genes-july31-12.xls 
+to create a CSV file
+output/data/core-genes-smutans-july31-12.csv
+Let's check if locus tags conversion is as expected using 
+data/analysis/NC_004350.gff. R package rtracklayer would be helpful. 
+See the following script to check if we can simply replace the dot in a gene
+name with an underscore.
+----
+sh/check-locus-tag.sh
+----
+SMU_2166, and SMU_2167 are two new genes and the others are tRNAs or rRNAs.
+I have a file, gene_content.tab, for the cluster of genes from Mike. Let us use
+it to find a set of core genes in UA159. I use the following script to 
+----
+sh/find-core-gene.sh 
+----
+We have a perl script pl/find-core-gene.pl, which is used to find core genes.
+Let's use the perl script. Put the script in the sh/find-core-gene.sh. 
+There seems to be more core genes in the list. SMU.1039c belongs to a group with
+at most 54 strains. So, from the procedure that I follow SMU.1039c is not a core
+gene. I use the following script run to create txdb files in output/denovo.
+----
+output/denovo/run
+----
+This is quite a complicate procedure. I am forgetting different things in the
+procedure. Obviously, I cannot remember everything. We have core and non-core
+genes in the following files.
+----
+output/data/SMU20.core.gene
+output/data/SMU21.core.gene
+output/data/SMU44.core.gene
+output/data/SMU56.core.gene
+output/data/SMU57.core.gene
+output/data/SMU69.core.gene
+output/data/SMU86.core.gene
+output/data/UA159.core.gene
+----
+Now, we need find those results that I sent Sara, and append a TRUE or FALSE
+column for each gene. I have files at
+output/email/to/sara-palmer/071712
+Let's use the core gene file and DESeq's csv file to append a TF column.
+For example, use the following two files
+----
+output/email/to/sara-palmer/071712/UA159-11VS1-SMU44.csv
+output/data/SMU44.core.gene
+----
+to append a column to the file. We use a perl script and an R script to create
+the file. See sh/find-core-gene.sh script for the detail of the script.
+
+Thu Aug  2 16:16:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some of RNAz code in github.
+https://github.com/katsuyan/rnaz_extension
+
+Thu Jul 26 10:18:28 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We need to have a list of candidate RNAs. Have them in a BED file. Or, have them
+in R object using rtracklayer and export it.
+
+----
+test/sRNAscanner
+test/rfam
+test/transterm/NC_004350.tt
+----
+
+I create a BED file from Infernal prediction (test/rfam) using rtracklayer. Each
+file in test/rfam/cmsearch contains hits of regions in S. mutans genome. We need
+to choose a E-value threshold to decide which parts are included as predicted
+regions of structural RNAs. I create a perl script, pl/rfam.pl, for converting
+rfam result files to a bam file. I used the pl/rfam.pl to convert cmsearch files
+to BED files. We concatenate all of the BED files to create a single BED file.
+----
+test/rfam/cm.bed
+----
+I use sRNAscanner with its default options to predict small RNAs in intergenic
+regions. The program creates output_files/RNA_position and
+output_files/ng_RNA_position, both of which contain two columns of values for
+location of predicted small RNAs. I used the pl/rfam.pl with srnascanner command
+in the Perl script to create
+----
+test/sRNAscanner/srnascanner.bed
+----
+I use Transterm to predict RITs in S. mutans, creating an output file, which is
+used to create the following BED file.
+----
+test/transterm/transterm.bed
+----
+I use RNIE (https://github.com/ppgardne RNIE: genome-wide prediction of
+bacterial intrinsic terminators by Gardner et al 2011, we used 0.1 E-value
+threshold after running RIT with their trained Covariance Model) to predict RITs 
+----
+test/rnie/rnie.bed
+----
+I will use RNAz to find candiate small RNAs. We also use the sequence alignments
+from Pichon's method. See test/pichon/run for the script.
+.Let's try the Pichon's method. 
+. We have CDS regions from S. mutans.
+. We have RIT regions from TransTerm.
+. We find upstream 200 bp regions of RITs that do not overlap with -25/+60
+regions of CDS's regions.
+. We extract DNA sequences from the genome that correspond to the 200 bp
+upstream of RITs.
+. We align them to a list of bacterial genomes to have multiple sequence
+alignments. This seems to be a critical step in predicting small RNAs, which did
+not have much attention from research community.
+. We have a list of sequence alignments at directory, test/pichon/aln.
+. We need a way of measuring covariation of the alignment by considering all
+possible RNA secondary structrure. Can Infernal's cm programs help me?
+----
+test/pichon/aln
+----
+. It appears to be unclear how to compute the probability of data, or the
+sequence alignment, by integrating over all possible structures and covariance
+model. This has something to do with model averaging, which seems to be
+challenging. If I want to use the machinery of Infernal's command-line tools, I
+might use the inside algorithm for CM (covariance model). I need to build a CM
+using the sequence alignment and a predicted RNA secondary structure. Then, I
+might be able to compute the probability of the data given the CM by summing
+over all possible structures for the sequence alignment data. How do I predict
+a RNA secondary structure using a sequence alignment? RNAalifold (Bernhart08)
+and other methods seem to be used for predicting the consensus RNA secondary
+structure using a sequence alignment. RNAalifold takes files in ClustalW format.
+I use -clw option of Muscle when aligning sequences. I used default options to
+create secondary structures of the alignments. 
+. We build a CM using the RNA secondary structure and the sequence alignment.
+Lindgreen06 addresses the issue of measuring covariation. cmbuild requires a
+file in Stockholm format. Can we use cmbuild or a similar method to score the
+alignment to rank candidate small RNAs? 
+. I do not have a clear idea of how I can rank the sequence alignment and its
+predicted RNA secondary structure. 
+. I use RNAz to score the regions. This is one of ways. I use RNAz to process a
+file in ClustalW format. RNAz's output files contain a line with "SVM RNA-class
+probability:", which is followed by a probability value. This value can be used
+to rank candidate regions of small RNAs with RIT. 
+----
+test/pichon/pichon.bed
+----
+This may be an alternative to Pichon's method. Now, I setup a genome browser for
+small RNAs. I can also use BEDTools to list links to genome browser shots, so
+that Sara can see them in the browser. I start at the following file available
+at compgen.
+----
+compgen:/usr/projects/strep/mutans/SmuUA159v2/run
+----
+How do I load a BED file to a UCSC genome browser? We first load a BED file
+using hgLoadBed: hgLoadBed dbname table file.bed.
+Use the following local tracks after checking out the svn source tree.
+----
+compgen:/home/choi/Documents/Projects/local_tracks
+----
+First, let us try to add the Infernal's structural RNAs.
+Run hgLoadBed SmuUA159v2 infernal cm.bed and 
+edit trackDb/streptococcus/trackDb.ra.
+
+.Add the following track information to trackDb.ra to add a BED file
+----
+track infernal
+shortLabel infernal RFAM
+longLabel infernal RFAM results
+group regulation
+priority 106 
+visibility pack
+type bed 6 . 
+useScore 1
+----
+Run make cornell DBS=SmuUA159v2 at trackDb's base directory.
+
+linksBed -i genes.bed -base http://strep-genome.bscb.cornell.edu 
+  -org streptococcus -db SmuUA159v2 > genes.html
+
+http://strep-genome.bscb.cornell.edu/~choi/ucsc
+
+I use iWeb to create a website.
+
+Wed Jul 25 12:34:57 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's predict small RNAs of S. mutans. A few options of achieving the goal
+include Infernal/Rfam annotation, RNIE, and alignments and predictions based on
+RIT. There is no standard ways of annotating small RNAs. Different criteria
+would find different sets of small RNA prediction. One in common is to use
+multiple sequence alignment for detecting converved regions in conjunction with
+RNA secondary structure prediction. Jiaye's program of inferring s (RNA
+secondary structure impact on evolution) might be useful in scoring small RNA
+candidates. The higher s, the more impact on the evolution of RNAs. We could
+also employ the protein structure impact parameter if the RNAs are anti-sense to
+protein coding DNA sequences on the opposite strand. 
+
+A list of sRNA or small RNA prediction methods
+----
+sRNAPredict3
+sRNAscanner
+RNIE
+RNAz/SIPHT 
+Pichon's method
+Infernal/Rfam
+RNAcode
+RNAdecode
+----
+We have several methods to try for prediction RNAs. Predicted RNAs need to have
+criteria of assementment, or evidence. Does it contain RIT or not? 
+We have a S. mutans UA159 genome version 2. We need to find a list of candidate
+small RNAs with evidence and scores.
+
+What 44 complete genomes?
+
+Mon Jul 23 13:16:31 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To search genomes for small RNAs
+----
+test/infernal
+test/rnie
+test/rfam
+----
+http://infernal.janelia.org/
+
+Melissa told me that Infernal analysis can be done on .
+----
+/usr/projects/strep/mutans/makeInfernalScript.sh
+cac:/home/gfs05/mt269/strep/cmSearch_commands.txt
+cac:/home/gfs05/mt269/strep/runCmSearch.sh
+----
+
+I just download rfam for model files. Using these model files and UA159 genome
+one can annotate the genome with structural RNAs or the RNAs in the model files.
+RNIE or rnie provides model files for annotating RITs.
+
+Sat Jul 21 15:13:19 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It could be useful to use Galaxy as a front-end of a command-line tool. See 
+http://wiki.g2.bx.psu.edu/Admin/Tools/Add%20Tool%20Tutorial for adding a Perl
+script to the Galaxy.
+
+Fri Jul 20 09:31:46 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Galaxy web interface seems to be useful. Is it possible to automate RNAseq
+Analysis using Galaxy web interface? Is it worth trying? I might be able to
+set up a web site that can be used within the school. The set of galaxy seems to
+be easy by following the direcation that is available at
+http://wiki.g2.bx.psu.edu/Admin/Get%20Galaxy
+
+The OrthoMCL seems to be tested. Most of procedure takes not so much time except
+the BLAST, which is done for a day in the cluster with 8 CPUs. 
+We could use mcl alone, or OrthoMCL and mcl combined. We use the latter approach
+because it seems to be what people do. We add one more command in
+find-core-gene.pl for OrthoMCL output file. I am not clear about why we need
+OrthoMCL tool. The mcl can handle some BLAST outputs. At least I need to parse
+the output file differently. We can also create a list of numbers or the number
+of genes in clusters. 
+
+FROM MCL PAPER,
+we have plotted the cumulative size distribution of all clusters obtained at
+different inflation values. For a given cluster size N represented along the
+X-axis, the Y-axis represents the frac- tion of all genes contained in a cluster
+of size at most N. Notice that at any inflation value there is a large number of
+clusters of size 28. These represent well-defined groups of orthologs,
+containing one protein from each species. In order to visualise what is
+happening during the clustering process, we highlight three examples and track
+them across different inflation values.
+----
+y <- c()
+for (i in 3:173) {
+  y <- c(y,sum(x[x<i])/sum(x))
+}
+plot(3:173,y)
+----
+
+Thu Jul 19 08:55:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I executed menu *mcl* again for species ua159 by having 57 strains plus UA159
+genes. I used 1.2 to 2.8 values of so-called inflation parameters. Larger
+inflation would lead to more fine-grained clustering. 
+Do I have to use OrthoMCL? It seems to be a overkill.
+I am trying OrthoMCL.
+mysql -u root -p
+Enter the password. The procedure of BLAST seems to be slow.
+
+The following is blastp options for OrthoMCL, which shows an example of blastall.
+$BLASTP -num_threads 8 -query $FASTAFILE -db $FASTAFILE \
+ -seg yes \
+ -num_descriptions 200000 \
+ -num_alignments 200000 \
+ -dbsize 112642 \
+ -evalue 1e-5 \
+ -outfmt 6 -out $FASTAFILE.blast
+
+########################################
+# blastall vs. blastp
+# -F 'm S'
+#   -seg yes \
+# -v 200000
+#   -num_descriptions 200000 \
+# -b 200000  
+#   -num_alignments 200000 \
+# -z 112642
+#   -dbsize 112642 \
+# -e 1e-5 
+#   -evalue 1e-5 \
+########################################
+
+Wed Jul 18 10:14:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I found a tool called cytoscape, which can be useful for visualizing mcl cluster
+result. 
+http://opentutorials.cgl.ucsf.edu/index.php/Tutorial:ClusterMakerScenario2
+How can I open mcl results in cytoscape?
+A simple .sif file can be created from mclblastline's dump file, e.g., 
+dump.out.all.blastp.tab.I12. I inserted a string, e.g., typeA, after the first
+column if there are multiple columns. I could open the new .sif file using menu
+File/Import/Network (Multiple File Types)... in cytoscape.
+Find core genes in Smu21 and Smu86 among the 57 strains. I need a list of genes
+of Smu21 and Smu86. Let's use menu goseq to create a feature.genes file using
+txdb file. Use the feature.genes and mcl dump file to find core genes.
+----
+perl pl/find-core-gene.pl core -bed feature.genes -mcl dump-file.mcl
+---
+We should have added UA159 proteins in the list for the cluster. Let's create a
+menu *mcl* for this.
+----
+perl pl/extractcds.pl -f Genbank file.gbk > file.faa
+perl pl/bioperl-get-protein.pl protein -in file.gbk -out file.faa
+----
+I think that pl/bioperl-get-protein.pl has been back to the old. DNA option does
+not work. I need to find those codes.
+
+Let us create a txdb with protein IDs. Let's use bp_genbank2gff3.pl to create a
+gff file from a genbank file. 
+
+Tue Jul 17 12:38:20 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vince mentioned OrthoMCL2 and MCLblastline for core and non-core genes.
+http://micans.org/mcl/
+
+.Some mcl commands in Jason and Albert presentation document
+----
+http://informatics.nescent.org/wg/phyloinformatics/images/9/95/ISMB2007tutorial-slides.pdf
+----
+
+Let me start at test/mcl. The data set of 57 strains are in data/denovo.
+----
+data/denovo/M03.fasta is a FASTA file that contains protein sequences.
+data/denovo/smu3_asb.fas is a FASTA file that contains DNA sequences.
+data/denovo/SMU3_allcontigs.gbf is a GenBank file.
+----
+We create a FASTA file that contains protein sequences using the 57 GenBank
+files, and .
+----
+for i in `ls *.gbf`; do perl pl/extractcds.pl -f Genbank $i >> all.pep; done
+makeblastdb -dbtype prot -title all -in all.pep
+blastp -query all.pep -db all.pep -evalue 1e-3 -outfmt 7 -out all.blastp.tab
+mcxdeblast --m9 --score=e all.blastp.tab
+mclblastline --mcl-I=1.6 --start-assemble all.blastp.tab
+----
+The BLAST takes time. I am running it on CAC using 8 CPUs. How long? Within a
+day in the CAC. Use the following command lines to use mcl.
+----
+MCXDEBLAST=$HOME/usr/bin/mcxdeblast
+perl $MCXDEBLAST --m9 --score=e --sort=a all.blast.tab
+MCXASSEMBLE=$HOME/usr/bin/mcxassemble 
+$MCXASSEMBLE -b all.blast.tab -r max --map
+MCLBLASTLINE=$HOME/usr/bin/mclblastline 
+$MCLBLASTLINE --start-mcl --mcl-I=1.2 all.blast.tab
+Parse dump.out.all.blast.tab.I12 to create core and non-core genes.
+----
+We might need to change the options of mcl to see the effects in the core and
+non-core genes.
+
+The BLAST job in the CAC was finished. I use pl/geneontology.pl to parse it.
+This takes time. How long? It also takes too much memory. This did not take long
+in the CAC cluster where we have much larger memory than we have in my local
+machine.
+----
+output/ua159/1/run-analysis/smutans.gene2go
+output/ua159/1/run-analysis/smutans.go2ngene
+----
+We can use these to find functional associations of DE genes that are determined
+by pH5/pH7, and nocsp/csp. Let's see smutans R package. I need to create this
+file.
+----
+package/smutans/inst/extdata/feature-genome.out-geneonly
+----
+
+.Use GenomicFeatures to get feature-genome.
+----
+library(GenomicFeatures)
+library(rtracklayer)
+txdb <- loadFeatures("NC_004350.txdb")
+feature.tx <- transcripts(txdb) 
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx)$tx_id %in% unlist(elementMetadata(feature.cds)$tx_id)
+feature.cds <- feature.tx[x]
+names(feature.cds) <- elementMetadata(feature.cds)[,"tx_name"]
+export(feature.cds,"feature.txt",format="bed")
+Save feature.cds in a file with columns like those of feature-genome.out-geneonly
+How do I change the name of GRanges object?
+----
+
+
+Mon Jul 16 10:43:43 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I create a menu, goseq, for functional category analyses. The directory
+test/RNAz contains some files that might be helpful. The file sh/batch2.sh
+contains some scripts that will be helpful.  
+
+Melissa let me know where I could find the 6 strains' genbank files.
+----
+babylon:/lab/data/S_mutans/denovo
+----
+I copy them to data/denovo. I need to create DNA and protein sequences, and
+annotations. Let us see what files are available.
+----
+SMU21-1SM1    data/denovo/SMU21_allcontigs.gbf <- we used this
+SMU44-11VS1   data/denovo/SMU44_allcontigs.gbf
+SMU20-15JP3   data/denovo/SMU20_allcontigs.gbf
+SMU56-N29     data/denovo/SMU56_allcontigs.gbf
+SMU69-NLML4   data/denovo/SMU69_allcontigs.gbf
+SMU57-NMT4863 data/denovo/SMU57_allcontigs.gbf
+----
+Use bioperl-get-protein.pl to extract protein sequences.
+----
+perl pl/bioperl-get-protein.pl dna -in data/denovo/SMU21_allcontigs.gbf -out output/denovo/SMU21.fna
+perl pl/bioperl-get-protein.pl protein -in data/denovo/SMU21_allcontigs.gbf -out output/denovo/SMU21.faa
+----
+Use bp_genbank2gff3.pl to extract gff files and remove sequences.
+----
+cat seq.gbk | perl bp_genbank2gff3.pl -in stdin -out stdout > seq.gff
+perl -e "while (<>) { if (/^>/) { last; } print; }" < seq.gff 
+----
+Replace the chromosome names with chr and numbers in the fna and gff files.
+The gff files tend to have multiple instances of regions, which should represent
+chromosomes. This is problmatic because we need one instance of region type in
+the gff file. Use pl/remove-multiple.pl to remove those.
+See the following file for generating DNA and protein sequences and txdb
+annotation files.
+----
+output/denovo/run
+----
+Now, I go to smu7 to run it.
+
+
+I download some files for associating DE genes with functions.
+----
+ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+http://www.geneontology.org/gene-associations/submission/gene_association.goa_uniprot.gz
+http://www.geneontology.org/ontology/obo_format_1_2/gene_ontology.1_2.obo
+----
+How long did it take to BLAST UA159 genes against uniref90? within a day?
+
+
+Sat Jul 14 14:28:11 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I used NC_004350.gff to find gene products for the genes found to be similar to
+Smu21 genes.
+----
+input: output/smu21/1/run-analysis/similar-gene
+R: output/smu21/1/run-analysis/get-product.R
+output: output/smu21/1/run-analysis/similar-gene.txt
+----
+
+.To Sara 071412
+----
+smu21/1/run-analysis/unique-genes-chr2 -> unique-genes-chr2-smu21
+smu21/1/run-analysis/similar-gene.txt  -> similar-gene-smu21-ua159.txt
+smu86/1/run-analysis/unique-genes-chr2 -> unique-genes-chr2-smu86
+smu86/1/run-analysis/similar-gene.txt  -> similar-gene-smu86-ua159.txt
+----
+
+.To compile smutans
+----
+# Count data files
+cp output/ua159/1/bwa/count.cds package/smutans/inst/extdata/count-ua159-bwa.txt
+cp output/smu21/1/bwa/count.cds package/smutans/inst/extdata/count-smu21-bwa.txt
+cp output/smu86/1/bwa/count.cds package/smutans/inst/extdata/count-smu86-bwa.txt
+# Unique genes
+cp output/smu21/1/run-analysis/unique-genes-chr2 package/smutans/inst/extdata/SMU21.diff.lst
+cp output/smu86/1/run-analysis/unique-genes-chr2 package/smutans/inst/extdata/SMU86.diff.lst
+cp output/smu21/1/run-analysis/unique-genes-chr1 package/smutans/inst/extdata/UA159-SMU21.diff.lst
+cp output/smu86/1/run-analysis/unique-genes-chr1 package/smutans/inst/extdata/UA159-SMU86.diff.lst
+----
+
+.Compile smutan
+----
+# at package directory
+cp smutans/inst/doc/smutans.Rnw .
+R CMD Stangle smutans.Rnw
+Edit smutans.R
+----
+
+Fri Jul 13 12:20:48 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I've found a website that might be useful in comparing genomes to find genes
+unique to a strain.
+http://bioinfo-srv1.awh.unomaha.edu/genomeblast/tutorial.php
+I upload two genbank files. The genbank format for one of the 6 strains is not
+correctly used by the genomeblast website probably because the genbank files of
+the 6 strains were created by xbase website.
+So, I tried to use two FASTA-format files with amino acid sequences. This
+works. Let's create protein sequence files the two.
+
+I use a perl script available at
+http://www.cs.huji.ac.il/course/2008/76552/BioPerl/Sequences/extractcds.pl.html
+I use lynx to print the webpage.
+
+.To create FASTA files of CDS from genbank files 
+----
+perl pl/extractcds.pl -f Genbank data/analysis/smu7/11vs1.gbk > 11vs1.faa
+for i in `ls *.gbk`; do
+  n=${i%.gbk}; perl extractcds.pl -f Genbank $i > $n.faa;
+done
+perl extractcds.pl -f Genbank ../NC_004350.gbk > NC_004350.faa
+----
+
+We also used the genbank file of UA159 to create an amino acid sequences file
+without using the NCBI faa file to match the URL. Now, I use pairs of FASTA
+files with amino acid sequences to find unique CDS genes. Unfortunately, the
+genomeblast appears to be non-functional. 
+
+----
+/Volumes/Elements/Documents/Projects/RNASeq-Analysis/output/smu7/13/run-analysis/chr2-chr1
+----
+
+Mon Jul  9 17:15:10 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We copy batch2 to create batch3. I wish to refine the script by removing
+duplicate files such as ptt files. 
+
+Fri Jul  6 10:01:56 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The hardest part in DE study is to compile a gene list, especially when I have
+customized gene lists. I need to prepare two gene lists. One is from UA159, and
+another from each of the 6 strains. Find the six strains in data directory of
+the archive. The annnotation website xbase appears to annotate genes. Some of
+them are found in UA159, and some of them are not. This is some thing that I
+might want to use.
+---
+/Volumes/Elements/Documents/Projects/RNASeq-Analysis/data/analysis/smu7
+---
+I used xbase website to annotate 
+---
+SMU20-15JP3.fa    SMU44-11VS1.fa    SMU57-NMT4863.fa  SMU69-NLML4.fa
+SMU21-1SM1.fa     SMU56-N29.fa      
+---
+to have genbank files
+----
+11vs1.gbk    15jp3.gbk    1sm1.gbk     n29.gbk      nlml4.gbk    nmt4863.gbk
+----
+We extract gff files from the genbank files using bp\_genbank2gff3.pl. The gff
+file contains chromosome names that must be chr#. We change the chromosome
+names.
+----
+for i in `ls *.gff`; do perl chr1.pl < $i > $i.gf3; done
+----
+We then create txdb files.
+----
+for i in `ls *.gf3`; do Rscript xbasegff2txdb.R $i; done
+----
+Note that entries of gene type contains CDS and non-CDS. CDS genes are also
+found in UA159. non-CDS genes are not found. non-CDS genes could be unique to
+each strain.
+
+Now, we have gene annotations for the six strains. We compare UA159 and each of
+the six strains using either UA159 genome or the strain genome. We use the
+reference genome to count genes. We do this first. Then, we use each of the
+strain genomes to count genes in the strain genome but using UA159 and the
+strain RNA-seq data. 
+
+Thu Jul  5 17:12:15 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use http://www.xbase.ac.uk/annotation to annotate strains in data/analysis/smu7.
+Copy the annotated genbank file to cac where I can run bp_genbank2gff3.pl to
+convert the genbank file to a gff file. 
+----
+cat seq.gbk | perl bp_genbank2gff3.pl -noCDS -in stdin -out stdout > seq.gff
+----
+Use the gff files to have txdb files.
+
+
+Thu May 31 16:58:24 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Map the 7 RNA-seq samples on UA159.
+
+I am trying to use swiftgen to create figures from qrqc R package.
+
+
+Tue May 29 10:18:14 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Using core genes to create a core genome 
+----
+test/core
+----
+. Create single2.fna and single2.bed by running test/core/run
+. Run convert-bed2txdb using agalactiae species file
+. bash run-qcalignde.sh
+. bash job-de-sum
+. get output/agalactiae/get-data.sh
+
+Tue May 22 09:33:45 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Prepare tux data set. Create an R script.
+----
+R/tux.R
+----
+
+Mon May 14 15:11:38 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.S agalactiae analysis
+----
+mkdir -p output/email/to/vince-richards/051412
+Rscript R/vince-richards-051112.R
+Rscript R/vince-richards-051412.R
+----
+
+Sat May 12 10:19:46 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.job-simulate.R has the following line that causes warnings (I think that I can ignore).
+----
+read.GA <- c(read.GA,one.GA)
+----
+
+.job-de.R has the following line that I cannot understand.
+----
+seqnames(bv) <- rep(runValue(seqnames(feature.nc)),length(bv))
+----
+
+I should distinguish CDS genes and non-CDS genes such as tRNA and rRNA. We need
+to look at function makeTranscriptDb more.
+----
+makeTranscriptDb
+feature.tx.flat <- transcripts(txdb)
+feature.cds <- cds(txdb,columns="tx_id")
+x <- elementMetadata(feature.tx.flat)$tx_id %in% unlist(elementMetadata(feature.cds)$tx_id)
+feature.noCds <- feature.tx.flat[!x]
+length(unlist(elementMetadata(feature.cds)$tx_id))
+----
+1. transcripts with CDS
+2. transcripts with no CDS
+3. regions not in transcripts
+We need to check AEXT parts.
+
+We would need segments of genes and non-genic regions. Ignore overlapped
+regions. If it is a case of complete overlap, use the larger region. If it is a
+case of partial overlaps, cut the middle point. If it is too much overlap, then
+say 50%, I do not know. Still cut the middle point. 
+
+Fri May 11 10:33:35 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To open the vignette file of R package smutans.
+----
+> library(smutans)
+> vignette("smutans")
+----
+
+.To create 051112.tar.gz
+----
+vims vince
+package/sagalactiae.Rnw
+----
+
+.To total the numbers of reads
+----
+for i in {2..31}; do cut -f$i count-NC_004368.txt | paste -sd+ - | bc; done
+----
+
+I need to consider 7 comparisons of S. mutans. I also need to consider AEXT01 83
+alignments. 
+
+.To create a gff from a genbank file (S. agalactiae contigs genome)
+----
+bp_genbank2gff3.pl -out stdout AEXT01.gbff > AEXT01.gff                         
+Edit AEXT01.gff to remove sequences.                                            
+Download AEXT01.fasta from NCBI and edit it to change the sequence names.
+----
+
+Thu May  3 17:04:38 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To convert gff to txdb file.
+----
+Rscript R/gff2txdb.R
+----
+
+Sat Apr 28 17:15:09 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I have found out that S. mutans UA159 genome was updated as of March 13, 2012.
+I need to rerun the pipeline to update the result.
+
+Thu Apr 26 15:25:02 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To load a genome browser track
+----
+git:peach/ucscgb
+compgen:/home/choi/tmp/aga
+compgen:/home/choi/public_html/local_track
+----
+
+----
+run/rnaseq/021412/batch-coverage.sh
+----
+
+Wed Apr 18 02:44:49 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Tomato
+----
+1. Number of reads or depth on variants
+2. Remove read duplicates
+3. Threshold 3 read depths
+4. Poly-pen analysis
+5. Compare IL and persicum to remove vairants with the same variants.
+----
+
+Sat Apr 14 14:07:55 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://compgen.bscb.cornell.edu/~choi/FASTQ001.sorted.bam
+
+.Tracks
+----
+track type=bam name="My BAM" bigDataUrl=http://compgen.bscb.cornell.edu/~choi/2.sorted.bam
+The reference genome name must be changed to chr1 in the BAM file.
+BAM file must be 644 chmod.
+Edit NC_007432.fna so that its sequence name is chr1.
+samtools faidx NC_007432.fna
+samtools view FASTQ056.sorted.bam | sed s/gi\|76786714\|ref\|NC_007432.1\|/chr1/
+| samtools view -bS -T NC_007432.fna - > 3.bam
+samtools index 3.bam
+mkdir /gbdb_cornell/hg19/bbi/
+mv 3.bam /gbdb_cornell/hg19/bbi/
+hgBbiDbLink hg19 myLocalBamTrack /gbdb_cornell/hg19/bbi/myLocalFile.bam
+
+track name='RNAz' description='RNAz'
+track name='Noncoding' description='Noncoding Track'
+----
+
+Fri Apr 13 09:06:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We do the filtering before cramming FASTQ files.
+
+.job-fastqc
+. Keep :N: sequences
+. Cut adapter sequences
+. Cut tails of low quality
+
+.ShortRead R package and qa
+----
+Read a FASTQ file.
+qa(dirPath, pattern=character(0), 
+   type=c("SolexaExport", "SolexaRealign", "Bowtie", "MAQMap", 
+          "MAQMapShort", "fastq", "BAM"),
+  ...)
+qaSummary <- qa(sp)
+> fq <- readFastq(sp, fqpattern)
+> reads <- sread(fq)
+> qualities <- quality(fq)
+> report(qaSummary, dest="/path/to/report_directory")
+----
+
+.Fastq file report summary
+----
+source("http://bioconductor.org/biocLite.R")
+biocLite("qrqc")
+library(qrqc)
+----
+
+.Export GRanges object to a BED file
+----
+library(rtracklayer)
+export(smutansData.txRNAz,con="a.bed")
+----
+
+Thu Apr 12 13:18:41 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Show BAM files in UCSC genome browser
+----
+https://cgwb.nci.nih.gov/goldenPath/help/bam.html
+http://ged.msu.edu/angus/tutorials/ucsc-visualization.html
+----
+
+Sat Apr  7 03:49:41 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Programs to download
+----
+Picard
+----
+
+.Extra directories
+----
+downloads
+input
+output
+ref
+----
+
+Thu Apr  5 11:49:07 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ua159 is more recent than cornell species.
+I need summary statistics of short reads: total number of reads, uniquely mapped
+reads, multiply mapped reads, rRNA/tRNA mapped reads.
+
+.R mac install problem
+----
+/Library/Frameworks/R.framework/Resources/bin/R
+: ${R_ARCH=/x86_64}
+R_ARCH=/x86_64
+----
+
+.A good vignette for counting using BioC R
+----
+http://www.bioconductor.org/packages/release/bioc/vignettes/GenomicRanges/inst/doc/summarizeOverlaps.pdf
+----
+
+Wed Apr  4 16:38:15 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.build R-devel
+----
+wget ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
+cd r-devel
+mkdir b
+tar zxf ../R-devel.tar.gz
+cd R-devel
+tools/rsync-recommended
+cd ../b
+../R-devel/configure
+make
+source("http://bioconductor.org/biocLite.R")
+biocLite("easyRNASeq")
+biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
+biocLite("VariantAnnotation")
+----
+
+.Tutorial of RNA-seq with BioC
+----
+summarizeOverlaps
+----
+
+Tue Apr  3 09:08:02 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.S. agalactiae - 12 comparisons
+----
+output/agalactiae/1/run-analysis/count.R
+----
+
+bcftools?
+----
+http://samtools.sourceforge.net/samtools.shtml
+zipped <- bgzip(vcffile)
+indexTabix(zipped,"vcf")
+tab <- TabixFile(zipped)
+library("GenomicFeatures") for creating genomic features
+----
+
+Mon Apr  2 15:46:51 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To write a manuscript for UA159-TW1
+----
+vims tw1
+----
+
+Sat Mar 31 11:30:45 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.To convert a genbank file to gff file.
+----
+bp_genbank2gff3.pl -out stdout yourGenBank.gb > yourfilename.gff
+curl ftp://ftp.ncbi.nih.gov/genomes/Saccharomyces_cerevisiae/CHR_X/NC_001142.gbk \
+  | perl genbank2gff3.pl -noCDS -in stdin -out stdout \
+  | perl gmod_bulk_load_gff3.pl -dbname mychado -organism fromdata
+----
+
+.For contigs genomes
+----
+SINGLECHROMOSOME:FALSE
+----
+
+.S. agalactiae using two factors
+----
+library(smutans)
+# REFGENOMEID:NC_007432
+# REFGENOMEID:NC_004368
+# REFGENOMEID:AEXT01
+# count-hcmb-sag56-to-human.index
+
+for (i in c("NC_007432","NC_004368","AEXT01")) {
+file.1 <- paste("output/agalactiae/1/bwa/count-",i,".txt", sep="")
+file.out.1 <- paste(i,"-broth-sag56-clust.pdf", sep="")
+file.out.2 <- paste(i,"-broth-sag56.csv", sep="")
+file.out.3 <- paste(i,"-broth-sag56.ps", sep="")
+
+agGenes <- 
+  readSmutans(countsFile=file.1,
+              indexFile="output/agalactiae/1/run-analysis/count-hcmb-sag56-to-human.index",
+              condition = c("hb", "cb"),
+              firstFactorLabel = c("hb"),
+              secondFactorLabel = c("hb", "cb"),
+              name="S. agalactiae human and cow with broth fixed")
+
+ag <- newSmutans( agGenes , title="Human and Cow with broth fixed" )
+
+pdf(file.out.1)
+smutans.de2Clust( ag )
+dev.off()
+
+ag <- smutans.de2( ag, type="hb", condA="hb", condB="cb")
+smutans.de2List( ag, file=file.out.2 )
+smutans.plotDiffExp(ag,file=file.out.3,qval=0.01)
+}
+
+agGenes <- 
+  readSmutans(countsFile="output/agalactiae/1/bwa/count-NC_007432.txt", 
+    indexFile="output/agalactiae/1/run-analysis/count-hcmb.index",
+    condition = c("hm","cm","hb","cb"),
+    firstFactor = c("hm","hb"), 
+    firstFactorLabel = c("human", "cow"), 
+    secondFactor = c("hm", "cm"), 
+    secondFactorLabel = c("milk","broth"), 
+    name="S. agalctiae human, cow, milk, and broth")
+
+ag <- newSmutans( agGenes )
+pdf("NC_004368-clust.pdf")
+smutans.de2Clust( ag )
+dev.off()
+
+agAll <- newSmutans( agGenes, title="All Samples for Comparing Conditions" )
+agAll <- smutans.de2( agAll, condA="milk", condB="broth" )
+smutans.de2List( agAll, file="NC_004368.csv" )
+smutans.plotDiffExp(agAll,file="NC_004368.ps",qval=0.01)
+----
+
+
+.Tomato no-replicate comparison
+----
+library(smutans)
+tomatoGenes <- readSmutans(countsFile="output/tomato/1/bwa/count-exon.txt", 
+    indexFile="output/tomato/1/bwa/count.txt.index",
+    condition = c("wt","il"),
+    firstFactorLabel = c("wt"),
+    secondFactorLabel = c("wt","il"),
+    name="Tomato IL Chr.8")
+tomato <- newSmutans( tomatoGenes, title="WT vs. IL8" )
+object <- tomato
+ua159Samples <- pData(object@countDataSet)$type == "wt"
+countsTable <- counts(object@countDataSet)[ , ua159Samples ]
+conds <- pData(object@countDataSet)$condition[ ua159Samples ]
+cds <- newCountDataSet( countsTable, conds )
+cds <- estimateSizeFactors( cds )
+cds <- estimateDispersions( cds,method="blind",sharingMode="fit-only" )
+res <- nbinomTest( cds, "wt", "il")
+
+write.csv(res, file="tomato-exon.csv")
+
+qval <- 0.05
+resSig <- res[res$padj < qval,]
+length(resSig[order(resSig$pval),])
+
+pdf(file="tomato-exon.pdf")
+plot( res$baseMean,
+      res$log2FoldChange,
+      xlab="X", ylab="Y",
+      log="x", pch=20, cex=.7,
+      col = ifelse( res$padj < qval, "red", "black" ))
+dev.off()
+----
+
+dUTP mapping is reversed.
+
+Fri Mar 30 10:03:05 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Hash table in BASH
+----
+test/sh/hash.sh
+----
+
+.Pick adapter using BASH hash
+----
+test/sh/adapter-hash.sh
+----
+
+.Tomato annotation
+----
+TAG2.3_gene_models.gff3.txt
+----
+
+How can I read a gff file?
+Use library(rtracklayer) and import.gff3.
+
+.Test in the test node of the cluster
+----
+nsub ~/interactive-dev.sh
+cd $PBS_O_WORKDIR
+$R215
+library(DEXSeq)
+library(rtracklayer)
+library("pasilla")
+inDir = system.file("extdata", package="pasilla", mustWork=TRUE)
+dir(inDir)
+sa <- data.frame(condition=factor(c(rep("treated",3),rep("untreated",3))),replicate=c(1,2,3,1,2,3),type=c("single-read","paired-end","paired-end","single-read","single-read","paired-end"))
+rownames(sa) <- c("treated1fb","treated2fb","treated3fb","untreated1fb","untreated2fb","untreated3fb")
+
+See http://www.sequenceontology.org/gff3.shtml
+
+gene.range3 <- import.gff3("ITAG2.3_gene_models.gff3.txt")
+gene.range1 <- gene.range3[gene.range3$type=="gene"|gene.range3$type=="exon",]
+gene.range1 <- gene.range3[gene.range3$type=="exon",]
+
+Note:
+One gene has a negative length:
+SL2.40ch01      ITAG_eugene     three_prime_UTR 338105  338074  .       - .  ID=three_prime_UTR:Solyc01g005490.2.1.1;Parent=mRNA:Solyc01g005490.2.1;from_BOGAS=1
+----
+
+Thu Mar 29 14:50:50 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Added agalactiae species file.
+
+Mon Mar  5 17:14:07 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.PSIseq analysis
+----
+/Users/goshng/Documents/Projects/RNASeq-Analysis/downloads/build/PSIseq/tomato
+----
+
+Wed Feb 29 09:50:15 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+smu21, smu86, and omz175 (or omz) are done.
+
+How to find SMU86 (SMU109,SMU21) genes of low similarities with UA159
+1. Extract DNA sequences from SMU86 contigs using GFF or GenBank files (This can
+be done using some of RNASeq simulations steps).
+2. BLAST the sequences against UA159 (We did some BLAST before). BLAST smu21
+genes against ua159 genes, and vice versa.
+3. Score sequence similarites for the sequences (Use some cutoffs to find gene
+sets between SMU86 and UA159).
+
+.I could use the following script
+----
+http://bioinf.uni-greifswald.de/bioinf/bioinfprakt11/ex3/orthoparahomlist.pl
+----
+
+.Command to find similar genes
+----
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU109_allcontigs.gbf -out output/data/SMU109.gff.fa
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU21_allcontigs.gbf -out output/data/SMU21.gff.fa
+perl pl/bioperl-get-protein.pl -in output/data/raw_data/SMU86_allcontigs.gbf -out output/data/SMU86.gff.fa
+perl pl/bioperl-get-protein.pl -in NC_004350.gbk -out output/data/UA159.gff.fa
+formatdb -i SMU109.gff.fa
+formatdb -i UA159.gff.fa
+perl orthoparahomlist.pl --protA=SMU109.gff.fa --protB=UA159.gff.fa \
+  -E 1e-10 --ortho=ortho.lst --para=para.lst --hom=hom.lst
+----
+
+.Find genes in SMU109 not in UA159
+----
+formatdb -i SMU109.gff.fa
+formatdb -i UA159.gff.fa
+formatdb -i SMU21.gff.fa
+formatdb -i SMU86.gff.fa
+
+for i in SMU109 SMU21 SMU86; do
+  perl orthoparahomlist.pl --protA=$i.gff.fa --protB=UA159.gff.fa \
+    --delBlastOutput -E 1e-10 \
+    --ortho=ortho.lst --para=para.lst --hom=hom.lst
+  cut -f1 ortho.lst | sort > $i.ortho.lst
+  grep ">" $i.gff.fa | cut -c2- | sort > $i.lst
+  diff -d $i.lst $i.ortho.lst | grep "<" | cut -c3- > $i.diff.lst
+  rm ortho.lst para.lst hom.lst
+done
+echo Check the *.diff.lst files
+Check kimjaeok:tmp/blast/
+----
+
+Tue Feb 28 11:49:37 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Melissa had a useful script for generating a gff file for S. mutans.
+
+.Melissa's script
+----
+swiftgen:/usr/projects/strep/mutans/gbkToGFF_SMU109-OMZ175.sh
+----
+
+I use it to run the script at CAC.
+
+.Files needed for creating gff files
+----
+sh/gbkToGff.sh
+pl/splitgbk.pl
+output/data/raw_data.tar.gz
+cac:run/rnaseq/gff/021412
+/home/fs01/sc2265/run/rnaseq/gff/021412/raw_data
+----
+
+If you want to use the script, copy the first three files to a CAC directory.
+Unzip raw_data.tar.gz and edit gbkToGff.sh to change SHELL variable, called
+genome. The script requires a BioPerl script that can be found at
++/opt/nextgen/bin/bp_genbank2gff.pl+. I also needed a file of contig sizes that
+can be run in compgen because faSize was not available at CAC.
+
+----
+faSize -detailed raw_data/SMU109_6252010.fasta > SMU109-OMZ175.size
+----
+
+Let's do contigs mapping.
+
+Mon Feb 27 13:38:24 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Zip raw short reads.
+
+
+
+Tue Feb 21 14:50:07 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Install python modules
+----
+cac$ python2.6 virtual-python.py --prefix=$HOME/usr
+cac$ export PYTHONPATH=$HOME/usr/lib/python2.6/site-packages
+cac$ python2.6 setup.py build
+cac$ python2.6 setup.py install --prefix=$HOME/usr
+----
+
+Mon Feb 20 00:24:07 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Simulated reads
+----
+job-check.R
+R/x.cl
+R/x.fq.gz
+----
+
+Thu Feb 16 12:17:40 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.R devel version
+----
+/Users/goshng/Documents/Projects/peach/rdev/downloads/build/R-latest/bin
+~/bin/R-2.15
+----
+
+.Quality control
+----
+Remove reads with :Y: for 15-55.
+Apply cutadapt and then prinseq.
+Filter out low quality alignments, and select uniquely mapped reads:
+samtools view -q 
+> stem(quality(alignQuality(aln2))) 
+----
+
+.prinseq options
+----
+perl pl/prinseq-lite.pl
+-fastq FASTQ001.fq.gz
+-phred64 (FOR THE 1ST ROUND RNA-SEQ)
+-trim_qual_right 20
+-rm_header
+----
+
+.Backup of RNA-seq data
+----
+babylon:/lab/data/S_mutans/RNA-seq (1st)
+babylon:/lab/data/S_mutans/RNA-seq.31Oct11 (2nd)
+babylon:/lab/data/S_mutans/RNA-seq.1Nov11 (2nd)
+babylon:/lab/data/S_mutans/RNA-seq.4-7Nov11 (some of them are missing)
+babylon:/lab/data/S_mutans/RNA-seq.8FEb12/RNA-seq.8FEb12 (4th)
+babylon:/lab/data/S_agalactiae/RNA_seq.4Aug11
+edit check.sh.1 and run it.
+babylon:/home/sc2265/work bash check.sh.1
+----
+
+Wed Feb 15 11:27:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.readSeqFile has more options
+----
+QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
+                          sanger=list(offset=33, min=0, max=93),
+                          solexa=list(offset=64, min=-5, max=62),
+                          illumina=list(offset=64, min=0, max=62))
+----
+
+Tue Feb 14 13:37:56 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.qrqc R package
+----
+> fq01 <- readSeqFile("/Users/goshng/Documents/Projects/RNASeq-Analysis/output/ua159/1/data/FASTQ001.fq.gz")
+> makeReport(fq01, outputDir="/Users/goshng/Documents/Projects/RNASeq-Analysis/output/ua159/1/bwa")
+----
+
+.A latest directory
+----
+/Users/goshng/Documents/Projects/peach/rdev/downloads/build/R-latest
+----
+
+.Download R devel version using svn
+----
+http://developer.r-project.org/SVNtips.html
+----
+
+.CAC resources R
+----
+/cac/contrib/R-2.14.0/bin/R
+/home/fs01/sc2265/Downloads/r-devel/b
+
+> aln <- readAligned("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",type="BAM")
+> qaSummary <- qa("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",type="BAM")
+> report(qaSummary, dest="/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.report")
+> library(rtracklayer)
+> gene.range3 <- import.gff3("/v4scratch/sc2265/rnaseq/output/ua159/1/data/NC_004350.gff")
+> chrSizes <- 2032925
+> gene.range2 <- gene.range3[gene.range3$type=="gene",]
+
+  easyRNASeq("/v4scratch/sc2265/rnaseq/output/ua159/1/subread/FASTQ001.sorted.bam",
+             organism="Streptococcus mutans",
+             chr.sizes=c(2032925),
+             readLength=100,
+             annotationMethod="env",
+             annotationObject=gene.range2,
+             format="bam", gapped = FALSE,
+             outputFormat="DESeq",
+             filenames=character(0), 
+             nbCore=8,
+             type="BAM",
+             chr.sel=c(),
+             count="features",
+             summarization="features",
+             normalize=FALSE,
+             plot=FALSE,
+             conditions=c("1"), validity.check=TRUE)
+cfilt <- chromosomeFilter('gi|24378532|ref|NC_004350.1|')
+aln2 <- aln[cfilt(aln)]
+
+width
+position
+strand
+gene.range2
+gene.range2$ranges
+alnIR <- IRanges(start=position(aln2), width=width(aln2))
+geneIR <- gene.range2$ranges
+ol <- findOverlaps(alnIR,geneIR)
+head(as.matrix(ol))
+
+# This is it!
+cl <- countOverlaps(geneIR,alnIR)
+olTable <- table(Rle(as.matrix(ol)[,1]))
+
+# 
+samtools view -Sb -T reference.fasta out.sam > out.bam
+----
+
+.Sequence alignment 
+----
+bwa
+bowtie
+subread
+----
+
+.Website resources for short reads
+----
+http://manuals.bioinformatics.ucr.edu/home/ht-seq
+----
+
+.Stand-alone programs
+----
+Fastx-toolkit
+cutadapt
+prinseq
+FastQC
+TagCleaner (http://tagcleaner.sourceforge.net)
+----
+
+.R packages
+----
+qrqc
+biomaRt
+BSgenome
+RnaSeqTutorial
+----
+
+.Pipelines of DE studies with RNA-seq data
+----
+http://bioinformatics.ucdavis.edu/docs/ngs_may_2011/command_line_rna_seq_transcriptome.html
+----
+
+Mon Feb 13 15:31:32 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A series of steps of RNASeq raw data can be used. A quality control step
+includes removing reads with low quality scores, and deleting parts of short
+reads corresponding to adapters. A sequence alignment step can be achieved by
+using BWA, or subread. To count short reads mapped on a reference genome can be
+done using rtracklayer, Rsamtools, or GenomicRanges. Finally DESeq or edgeR is
+used to test differentially expressed genes. I am wondering which step I should
+consider to develop a new method. 
+
+
+Mon Feb  6 10:20:59 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I found Rsubread or subread that might be interesting in DE study table
+formation.
+
+.Rsubread
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("Rsubread")
+----
+
+subread seems to be available only for linux.
+
+.Swiftgen directory
+----
+swiftgen:/home/choi/Documents/Projects/rnaseq/test/run
+----
+
+.Talk by Gordon Smyth
+----
+http://www.bioconductor.org/help/course-materials/2011/BioC2011/MorningTalks/BioC2011_Gordon.pdf
+----
+
+A compilation of R at CAC needs to be checked by submitting jobs with R scripts
+that use the latest version of R packages.
+
+Wed Feb  1 10:03:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any notes from the rough transcript map:
+Two transcripts of a single gene
+chr1:951,288-985,817
+SMU_1005 has two clear transcripts.
+SMU_1004 also has two transcripts.
+
+.A script to load a BED file to UCSC genome browser
+----
+hgLoadBed SmuUA159 rnaseqCombinedTx grCombined.bed
+----
+
+print.bed.file(gr=grUA159Glu,file="grUA159Glu.bed")
+print.bed.file(gr=grUA159Gal,file="grUA159Gal.bed")
+print.bed.file(gr=grTW1Glu,file="grTW1Glu.bed")
+print.bed.file(gr=grTW1Gal,file="grTW1Gal.bed")
+print.bed.file(gr=grCombined,file="grCombined.bed")
+
+http://choi.genome_mirror.bscb.cornell.edu
+
+Use the following command
+----
+make update DBS=SmuUA159
+make cornell DBS=SmuUA159
+----
+
+Mon Jan 30 13:05:14 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Where are ParseRNAseq running at CAC?
+----
+cac:run/rnaseq/parsernaseq
+----
+
+Sat Jan 28 14:25:12 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Where are the predicted small RNAs?
+----
+test/RNAz/feature-genome.out-rnaz
+----
+
+RNA secondary structure: RNAfold 
+----
+I.L. Hofacker, W. Fontana, P.F. Stadler, S. Bonhoeffer, M. Tacker, P. Schuster
+"Fast Folding and Comparison of RNA Secondary Structures", Monatshefte f.
+Chemie, 125, pp 167-188, 1994
+
+http://rna.tbi.univie.ac.at/cgi-bin/RNAfold.cgi
+chr1:340262 40 bp in locus101
+chr1:1304890-1304926 in locus7
+chr1:1721110-1721160 in locus68 (T-box)
+chr1:1313544-1313600 in locus8
+chr1:1564031-1564149 in locus10
+chr1:1787574-1787637 in locus69
+chr1:76-140 in locus1
+
+chr1:302288-302403 in locus99 
+chr1:414409-414472 in locus103 (T-box) highly expressed
+chr1:481458-481539 in locus104 highly expressed no having any interesting strucure
+chr1:627878-627919 in locus105 (P15)
+chr1:674067-674135 in locus106
+chr1:681921-681977 in locus107 (yybP-ykoY)
+chr1:747483-747567 in locus108
+chr1:911157-911258 in locus110
+chr1:1036231-1036283 in locus2 
+chr1:1202661-1202737 in locus3 (T-box * neighboring sites are very strong non-coding regions)
+chr1:1244007-1244086 in locus5
+chr1:1297150-1297227 in locus6
+chr1:1304792-1304926 in locus7 (not a good structure)
+chr1:1313525-1313674 in locus8
+chr1:1677614-1677688 in locus52 (T-box)
+chr1:1721111-1721201 in locus68 (T-box)
+chr1:1787575-1787687 locus69 weak signal
+chr1:1864317-1864461 of locus85
+----
+
+.Unannotated RNAz entities
+----
+[1]   302288  302403   116  locus99
+[2]   303745  303859   115 locus100
+[3]   340263  340343    81 locus101
+[4]   378452  378505    54 locus102
+[5]   481458  481539    82 locus104
+[6]   674067  674135    69 locus106
+[7]   747483  747567    85 locus108
+[8]   911157  911258   102 locus110
+[9]  1036231 1036283    53   locus2
+[10] 1244007 1244086    80   locus5
+[11] 1297150 1297227    78   locus6
+[12] 1304792 1304926   135   locus7
+[13] 1313525 1313674   150   locus8
+[14] 1564032 1564149   118  locus10
+[15] 1787575 1787687   113  locus69
+[16] 1864317 1864461   145  locus85
+----
+
+Tue Jan 24 11:59:00 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Figures that I need
+. HilbertVis: we need r-dev version.
+. circos plot: a circular plot
+. KEGG pathway figures.
+
+.circos
+----
+/Users/goshng/Documents/Projects/RNASeq-Analysis/build/circos-0.55
+----
+
+Mon Jan 23 13:23:37 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Retrieve all genes of the specified organism which belong to the given ko_id.
+----
+get_genes_by_ko('ko:K00001', 'eco')
+get_genes_by_ko('ko:K00001', 'smu')
+----
+
+An R function, list.pathways, seems to have a bug.
+----
+list.pathways("smu")
+----
+This functions should return 85 ko.class. It returned 44.
+
+I need to parse a KEGG file, smu00001.keg. I could have done this using
+KEGGSOAP. It seems like that I also need category structures. 
+
+----
+list.pathways -> pathway ro ko.class.
+get.genes.by.ko.class("5-digit number", "smu", 1, limit)
+----
+Adopting the two lines I could find genes belonging to ko.class or pathway. 
+
+.To find the smu00001.keg file.
+. Search the Internet for KEGG or visit http://www.genome.jp/kegg/
+. Go to KEGG ORTHOLOGY Ortholog groups [KO system] or 
+. Go to http://www.genome.jp/kegg-bin/get_htext?ko00001.keg
+. Click ``Organism menu'' and search KEGG Organisms for smu
+. Now, you should be at KEGG Orthology (KO) - Streptococcus mutans UA159
+. Click ``Download htext'' to download smu00001.keg file.
+
+I add ``keg'' command to feature-genome.pl to parse smu00001.keg file to create
+a gene2cat file. 
+----
+perl pl/feature-genome.pl keg -in data/smu00001.keg 
+----
+
+
+
+Sat Jan 21 15:15:24 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Margin in R
+----
+http://research.stowers-institute.org/efg/R/Graphics/Basics/mar-oma/index.htm
+----
+
+Fri Jan 20 15:43:51 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Visualize functional classes.
+R package clusterProfile
+Let's use R function pie.
+
+Wed Jan 18 11:12:00 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find gene descriptions of UA159. 
+
+Mon Jan 16 15:26:38 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GSE8850 is the data files from Abranches2008 study.
+----
+http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE8850
+downloads/gse8850
+http://www.tm4.org/midas.html
+http://linus.nci.nih.gov/BRB-ArrayTools.html
+----
+
+Fri Jan 13 12:52:52 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to summarize predicted transcripts. I may find Bioconductor R packages
+useful.
+----
+The following packages illustrate the diversity of functionality available; all
+are in the release version of Bioconductor.
+IRanges, GenomicRanges and genomeIntervals for range-based (e.g., chromosomal
+regions) calculation, data manipulation, and general-purpose data
+representation. Biostrings for alignment, pattern matching (e.g., primer
+removal), and data manipulation of large biological sequences or sets of
+sequences.
+ShortRead and Rsamtools for file I/O, quality assessment, and high-level,
+general purpose data summary. rtracklayer for import and export of tracks on the
+UCSC genome browser.
+BSgenome for accessing and manipulating curated whole-genome representations.
+GenomicFeatures for annotation of sequence features across common genomes,
+biomaRt for access to Biomart databases.
+SRAdb for querying and retrieving data from the Sequence Read Archive.
+ChIP-seq and related (e.g., motif discovery, identification of high-coverage
+segments) activities are facilitated by packages such as CSAR, chipseq,
+ChIPseqR, ChIPsim, ChIPpeakAnno, DiffBind, rGADEM, segmentSeq, BayesPeak, PICS.
+Differential expression and RNA-seq style analysis can be accomplished with
+edgeR, DESeq, baySeq, DEGseq, Genominator. The DEXSeq package, available with R
+>= 2.14, allows exon-level differential representation.
+----
+
+.Tests of GenomicRanges BioC R package
+----
+test/GenomicRanges
+----
+I need a pileup-value, annotated genes, and a transcript prediction files.
+
+.Pileup file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq.pileup
+----
+
+.Annotated genes
+----
+output/cornell/1/bwa/feature-genome.out-parsernaseq1
+output/cornell/1/bwa/feature-genome.out-geneonly
+----
+
+.Transcript prediction file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq1
+----
+
+
+Thu Jan 12 10:47:32 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I do not know what I should do about the transcript determinations. It is clear
+that I have to have one map of transcripts. I do not know that I can do better
+than ParseRNAseq. I do not think that I can find a good transcript map with a
+single nucleotide resolution. This does not seem to be a tangible goal. I have a
+rough map of transcripts without clear transcript start and end positions.
+Manual determination is not a good way because I have too many transcripts and
+many more RNA-seq samples. I am wondering if I can run ParseRNAseq multiple
+times iteratively by removing predicted transcript regions from the input pileup
+file. This might give subsequent ParseRNAseq runs more power to discriminate
+more transcripts because the range of expression levels would be more refined.
+Let's remove C10 from the pileup. 
+
+I iterate the ParseRNAseq runs on consecutively modified pileup files. When
+should I stop the iteration? Until we could not gain more predicted transcripts.
+How do we know that we do not prediect good transcripts? We should do the logo
+values. We should find ways to show some statistics about the transcripts. Let's
+do this now than later. These might help me refine the transcript map. Now, we
+have multiple FASTQ001.parsernaseq files: FASTQ001.parsernaseq{number}. From
+the first parsernaseq file we grep C10 transcripts and name it C1. For the
+second, we name C10 transcripts C2, and the like. 
+
+.Ranges to note for transcript predictions
+----
+chr1:398,024-437,831
+chr1:440,609-474,830
+chr1:473,119-507,340
+chr1:570,649-604,870
+chr1:603,159-637,380
+chr1:798,508-814,553
+chr1:1,079,483-1,120,518
+chr1:1,396,705-1,449,863
+chr1:1,470,362-1,481,007
+----
+Note: 
+1. Lowly expressed regions are not yet included to the tx map.
+chr1:962,531-1,003,566
+2. Gene orientation conflicts: 
+chr1:570,649-604,870, chr1:1,703,498-1,733,833
+3. Regions between highly expressed transcripts are false: chr1:668,179-702,400
+I might use counts to remove these ``false positive''.
+4. More refined map is not always better than the original one:
+chr1:798,508-814,553, chr1:844,706-863,875, chr1:931,556-956,251
+5. Using gene annotation led to false predicted transcripts
+chr1:959,237-967,468, chr1:1,158,433-1,175,364, chr1:1,447,206-1,500,364
+* SMU.1005 contains two transcripts.
+
+ParseRNAseq -force_gp option may have some adverse effects. Although we zeroed
+parts of genes, we did not remove genes that were covered by those regions with
+zeroed pileup. We might need to remove gene annotations from
+feature-genome.out-parsernaseq when we zero pileups. 
+chr1:1,694,398-1,704,509
+Or, we could use ParseRNAseq without -force_gp option.
+We also need to remove genes with no expression in the first place.
+chr1:1,717,907-1,748,242
+
+I might try use ParseRNAseq without -force_gp option, or use it with the option
+but by removing gene annotations.
+I might try to use sample 35 (UA159-1 no CSP) that appears to be less spiky in
+pileup. Try samples 1, 19, 20, 35, and 36.
+Total 10 runs.
+
+.Submission place
+----
+cac:run/rnaseq/011212
+----
+
+Because tx mappings are not perfect, we need to analyze them using some
+statistics or some nice plots.
+
+
+Wed Jan 11 15:00:49 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Charles's idea of post-processing RNA-seq pileup results
+we wish to refine transcript predictions that are made by ParseRNAseq. A
+likelihood can be constructed by assuming geometric distribution of the
+post-processed RNA-seq pileups.
+
+.Things that I needed
+. A RNA-seq web sites
+. A ParseRNAseq output file
+. A pileup file and its processed one
+
+I need to have one transcript map and some supporting figures.
+
+I had perl scripts in transcript-parsernaseq.sh. They use the file,
+FASTQ001-end.wig, or a post-processed RNA-seq pileup file. Apparently, I tried
+to refine a predicted transcript map using an end.wig file. 
+----
+perl pl/transcript-parsernaseq.pl adjust
+perl pl/transcript-parsernaseq.pl slope
+----
+
+Menu transcript-parsernaseq can create the output file from ParseRNAseq.
+
+.A ParseRNAseq output file
+----
+output/cornell/1/bwa/FASTQ001.parsernaseq
+output/cornell/1/bwa/FASTQ001.bed2
+----
+
+Menu bwa-pos2wig can create an end.wig file.
+
+. A pileup file and its processed one
+----
+output/cornell/1/bwa/FASTQ001-end.wig
+----
+
+Tue Jan 10 13:29:33 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+R package smutans 0.1.3 is made for UA159/TW1 comparison.
+
+.found small RNAs using RNAz
+----
+test/RNAz/results.bed.corrected
+$ perl pl/feature-genome.pl rnaz
+  -in test/RNAz/results.bed.corrected
+  -out test/RNAz/feature-genome.out-rnaz
+----
+Let's convert results.bed.corrected to a feature file so that we can count short
+reads. How can I count short reads based on a feature file?
+
+.predicted transcripts
+----
+swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.1/genes10b25.out
+test/ParseRNAseq/genes10b25.out
+$ perl pl/feature-genome parsernaseq 
+  -in test/ParseRNAseq/genes10b25.out
+  -out test/ParseRNAseq/feature-genome.out-parsernaseq
+----
+I also want to convert it to a feature file.
+
+I created the two files:
+----
+test/RNAz/feature-genome.out-rnaz
+test/ParseRNAseq/feature-genome.out-parsernaseq
+----
+The two files are merged to the feature-genome.out.
+
+.All of the three feature-genome files are concatenated
+----
+cac:/v4scratch/sc2265/rnaseq/output/cornell/1/bwa/feature-genome.out-geneonly
+----
+Then, we run run-de-all.sh after changing some scripts.
+
+.The directory at cac
+----
+cac:run/rnaseq/110111
+bash run-de-all.sh
+----
+
+Mon Jan  9 09:21:26 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+R package smutans 0.1.3 is being developed.
+
+Thu Jan  5 09:52:35 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.vims
+----
+~/.vim/session/package-smutans
+----
+
+Wed Jan  4 15:59:03 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Example of Sweave
+----
+test/Sweave_MCQ
+----
+
+Tue Jan  3 12:12:06 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.
+----
+R/deseq-cornell-ua159-tw1.R
+Rscript R/deseq-cornell-ua159-tw1.R count.txt qvalue
+----
+
+.Build and install smutans package.
+----
+cd package
+R CMD build --resave-data smutans
+R CMD install smutans_0.1.0.tar.gz
+> library(smutans)
+> data(smutansGenes)
+> head(counts(smutansGenes))
+----
+
+.Sweave sample code
+----
+test/Sweave_MCQ
+----
+
+A class is implemented. I do not subclass CountDataSet but use it.
+
+Mon Jan  2 15:30:43 EST 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are several things that I have to do about RNA-seq of the S. mutans. 
+I use deseq-1-6-1.pdf to use DESeq.
+
+Fri Dec 23 09:46:46 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some R analysis with 
+
+Tue Dec 20 09:44:17 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's use multi-factor analysis.
+----
+test/edgeR/run.R
+----
+u for glucose, and a for galactose
+w for UA159, and m for TW1
+sugar <- factor(c(u,u,a,u,u,a,a,a,u,u,a,a,a))
+mutant <- factor(c(w,m,m,w,w,w,w,w,m,m,m,m,w))
+1
+2
+3
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+# UA159-TW1 Glu Comparison : 1,19,20     vs. 2,24,25
+# UA159-TW1 Gal Comparison : 21,22,23,28 vs. 3,26,27
+# TW1-Glu/Gal Comparison   : 2,24,25     vs. 3,26,27
+# UA159-Glu/Gal Comparison : 1,19,20     vs. 21,22,23,28
+
+NBPSeq is another method based on NB distribution.
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("qvalue")
+install.packages("NBPSeq")
+----
+
+Fri Dec 16 17:31:11 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I want to test edgeR.
+Where can I find count data for the S. mutans?
+----
+output/cornell/1/bwa/FASTQ035.de
+----
+Using UA159 as a reference genome we have count data for each of RNA Sample. A
+target file is created.
+----
+test/edgeR/Targets.txt
+----
+29,30,31 (835NP) vs 32,33,34 (835P)
+
+What does the pseudocount do for us?
+What is TMM?
+What is common dispersion? What does it for us?
+What is conditional maximum likelihood method?
+What is quantile-to-quantile method?
+
+
+Thu Dec 15 13:20:52 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am trying to test goseq with deseq. I need to find associations of genes
+with gene ontology. I may have done this before when I was testing RNAz. What I
+need is a list of genes and their associations with gene ontology terms.
+I find it interesting to apply goseq to KEGG. I am working on a file at
+----
+test/goseq/tutorial.R
+----
+to test goseq with a data set. What data set would I use for the testing? The
+comparison between UA159 and TW1 could be one. Where can I find the result of
+this comparison? A deseq file contains a list of DE genes:
+----
+output/cornell/1/bwa/cornell-UA159GLU-TW1GLU.deseq
+----
+The file contains genes and DE genes. Let me parse the file for genes. Now, I
+have all of the genes, and DE genes in files. I found the gene lengths in the
+following file
+----
+output/cornell/1/bwa/feature-genome.out-geneonly
+----
+I need to find category associations of genes. The following file contains genes
+and their associations with gene ontologies.
+----
+test/RNAz/smutans.gene2go
+----
+I conclude that length bias correction does something for finding associated gene
+ontologies.
+
+A guide from Matthew Young:
+----
+http://bioinf.wehi.edu.au/bioinfosummer2010/materials/RNAseq_Mapping_Tutorial.pdf
+http://precedings.nature.com/documents/4437/version/1/files/npre20104437-1.pdf
+http://arxiv.org/pdf/1104.3889
+http://www.docin.com/p-122481994.html
+----
+
+Thu Nov 17 10:34:39 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am waiting for ...
+
+Wed Nov 16 12:59:52 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In the RNAz analysis, I wished to look at target proteins of small
+RNAs predicted using RNAz package. See the file +test/RNAz/run+ to add this to
+the batch script.
+
+----
+test/RNAz/target_go.txt
+----
+
+Tue Nov 15 17:09:14 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+smu86 and omz: wiggle files were not created correctly.
+See samtools-pileup.pl wiggle command. Because there are multiple contigs, we
+need to consider these. See the following file
+
+----
+output/omz/1/bwa/FASTQ015.pileup
+----
+
+to find how contigs are sorted in the pileup.
+
+Thu Nov 10 22:37:44 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Species smu86 is created.
+
+.U2A contig genomes
+----
+data/SMU86.fa
+----
+
+
+Thu Nov 10 17:07:48 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We used PTT files for creating +feature-genome.out-geneonly+ files. We do not
+have a PTT file for OMZ175. Instead, we have gff and sequence files.
+.OMZ175 contig genomes
+----
+data/SMU109-OMZ175.fa
+data/SMU109-OMZ175.gff
+data/SMU109-OMZ175.sh
+----
+Create +feature-genome.out-geneonly+ by running script +data/SMU109-OMZ175.sh+.
+Do not run +pl/feature-genome.pl+ in the cluster.
+
+
+Mon Nov  7 11:17:22 EST 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.OMZ comparision using cornell species project
+----
+Rscript R/deseq-cornell-omz.R > output/cornell/1/bwa/omz.deseq
+output/cornell/1/bwa/omz-de.ps
+output/cornell/1/bwa/omz-scv.ps
+----
+
+.Part II for the 5 comparisons
+----
+doc/tw1.lyx
+----
+
+Thu Nov  3 10:10:38 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Menu *de-count* requires a gene.pos file.
+How can I create it?
+Menu *de-count* also requires FASTQXX-sum.pos as well, which is created using
+*bwa-summary*.
+Menu *bwa-pos2wig* seems to be outdated because *bwa-mpileup* already created
+wig files.
+File +feature-genome.out-geneonly+ seems to replace gene.pos.
+
+----
+cp /Volumes/Elements/Backups/Documents/Projects/rnaseq/output/smutans12/1/data/gene.pos output/smutans12/1/data/
+----
+
+Menu *de-count* is very slow; each run could take a day.
+
+Running: FASTQ19~27 to mpileup. wig files should be made.
+Running: FASTQ15~18 for *de-count*
+
+
+.Please, rename de files. 
+----
+output/smutans12/1/bwa/FASTQ15.de
+output/smutans12/1/bwa/FASTQ16.de.2
+output/smutans12/1/bwa/FASTQ17.de.2
+output/smutans12/1/bwa/FASTQ18.de.2
+----
+
+Wed Nov  2 20:27:03 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The 2nd round of RNASeq data is used. I am focusing on OMZ study. Menu
+*bwa-mpileup* was finished.
+
+
+
+Tue Nov  1 13:28:50 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.The protocol
+----
+http://www.illumina.com/support/sequencing/sequencing_kits/truseq_rna_sample_prep_kit/documentation.ilmn
+----
+
+.Paulina said this
+----
+It was the RNA sample prep kit FC-122-1001, kit A. I started at the "Incubate
+RFP" step, with my sample in 18ul of Elution, Prime and Fragmentation buffer.
+As for which adapters go with what sample, I will see about getting that info to
+you.  Paulina
+----
+
+
+Thu Sep 15 10:53:41 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Target messenger RNAs are predicted for each predicted small RNAs as a query
+using RNAplex. Can I find their enrichment in functional categories?
+
+Wed Sep 14 16:19:34 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RNAz found 40 known RNAs out of 111 loci that are found to contain structural
+RNAs.
+
+Target messenger RNAs of the predicted small RNAs might be found using RNAplex.
+
+Tue Sep 13 11:48:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sometimes I need to work on a few scripts that might not be incorporated into
+*RNASeq Analysis* scripts. I put these scripts in the test directory.
+
+.RNAz for finding small RNAs 
+----
+test/RNAz
+----
+
+Mon Sep 12 15:19:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RNAz is used to find small RNA candidates. Sequence alignments appear to be a
+critical step for finding small RNAs. Phylogenies of streptococcus species could
+be considered to choose species related with Streptococcus mutans.
+Alternatively, I find sequences similar to intergenic regions, and refine the
+alignments using a multiple sequence alignment tool such as MUSCLE. Steps for
+achieving this goal include: 1. Exract intergenic regions including up- and
+down-stream, 2. BLAST the intergenic regions against non-redundant DB to find
+similar sequences, 3. Refine each alignment using MUSCLE, 4. Apply RNAz to the
+alignments for scoring regions for small RNAs, and 5. Find transcripts with high
+score of small RNAs. The transcripts must be defined in advance.
+
+
+Wed Sep  7 17:54:33 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need sequence alignments for RNAz. I align fourteen genomes using
+progressiveMauve. I use a tool of progressiveMauve, xmfa2maf, to convert the XMFA
+formated alignment to one in MAF format. Note that I also need to change the
+header information in the XMFA file and have input sequences in specified
+directory. Then, I will prepare a BED file for intergenic regions of S. mutans.
+This BED file will be fed into a PHAST tool, maf_parse, command to subselect
+parts of the alignment.
+
+Fri Sep  2 10:50:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using ends of coverage data to find a distribution of values.
+
+----
+output/smutanstrimmed/1/bwa/FASTQ01-end1-5.wig
+pl/
+----
+
+
+Thu Sep  1 17:19:48 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I have to summarize transcript information. 
+
+Find ParseRNAseq in the following directory.
+----
+swiftgen:Documents/Projects/rnaseq/src/ParseRNAseq-1.0
+----
+
+I used ParseRNAseq options: -c 10 -b 25. 
+----
+output/smutanstrimmed/1/bwa/FASTQ01.operon
+----
+
+/Users/goshng/Documents/Projects/rnaseq/output/smutanstrimmed/1/bwa/FASTQ01.bed2
+----
+perl pl/transcript-parsernaseq.pl operon -feature geneonly 
+-parsernaseq FASTQ01.parsernaseq2 
+-out FASTQ01.operon
+----
+
+Wed Aug 31 11:08:13 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to assess effects of smaller coverages on RNA-Seq analyses. There are
+three studies that I can do: DE study, transcript calls, and small RNAs. 
+I use the mapping results in +output/smutans10sub+. We start with map files:
+e.g., FASTQ01.sorted.bam. Menu *bwa-summary* can be used to create +sum.pos+
+files from +sorted.bam+ files.  Now, we need to count reads using menu
+*de-count*. Gene annotations are required for counting reads. The file name of
+default gene annotation is +gene.pos+. In the main output directory
++output/smutans12+ I have compiled genes and potential small RNAs. I copy the
+file to gene.pos for smutans10sub. Counting reads appears to be a bottleneck: it
+took a couple of days for processing 2 million reads. They may take about 3
+hours to finish. During the time, I am trying to call transcripts using
+ParseRNASeq and Charles's software. I need to call menu *bwa-mpilup*.
+The counting procedure was finished. Menu *de-count* is used again to combine
+all of the counts.
+
+.Copy gene annotation
+----
+cp output/smutans12/1/data/feature-genome.out-geneandsrna output/smutans10sub/1/data/gene.pos
+----
+
+.Gene coverage values
+----
+perl pl/transcript-genecoverage.pl coverage 
+-feature output/smutans10sub/1/data/feature-genome.out-geneonly
+-wiggle output/smutans10sub/1/bwa/FASTQ01.wig > 1
+----
+
+
+Mon Aug 29 17:42:20 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Scripts for counting reads
+----
+perl pl/de-count.pl join -shortread output/smutanstrimmed/1/bwa/FASTQ11-sum.pos -genepos output/smutans12/1/data/feature-genome.out-srna -o output/FASTQ11.de
+perl pl/de-count.pl join -shortread output/smutanstrimmed/1/bwa/FASTQ03-sum.pos -genepos output/smutans12/1/data/feature-genome.out-srna -o output/FASTQ03.de
+----
+
+Fri Aug 26 11:24:15 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DE study of intergenic regions and predicted small RNAs is pursued.
+SIPHT is used for small RNA predictions: NC_004350_sRNA.out_annotated is emailed
+to me after predicting sRNAs using SIPHT. I used a default option with UA159
+being a reference and all other streptococcus species genomes as query for
+sequence alignment.
+
+.Create a BED file from sRNA predicted with sRNAPredict3 or SIPHT.
+----
+perl pl/srnapredict2bed.pl bed -srnapredict NC_004350_sRNA.out_annotated -out srna.bed
+----
+
+.Create gene and intergenic regions (min. of 30 base pairs)
+----
+perl pl/feature-genome.pl ptt 
+-in bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.ptt
+-intergenicregion -out output/smutans12/1/data/feature-genome.out-intergenic
+----
+
+.Concatenate both files.
+----
+cat output/smutans12/1/data/feature-genome.out-intergenic srna.bed > output/smutans12/1/data/feature-genome.out-srna
+----
+
+.Count reads using feature-genome file.
+----
+output/smutans12/1/data/feature-genome.out-srna
+----
+
+.Create sum.pos file for all trimmed FASTQ files
+----
+Align FASTQ03 and FASTQ11.
+Use menu bwa-summary.
+----
+
+.Compare gene expression of FASTQ03 and FASTQ11 
+----
+Make a directory to analyze the expression levels.
+----
+
+Perez et al. (2009) studied small RNAs in S. pyogenes. They found 40 small RNAs
+using tiling array. I want to know where these are aligned to S. mutans.
+----
+cp bacteria/Streptococcus_pyogenes_MGAS5005_uid58337/NC_007297.fna .
+cp bacteria/Streptococcus_mutans_UA159_uid57947/NC_004350.fna .
+----
+
+snippets/perez contains sequence alignments of sRNA found experimentally to
+UA159. I conclude that not many small RNAs found in Perez et al. (2009) do not
+seem to overlap with UA159's pileup.
+
+Thu Aug 25 09:13:33 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+An interesting website for a kind of tutorial of sRNAPredict3:
+http://bcrc.bio.umass.edu/courses/fall2008/cmpsci/cmpsci691k/index.php/SRNA/operon_Discovery
+
+WU-BLAST2.0 old version:
+http://www.advbiocomp.com/blast/obsolete/
+http://www.advbiocomp.com/blast/obsolete/blast2.linux-5.1.tar.Z version seems to
+be runnable at swiftgen. The version does not contain the xdformat command.
+
+All streptococcus species genomes in FASTA format available for download are
+stored at:
+test/wublast
+
+Thu Aug 18 17:20:06 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RNA fold prediction:
+http://rna.tbi.univie.ac.at/cgi-bin/RNAfold.cgi
+
+Tue Aug 16 09:11:53 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Genemark, transcript prediction using RNA-Seq.
+
+.A hgTables is created from UCSC genome browser.
+----
+#chromStart	chromEnd	name	strand
+193	1552	SMU_01	+
+1707	2844	SMU_02	+
+3105	3297	SMU_05	+
+----
+
+----
+awk '{ print $3 "\t" $4 "\t" $1 "\t" $2}'  hgTables.txt > 1
+----
+
+I tried to run ParseRNAseq, but it failed to read the gene file.
+see output/smutans12/1/transcript
+
+.How to install GROseq
+----
+$ R CMD install GROseq_2.0.2.tar.gz
+> library(GROseq)
+----
+
+Mon Aug 15 10:10:24 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use only perfect matches of short reads.
+
+output/smutans12/1/bwa/count.txt is created from the 12 FASTQNN.de files using
+menu *de-count*. To compare TW1-Glucose(RNA-Seq 11) and TW1-Galactose(RNA-Seq
+03) I created output/smutans12/1/bwa/count-11-3.txt using
+
+.A script to create a count.txt for UA159 and TW1-Glucose, and TW1-Glucose and
+TW1-Galactose, 
+----
+in the directory output/smutans12/1/bwa
+awk '{ print $1 "\t" $2 "\t" $12 }' count.txt > count-1-11.txt
+awk '{ print $1 "\t" $12 "\t" $4 }' count.txt > count-11-3.txt
+awk '{ print $1 "\t" $10 "\t" $8 }' count.txt > count-9-7.txt
+----
+
+.An R script
+----
+Rscript count-1-11.R > count-1-11.out
+Rscript count-11-3.R > count-11-3.out
+Rscript count-9-7.R > count-9-7.out
+----
+
+Menu *deseq* is used to create output/smutans12/1/bwa/count-11-3.out file. All
+of the list of genes with fold changes are created from count-11-3.out:
+output/smutans12/1/bwa/tw1glugal.deseq
+
+Burne Lab sent me emails/from/burne/072711/STW1GluvGal.doc, which is used to
+create emails/from/burne/072711/tw1glugal.txt. A command 
+
+----
+perl pl/combine-deseq-microarray.pl deseq -rnaseq output/smutans12/1/bwa/tw1glugal.deseq -micro emails/from/burne/072711/tw1glugal.txt > R/tw1glugal.dat
+----
+
+is used to combine RNA-Seq result and microarray result. An R script is used 
+
+----
+Rscript R/tw1glugal.R
+----
+
+to create a figure, count-11-3.ps.
+
+
+Fri Aug 12 10:34:21 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+From smutans12/1/bwa/FASTQ01.sorted.bam
+HWI-ST397_0000:3:2102:2215:138075#GCCAAT        0 gi|24378532|ref|NC_004350.1|    16663   0       100M    *       0       0 AAAACAGAAAAAAAGCGAGAAAAGCTATTGACAAAGGGGGGAAGAGCTGGTAGAATAAAGAAGTTGTCTCAGAAAGAGGCAGAGCCCTTTGAAAACTGAA FFFDFCB=C=EEBBEFDFFFFBFDDEDEEE=DBDDFED@EE?FBFBDD=D@CD@B?4A@6CFEFBEF;FFFFDFFFFD@FFFBDFFFEFFFE@FF8EEEE XT:A:R  NM:i:0  X0:i:4  X1:i:0  XM:i:0  XO:i:0  XG:i:0 MD:Z:100
+-> hypothetical proteins
+
+HWI-ST397_0000:3:2203:12149:21055#GCCAAT        0 gi|24378532|ref|NC_004350.1|    16842   0       100M    *       0       0 GGACAGTAATGAGAAAGAACTCAAACGATTAAATGAGAGTTCGATCCTGGCTCAGGACGAACGCTGGCGGCGGGCCTAATACATGCAAGTGGGACGCAAG HHHHHHHHHHHHHFHHHFHHHHHH HHGEGGFGEFFGEGDBBEDECFFEHEFHHEHHCHBHHHBFHHFAEB26%/0DBCCAAAC'B@@??>EDCC=:DDE; XT:A:R  NM:i:2  X0:i:5  X1:i:0  XM:i:2  XO:i:0  XG:i:0 MD:Z:41T30T27
+-> rRNA-16S ribosomal RNA
+16663 - 16842
+16877..18428
+
+.A rRNA
+----
+     rRNA            16877..18428
+                     /locus_tag="SMUr01"
+                     /product="16S ribosomal RNA"
+                     /db_xref="GeneID:2886073"
+----
+
+
+
+Thu Aug 11 12:11:12 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Do we have reads counts for the 12 samples?
+
+W: I characterize the S. mutans transcriptome using RNA-Seq.
+RNA was prepared from [SAMPLE NAME: Ask Robert] grown to mid-log phase in LB
+broth [GROWTH CONDITIONS: Ask Robert]. 
+Some rRNA, or 16S and 23S rRNA, was expected to be the most abundant RNA
+species. Ribosomal RNAs were depleted prior to high-throughput sequencing.
+The depleted RNA was reverse-transcribed to cDNA, which was sequenced using an
+Illumina GA II. 
+The resulting 100-base short reads were mapped to the S. mutans UA159 genome.
+The sequence coverage per base was plotted and visualized using the UCSC genome
+browser and DNAplotter.
+
+W: Information of short reads includes mass of total RNA in microgram, totoal
+number of reads, reads mapped, proportion of total mapped, number of reads that
+mapped uniquely, proportion of mapped uniquely, reads mapped to CDS, reads
+mapped to non-coding sequences, reads mapped to hypothetical genes, reads mapped
+to tRNA.
+
+W: The sequence coverage varied across CDS, indicated by peaks and troughs. The
+profile was consistent between biological replicates.
+
+Fri Aug  5 18:03:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am starting to code the differential expression level study.
+
+.MacPort Package for removing inconsolata.sty error
+----
+sudo port install texlive-fonts-extra
+----
+
+Thu Aug  4 18:01:26 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A file R/deseq.R is created for a detailed study of DESeq R package.
+
+Wed Aug  3 16:49:04 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are two version: release and devel.
+http://www-huber.embl.de/users/anders/DESeq/
+
+R package library tutorial:
+http://user2010.org/tutorials/Ligges.pdf
+http://en.wikipedia.org/wiki/Package_development_process
+http://cran.r-project.org/doc/contrib/Leisch-CreatingPackages.pdf
+
+Mon Aug  1 13:59:22 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.Download DESeq
+----
+source("http://bioconductor.org/biocLite.R")
+biocLite("DESeq")
+----
+
+Fri Jul 29 14:34:57 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Directory +emails/from/mlissa/072911+ contains SMU109 or OMZ strain's contigs
+and genes.
+
+Thu Jul 28 15:56:16 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++wgsim+ is a simulator of short reads from a reference genome. There is a thread
+in
+http://seqanswers.com/forums/showthread.php?t=806[here]
+about simulators of short reads.
+
+Wed Jul 27 16:14:14 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am checking the mapping of short reads.
+
+UCSC genome browser mirror for testing purposes:
+http://choi.genome_mirror.bscb.cornell.edu
+
+Use the following command
+----
+make update DBS=SmuUA159
+----
+
+Manual of MAQ was found 
+http://maq.sourceforge.net/maq-man.shtml[here].
+
+FASTQ format in Wikipedia was found
+http://en.wikipedia.org/wiki/FASTQ_format[here].
+
+Wed Jul 20 16:50:27 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am looking at three software packages: Bowtie, TopHat, and Cufflink.
+There is a tutorial for Cufflink
+http://cufflinks.cbcb.umd.edu/tutorial.html[here].
+I am following the tutorial to learn how to use Cufflink.
+The tutorial has a part of using TopHat. I have to use TopHat now.
+
+Mon Jul 18 20:47:27 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I need to see how BWA and Bowtie work.
+
+.DEGseq source file
+----
+test/DEGseq/tw1.R
+----
+
+Thu Jul  7 23:28:02 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+velvet and oases were tried.
+
+.DEGseq results and microarray data
+----
+test/microarray/CcpAvWTGlu.txt
+test/DEGseq/wt2tw/output_score.txt
+test/microarray/CcpAGluvGal.txt
+test/DEGseq/tw1glucosegalactose/output_score.txt
+----
+
+Thu Jun 30 10:48:50 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DEGseq is used to compare FASTQ11 and FASTQ03. Bowtie alignments were explained
+in the tutorial of DEGseq. 
+
+Wed Jun 29 09:18:10 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+One file of reads, +FASTQ06+, was not mapped onto the U159 reference genome. 
+It makes sense because the sample strain of the reads file is from U138. Can I
+use this file of reads for something such as genome construction? What is U138?
+About half of the reads seemed to be mapped.
+
+
+Tue Jun 28 13:56:07 EDT 2011
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The analysis of +smutans12+ consists of 12 reads files. One of the 12 files was
+not successfully processed with *bwa-align*. +FASTQ11.sai+ was generated in the
+swiftgen. It was copied to my Mac mahcine to do the rest of analyses.
+
+Directories
+-----------
+. doc
+. pl
+. src
+. data
+. resources
+.. segemehl source code
+
+Goal
+----
+I want to know how to analyze RNA-Seq data of prokaryotes.
+
+Sequencing Platforms
+--------------------
+Illumina platform
+
+Test Study
+----------
+[Sharma et al. 2010] is used as a case study.
+The raw data set is stored in NCBI with accession SRP001481.
+
+[literal]
+ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP001/SRP001481
+
+Genome
+~~~~~~
+_H. pylori_ 26695 genome is used as a reference genome.
+[literal]
+/Volumes/Elements/Documents/Projects/mauve/bacteria/Helicobacter_pylori_26695_uid57787/NC_000915.gbk
+
+FASTQ format
+~~~~~~~~~~~~
+The raw data sets from SRA could not be the original data files from sequencers.
+fastx\_toolkit may be useful in preprocessing fastq format files.
+
+A quality control tool. This is a useful tool to see the content of a FASTQ
+file. See the website
+http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/
+for further detail.
+This can be downloaded at
+http://www.bioinformatics.bbsrc.ac.uk/projects/download.html#fastqc.
+A video tutorial of fastqc was found at
+http://www.youtube.com/watch?v=bz93ReOv87Y.
+Its documentation can be found at
+http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/Help/.
+
+samtools
+--------
+http://samtools.sourceforge.net/samtools.shtml
+
+BWA
+---
+http://bio-bwa.sourceforge.net/bwa.shtml
+
+SeqMonk
+~~~~~~~
+This is a way to create a custom genome using *seqmonk*,
+http://www.bioinformatics.bbsrc.ac.uk/projects/seqmonk/CREATING_CUSTOM_GENOMES.txt
+
+You can click EMBL at Gene sets
+http://www.ebi.ac.uk/integr8/FtpSearch.do?orgProteomeId=23&geneId=6901605
+
+An example
+^^^^^^^^^^
+
+I do not know which file I should use.
+
+http://www.ebi.ac.uk/integr8/FtpSearch.do?orgProteomeId=23&currentclicked=DOWNLOADS
+
+How to download EMBL genome for seqmonk
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+. Go to http://www.ebi.ac.uk/
+. Search EBI for species name and its unique number (e.g., Helicobacter pylori
+26695)
+. Find _complete genome_ in the search result and click a link next to it.
+. Click _TEXT_ next to _Download_ in the website.
+. Replace product with description, and locus_tag with name.
+
+
+Genome Reviews
+
+FastQC
+------
+A nice tool for examming FASTQ files.
+
+``PRINSEQ'' seems to be also useful.
+[literal]
+http://prinseq.sourceforge.net/manual.html
+
+Viewers
+~~~~~~~
+Find some useful viewers at
+[literal]
+http://seqanswers.com/forums/showthread.php?t=3904
+http://seqanswers.com/forums/showthread.php?t=3779
+
+
+From Steve Hoffmann
+^^^^^^^^^^^^^^^^^^^
+Dear Sang Chul,
+
+thank you very much for your Mail. The word "computed" sounds a bit like rocket
+science, but it is absolutely not! We have used a simple perl script to generate
+the files for the IGB Browser. The IGB format essentially boils down to a simple
+XYZ file, where X is the position, Y is the expression on the forward and Z is
+the expression on the reverse strand. Please check the IGB file formats to find
+the one that is most suitable for you. For the output 
+
+SRR031223.15 12  104 0.0000  20  123 116 9 2 1 + 96928 97053 >NC_000915.1
+S1;M1;S2;M2;S2;M2;S1;M1;S1;M1;S1;M2;I1;M1;S1;M104;D2;M     2;
+
+
+the columns "+ 96928 97053 >NC_000915.1" contain all the coordinates you need to
+generate an XYZ file. You can extract them by  grep-ing the tab separated
+columns 11, 12, 13, and 14. In the example above "+" is the strand, "96928" is
+the start and "97053" is the end of the match. "NC_000915.1" is the chromosome
+or reference sequence. 
+
+In practice the segemehl file should be sorted according to the position in a
+first step. In a second step a simple linear scan you can now add up the matches
+for all positions in the chromosome/reference sequence for the plus and minus
+strand separately. 
+
+Additionally i recommend a normalization on the number of hits. If for example
+the read SRR031223.15 has 4 alternative hits in the genome i'd recommend to add
+a quarter match to each position but a full match. If you want to compare
+library id also recommend to do a normalization based on the library size.
+
+Hope that i was able to help you a little!
+
+Cheers!
+Steve
+
+How to compute graphs!
+~~~~~~~~~~~~~~~~~~~~~~
+Find numbers of hits for each read. Prepare two arrays of size being equal to
+the number of nucleotides of a reference genome. Reset all the elements of the
+arrays to zero. One of arrays is for the leading strand and another for the
+lagging strand. For each map of a read, locate the range of the map to increase
+the position of the array depending on strand by 1/hits where hits is the number
+of multiple hits of the read. Repeat this procedure for all the mapped reads.
+The two arrays are the result of the graph computation algorithm.
+
+IGB seems useful.
+-----------------
+I did not find IGV useful as its website claims.  IGB seems more useful than
+IGB.  I want to know to draw genes and ORF and some other genome annotations in
+IGB.  The genbank file can be used to list genes.  A list of genes may be
+drawn in parallel with short read maps.
+
+Genbank H. pylori genome contains gff file as well as gbk file. The gff file can
+be used as an annotation file for IGB.  But, gene names do not appear in boxes
+of annotation tracks. It would be good to control display of annotation boxes
+somehow.
+
+Wiggle and Track
+----------------
+Place a wiggle file at +public_html+ of my swiftgen account.
+
+http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?db=SmuUA159&position=chr1&hgt.customText=http://compgen.bscb.cornell.edu/~choi/SRR031130.map.wig
+
+
+Interesting sites
+-----------------
+
+infernal RFAM:
+http://strep-genome.bscb.cornell.edu/cgi-bin/hgTracks?insideX=148&revCmplDisp=0&hgsid=124&hgt_doJsCommand=&hgt.right1=+%3E+&position=chr1%3A1127041-1152113&hgtgroup_user_close=0&hgtgroup_map_close=0&hgtgroup_genes_close=0&hgtgroup_regulation_close=0&hgtgroup_varRep_close=0[Link]
+
+
+Mapped reads
+------------
+FASTQ: FASTQ01
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 18931854
+The number of mapped reads is  13102917 (69 %)
+FASTQ: FASTQ02
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_001_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 19747584
+The number of mapped reads is  10326492 (52 %)
+FASTQ: FASTQ03
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 20591432
+The number of mapped reads is  13494893 (65 %)
+FASTQ: FASTQ04
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_002_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 24918598
+The number of mapped reads is  11017699 (44 %)
+FASTQ: FASTQ05
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_003_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 22534482
+The number of mapped reads is  11751227 (52 %)
+FASTQ: FASTQ06
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_003_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 19483712
+The number of mapped reads is   102150 (0 %)
+FASTQ: FASTQ07
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 22194404
+The number of mapped reads is  12060475 (54 %)
+FASTQ: FASTQ08
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_004_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 21131873
+The number of mapped reads is  10866409 (51 %)
+FASTQ: FASTQ09
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_3_sequence.txt.gz
+The total number of short reads is 20482548
+The number of mapped reads is  10596559 (51 %)
+FASTQ: FASTQ10
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_005_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 22392326
+The number of mapped reads is  10750003 (48 %)
+FASTQ: FASTQ11
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz
+
+gzip:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_3_sequence.txt.gz:
+decompression OK, trailing garbage ignored
+The total number of short reads is 22160808
+The number of mapped reads is  15192418 (68 %)
+FASTQ: FASTQ12
+FILE:
+/Volumes/Elements/Documents/Projects/rnaseq/data/smutans/demulti_006_10250297_C00RHABXX_s_4_sequence.txt.gz
+The total number of short reads is 20264101
+The number of mapped reads is  11156784 (55 %)
+
+# 01 - UA159
+# 02 - 11VS1
+# 03 - TW1-Galactose
+# 04 - N29
+# 05 - 1SM1
+# 06 - U138
+# 07 - OMZ/HKRR
+# 08 - NMT4863
+# 09 - OMZ175
+# 10 - NLML4
+# 11 - TW1-Glucose
+# 12 - 15JP3
+
+FASTQ: FASTQ01
+The total number of short reads is 18931854
+The number of mapped reads is  13102917 (69 %) 4871824 mapped to rRNA
+FASTQ: FASTQ02
+The total number of short reads is 19747584
+The number of mapped reads is  10326492 (52 %)
+FASTQ: FASTQ03
+The total number of short reads is 20591432
+The number of mapped reads is  13494893 (65 %)
+FASTQ: FASTQ04
+The total number of short reads is 24918598
+The number of mapped reads is  11017699 (44 %)
+FASTQ: FASTQ05
+The total number of short reads is 22534482
+The number of mapped reads is  11751227 (52 %)
+FASTQ: FASTQ06
+The total number of short reads is 19483712
+The number of mapped reads is   102150 (0 %)
+FASTQ: FASTQ07
+The total number of short reads is 22194404
+The number of mapped reads is  12060475 (54 %) 7719140 mapped to rRNA
+FASTQ: FASTQ08
+The total number of short reads is 21131873
+The number of mapped reads is  10866409 (51 %)
+FASTQ: FASTQ09
+The total number of short reads is 20482548
+The number of mapped reads is  10596559 (51 %) 7918014 mapped to rRNA
+FASTQ: FASTQ10
+The total number of short reads is 22392326
+The number of mapped reads is  10750003 (48 %)
+FASTQ: FASTQ11
+The total number of short reads is 22160808
+The number of mapped reads is  15192418 (68 %)
+FASTQ: FASTQ12
+The total number of short reads is 20264101
+The number of mapped reads is  11156784 (55 %)
+
+
+Tools for differential expression
+---------------------------------
+
+See the following 
+https://djfextranet.agrsci.dk/sites/phd_cource/public/Documents/course%20material/Module_10_NGS_analysis.pdf[PPT]
+for discussion of the tools for differential expression.
+
+edgeR
+~~~~~
+
+DESeq
+~~~~~
+
+http://www-huber.embl.de/users/anders/DESeq/
+
+DEGseq
+~~~~~~
+Two versions of DEGseq were found. One of them was found at either
+http://www.bioconductor.org/packages/release/bioc/html/DEGseq.html[Version1]
+or
+http://www.bioconductor.org/packages/2.5/bioc/html/DEGseq.html[Version2.5].
+Another version was found and could be installed using the following R command:
+.The first method that I used to install DEGseq.
+----
+source("http://bioinfo.au.tsinghua.edu.cn/software/degseq/DEGseqInstall.R")
+----
+The first seemed to be newer, and was installed using the following R command:
+.The second method that I used to install DEGseq.
+----
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DEGseq")
+----
+
+DEGexp function argments were different.
+
+A discussion thread for installing DEGseq was found 
+http://seqanswers.com/forums/showthread.php?t=2952[here].
+
+A discussion thread about the error in the tutorial can be found
+http://seqanswers.com/forums/showthread.php?t=2952&page=3[here].
+
+Another thread was found
+http://seqanswers.com/forums/showthread.php?t=2952&page=5[here].
+
+The manual was found 
+http://www.bioconductor.org/packages/2.8/bioc/vignettes/DEGseq/inst/doc/DEGseq.pdf[here].
+
+.A test run wt and tw1-glucose
+----
+test/DEGseq/wt2tw/output_score.txt
+----
+
+baySeq
+~~~~~~
+Another
+
+How to add tracks to UCSC genome browser at Cornell
+---------------------------------------------------
+Because +compgen+ hosts the database, we must use commands of adding tracks to
+UCSC genome browser in +compgen+ machine not +swiftgen+ machine. We need the
+source code of the genome browser.
+
+.Pull the source code of UCSC genome browser at Cornell
+----
+$ export SVNROOT=svn+ssh://choi@compgen.bscb.cornell.edu/usr/local/svnroot
+$ svn co $SVNROOT/local_tracks/trunk local_tracks/
+$ cd local_tracks/trackDb/
+----
+
+.Create a table +rnaSeq01+
+----
+$ wigEncode FASTQ01.wig FASTQ01.temp.wig FASTQ01.wib
+$ hgLoadWiggle SmuUA159 rnaSeq01 FASTQ01.temp.wig
+$ rm FASTQ01.temp.wig 
+----
+
+
+
+.View the table +rnaSeq01+
+----
+$ hgsql SmuUA159 -e "select * from rnaSeq01" | less
+----
+
+.Move +wib+ files and change the file column
+----
+$ mv FASTQ01.wib /gbdb_cornell/SmuUA159/wib/
+$ hgsql SmuUA159 -e "update rnaSeq01 set file='/gbdb_cornell/SmuUA159/wib/FASTQ01.wib'"
+----
+
+.Edit +trackDb.ra+ file and compile it.
+----
+$ local_tracks/trackDb/streptococcus/SmuUA159/trackDb.ra 
+$ make cornell DBS=SmuUA159
+http://genome-source.cse.ucsc.edu/gitweb/?p=kent.git;a=blob;f=src/hg/makeDb/trackDb/README
+----
+
+.A script to upload the samples to UCSC genome browser tracks at Cornell.
+----
+#!/bin/bash
+NUMFASTQFILE=12
+for g in $(eval echo {1..$NUMFASTQFILE}); do
+  FASTQNUM=FASTQ$(printf "%02d" $g)
+  RNASEQNUM=rnaSeq$(printf "%02d" $g)
+  wigEncode $FASTQNUM.wig $FASTQNUM.temp.wig $FASTQNUM.wib
+  hgLoadWiggle SmuUA159 $RNASEQNUM $FASTQNUM.temp.wig
+  rm $FASTQNUM.temp.wig
+  mv $FASTQNUM.wib /gbdb_cornell/SmuUA159/wib/
+  hgsql SmuUA159 -e "update $RNASEQNUM set file='/gbdb_cornell/SmuUA159/wib/$FASTQNUM.wib'"
+done
+----
+
+.A script to load a BED file to UCSC genome browser
+----
+hgLoadBed SmuUA159 rnaSeq01Transcript cufflinks100.bed
+----
+
+
+Delete the following history.
+ 1004  wigEncode 
+ 1005  hgWiggle
+ 1006  wigEncode FASTQ01.wig /dev/stdout FASTQ01.wib | hgWiggle 
+ 1007  wigEncode FASTQ01.wig FASTQ01.temp.wig FASTQ01.wib
+ 1008  hgLoadWiggle 
+ 1009  hgLoadWiggle SmuUA159 rnaSeq01 FASTQ01.temp.wig 
+ 1010  pwd
+ 1011  rm FASTQ01.temp.wig 
+ 1012  ls
+ 1013  hgsql SmuUA159 -e "select * from rnaSeq01" | less
+ 1014  hgsql SmuUA159 -e "select * from rnaSeq01" | head -n 2
+ 1015  ls /gbdb_cornell/SmuUA159/wib/
+ 1016  mv FASTQ01.wib /gbdb_cornell/SmuUA159/wib/
+ 1017  hgsql SmuUA159 -e "update rnaSeq01 set file='/gbdb_cornell/SmuUA159/wib/FASTQ01.wib'"
+ 1018  echo $SVNROOT
+ 1019  export SVNROOT=svn+ssh://choi@compgen.bscb.cornell.edu/usr/local/svnroot
+ 1020  svn co $SVNROOT/local_tracks/trunk local_tracks/
+ 1021  cd local_tracks/trackDb/
+ 1022  ls
+ 1023  cd streptococcus/
+ 1024  ls
+ 1025  cd SmuUA159/
+ 1026  pwd
+ 1027  vi trackDb.ra 
+ 1028  vi ../../human/hg18/trackDb.ra 
+ 1029  vi trackDb.ra 
+ 1030  cd ..
+ 1031  cd ..
+ 1032  make cornell DBS=SmuUA159
+ 1033  vi trackDb.ra 
+ 1034  vi streptococcus/SmuUA159/trackDb.ra 
+ 1035  make cornell DBS=SmuUA159
+ 1036  vi streptococcus/SmuUA159/trackDb.ra 
+ 1037  vi streptococcus/SmuUA159/trackDb.ra 
+
+
