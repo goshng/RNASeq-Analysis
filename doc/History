@@ -60,6 +60,11 @@ Thu Aug 16 18:47:04 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am setting up the package at babylon server.
 
+A new RNASeq data:
+/lab/data/S_agalactiae/RNA_seq.11Jul12
+
+
+
 Thu Aug  9 13:48:19 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Add more RNAseq tracks and count reads mapped on the predicted small RNA
@@ -1173,6 +1178,46 @@ Note:
 One gene has a negative length:
 SL2.40ch01      ITAG_eugene     three_prime_UTR 338105  338074  .       - .  ID=three_prime_UTR:Solyc01g005490.2.1.1;Parent=mRNA:Solyc01g005490.2.1;from_BOGAS=1
 ----
+
+I am trying to create a circos figure.
+----
+cac:/home/fs01/sc2265/tmp/tomato/out
+cac:/v4scratch/sc2265/rnaseq/output/tomato/1/data/ITAG2.3_gene_models.gff3.txt.no-negative
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/test/circos/JML
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/log/033012/tomato/out/out
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/log/033012/tomato/out/out/out
+kimjaeok:~/bin/data/sol/segdup.txt
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/test/circos/sol-circos-tutorials-0.62/tutorials/1/4
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/test/circos/sol-circos-tutorials-0.62/tutorials/6/1
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/log/033012/tomato/out/out/1.pl
+kimjaeok:/Volumes/Elements/Documents/Projects/RNASeq-Analysis/log/033012/tomato/out/out/2.pl
+----
+The csv file from Excel contains  characters. I replace them with new lines
+using tr.
+----
+tr '^M' '\n'
+----
+I create a karyotype, karyotype.sol.txt.
+
+x <- read.csv("chr10SNPINDELS.csv")
+d <- x$IL10.1
+d <- d[!is.na(d)]
+write.table(d,file="chr10SNPINDELS/IL10.1",col.names=F,row.names=F)
+d <- x$IL10.1.1
+d <- d[!is.na(d)]
+write.table(d,file="chr10SNPINDELS/IL10.1.1",col.names=F,row.names=F)
+d <- x$IL10.2
+d <- d[!is.na(d)]
+write.table(d,file="chr10SNPINDELS/IL10.2",col.names=F,row.names=F)
+d <- x$IL10.2.2
+d <- d[!is.na(d)]
+write.table(d,file="chr10SNPINDELS/IL10.2.2",col.names=F,row.names=F)
+d <- x$IL10.3
+d <- d[!is.na(d)]
+write.table(d,file="chr10SNPINDELS/IL10.3",col.names=F,row.names=F)
+
+
+
 
 Thu Mar 29 14:50:50 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

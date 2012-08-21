@@ -9,17 +9,19 @@ STORAGEBASEDIR=/home/sc2265/data/RNASeq-Analysis
 
 BASEDIR=`pwd`
 echo Creating soft links to directories in the source code base directory...
-for i in pl sh src run; do
+for i in doc pl sh src run; do
+rm $LOCALBASEDIR/$i 
 ln -s $BASEDIR/$i $LOCALBASEDIR/$i 
 done
 
 echo Creating soft links to directories in the storage base directory...
-for i in data downloads email log output; do
+for i in data downloads email log output species; do
+rm $LOCALBASEDIR/$i 
 ln -s $STORAGEBASEDIR/$i $LOCALBASEDIR/$i
 done
 
 echo Creating conf directory in the local base directory...
 echo Copying a local conf file to the create conf directory...
 echo Edit the conf file available at $LOCALBASEDIR/conf/README
-mkdir $LOCALBASEDIR/conf
-cp $BASEDIR/conf/README.local $LOCALBASEDIR/conf/README
+# mkdir $LOCALBASEDIR/conf
+# cp $BASEDIR/conf/README.local $LOCALBASEDIR/conf/README

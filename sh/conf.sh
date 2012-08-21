@@ -13,7 +13,7 @@ function conf {
   X11_ROOT=$(grep ^X11_ROOT\: $CONFFILE | cut -d":" -f2)
   BATCHEMAIL=$(grep ^BATCHEMAIL\: $CONFFILE | cut -d":" -f2)
   EMAILON=$(grep ^EMAILON\: $CONFFILE | cut -d":" -f2)
-  if [ $EMAILON == "TRUE" ]; then
+  if [ "$EMAILON" == "TRUE" ]; then
     EMAILON=""
   else
     EMAILON="# "

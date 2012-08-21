@@ -91,7 +91,7 @@ SPECIESS=$(ls $ROOTANALYSISDIR/species|grep -v ^sim)
 # Menus
 #####################################################################
 PS3="Select the menu : "
-CHOICES=( init-file-system \
+CHOICES=( # init-file-system \
           choose-species \
           ---ANNOTATION---\
           convert-gff2txdb \
