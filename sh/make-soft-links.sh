@@ -3,8 +3,8 @@
 echo Create symbolic links at the local base directory.
 echo Choose your local and storage base directoires.
 echo Delete the line of exit in the script, and execute this shell script again.
-LOCALBASEDIR=/home/sc2265/Documents/Projects/RNASeq-Analysis
-STORAGEBASEDIR=/home/sc2265/data/RNASeq-Analysis
+LOCALBASEDIR=$HOME/Documents/Projects/RNASeq-Analysis
+STORAGEBASEDIR=$HOME/data/RNASeq-Analysis
 # exit 
 
 BASEDIR=`pwd`
@@ -23,5 +23,6 @@ done
 echo Creating conf directory in the local base directory...
 echo Copying a local conf file to the create conf directory...
 echo Edit the conf file available at $LOCALBASEDIR/conf/README
+# mkdir $LOCALBASEDIR/routput
 # mkdir $LOCALBASEDIR/conf
 # cp $BASEDIR/conf/README.local $LOCALBASEDIR/conf/README
