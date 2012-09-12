@@ -19,6 +19,7 @@
 
 REPETITION=1
 function batch3 {
+  PS3="Choose the species for $FUNCNAME: "
   select SPECIES in ${SPECIESS[@]}; do 
   if [ "$SPECIES" == "" ];  then
     echo -e "You need to enter something\n"
@@ -30,6 +31,7 @@ function batch3 {
     batch3-speciesfile 
     batch3-push-data
     batch3-get-data
+    batch3-clean-data
     batch3-make-job
     batch3-run-qcalignde
     create-index
@@ -90,6 +92,9 @@ function batch3-speciesfile {
   REFGENOMETXDB=$(grep ^REFGENOMETXDB\: $SPECIESFILE | cut -d":" -f2)  
   REFGENOMETXDB=$ROOTANALYSISDIR/$REFGENOMETXDB
   GENOMETXDB=$(basename $REFGENOMETXDB)
+  REFGENOMERRNATXDB=$(grep ^REFGENOMERRNATXDB\: $SPECIESFILE | cut -d":" -f2)  
+  REFGENOMERRNATXDB=$ROOTANALYSISDIR/$REFGENOMERRNATXDB
+  GENOMERRNATXDB=$(basename $REFGENOMERRNATXDB)
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
   MINTRIMQ=$(grep ^MINTRIMQ\: $SPECIESFILE | cut -d":" -f2)
@@ -105,6 +110,7 @@ ssh -x $CAC_USERHOST mkdir -p $RDATADIR
 ssh -x $CAC_USERHOST mkdir -p $RRUNANALYSIS
 scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
+scp $REFGENOMERRNATXDB $CAC_USERHOST:$RDATADIR
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
   FASTQFILE=$ROOTANALYSISDIR/\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
@@ -132,6 +138,7 @@ scp $CAC_USERHOST:$RBWADIR/count.m.cds $BWADIR
 scp $CAC_USERHOST:$RBWADIR/count.m.nocds $BWADIR
 scp $CAC_USERHOST:$RBWADIR/count.m.ng $BWADIR
 scp $CAC_USERHOST:$RBWADIR/count.m.tx $BWADIR
+scp $CAC_USERHOST:$RBWADIR/count.m.rrna $BWADIR
 for i in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$i)
   scp $CAC_USERHOST:$RBWADIR/\$FASTQNUM*fq.qualPlot.* $BWADIR
@@ -141,6 +148,13 @@ for i in $FASTQFILES; do
 done 
 scp $CAC_USERHOST:$RBWADIR/stat1.tex $BWADIR
 echo "Check $BWADIR"
+EOF
+}
+
+function batch3-clean-data {
+cat>$BASEDIR/clean-data.sh<<EOF
+#!/bin/bash
+echo ssh -x $CAC_USERHOST rm -rf -p $RBASEDIR
 EOF
 }
 
@@ -343,7 +357,7 @@ fi
   $CBWADIR/$GENOMEFASTA-bwa \\
   $CBWADIR/FASTQ\$1.sai \\
   \$2 \\
-  | ./samtools view -Sb -q $MINMAPQ - > $CBWADIR/FASTQ\$1.bam 
+  | ./samtools view -Sb -q 0 - > $CBWADIR/FASTQ\$1.bam 
 
 ./samtools sort $CBWADIR/FASTQ\$1.bam \$3 &> /dev/null
 rm $CBWADIR/FASTQ\$1.sai
@@ -394,6 +408,9 @@ if (length(feature.ng) > 0) {
   rm(x,y)
   feature.txnc <- c(feature.txnc,feature.ng)
 }
+
+# 11. rRNA
+feature.rrna <- transcripts(rrna.txdb)
 ###################################################################
 EOF
 
@@ -421,6 +438,9 @@ if (length(args) != 3)
   cat ("Rscript job-de.R bam.file 1000 1000\n")
   quit("yes")
 }
+rrna.txdb.file <- "$CDATADIR/$GENOMERRNATXDB"
+rrna.txdb <- loadFeatures(rrna.txdb.file)
+
 txdb.file <- "$CDATADIR/$GENOMETXDB"
 bam.file <- paste(args[1])
 cl.file <- paste(args[1], "cl", sep=".")
@@ -461,10 +481,14 @@ cl.m.nocds <- cl.m[elementMetadata(feature.txnc)\$type=="NOCDS"]
 cl.m.tx <- cl.m[!elementMetadata(feature.txnc)\$type=="NG"]
 cl.m.ng <- cl.m[elementMetadata(feature.txnc)\$type=="NG"]
 
+strand(feature.rrna) <- '*'
+olap.rrna <- summarizeOverlaps(feature.rrna,bv.multiple,mode="IntersectionStrict")
+cl.m.rrna <- assays(olap.rrna)\$counts[,1]
+
 save(overlapping.tx, 
      num.total.read, num.n.read, num.mapped.read, num.unique.read, 
      cl, cl.cds, cl.nocds, cl.tx, cl.ng, 
-     cl.m, cl.m.cds, cl.m.nocds, cl.m.tx, cl.m.ng, 
+     cl.m, cl.m.cds, cl.m.nocds, cl.m.tx, cl.m.ng, cl.m.rrna,
      file=cl.file)
 EOF
 
@@ -492,6 +516,9 @@ if (length(args) != 2)
   cat ("Rscript job-de-sum.R output/ua159/1/bwa fastq_index_file\n")
   quit("yes")
 }
+rrna.txdb.file <- "$RDATADIR/$GENOMERRNATXDB"
+rrna.txdb <- loadFeatures(rrna.txdb.file)
+
 txdb.file <- "$RDATADIR/$GENOMETXDB"
 txdb <- loadFeatures(txdb.file)
 EOF
@@ -506,11 +533,14 @@ count.table.nocds <- data.frame(gene=elementMetadata(feature.txnc)\$tx_name[x])
 x <- elementMetadata(feature.txnc)\$type=="NG"
 count.table.tx <- data.frame(gene=elementMetadata(feature.txnc)\$tx_name[!x])
 count.table.ng <- data.frame(gene=elementMetadata(feature.txnc)\$tx_name[x])
+
 count.m.table <- count.table
 count.m.table.cds <- count.table.cds
 count.m.table.nocds <- count.table.nocds
 count.m.table.tx <- count.table.tx
 count.m.table.ng <- count.table.ng
+
+count.m.table.rrna <- data.frame(gene=elementMetadata(feature.rrna)\$tx_name)
 
 table.read.statistics <- c()
 fastQIndex <- scan(args[2])
@@ -526,6 +556,8 @@ for (i in fastQIndex) {
                     round(num.mapped.read/num.total.read*100)),
             sprintf("%d (%d)",sum(cl.m.nocds), 
                     round(sum(cl.m.nocds)/num.total.read*100)),
+            sprintf("%d (%d)",sum(cl.m.rrna), 
+                    round(sum(cl.m.rrna)/num.total.read*100)),
             sprintf("%d (%d)",num.unique.read, 
                     round(num.unique.read/num.total.read*100)),
             sprintf("%d (%d)",sum(cl), 
@@ -550,6 +582,8 @@ for (i in fastQIndex) {
   colnames(count.m.table.cds)[ncol(count.m.table.cds)] <- paste("X",i,sep="")
   count.m.table.nocds <- data.frame(count.m.table.nocds,cl.m.nocds)
   colnames(count.m.table.nocds)[ncol(count.m.table.nocds)] <- paste("X",i,sep="")
+  count.m.table.rrna <- data.frame(count.m.table.rrna,cl.m.rrna)
+  colnames(count.m.table.rrna)[ncol(count.m.table.rrna)] <- paste("X",i,sep="")
   count.m.table.tx <- data.frame(count.m.table.tx,cl.m.tx)
   colnames(count.m.table.tx)[ncol(count.m.table.tx)] <- paste("X",i,sep="")
   count.m.table.ng <- data.frame(count.m.table.ng,cl.m.ng)
@@ -580,6 +614,9 @@ write.table(count.m.table.cds,file=count.m.table.file,quote=FALSE,sep="\\t",row.
 colnames(count.m.table.nocds) <- sub("X","",colnames(count.m.table.nocds))
 count.m.table.file <- sprintf("%s/count.m.nocds", args[1])
 write.table(count.m.table.nocds,file=count.m.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
+colnames(count.m.table.rrna) <- sub("X","",colnames(count.m.table.rrna))
+count.m.table.file <- sprintf("%s/count.m.rrna", args[1])
+write.table(count.m.table.rrna,file=count.m.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
 colnames(count.m.table.tx) <- sub("X","",colnames(count.m.table.tx))
 count.m.table.file <- sprintf("%s/count.m.tx", args[1])
 write.table(count.m.table.tx,file=count.m.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
@@ -587,10 +624,10 @@ colnames(count.m.table.ng) <- sub("X","",colnames(count.m.table.ng))
 count.m.table.file <- sprintf("%s/count.m.ng", args[1])
 write.table(count.m.table.ng,file=count.m.table.file,quote=FALSE,sep="\\t",row.names=FALSE)
 
-colnames(table.read.statistics) <- c("ID", "a", "b", "c", "d", "e", "f", "g")
+colnames(table.read.statistics) <- c("ID", "a", "b", "c", "d", "e", "f", "g", "h")
 x.big <- xtable( as.data.frame(table.read.statistics),
-                 display=c("d","d","s","s","s","s","s","s","s"),
-                 align=c('l','r','r','r','r','r','r','r','r'),
+                 display=c("d","d","s","s","s","s","s","s","s","s"),
+                 align=c('l','r','r','r','r','r','r','r','r','r'),
                  label='count',
                  caption='{\\\\bf Summary statistics of short reads.}'
                )
@@ -781,6 +818,7 @@ function copy-data {
   # Copy common data
   cp $RDATADIR/$GENOMEFASTA $CDATADIR
   cp $RDATADIR/$GENOMETXDB $CDATADIR
+  cp $RDATADIR/$GENOMERRNATXDB $CDATADIR
 }
 
 function process-data {
@@ -854,6 +892,7 @@ function batch3-rmessage {
   echo "bash $BASEDIR/push-data.sh"
   echo "work at cac:$CACWORKDIR"
   echo "bash $BASEDIR/get-data.sh"
+  echo "bash $BASEDIR/clean-data.sh"
 }
 
 # END OF BATCH3

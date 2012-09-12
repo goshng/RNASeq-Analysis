@@ -220,7 +220,7 @@ output/ua159/1/bwa/count
 output/ua159/1/run-analysis/count.txt.index
 ----
 
-We provide a few count files depending on which parts of gene annotations are used. +count+ uses CDS genes, non-CDS genes (or ribosomal RNAs), and non-genic regions. +count.tx+ uses genic regions including CDS and non-CDS genes. +count.ng+ uses non-genic regions. +count.cds+ uses only CDS genes, and +count.nocds+ uses only non-CDS genes. We use uniquely mapped reads for counting reads for creating files just mentioned above. The cutoff value of mapping quality is _MINMAPQ_. We also use reads with mapping quality less than _MINMAPQ_, and create count files with suffix of +m+. For example, +count.m.cds+ is a count file that contains number of reads multiply mapped on CDS regions.
+We provide a few count files depending on which parts of gene annotations are used. +count+ uses CDS genes, non-CDS genes (or ribosomal RNAs), and non-genic regions. +count.tx+ uses genic regions including CDS and non-CDS genes. +count.ng+ uses non-genic regions. +count.cds+ uses only CDS genes, and +count.nocds+ uses only non-CDS genes. We use uniquely mapped reads for counting reads for creating files just mentioned above. The cutoff value of mapping quality is _MINMAPQ_. We also use reads with mapping quality less than _MINMAPQ_, and create count files with suffix of +m+. For example, +count.m.cds+ is a count file that contains number of reads multiply mapped on CDS regions.  We have all of the mapped reads in BAM files. The species variable _MINMAPQ_ is used to count multiply aligned reads.
 
 deseq
 ~~~~~
@@ -285,7 +285,7 @@ ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
 
 Copy them to _ROOTANALYSISDIR_ and specify their relative locations in your species file
 ----
-GOAPNIPROT:data/goseq/gene_association.goa_uniprot.gz
+GOAUNIPROT:data/goseq/gene_association.goa_uniprot.gz
 GOBO:data/goseq/gene_ontology.1_2.obo
 UNIREFFASTA:data/goseq/uniref90.fasta.gz
 REF1GFF:path/to/file.gff
@@ -310,6 +310,15 @@ $ bash /path/to/job-goseq
 
 There are three parameters to tune the *goseq* analysis. First, we could change BLAST options to associate proteins with gene ontology terms. Second, we could change the q-value of determining differentially expressed genes. Third, we could change the q-value of calling gene ontology terms significant. We use 0.05 for the q-value of the third option (This is hard-coded in +smutans+ R package. We usually change the q-value for the second. The first option may be infrequently used because of the long (1 day) execution time of BLAST.
 
+EDIT THE FOLLOWING.
+
+----
+GOSEQFASTA:data/analysis/NC_004350.faa
+BLASTEVALUE:1e-3
+----
+
+_GOSEQFASTA_ is for protein sequences of the reference genome.
+_BLASTEVALUE_ is for minimum e-value of BLAST search.
 
 mcl
 ~~~
@@ -486,6 +495,7 @@ The function, _import.gff3_, is helpful in reading a gff file. The output variab
 ----
 > sm.gene <- sm.gff[sm.gff$type=="gene",]
 > sm.CDS <- sm.gff[sm.gff$type=="CDS",]
+> sm.rrna <- sm.gff[sm.gff$type=="rRNA",]
 ----
 
 The _sm.gene_ object contains all of the annotations including mRNA, rRNA, and others. 
@@ -813,11 +823,15 @@ source("http://www.bioconductor.org/biocLite.R")
 to install the R packages:
 
 ----
+install.packages("plotrix")
+install.packages("gplots")
 biocLite("DESeq")
 biocLite("ShortRead")
 biocLite("rtracklayer")
 biocLite("GenomicFeatures")
+biocLite("qrqc")
 biocLite("VariantAnnotation")
+biocLite("goseq")
 The following are installed by the above R packages.
 biocLite("GenomicRanges")
 biocLite("Rsamtools")

@@ -28,11 +28,11 @@ function choose-species {
       read REPETITION
       global-variable $SPECIES $REPETITION
 
-      mkdir -p $BASERUNANALYSIS
+#      mkdir -p $BASERUNANALYSIS
       mkdir -p $NUMBERDIR
       mkdir -p $DATADIR
       mkdir -p $BWADIR
-      mkdir -p $TRANSCRIPTDIR
+#      mkdir -p $TRANSCRIPTDIR
       mkdir -p $RUNANALYSIS
       break
     fi

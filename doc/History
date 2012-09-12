@@ -56,6 +56,44 @@ Histories
 ---------
 This history can be useful later.
 
+Wed Sep  5 09:23:56 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Add tracks for predicted small RNAs
+----
+sh/mss-lin-ucsc.sh
+----
+
+.Check this directory for adding tracks
+----
+compgen:/home/choi/public_html/rnaseq
+----
+
+Mon Sep  3 10:31:41 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+R installation - fortran
+----
+http://R.research.att.com/tools/
+----
+gfortran-42-5664.pkg for snow-leopard
+
+Fri Aug 31 10:30:52 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's reproduce the results Glucose/Galactose study. Let's move smutans R
+package to the directory R source code without data. The data should be a
+separate direcotry that coordinates the R source code. I like the direcotry,
+package, but not under the source code control. I may need a separate hard drive
+for backing up the source.
+
+Thu Aug 30 16:20:18 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I am counting reads on rRNAs.
+----
+data/genomes/Streptococcus_agalactiae_A909_uid57935/NC_007432.rrna.txdb
+----
+
 Thu Aug 16 18:47:04 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I am setting up the package at babylon server.
@@ -118,9 +156,9 @@ See sh/add-track-ucsc-bam.sh for a how-to of creating tables for BAM tracks.
 
 Let's create the BED files of small RNA, and count reads mapped on it. 
 ----
-test/pichon/pichon.bed
+test/pichon/ua159-v2/pichon.bed
 test/rfam/cm.bed
-test/sRNAscanner/srnascanner.bed
+test/sRNAscanner/ua159-v2/srnascanner.bed
 ----
 We have the following BED files. Let's consider a BAM file
 ----
@@ -137,6 +175,12 @@ test/rfam/cm.bed.cl
 test/sRNAscanner/srnascanner.bed.cl
 ----
 See +log/080912+ for the process.
+
+I am trying to import BED files
+----
+x <- import.bed("/Users/goshng/Documents/Projects/RNASeq-Analysis/test/pichon/ua159-v1/pichon.bed")
+x <- import.bed("/Users/goshng/Documents/Projects/RNASeq-Analysis/test/sRNAscanner/ua159-v1/srnascanner.bed")
+----
 
 Fri Aug  3 09:12:29 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,7 +265,7 @@ test/transterm/NC_004350.tt
 
 I create a BED file from Infernal prediction (test/rfam) using rtracklayer. Each
 file in test/rfam/cmsearch contains hits of regions in S. mutans genome. We need
-to choose a E-value threshold to decide which parts are included as predicted
+to choose an E-value threshold to decide which parts are included as predicted
 regions of structural RNAs. I create a perl script, pl/rfam.pl, for converting
 rfam result files to a bam file. I used the pl/rfam.pl to convert cmsearch files
 to BED files. We concatenate all of the BED files to create a single BED file.
@@ -239,7 +283,8 @@ test/sRNAscanner/srnascanner.bed
 I use Transterm to predict RITs in S. mutans, creating an output file, which is
 used to create the following BED file.
 ----
-test/transterm/transterm.bed
+test/transterm/ua159-v1/transterm.bed
+test/transterm/ua159-v2/transterm.bed
 ----
 I use RNIE (https://github.com/ppgardne RNIE: genome-wide prediction of
 bacterial intrinsic terminators by Gardner et al 2011, we used 0.1 E-value
@@ -344,7 +389,7 @@ protein coding DNA sequences on the opposite strand.
 A list of sRNA or small RNA prediction methods
 ----
 sRNAPredict3
-sRNAscanner
+sRNAscanner - see cac:Downloads/sRNAscanner_RHEL5
 RNIE
 RNAz/SIPHT 
 Pichon's method

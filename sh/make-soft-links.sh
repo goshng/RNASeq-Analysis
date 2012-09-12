@@ -7,6 +7,8 @@ LOCALBASEDIR=$HOME/Documents/Projects/RNASeq-Analysis
 STORAGEBASEDIR=$HOME/data/RNASeq-Analysis
 # exit 
 
+mkdir -p $LOCALBASEDIR
+
 BASEDIR=`pwd`
 echo Creating soft links to directories in the source code base directory...
 for i in doc pl sh src run; do
@@ -26,3 +28,4 @@ echo Edit the conf file available at $LOCALBASEDIR/conf/README
 # mkdir $LOCALBASEDIR/routput
 # mkdir $LOCALBASEDIR/conf
 # cp $BASEDIR/conf/README.local $LOCALBASEDIR/conf/README
+

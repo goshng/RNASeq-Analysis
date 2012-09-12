@@ -9,7 +9,8 @@ ROOTANALYSISDIR:/Volumes/Elements/Documents/Projects/RNASeq-Analysis
 # Cluster ID setup
 # ----------------
 CAC_USERNAME:sc2265
-CAC_LOGIN:linuxlogin.cac.cornell.edu
+CAC_LOGIN:cac
+# linuxlogin.cac.cornell.edu
 #
 # X11 linux ID setup
 # ------------------
