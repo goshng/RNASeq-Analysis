@@ -99,6 +99,7 @@ function batch3-speciesfile {
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
   MINTRIMQ=$(grep ^MINTRIMQ\: $SPECIESFILE | cut -d":" -f2)
   KEEPBAM=$(grep ^KEEPBAM\: $SPECIESFILE | cut -d":" -f2)
+  COUNTMODE=$(grep ^COUNTMODE\: $SPECIESFILE | cut -d":" -f2)
 }
 
 # Send input files to the remote machine.
@@ -110,7 +111,7 @@ ssh -x $CAC_USERHOST mkdir -p $RDATADIR
 ssh -x $CAC_USERHOST mkdir -p $RRUNANALYSIS
 scp $REFGENOMEFASTA $CAC_USERHOST:$RDATADIR
 scp $REFGENOMETXDB $CAC_USERHOST:$RDATADIR
-scp $REFGENOMERRNATXDB $CAC_USERHOST:$RDATADIR
+# scp $REFGENOMERRNATXDB $CAC_USERHOST:$RDATADIR
 for g in $FASTQFILES; do
   FASTQNUM=FASTQ\$(printf "%03d" \$g)
   FASTQFILE=$ROOTANALYSISDIR/\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
@@ -466,7 +467,7 @@ cat>>$BASEDIR/job-de.R<<EOF
 # Remove strands from both feature and BAM alignments.
 strand(feature.txnc) <- '*'
 strand(bv) <- '*'
-olap <- summarizeOverlaps(feature.txnc,bv,mode="IntersectionStrict")
+olap <- summarizeOverlaps(feature.txnc,bv,mode="$COUNTMODE")
 cl <- assays(olap)\$counts[,1]
 cl.cds <- cl[elementMetadata(feature.txnc)\$type=="CDS"]
 cl.nocds <- cl[elementMetadata(feature.txnc)\$type=="NOCDS"]
@@ -474,7 +475,7 @@ cl.tx <- cl[!elementMetadata(feature.txnc)\$type=="NG"]
 cl.ng <- cl[elementMetadata(feature.txnc)\$type=="NG"]
 
 strand(bv.multiple) <- '*'
-olap <- summarizeOverlaps(feature.txnc,bv.multiple,mode="IntersectionStrict")
+olap <- summarizeOverlaps(feature.txnc,bv.multiple,mode="$COUNTMODE")
 cl.m <- assays(olap)\$counts[,1]
 cl.m.cds <- cl.m[elementMetadata(feature.txnc)\$type=="CDS"]
 cl.m.nocds <- cl.m[elementMetadata(feature.txnc)\$type=="NOCDS"]
@@ -482,7 +483,7 @@ cl.m.tx <- cl.m[!elementMetadata(feature.txnc)\$type=="NG"]
 cl.m.ng <- cl.m[elementMetadata(feature.txnc)\$type=="NG"]
 
 strand(feature.rrna) <- '*'
-olap.rrna <- summarizeOverlaps(feature.rrna,bv.multiple,mode="IntersectionStrict")
+olap.rrna <- summarizeOverlaps(feature.rrna,bv.multiple,mode="$COUNTMODE")
 cl.m.rrna <- assays(olap.rrna)\$counts[,1]
 
 save(overlapping.tx, 
@@ -744,7 +745,7 @@ for (i in chrom.list) {
                              seq(length(unlist(read.start.end.strand[3,]))))
   }
 }
-olap <- summarizeOverlaps(feature.txnc,read.GA,mode="IntersectionStrict")
+olap <- summarizeOverlaps(feature.txnc,read.GA,mode="$COUNTMODE")
 cl <- assays(olap)\$counts[,1]
 save(cl,file=cl.file)
 print(paste("See cl file",cl.file))

@@ -143,7 +143,7 @@ library(smutans)
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 3)
 {
-  cat ("Rscript job-simulate.R UA159 1SM1 out\n")
+  cat ("Rscript job-deseq.R UA159 1SM1 out\n")
   quit("yes")
 }
 sampleA <- args[1]

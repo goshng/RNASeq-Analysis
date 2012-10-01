@@ -1,2 +1,2 @@
 #!/bin/bash
-bash sh/run.sh
+bash sh/run.sh $1

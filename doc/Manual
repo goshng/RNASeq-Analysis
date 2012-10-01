@@ -1046,6 +1046,7 @@ Check a list of species file variables in the following.  Note that we must have
 . minimum alignment mapping quality in _MINMAPQ_
 . minimum base quality to trim 3' end in _MINTRIMQ_
 . keep BAM files using _KEEPBAM_
+. count mode using _COUNTMODE_
 
 fastq files
 ~~~~~~~~~~~
@@ -1189,6 +1190,14 @@ We might want to keep sorted BAM files by setting _KEEPBAM_ variable.
 
 ----
 KEEPBAM:YES
+----
+
+count mode
+~~~~~~~~~~
+Union or IntersectionStrict
+
+----
+COUNTMODE:Union 
 ----
 
 anchor:Files[]

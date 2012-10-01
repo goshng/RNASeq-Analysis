@@ -20,4 +20,9 @@ function copyright {
   less COPYING
 }
 
+function quit {
+  cat <<EOF
+RNA-seq Analysis - Bye!
+EOF
+}
 

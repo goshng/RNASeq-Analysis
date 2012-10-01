@@ -76,6 +76,7 @@ source sh/batch3.sh
 source sh/deseq.sh
 source sh/goseq.sh
 source sh/mcl.sh
+source sh/sara-batch.sh
 
 #####################################################################
 # Read configuration file
@@ -91,80 +92,29 @@ SPECIESS=$(ls $ROOTANALYSISDIR/species|grep -v ^sim)
 # Menus
 #####################################################################
 PS3="Select the menu : "
-CHOICES=( # init-file-system \
-          choose-species \
-          ---ANNOTATION---\
+CHOICES=( choose-species \
           convert-gff2txdb \
-          ---BATCH---\
           batch3 \
-          ---DE---\
           deseq \
           goseq \
           mcl \
-          ---FASTQ---\
           fastq-sample \
+          sara-batch \
           warranty \
           copyright \
           quit )
-select CHOICE in ${CHOICES[@]}; do 
-  if [ "$CHOICE" == "" ];  then
-    echo -e "You need to enter something\n"
-    continue
-  elif [ "$CHOICE" == "init-file-system" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "choose-species" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "cp-genome" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-index-genome" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bowtie-index-genome" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bowtie-align" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bowtie-refflat" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "segemehl-index-genome" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-align" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-align-per-fastq" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-samse" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-mpileup" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-samtools-view" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-samtools-sort" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-samtools-bed" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-batch-align-to-bed" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-degseq-bed" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "feature-genome" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-danko-countreadsininterval" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-R-saveimage" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-danko-writewiggle" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-danko-metagene" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-danko-detecttranscriptsem" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "fastxtoolkit-fastq_to_fasta" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "fastxtoolkit-fastx_quality_stats" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "fastq-summary" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-samtools-wig" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "fastq-sample" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "degseq" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "deseq" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "goseq" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "mcl" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "edgeR" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "warranty" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "copyright" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "transcript-genecoverage" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "transcript-parsernaseq" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "transcript-cufflinks" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "transcript-summary" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "maq-align" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-summary" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "bwa-pos2wig" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "de-count" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "convert-gff2txdb" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "convert-bed2txdb" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "count-cds" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "job-truncate-reads" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "job-truncate-reads-local" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "batch" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "batch2" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "batch3" ]; then $CHOICE; break
-  elif [ "$CHOICE" == "quit" ]; then break
-  else
-    echo -e "You need to enter something\n"
-    continue
-  fi
-done
-
+if [ $# -eq 1 ]; then
+  CHOICEID=$(($1 - 1))
+  CHOICE=${CHOICES[$CHOICEID]}
+  $CHOICE
+else
+  select CHOICE in ${CHOICES[@]}; do 
+    if [ "$CHOICE" == "" ];  then
+      echo -e "You need to enter something\n"
+      continue
+    else
+      $CHOICE
+      break
+    fi
+  done
+fi

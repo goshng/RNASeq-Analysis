@@ -6,6 +6,10 @@ Let me focus on the comparative study of the 7 strain (species file smu7). See
 run/rnaseq/070612
 run/rnaseq/051112
 
+Bugs
+----
+Files are created in the base directory of CAC.
+
 To Do
 -----
 .Immediate term
@@ -56,9 +60,86 @@ Histories
 ---------
 This history can be useful later.
 
+Thu Sep 27 03:37:01 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Txdb contains CDS, noCDS (or RNA transcript), and non-genic. We used to use
+noCDS for counting reads mapped on ribosomal RNAs. We wish to count reads mapped
+on the regions that could contain small RNAs. We used a rather strict rule to
+count reads, or reads mapped within regions. Because small RNAs can be small, we
+might count reads overlapping regions. We might wish to use the cram tool to
+save data for later use. This way we can save all of the data in one place.
+
+Tue Sep 25 11:55:16 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's do gene ontology analyses of pH and csp studies. 
+
+Mon Sep 24 14:17:32 EDT 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's work on Sara's part. Use a csv file 
+----
+email/from/sara-palmer/090712/ua159csp-f-chris.csv
+----
+to annotate the differentially expressed genes found by DESeq. The genes are
+UA159's reference genes. We need to add three columns: functional categories
+with Oralgen's hyperlinks, Gene names, another annotations (a GenBank
+annotation).
+----
+email/to/sara-palmer/080812/smu86csp.csv
+----
+We have another DE genes based on SMU86 genomes. These genes are not annotated,
+which we need to know. Let's use SMU86 genbank annotation.
+----
+email/to/sara-palmer/071412/smu86cspSMU86.csv
+----
+We create a shell script and an R script with a menu sara-batch. This uses UA159
+based DE genes, and Chris (Burne's group) annotation to create files.
+----
+sh/sara-batch.sh
+R/sara-add-annotation.R
+email/to/sara-palmer/080812/smu86csp-annotation.csv
+----
+
+We have added annotations to DE files except the following 8 DE files. All of
+them are based on non-UA159 reference genome.
+----
+email/to/sara-palmer/080812/UA159-11VS1-SMU44.csv
+email/to/sara-palmer/080812/UA159-15JP3-SMU20.csv
+email/to/sara-palmer/080812/UA159-1SM1-SMU21.csv
+email/to/sara-palmer/080812/UA159-N29-SMU56.csv
+email/to/sara-palmer/080812/UA159-NLML4-SMU69.csv
+email/to/sara-palmer/080812/UA159-NMT4863-SMU57.csv
+email/to/sara-palmer/080812/smu21phSMU21.csv
+email/to/sara-palmer/080812/smu86cspSMU86.csv
+----
+We need to annotate non-UA159 genes using BLAST search. We need to create an
+annotation file like
+----
+email/from/sara-palmer/090712/ua159csp-f-chris.csv
+----
+Let's use annotations in the GenBank files of the non-UA159 genomes. We have
+denovo directory, in which we have GenBank files. We need to convert the GenBank
+file to gff3 file using bp_genbank2gff3.pl or pl/bioperl-get-protein.pl, which
+can be read using rtracklayer R package.  
+----
+cat data/denovo/SMU86_allcontigs.gbf | perl pl/bp_genbank2gff3.pl -in stdin -out stdout > seq.gff
+----
+We create the directory email/to/sara-palmer/092412.
+
+Let us find genes expression patterns by comparing DE genes in 
+UA159 (csp/nocsp), and SMU86 (csp/nocsp). There are 9 different patterns are
+possible.  See these files to find genes that are 
+----
+ua159csp-annotation.csv
+smu86csp-annotation.csv
+ua159ph-annotation.csv
+smu21ph-annotation.csv
+----
+Let us create R/sara-nine-pattern.R to find 9 patterns. 
+
+
+
 Wed Sep  5 09:23:56 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 .Add tracks for predicted small RNAs
 ----
 sh/mss-lin-ucsc.sh
