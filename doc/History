@@ -9,9 +9,15 @@ run/rnaseq/051112
 Bugs
 ----
 Files are created in the base directory of CAC.
+BED format seems to be the most convenient way of setting up annotations. The
+txdb format is too complicated to explain to someone who does not know about R
+at all. GFF is not easy for users to use. 
 
 To Do
 -----
+CACWORKDIR doucment should be changed.
+
+
 .Immediate term
 . Develop (or improve ParseRNAseq) something to use processed RNA-seq data.
 

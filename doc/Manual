@@ -1197,7 +1197,7 @@ count mode
 Union or IntersectionStrict
 
 ----
-COUNTMODE:Union 
+COUNTMODE:IntersectionStrict
 ----
 
 anchor:Files[]
