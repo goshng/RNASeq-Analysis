@@ -672,7 +672,7 @@ if (length(args) != 1)
 cl.file <- sprintf("$RBWADIR/%s.cl", args[1])
 txdb.file <- "$RDATADIR/$GENOMETXDB"
 txdb <- loadFeatures(txdb.file)
-rrna.txdb.file <- "$CDATADIR/$GENOMETXDB"
+rrna.txdb.file <- "$RDATADIR/$GENOMERRNATXDB"
 rrna.txdb <- loadFeatures(rrna.txdb.file)
 EOF
 cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-simulate.R 
