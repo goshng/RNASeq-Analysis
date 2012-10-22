@@ -677,6 +677,30 @@ export(feature.txnc,"txnc.bed")
 
 Because the procedure is not standarized, you must make sure that your annotations are correct. You could make sure whether the extraction of CDS regions from your _feature.txnc_ was correctly performed using Galaxy web interface that was available at https://main.g2.bx.psu.edu. Use "Upload File" tool to send the gff file +NC_004350.gff+, and convert it to a BED file using "GFF-to-BED" tool. Use "Filter" tool to divide the BED file to a part of plus strand and another of minus strand. Download the two files and concatenate them to a file. Compare the concatenated file and +txnc.bed+. They must be the same except name columns. You may need to verify the correctness of the annotation txdb using other methods for cross check.
 
+.Use only CDS regions
+----
+> transcripts <-
+    data.frame( tx_id=seq(length(sm.CDS$locus_tag)),
+                tx_name=sm.CDS$locus_tag,
+                tx_chrom=sm.CDS$space,
+                tx_strand=sm.CDS$strand,
+                tx_start=start(sm.CDS),
+                tx_end=end(sm.CDS) )
+> splicings <-
+    data.frame( tx_id=seq(length(sm.CDS$locus_tag)),
+                exon_rank=rep(length(sm.CDS$locus_tag),1),
+                exon_start=start(sm.CDS),
+                exon_end=end(sm.CDS),                                            
+                exon_name=sm.CDS$locus_tag,                                      
+                cds_start=start(sm.CDS),
+                cds_end=end(sm.CDS) )
+> chrominfo <-
+    data.frame(chrom=c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8"),
+    length=c(73769,388359,32645,8281,22276,249707,939981,740830),
+    is_circular=FALSE)
+> txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
+----
+
 anchor:Installation[]
 
 Installation
