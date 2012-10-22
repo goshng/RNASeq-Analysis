@@ -127,7 +127,7 @@ function deseq-make-job {
 # 
 ################################################################################
 cat>$BASEDIR/job-deseq<<EOF
-RSCRIPT=Rscript
+RSCRIPT=$CACRSCRIPT
 DESEQ=$DESEQ
 OIFS=\$IFS; IFS=','; DESEQCOMPARISON=(\$DESEQ); IFS=\$OIFS
 for i in "\${DESEQCOMPARISON[@]}"; do
