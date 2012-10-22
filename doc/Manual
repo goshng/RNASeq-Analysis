@@ -1,7 +1,7 @@
 User Manual of RNAseq Analysis
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
-v0.1.7, August 2012
+v0.1.8, October 2012
 
 Introduction
 ------------
@@ -299,6 +299,7 @@ Use txdb to create +_RUNANALYSIS_/feature.gene+.
 
 ----
 REFGENOMETXDB:path/to/NC_004350.txdb
+REFGENOMERRNATXDB:path/to/NC_004350.txdb
 ----
 
 Run the following two commands.
@@ -847,6 +848,15 @@ You also need to install an R package, *smutans*, that accompanies *RNAseq Analy
 R CMD install smutans_0.1.9.tar.gz
 ----
 
+.Use the following if the above is not working
+----
+> install.packages("smutans_0.1.9.tar.gz")
+> source("http://bioconductor.org/biocLite.R")
+> biocLite("goseq")
+> install.packages("gplots")
+> install.packages("plotrix")
+----
+
 libxml2
 ~~~~~~~
 Download +libxml2+ from http://xmlsoft.org and install it into the machine. R package +DESeq+ requires other R packages that need +libxml2+.
@@ -1145,6 +1155,7 @@ We can convert a gff file to a txdb file. See +R/gff2txdb.R+ or +R/xbasegff2txdb
 
 ----
 REFGENOMETXDB:path/to/NC_004350.txdb
+REFGENOMERRNATXDB:path/to/NC_004350.txdb
 ----
 
 When gff files are not available, use +pl/bp_genbank2gff3.pl+ to convert a genbank file to a gff file. 

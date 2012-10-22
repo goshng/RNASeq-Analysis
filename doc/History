@@ -8,10 +8,18 @@ run/rnaseq/051112
 
 Bugs
 ----
-Files are created in the base directory of CAC.
-BED format seems to be the most convenient way of setting up annotations. The
+. Files are created in the base directory of CAC.
+. BED format seems to be the most convenient way of setting up annotations. The
 txdb format is too complicated to explain to someone who does not know about R
 at all. GFF is not easy for users to use. 
+. Delete unnecessary raw files by checking whether they exist in babylon server.
+Use downloadalllocal directory.
+Consider to delete the following files in
+data/smutans-from-cac-backup
+data/downloadall
+data/smutans
+
+multcomp of R package
 
 To Do
 -----
