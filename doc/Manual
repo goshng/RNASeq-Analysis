@@ -688,7 +688,7 @@ Because the procedure is not standarized, you must make sure that your annotatio
                 tx_end=end(sm.CDS) )
 > splicings <-
     data.frame( tx_id=seq(length(sm.CDS$locus_tag)),
-                exon_rank=rep(length(sm.CDS$locus_tag),1),
+                exon_rank=rep(1,length(sm.CDS$locus_tag)),
                 exon_start=start(sm.CDS),
                 exon_end=end(sm.CDS),                                            
                 exon_name=sm.CDS$locus_tag,                                      
@@ -699,6 +699,7 @@ Because the procedure is not standarized, you must make sure that your annotatio
     length=c(73769,388359,32645,8281,22276,249707,939981,740830),
     is_circular=FALSE)
 > txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
+> saveFeatures(txdb,file="filename.txdb")
 ----
 
 anchor:Installation[]

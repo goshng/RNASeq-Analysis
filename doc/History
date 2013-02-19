@@ -6,6 +6,7 @@ Let me focus on the comparative study of the 7 strain (species file smu7). See
 run/rnaseq/070612
 run/rnaseq/051112
 
+
 Bugs
 ----
 . Files are created in the base directory of CAC.
@@ -18,6 +19,9 @@ Consider to delete the following files in
 data/smutans-from-cac-backup
 data/downloadall
 data/smutans
+
+Add this to Manual:
+http://www.hiv.lanl.gov/content/sequence/FORMAT_CONVERSION/form.html
 
 multcomp of R package
 
@@ -73,6 +77,45 @@ S. agalactiae
 Histories
 ---------
 This history can be useful later.
+
+Mon Feb 18 11:34:04 AKST 2013
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I wish to install the older version of R. I did the installation using the
+following README.
+---
+Dropbox/Documents/Projects/Peach/rdev/README
+$ cd Download
+$ wget http://ftp.osuosl.org/pub/cran/src/base/R-2/R-2.14.2.tar.gz
+$ wget http://R.research.att.com/gfortran-42-5664.pkg
+$ tar zxf R-2.14.2.tar.gz
+$ mkdir R-2.14.2/b
+$ cd R-2.14.2/b
+$ ../configure --with-blas='-framework vecLib' --with-lapack --enable-R-framework=/Users/goshng/usr
+An env variable called C_INCLUDE_PATH=/usr/include/sys makes trouble in
+compiling source files with wchar.h.
+Set shell variable R214=/Users/goshng/usr/R.framework/Resources/R
+$ $R214
+should let you use R version 2.14.2
+Install R packages:
+install.packages("plotrix")
+install.packages("gplots")
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DESeq")
+biocLite("goseq")
+biocLite("ShortRead")
+biocLite("rtracklayer")
+biocLite("GenomicFeatures")
+biocLite("qrqc")
+biocLite("VariantAnnotation")
+biocLite("goseq")
+The following are installed by the above R packages.
+biocLite("GenomicRanges")
+biocLite("Rsamtools")
+$ $R214 CMD install smutans_0.2.1.tar.gz
+Check mss-lin.Rnw and mss-lin-supp.Rnw.
+mss-lin$ ./run
+$ $R214 CMD Stangle mss-lin.Rnw
+---
 
 Thu Sep 27 03:37:01 EDT 2012
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
