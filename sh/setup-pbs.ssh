@@ -1,0 +1,8 @@
+mkdir bin
+mkdir -p Documents/Projects
+mkdir data
+mkdir Downloads
+mkdir run
+mkdir usr
+mkdir tmp
+
