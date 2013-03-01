@@ -25,21 +25,43 @@ function batch3 {
     echo -e "You need to enter something\n"
     continue
   else  
+    batch3-detect-os
     batch3-repetition
     batch3-variable
     batch3-output
     batch3-speciesfile 
-    batch3-push-data
-    batch3-get-data
-    batch3-clean-data
+    if [ "$RUNMODE" == "local" ]; then
+      batch3-push-localdata
+      batch3-get-localdata
+      batch3-clean-localdata
+    else
+      batch3-push-data
+      batch3-get-data
+      batch3-clean-data
+    fi
     batch3-make-job
     batch3-run-qcalignde
     create-index
-    batch3-copy-scripts
-    batch3-rmessage
+    if [ "$RUNMODE" == "local" ]; then
+      batch3-copy-localscripts
+      batch3-localmessage
+    else
+      batch3-copy-scripts
+      batch3-rmessage
+    fi
     break
   fi
   done
+}
+
+function batch3-detect-os {
+  if [ "$REMOTEMACHINE" == 'Darwin' ]; then
+    ZCAT=gzcat
+    SPLIT=/opt/local/bin/gsplit
+  else
+    ZCAT=zcat
+    SPLIT=split
+  fi 
 }
 
 function batch3-repetition {
@@ -98,11 +120,84 @@ function batch3-speciesfile {
   QCALIGNDEWALLTIME=$(grep ^QCALIGNDEWALLTIME\: $SPECIESFILE | cut -d":" -f2)
   MINMAPQ=$(grep ^MINMAPQ\: $SPECIESFILE | cut -d":" -f2)
   MINTRIMQ=$(grep ^MINTRIMQ\: $SPECIESFILE | cut -d":" -f2)
+  TRIMLEFT=$(grep ^TRIMLEFT\: $SPECIESFILE | cut -d":" -f2)
   KEEPBAM=$(grep ^KEEPBAM\: $SPECIESFILE | cut -d":" -f2)
   COUNTMODE=$(grep ^COUNTMODE\: $SPECIESFILE | cut -d":" -f2)
+  RUNMODE=$(grep ^RUNMODE\: $SPECIESFILE | cut -d":" -f2)
+
+  # Check whether the requried species file vairables exist.
+  if [ -z "$FASTQLABEL" ]; then
+    echo Add FASTQLABEL to the species file
+    exit 1
+  fi
+  if [ -z "$FASTQFILES" ]; then
+    echo Add FASTQFILES to the species file
+    exit 1
+  fi
+  if [ -z "$REFGENOMEFASTA" ]; then
+    echo No reference genome sequence in the file species/$SPECIES
+    echo Add REFGENOMEFASTA to the species file
+    exit 1
+  fi
+  if [ -z "$REFGENOMETXDB" ]; then
+    echo No txdb in the file species/$SPECIES
+    echo Add REFGENOMETXDB to the species file
+    exit 1
+  fi
+  if [ -z "$MINTRIMQ" ]; then
+    echo No minimum trim quality in the file species/$SPECIES
+    echo Add MINTRIMQ to the species file
+    exit 1
+  fi
+  if [ -z "$TRIMLEFT" ]; then
+    TRIMLEFT=0
+  fi
+  if [ -z "$MINMAPQ" ]; then
+    echo No minimum mapping quality in the file species/$SPECIES
+    echo Add MINMAPQ to the species file
+    exit 1
+  fi
+  if [ -z "$COUNTMODE" ]; then
+    echo No count mode in the file species/$SPECIES
+    echo Add COUNTMODE to the species file
+    exit 1
+  fi
+  if [ -z "$RUNMODE" ]; then
+    RUNMODE=local
+  fi
+  if [ "$RUNMODE" == "local" ]; then
+    CACWORKDIR=""
+  else
+    if [ -z "$CACWORKDIR" ]; then
+      echo No remote work directory in the file species/$SPECIES
+      echo Add CACWORKDIR to the species file
+      exit 1
+    fi
+  fi 
 }
 
 # Send input files to the remote machine.
+function batch3-push-localdata {
+cat>$BASEDIR/push-data.sh<<EOF
+#!/bin/bash
+mkdir -p $RBWADIR
+mkdir -p $RDATADIR
+mkdir -p $RRUNANALYSIS
+ln -s $REFGENOMEFASTA $RDATADIR
+ln -s $REFGENOMETXDB $RDATADIR
+for g in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$g)
+  FASTQFILE=$ROOTANALYSISDIR/\$(grep ^\$FASTQNUM\: $SPECIESFILE | cut -d":" -f2)
+  if [ -f \$FASTQFILE ]; then
+    ln -s \$FASTQFILE $RDATADIR/\$FASTQNUM.fq.gz
+  else
+    echo No such file: \$FASTQFILE
+  fi
+done
+echo "Check $RDATADIR"
+EOF
+}
+
 function batch3-push-data {
 cat>$BASEDIR/push-data.sh<<EOF
 #!/bin/bash
@@ -122,6 +217,34 @@ for g in $FASTQFILES; do
   fi
 done
 echo "Check cac:$RDATADIR"
+EOF
+}
+
+function batch3-get-localdata {
+cat>$BASEDIR/get-data.sh<<EOF
+#!/bin/bash
+echo $GENOMETXDB > $BWADIR/txdb.txt
+cp $RBWADIR/count $BWADIR
+cp $RBWADIR/count.cds $BWADIR
+cp $RBWADIR/count.nocds $BWADIR
+cp $RBWADIR/count.ng $BWADIR
+cp $RBWADIR/count.tx $BWADIR
+cp $RBWADIR/count.m $BWADIR
+cp $RBWADIR/count.m.cds $BWADIR
+cp $RBWADIR/count.m.nocds $BWADIR
+cp $RBWADIR/count.m.ng $BWADIR
+cp $RBWADIR/count.m.tx $BWADIR
+cp $RBWADIR/count.m.rrna $BWADIR
+
+for i in $FASTQFILES; do
+  FASTQNUM=FASTQ\$(printf "%03d" \$i)
+  cp $RBWADIR/\$FASTQNUM*fq.qualPlot.* $BWADIR
+  if [ "$KEEPBAM" == "YES" ]; then
+    cp $RBWADIR/\$FASTQNUM.sorted.bam* $BWADIR
+  fi
+done 
+cp $RBWADIR/stat1.tex $BWADIR
+echo "Check $BWADIR"
 EOF
 }
 
@@ -152,10 +275,17 @@ echo "Check $BWADIR"
 EOF
 }
 
+function batch3-clean-localdata {
+cat>$BASEDIR/clean-data.sh<<EOF
+#!/bin/bash
+echo rm -rf $RBASEDIR
+EOF
+}
+
 function batch3-clean-data {
 cat>$BASEDIR/clean-data.sh<<EOF
 #!/bin/bash
-echo ssh -x $CAC_USERHOST rm -rf -p $RBASEDIR
+echo ssh -x $CAC_USERHOST rm -rf $RBASEDIR
 EOF
 }
 
@@ -249,14 +379,14 @@ if [ "\${!QUALITYSCORESEQUENCE}" == "illumina" ]; then
   cp \$2 $CBWADIR/temp.FASTQ\$1.fq.gz
 else
   PHRED64=
-  zcat \$2 \\
+  $ZCAT \$2 \\
     | grep -A 3 '^@.* [^:]*:N:[^:]*:' \\
     | sed '/^--$/d' | gzip > $CBWADIR/temp.FASTQ\$1.fq.gz
 fi
 
 # Split fastq files to as many files as compute nodes.
 # Run them simultaneously and concatenate their resulting files.
-l=\$(zcat $CBWADIR/temp.FASTQ\$1.fq.gz | wc -l) 
+l=\$($ZCAT $CBWADIR/temp.FASTQ\$1.fq.gz | wc -l) 
 s1=\$((l / 4)) 
 s2=\$((l % 4)) 
 if [ \$s2 -ne 0 ]; then
@@ -265,7 +395,7 @@ if [ \$s2 -ne 0 ]; then
 fi
 s3=\$((s1 / $NUMBERCPU + $NUMBERCPU)) 
 s4=\$((s3 * 4)) 
-zcat $CBWADIR/temp.FASTQ\$1.fq.gz | split -d -a 2 -l \$s4 - $CBWADIR/temp.FASTQ\$1.
+$ZCAT $CBWADIR/temp.FASTQ\$1.fq.gz | $SPLIT -d -a 2 -l \$s4 - $CBWADIR/temp.FASTQ\$1.
 
 y=\$(($NUMBERCPU - 1)) 
 for i in \$(eval echo {0..\$y}); do
@@ -294,6 +424,7 @@ for i in \$(eval echo {0..\$y}); do
 
   gzip -dc \$FASTQCUTADAPTNUM | \\
     perl pl/prinseq-lite.pl \\
+      -trim_left $TRIMLEFT \\
       -no_qual_header \\
       -ns_max_n 0 \$PHRED64 \\
       -fastq stdin \\
@@ -440,12 +571,12 @@ if (length(args) != 3)
   quit("yes")
 }
 rrna.txdb.file <- "$CDATADIR/$GENOMERRNATXDB"
-rrna.txdb <- loadFeatures(rrna.txdb.file)
+rrna.txdb <- loadDb(rrna.txdb.file)
 
 txdb.file <- "$CDATADIR/$GENOMETXDB"
 bam.file <- paste(args[1])
 cl.file <- paste(args[1], "cl", sep=".")
-txdb <- loadFeatures(txdb.file)
+txdb <- loadDb(txdb.file)
 num.total.read <- as.numeric(args[2])
 num.n.read <- as.numeric(args[3])
 indexBam(bam.file)
@@ -518,10 +649,10 @@ if (length(args) != 2)
   quit("yes")
 }
 rrna.txdb.file <- "$RDATADIR/$GENOMERRNATXDB"
-rrna.txdb <- loadFeatures(rrna.txdb.file)
+rrna.txdb <- loadDb(rrna.txdb.file)
 
 txdb.file <- "$RDATADIR/$GENOMETXDB"
-txdb <- loadFeatures(txdb.file)
+txdb <- loadDb(txdb.file)
 EOF
 cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-de-sum.R 
 cat>>$BASEDIR/job-de-sum.R<<EOF
@@ -671,9 +802,9 @@ if (length(args) != 1)
 }
 cl.file <- sprintf("$RBWADIR/%s.cl", args[1])
 txdb.file <- "$RDATADIR/$GENOMETXDB"
-txdb <- loadFeatures(txdb.file)
+txdb <- loadDb(txdb.file)
 rrna.txdb.file <- "$RDATADIR/$GENOMERRNATXDB"
-rrna.txdb <- loadFeatures(rrna.txdb.file)
+rrna.txdb <- loadDb(rrna.txdb.file)
 EOF
 cat $BASEDIR/feature-txnc.txt >> $BASEDIR/job-simulate.R 
 cat>>$BASEDIR/job-simulate.R<<EOF
@@ -716,7 +847,7 @@ read.extract <- function (x,y,z,w) {
   cat(oneRead, file=fastq.file, append=TRUE)
 }
 
-s.mutans.sequence <- read.DNAStringSet(genome.file)
+s.mutans.sequence <- readDNAStringSet(genome.file)
 chrom.list <- names(s.mutans.sequence)
 
 lengthChr1 <- 0
@@ -832,12 +963,12 @@ function process-data {
 
   cp $RDATADIR/FASTQ\$NUM.fq.gz $CDATADIR
 
-  # 0. Plot quality scores per site of the chosen FASTQ file.
+  echo 0. Plot quality scores per site of the chosen FASTQ file.
   bash job-stat \$NUM $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData
   cp $CBWADIR/FASTQ\$NUM.fq.qualPlot.RData $RBWADIR
 
-  # 1. Filter out parts of low quality in the FASTQ file.
+  echo 1. Filter out parts of low quality in the FASTQ file.
   bash job-fastqc \$NUM \\
     $CDATADIR/FASTQ\$NUM.fq.gz \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz 
@@ -846,26 +977,26 @@ function process-data {
 #    $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData
 #  cp $CBWADIR/FASTQ\$NUM.prinseq.fq.qualPlot.RData $RBWADIR
 
-  # Count reads that pass the quality score filter.
-  NUMBER_READ4=\$(zcat $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
+  echo Count reads that pass the quality score filter.
+  NUMBER_READ4=\$($ZCAT $CDATADIR/FASTQ\$NUM.fq.gz | wc -l)
   NUMBER_READ=\$((NUMBER_READ4 / 4))
-  NUMBER_READPRIN4=\$(zcat $CBWADIR/FASTQ\$NUM.prinseq.fq.gz | wc -l)
+  NUMBER_READPRIN4=\$($ZCAT $CBWADIR/FASTQ\$NUM.prinseq.fq.gz | wc -l)
   NUMBER_READPRIN=\$((NUMBER_READPRIN4 / 4))
    
-  # 2. Align the sort reads
+  echo 2. Align the sort reads
   bash job-bwa-align \$NUM \\
     $CBWADIR/FASTQ\$NUM.prinseq.fq.gz \\
     $CBWADIR/FASTQ\$NUM.sorted
   if [ "$KEEPBAM" == "YES" ]; then
-    samtools index $CBWADIR/FASTQ\$NUM.sorted.bam 
+    ./samtools index $CBWADIR/FASTQ\$NUM.sorted.bam 
     cp $CBWADIR/FASTQ\$NUM.sorted.bam* $RBWADIR
   fi
 
-  # 3. Count short reads
+  echo 3. Count short reads
   BAMFILE1=$CBWADIR/FASTQ\$NUM.sorted.bam
   bash job-de \$BAMFILE1 \$NUMBER_READ \$NUMBER_READPRIN
 
-  # 4. Copy the output file of read counts.
+  echo 4. Copy the output file of read counts.
   cp \$BAMFILE1.cl $RBWADIR
 
   # To see the output files in the compute nodes.
@@ -883,6 +1014,10 @@ function create-index {
   echo $FASTQLABEL > $RUNANALYSIS/count.txt.index
 }
 
+function batch3-copy-localscripts {
+  scp -qr pl $BASEDIR
+}
+
 function batch3-copy-scripts {
   ssh -x $CAC_USERHOST mkdir -p $CACWORKDIR
   scp -q $BASEDIR/*.sh $CAC_USERHOST:$CACWORKDIR
@@ -896,6 +1031,13 @@ function batch3-rmessage {
   echo "work at cac:$CACWORKDIR"
   echo "bash $BASEDIR/get-data.sh"
   echo "bash $BASEDIR/clean-data.sh"
+}
+
+function batch3-localmessage {
+  echo "bash $CBASEDIR/push-data.sh"
+  echo work at $CBASEDIR
+  echo "bash $CBASEDIR/get-data.sh"
+  echo "bash $CBASEDIR/clean-data.sh"
 }
 
 # END OF BATCH3

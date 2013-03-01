@@ -1,7 +1,7 @@
 User Manual of RNAseq Analysis
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
-v0.1.8, October 2012
+v0.1.9, February 2013
 
 Introduction
 ------------
@@ -367,32 +367,25 @@ PROJECTNAME:streptoccus
 
 All of the output files from *RNAseq Analysis* created in +output+ directory. 
 You might want to have a separate hard drive for saving those files because output
-files can grow larger than any files in the main source files. 
-Set the output directory directly in the
-configuration. Set _ROOTANALYSISDIR_ to a full file path. 
+files can grow larger than any files in the main source files.  Set
+_ROOTANALYSISDIR_ to a full file path under which the +output+ directory is
+placed. 
 
 ----
 ROOTANALYSISDIR:/path/to/RNASeq-Analysis-Storage-Directory
 ----
 
-We allow two modes of using *RNAseq Analysis*: local, and remote (Not yet checked although we tried to run the local mode). When using local mode, we simply set the _CAC_USERNAME_ and _CAC_LOGIN_ to localhost. Currently, _RUNMODE_ is purely for the purpose of annotation of the configuration file. Copy +bin/nsub+ to a directory that is part of PATH, so that +nsub+ can be executed in the local machine when the run mode is _local_.
+We allow two modes of using *RNAseq Analysis*: local, and remote. When using local mode, we simply set the _CAC_USERNAME_ and _CAC_LOGIN_ to localhost. Currently, _RUNMODE_ is purely for the purpose of annotation of the configuration file. Copy +bin/nsub+ to a directory that is part of PATH, so that +nsub+ can be executed in the local machine when the run mode is _local_.
 
-.To execute jobs in your local machine
-----
-RUNMODE:local
-----
-
-.To execute jobs in a cluster machine such as CAC: http://www.cac.cornell.edu.
-----
-RUNMODE:remote
-----
+We do not need _RUNMODE_ because we do not use it but just for annotation of the
+configuration.
 
 Set more variables if you execute jobs in a remote machine. We let the remote machine be CAC, which is one of the cornell linux clusters. We are not sure what other linux cluster options are available. If your cluster system is different from one in CAC, you have to modify parts of the cluster job submission in the shell scripts. You should set up ssh login without password because we need log in the remote machine to create directories and copy files back and forth. See http://www.linuxproblem.org/art_9.html or http://smbjorklund.no/ssh-login-without-password-using-os-x. You should set the number of CPUs available in a computing machine. 
 
 .To check the number of CPUs 
 ----
 Use "grep processor /proc/cpuinfo|wc -l" in CentOS
-Use "sysctl -a|grep cpu.core_count" in MacOSX"
+Use "sysctl -a|grep cpu.core_count" in MacOSX
 ----
 
 .To set the number of CPUs for running jobs. 
@@ -460,19 +453,22 @@ In the computing machine, you need to have two kinds of directory: one is for st
 ROUTPUTDIR:/path/to/routput
 ----
 
+In local mode, you could create the _ROUTPUTDIR_ in the local machine.
+
 We use other tools or packages. You need to specify paths for those tools.
 Please, find the installation section to know how to install them into the
 computing machine.
 
 ----
-BWA:usr/bin/bwa-0.6.1/bwa
+BWA:usr/bin/bwa-0.6.2/bwa
 SAMTOOLS:usr/bin/samtools-0.1.18/samtools
-PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
+PRINSEQ:usr/bin/prinseq-lite-0.20.2/prinseq-lite.pl
+CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.2.1/cutadapt
+
 PICARD:usr/bin/picard-tools-1.67
 CRAMTOOLS:usr/bin/cramtools-0.8.jar
 PARSERNASEQ:usr/bin/ParseRNAseq
 PYTHON:/opt/epd/bin/python2.7
-CUTADAPT:/home/fs01/sc2265/usr/bin/cutadapt-1.0/cutadapt
 CACRSCRIPT:/home/fs01/sc2265/Downloads/r-devel/b/bin/Rscript
 ----
 
@@ -497,6 +493,8 @@ The function, _import.gff3_, is helpful in reading a gff file. The output variab
 > sm.gene <- sm.gff[sm.gff$type=="gene",]
 > sm.CDS <- sm.gff[sm.gff$type=="CDS",]
 > sm.rrna <- sm.gff[sm.gff$type=="rRNA",]
+> sm.region <- sm.gff[sm.gff$type=="region",]
+> max(width(ranges(sm.region)))
 ----
 
 The _sm.gene_ object contains all of the annotations including mRNA, rRNA, and others. 
@@ -512,7 +510,7 @@ We call eventually _makeTranscriptDb_ to create a txdb variable, which is saved 
 ----
 > txdb <- makeTranscriptDb (transcripts, splicings, chrominfo=chrominfo)
 > gffFileBasename <- unlist(strsplit(gffFile,"\\."))[1]
-> saveFeatures(txdb,file=paste(gffFileBasename,"txdb",sep="."))
+> saveDb(txdb,file=paste(gffFileBasename,"txdb",sep="."))
 ----
 
 You may have noticed three R variables, _transcripts_, _splicings_, and _chrominfo_. You might want to refer to the help page for _makeTranscriptDb_. The first variable is an R data frame with id, name, chrom, strand, start, and end. Prepend the 6 arguments with tx with a underscore as follows.
@@ -535,13 +533,34 @@ You may have noticed three R variables, _transcripts_, _splicings_, and _chromin
 Let us have _chrominfo_ before explaining how to create _splicing_ because _chrominfo_ is much easier to explain. Our example of a gff file contains a single chromosome, which we renamed it chr1. The length is 2032925. Although it is a circular genome, we set it the corresponding option to FALSE (I do not know what side effect of this is). If there are multiple chromosomes, use R vectors for chrom and length, two of which should parallel side by side.
 
 ----
-> chrominfo <-                                                                    
+> chrominfo <-
     data.frame( chrom="chr1",                                             
                 length=2032925,                                            
                 is_circular=FALSE )
 > chrominfo
   chrom  length is_circular
 1  chr1 2032925       FALSE
+----
+
+Try to use the following script to create chrominfo for multiple chromosomes.
+
+----
+> chrominfo <-
+    data.frame( chrom=names(max(width(ranges(sm.region)))),
+                length=max(width(ranges(sm.region))),
+                is_circular=FALSE )
+> head(chrominfo)
+     chrom length is_circular
+chr1  chr1  33459       FALSE
+chr2  chr2    207       FALSE
+chr3  chr3 121429       FALSE
+----
+
+Multiple chromosome data set should be considered for each chromosome.
+
+----
+> ch.gene <- sm.gene[sm.gene$space=="chr1",]
+> ch.CDS <- sm.CDS[sm.CDS$space=="chr1",]
 ----
 
 A transcript can consist of multiple exons in eukaryotes. The _splicing_ data frame contains exons and their membership in the _transcripts_ data frame. For example, the following is given by the help page of _makeTranscriptDb_ object. We have three transcripts. The first row of _splicing_ data frame represents one and the only exon, which also encodes a protein. The next three exons of 2nd, 3rd, and 4th rows of _splicing_ data frame correspond to three exons that belong to the 2nd transcript. We specify their identifiers in the 2nd transcript using exon's rank. The three exons also encode proteins. The 3rd transcript contains two exons that does not encode a protein, which is denoted by NA in cds start and end.
@@ -617,6 +636,43 @@ Then, we can create _splicings_ data frame, which is used to create a txdb file.
                 cds_start=grCDS.start,                                            
                 cds_end=grCDS.end )
 ----
+
+FIXME: For the case of multiple chromosomes.
+
+----
+> x <- c()
+> y <- c()
+> 
+for (cn in levels(space(sm.gene))) {
+  ch.gene <- sm.gene[sm.gene$space==cn,]
+  ch.CDS <- sm.CDS[sm.CDS$space==cn,]
+
+  z <- unlist(ch.CDS$Parent)
+  stopifnot(nrow(ch.CDS)==length(unlist(ch.CDS$Parent)))
+  for (i in ch.gene$ID) {
+    if (sum(z == i) > 0) { # Check if the CDS contains the gene
+      if (length(start(ch.CDS)[z == i]) != 1) { # Check if there is a unique parent gene for CDS.
+        print(paste("Check",gffFile))
+        print(start(ch.CDS)[z == i])
+        stop(paste("There are multiple CDS for gene",i))
+      }
+    x <- c(x,start(ch.CDS)[z == i]) # Add the start position of the CDS of the gene
+    y <- c(y,end(ch.CDS)[z == i])   # Add the end position.
+    } else {
+      x <- c(x,NA) # Add NA if the CDS set does not contain the gene
+      y <- c(y,NA) # Add NA for the end position.
+    }
+  }
+}
+> grCDS.start <- x
+> grCDS.end <- y
+> rm(cn,i,x,y,z,ch.gene,ch.CDS)
+----
+
+----
+txdb <- makeTranscriptDb(transcripts, splicings, chrominfo=chrominfo)
+----
+
 
 FIXME: Sometimes, CDS parent information may unavailable. The second approach is to use CDS positions to find their parent genes. 
 
@@ -733,7 +789,9 @@ $ downloads/bwa-0.6.2.tar.bz2
 Extract the file and compile it.
 
 ----
-$ cd downloads/build
+$ cd download
+$ wget http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.2.tar.bz2/download
+$ cd build
 $ tar jxf ../bwa-0.6.2.tar.bz2
 $ cd bwa-0.6.2; make; cd ..
 $ mv bwa-0.6.2 $HOME/usr/bin
@@ -758,7 +816,9 @@ $ downloads/samtools-0.1.18.tar.bz2
 Extract the file and compile it.
 
 ----
-$ cd downloads/build
+$ cd download
+$ wget http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download
+$ cd build
 $ tar jxf ../samtools-0.1.18.tar.bz2
 $ cd samtools-0.1.18; make; cd ..
 $ mv samtools-0.1.18 $HOME/usr/bin
@@ -778,17 +838,28 @@ Download a prinseq lite version available at http://prinseq.sourceforge.net.
 Extract the file and move the directory.
 
 ----
-$ cd downloads/build
-$ tar zxf ../prinseq-lite-0.17.4.tar.gz
-$ mv prinseq-lite-0.17.4 $HOME/usr/bin
+$ cd download
+$ wget http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.20.2.tar.gz/download
+$ cd build
+$ tar zxf ../prinseq-lite-0.20.2.tar.gz
+$ mv prinseq-lite-0.20.2 $HOME/usr/bin
 ----
 
 Edit +conf/README+ if necessary; Add the following line. The base directory is
 $HOME or your home directory. Shell variable $PRINSEQ is replaced by
-+/home/userid/usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl+.
++/home/userid/usr/bin/prinseq-lite-0.20.2/prinseq-lite.pl+.
 
 ----
-PRINSEQ:usr/bin/prinseq-lite-0.17.4/prinseq-lite.pl
+PRINSEQ:usr/bin/prinseq-lite-0.20.2/prinseq-lite.pl
+----
+
+python
+~~~~~~
+The program cutadapt requires a version 2.7 or later of python. Set _PYTHON_
+variable to the executable file of python.
+
+----
+PYTHON:/path/to/python2.7
 ----
 
 cutadapt
@@ -797,8 +868,11 @@ Download cutadapt available at http://code.google.com/p/cutadapt.
 
 ----
 $ cd downloads/build
-$ tar zxf ../cutadapt-1.0.tar.gz 
-$ mv cutadapt-1.0 $HOME/usr/bin
+$ tar zxf ../cutadapt-1.2.1.tar.gz 
+$ mv cutadapt-1.2.1 $HOME/usr/bin
+$ cd $HOME/usr/bin/cutadapt-1.2.1
+$ python setup.py build_ext -i
+$ python $HOME/usr/bin/cutadapt-1.2.1/bin/cutadapt --version
 ----
 
 Edit +conf/README+ if necessary; Add the following line. The base directory is
@@ -807,7 +881,7 @@ the binary executable. We would call python with the executable. Do not use a
 relative file path.
 
 ----
-CUTADAPT:/home/user/usr/bin/cutadapt-1.0/cutadapt
+CUTADAPT:/path/to/cutadapt-1.2.1/bin/cutadapt
 ----
 
 NOTE:The following prorams need to be checked. I have not yet time to edit the
@@ -823,14 +897,6 @@ CUTADAPT:/usr/local/bin/cutadapt
 ----
 python2.7 setup.py build_ext -i
 python2.7 path/to/cutadapt --help
-----
-
-python
-~~~~~~
-Set _PYTHON_ variable to a file.
-
-----
-PYTHON:/path/to/python2.7
 ----
 
 Rscript
@@ -882,6 +948,16 @@ R CMD install smutans_0.1.9.tar.gz
 > install.packages("plotrix")
 ----
 
+Mac Port
+--------
+Install +tree+ command line tool.
+
+----
+wgets
+tree
+coreutils
+----
+
 libxml2
 ~~~~~~~
 Download +libxml2+ from http://xmlsoft.org and install it into the machine. R package +DESeq+ requires other R packages that need +libxml2+.
@@ -923,9 +999,10 @@ BioPerl
 Install BioPerl. We need it when analyzing BLAST result files.
 
 MUSCLE
-~~~~~
+~~~~~~
 We do not provide features of *RNAseq Analysis* that uses +MUSCLE+.
-http://www.drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86linux64.tar.gz
+Download a proper version of MUSCLE at
+http://www.drive5.com/muscle/downloads.htm
 
 .Create a +build+ directory at the base directory +run/rnaseq/110111+ of a cluster.
 ----
@@ -1002,14 +1079,6 @@ $HOME or your home directory. Shell variable $CRAMTOOLS is replaced by
 CRAMTOOLS:usr/bin/cramtools.jar
 ----
 
-FASTAX-Toolkit
-~~~~~~~~~~~~~~
-We have not yet used this tool kit in *RNAseq Analysis*.
-Download FASTAX-Toolkit at
-http://hannonlab.cshl.edu/fastx_toolkit/fastx_toolkit-0.0.13.tar.bz2
-and 
-http://hannonlab.cshl.edu/fastx_toolkit/libgtextutils-0.6.tar.bz2.
-
 TopHat and Cufflinks
 ~~~~~~~~~~~~~~~~~~~~
 We have not yet used +TopHat+ in *RNAseq Analysis*.
@@ -1045,6 +1114,11 @@ Vienna RNA Package
 ~~~~~~~~~~~~~~~~~~
 We do not provide features of *RNAseq Analysis* that uses Vienna RNA package.
 http://www.tbi.univie.ac.at/~ivo/RNA/RNAplfold.html
+
+Mac OS X issues
+~~~~~~~~~~~~~~~
+
+See http://od-eon.com/blogs/calvin/zcat-bug-mac-osx/ to fix the zcat issue in Mac Lion or Mountain Lion.
 
 anchor:SpeciesFile[]
 
@@ -1220,9 +1294,17 @@ We trim the 3' end of short reads using a threshold of base quality.
 MINTRIMQ:20
 ----
 
+Trim sequence at the 5'-end by trim_left positions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Option for prinseq.
+
+----
+TRIMLEFT:0
+----
+
 keep BAM files
 ~~~~~~~~~~~~~~
-We might want to keep sorted BAM files by setting _KEEPBAM_ variable.
+We might want to keep sorted BAM files by setting _KEEPBAM_ variable. The default is NO.
 
 ----
 KEEPBAM:YES
@@ -1235,6 +1317,25 @@ Union or IntersectionStrict
 ----
 COUNTMODE:IntersectionStrict
 ----
+
+run mode
+~~~~~~~~
+We set the run mode of *RNAseq Analysis* to one of these: local, remote, cac, pacman. The default is local. If the run mode is local, then _CACWORKDIR_ is ignored. Otherwise, _CACWORKDIR_ must be set.
+
+----
+RUNMODE:local
+----
+
+Machine type
+~~~~~~~~~~~~
+We consider two types of machines at the moment: Darwin or Linux. The zcat and split commands in Mountain Lion behaves differently than those of Linux or GNU commands. Some of jobs are executed in Mac and others in Linux. This is the case of my work. I execute some jobs in my laptop, and submit jobs in Linux machine.
+
+----
+LOCALMACHINE:Darwin
+REMOTEMACHINE:Linux
+----
+
+Install coreutils package if the machine type is Darwin.
 
 anchor:Files[]
 

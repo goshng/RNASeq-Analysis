@@ -57,4 +57,21 @@ function conf {
   # The main base directory contains all the subdirectories.
   OUTPUTDIR=$ROOTANALYSISDIR/output
   ROUTPUTDIR=$(grep ^ROUTPUTDIR $CONFFILE | cut -d":" -f2)
+
+  # Machine types
+  LOCALMACHINE=$(grep ^LOCALMACHINE\: $CONFFILE | cut -d":" -f2)
+  if [ "$RUNMODE" == "local" ]; then
+    REMOTEMACHINE=$LOCALMACHINE
+  else
+    REMOTEMACHINE=$(grep ^REMOTEMACHINE\: $CONFFILE | cut -d":" -f2)
+  fi
+
+  if [ -z "$LOCALMACHINE" ]; then
+    echo Add LOCALMACHINE to the conf file
+    exit 1
+  fi
+  if [ -z "$REMOTEMACHINE" ]; then
+    echo Add REMOTEMACHINE to the conf file
+    exit 1
+  fi
 }

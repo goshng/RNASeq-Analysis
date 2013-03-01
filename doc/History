@@ -2,6 +2,14 @@ RNA-Seq Protocols and Analyses
 ==============================
 Sang Chul Choi <goshng@yahoo.co.kr>
 
+1. Changes in the Batch Submission System requires changes to the scripts. This
+makes trouble in running the procedure until scripts in the RNAseq Analysis
+package are updated. I will update the local mode for an easy use of RNAseq
+Analysis package. The computer system for the local mode in RNAseq Analysis
+should be reasonably good, e.g., a desktop computer.
+
+2. Consider updates of RNAseq Analysis to use Pacman.
+
 Let me focus on the comparative study of the 7 strain (species file smu7). See
 run/rnaseq/070612
 run/rnaseq/051112
@@ -74,9 +82,20 @@ S. agalactiae
    Comparative genomics and the role of lateral gene transfer in the evolution
    of bovine adapted Streptococcus agalactiae.
 
+Salmonella
+~~~~~~~~~~
+1.
+
 Histories
 ---------
 This history can be useful later.
+
+Wed Feb 27 15:08:38 AKST 2013
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I try to implement a real local mode without using ssh-login-without-password
+setup. I do not understand how to use this package even with the manual. The
+salmonella genome is incomplete, or consists of multiple contigs. I need to
+manipulate the sequence data set. 
 
 Mon Feb 18 11:34:04 AKST 2013
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

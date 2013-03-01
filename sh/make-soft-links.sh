@@ -17,7 +17,7 @@ ln -s $BASEDIR/$i $LOCALBASEDIR/$i
 done
 
 echo Creating soft links to directories in the storage base directory...
-for i in data downloads email log output species; do
+for i in conf data downloads email log output species; do
 rm $LOCALBASEDIR/$i 
 ln -s $STORAGEBASEDIR/$i $LOCALBASEDIR/$i
 done
